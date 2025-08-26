@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_25_132302) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -24,6 +24,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_25_132302) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true
     t.index ["email"], name: "index_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
@@ -37,6 +42,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_25_132302) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_coordenadors_on_confirmation_token", unique: true
     t.index ["email"], name: "index_coordenadors_on_email", unique: true
     t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
   end
@@ -50,6 +60,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_25_132302) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_professors_on_confirmation_token", unique: true
     t.index ["email"], name: "index_professors_on_email", unique: true
     t.index ["reset_password_token"], name: "index_professors_on_reset_password_token", unique: true
   end
@@ -63,6 +78,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_25_132302) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_super_admins_on_confirmation_token", unique: true
     t.index ["email"], name: "index_super_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
   end
