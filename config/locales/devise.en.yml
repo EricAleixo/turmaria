@@ -18,9 +18,9 @@ en:
       unconfirmed: "You have to confirm your email address before continuing."
     mailer:
       confirmation_instructions:
-        subject: "Confirmation instructions"
+        subject: "Turmaria - Email de cofirmação"
       reset_password_instructions:
-        subject: "Reset password instructions"
+        subject: "Turmaria - Redefinição de senha"
       unlock_instructions:
         subject: "Unlock instructions"
       email_changed:

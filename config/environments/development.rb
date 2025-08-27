@@ -15,6 +15,12 @@ Rails.application.configure do
   enable_starttls_auto: true
 }
   
+# Para desenvolvimento rápido, Rails Async funciona
+config.active_job.queue_adapter = :async
+
+# Se quiser usar Sidekiq
+# config.active_job.queue_adapter = :sidekiq
+
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
