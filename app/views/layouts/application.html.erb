@@ -12,9 +12,25 @@
   </head>
 
   <body>
+    <header class="bg-white text-black p-5 flex justify-between items-center
+                 md:p-7">
+        <h1 class="text-3xl font-bold
+                  md: text-4xl">
+          Turmaria</h1>
+        <nav class="space-x-3.5
+                    md:space-x-7">
+          <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Escolas</a>
+          <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Alunos</a>
+          <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Professores</a>
+        </nav>
+    </header>
     <main>
-      <p class="notice"><%= notice %></p>
-      <p class="alert"><%= alert %></p>
+      <% if notice.present? %>
+        <p class="notice"><%= notice %></p>
+      <% end %>
+      <% if alert.present? %>
+        <p class="alert"><%= alert %></p>
+      <% end %>
       <%= yield %>
     </main>
   </body>
