@@ -10,12 +10,6 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema[7.1].define(version: 0) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-=======
 ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -93,5 +87,4 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
   end
 
->>>>>>> 959cb920778fc49f6e4928a5c9471e8aee30e9b1
 end
