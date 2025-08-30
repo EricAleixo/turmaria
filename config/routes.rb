@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'escolas/index'
+  get 'escolas/show'
+  get 'escolas/new'
+  get 'escolas/edit'
 
   devise_for :professors
   devise_for :coordenadors
@@ -12,6 +16,8 @@ Rails.application.routes.draw do
     get    "/signup", to: "devise/unified_registrations#new", as: :new_user_registration
     post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
   end
+
+   resources :escolas
 
   root to: "home#index"
   get "up" => "rails/health#show", as: :rails_health_check

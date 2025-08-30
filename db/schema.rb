@@ -10,13 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema[7.1].define(version: 0) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-=======
-ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_29_123930) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -57,6 +51,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
     t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
   end
 
+  create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nome"], name: "index_escolas_on_nome", unique: true
+  end
+
   create_table "professors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -93,5 +94,4 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_26_111912) do
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
   end
 
->>>>>>> 959cb920778fc49f6e4928a5c9471e8aee30e9b1
 end
