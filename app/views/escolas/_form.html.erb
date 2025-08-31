@@ -1,23 +1,15 @@
-<%# app/views/escolas/_form.html.erb %>
-
 <%= form_with(model: escola, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
 
-  <%# CABEÇALHO: "Add School" e o botão no canto direito %>
   <div class="flex justify-between items-center mb-8 border-b pb-4">
-    <h1 class="text-2xl font-bold text-gray-700">Adicionar</h1>
+    <h1 class="text-2xl font-bold text-gray-700">Adicionar Escola</h1>
     <%= link_to "Adicionar/Salvar", new_escola_path, class: "btn btn-outline btn-sm" %>
   </div>
 
-  <%# CAMPO 1: Nome da Escola (Conectado ao Model) %>
   <div class="form-control w-full mb-6">
     <%= form.label :nome, "Escola", class: "label label-text text-gray-600" %>
     <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Colégio Estadual Dom Pedro II" %>
   </div>
 
-  <%# ===== ALTERAÇÃO AQUI ===== %>
-  <%# O campo "Address" foi removido e substituído pelos dois campos abaixo %>
-
-  <%# CAMPO 2: Turmas (Dropdown Falso - Apenas Visual) %>
   <div class="form-control w-full mb-6">
     <%= label_tag :turma, "Turmas", class: "label label-text text-gray-600" %>
     <%= select_tag :turma, 
@@ -25,13 +17,11 @@
                { prompt: "Selecione o turno principal", class: "select select-bordered w-full" } %>
   </div>
 
-  <%# CAMPO 3: Coordenador(a) (Campo de Texto Falso - Apenas Visual) %>
   <div class="form-control w-full mb-6">
     <%= label_tag :coordenador, "Coordenador(a)", class: "label label-text text-gray-600" %>
     <%= text_field_tag :coordenador, nil, class: "input input-bordered w-full", placeholder: "Digite o nome do(a) coordenador(a)" %>
   </div>
 
-  <%# AÇÕES: Botão Salvar no canto inferior direito %>
   <div class="flex justify-end mt-10">
     <%= form.submit "Save", class: "btn btn-primary text-white w-24" %>
   </div>

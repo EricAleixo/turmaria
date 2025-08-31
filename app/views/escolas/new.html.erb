@@ -1,15 +1,9 @@
-<%# app/views/escolas/new.html.erb %>
-
-<%# O componente "Drawer" do DaisyUI é a base para a responsividade. %>
-<%# Em telas grandes (lg), a gaveta (sidebar) estará sempre aberta. %>
 <div class="drawer lg:drawer-open bg-gray-100">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-  <%# ===== CONTEÚDO PRINCIPAL DA PÁGINA ===== %>
   <div class="drawer-content flex flex-col items-center">
     
     <div class="w-full p-4">
-      <%# CABEÇALHO COM BOTÃO HAMBÚRGUER (só aparece em telas pequenas) %>
       <div class="flex items-center mb-6 lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -17,7 +11,6 @@
         <h1 class="text-xl font-bold ml-2">Adicionar Escola</h1>
       </div>
 
-      <%# Renderiza o formulário que já criamos %>
       <main class="w-full max-w-4xl mx-auto">
         <%= render 'form', escola: @escola %>
       </main>
@@ -25,28 +18,24 @@
 
   </div>
 
-  <%# ===== SIDEBAR / GAVETA LATERAL ===== %>
+  
   <aside class="drawer-side">
-    <%# O overlay escurece o fundo quando o menu está aberto em telas pequenas %>
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 
-    <%# Conteúdo do menu lateral %>
     <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
       <h1 class="text-2xl font-bold mb-8 px-4">
-        <%# Você pode colocar um ícone aqui se quiser %>
         Dashboard
       </h1>
       
       <ul>
-        <%# Itens do menu, agora sem o título "Menu" e sem estilo de "ativo" %>
         <li class="mb-2">
-          <%= link_to "Escolas", "#", class: "block p-3 rounded-lg hover:bg-gray-100" %>
+          <%= link_to "Escolas", new_escola_path, class: "block p-3 rounded-lg hover:bg-gray-100" %>
         </li>
         <li class="mb-2">
           <%= link_to "Turmas", "#", class: "block p-3 rounded-lg hover:bg-gray-100" %>
         </li>
         <li class="mb-2">
-          <%= link_to "Alunos", "#", class: "block p-3 rounded-lg hover:bg-gray-100" %>
+          <%= link_to "Alunos", new_aluno_path, class: "block p-3 rounded-lg hover:bg-gray-100" %>
         </li>
       </ul>
     </div>
