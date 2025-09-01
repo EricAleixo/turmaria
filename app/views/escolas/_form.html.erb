@@ -1,0 +1,29 @@
+<%= form_with(model: escola, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+
+  <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">Adicionar Escola</h1>
+    <%= link_to "Adicionar/Salvar", new_escola_path, class: "btn btn-outline btn-sm" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :nome, "Escola", class: "label label-text text-gray-600" %>
+    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Colégio Estadual Dom Pedro II" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= label_tag :turma, "Turmas", class: "label label-text text-gray-600" %>
+    <%= select_tag :turma, 
+               options_for_select(["Manhã", "Tarde", "Integral", "Noturno"]), 
+               { prompt: "Selecione o turno principal", class: "select select-bordered w-full" } %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= label_tag :coordenador, "Coordenador(a)", class: "label label-text text-gray-600" %>
+    <%= text_field_tag :coordenador, nil, class: "input input-bordered w-full", placeholder: "Digite o nome do(a) coordenador(a)" %>
+  </div>
+
+  <div class="flex justify-end mt-10">
+    <%= form.submit "Save", class: "btn btn-primary text-white w-24" %>
+  </div>
+
+<% end %>
