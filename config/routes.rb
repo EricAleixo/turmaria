@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :turmas do
+    resources :alunos, only: [:index]
+  end
   resources :alunos
   get 'escolas/index'
   get 'escolas/show'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_30_232923) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_01_120016) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -38,6 +38,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_30_232923) do
     t.date "data_nascimento"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "turma_id", null: false
+    t.index ["turma_id"], name: "index_alunos_on_turma_id"
   end
 
   create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -56,6 +58,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_30_232923) do
     t.index ["confirmation_token"], name: "index_coordenadors_on_confirmation_token", unique: true
     t.index ["email"], name: "index_coordenadors_on_email", unique: true
     t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
+  end
+
+<<<<<<<<< Temporary merge branch 1
+  create_table "email_cadastros", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_email_cadastros_on_email", unique: true
+=========
+  create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nome"], name: "index_escolas_on_nome", unique: true
+>>>>>>>>> Temporary merge branch 2
   end
 
   create_table "professors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -94,4 +111,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_30_232923) do
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
   end
 
+  create_table "turmas", force: :cascade do |t|
+    t.string "nome"
+    t.integer "serie"
+    t.integer "turno"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "escola_id", null: false
+    t.index ["escola_id"], name: "index_turmas_on_escola_id"
+  end
+
+  add_foreign_key "alunos", "turmas"
+  add_foreign_key "turmas", "escolas"
 end

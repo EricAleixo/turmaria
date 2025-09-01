@@ -3,8 +3,14 @@ class AlunosController < ApplicationController
 
   # GET /alunos or /alunos.json
   def index
-    @alunos = Aluno.all
+    if params[:turma_id]
+      @turma =Turma.find(params[:turma_id])
+      @alunos = @turma.alunos
+    else
+      @alunos = Aluno.all
+    end
   end
+  
 
   # GET /alunos/1 or /alunos/1.json
   def show
@@ -22,6 +28,7 @@ class AlunosController < ApplicationController
   # POST /alunos or /alunos.json
   def create
     @aluno = Aluno.new(aluno_params)
+    @aluno.turma = Turma.first # Deixei assim pra teste, mais pra frente eu mudo 
 
     respond_to do |format|
       if @aluno.save
