@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :turmas
 
   devise_for :professors
   devise_for :coordenadors

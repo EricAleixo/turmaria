@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_29_113212) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_29_131119) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -92,6 +92,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_29_113212) do
     t.index ["confirmation_token"], name: "index_super_admins_on_confirmation_token", unique: true
     t.index ["email"], name: "index_super_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
+  end
+
+  create_table "turmas", force: :cascade do |t|
+    t.string "nome"
+    t.integer "serie"
+    t.integer "turno"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end
