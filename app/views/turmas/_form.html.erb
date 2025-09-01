@@ -1,0 +1,27 @@
+<%= form_with(model: turma, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+
+  <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">Adicionar Turma</h1>
+    <%= link_to "Adicionar/Salvar", new_turma_path, class: "btn btn-outline btn-sm" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :nome, "Nome da Turma", class: "label label-text text-gray-600" %>
+    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: 1º ano A" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :serie, "Série", class: "label label-text text-gray-600" %>
+    <%= form.number_field :serie, class: "input input-bordered w-full", placeholder: "Ex: 1, 2 ou 3" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :turno, "Turno", class: "label label-text text-gray-600" %>
+    <%= form.select :turno, options_for_select([["Manhã", "manha"], ["Tarde", "tarde"], ["Noite", "noite"], ["Integral", "integral"]], turma.turno), { prompt: "Selecione o turno", class: "select select-bordered w-full" } %>
+  </div>
+
+  <div class="flex justify-end mt-10">
+    <%= form.submit "Salvar", class: "btn btn-primary text-white w-24" %>
+  </div>
+
+<% end %>
