@@ -21,11 +21,11 @@ default: &default
 
 development:
   <<: *default
-  database: sistema_academico_development
-  host: localhost
-  port: 5433
-  username: ipdesenvolvimento
-  password: ipdesenvolvimento
+  database: <%= ENV['DATABASE_NAME'] %>
+  host: <%= ENV['DATABASE_HOST'] %>
+  port: <%= ENV['DATABASE_PORT'] %>
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.

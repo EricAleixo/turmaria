@@ -12,16 +12,15 @@
   </head>
 
   <body>
-    <header class="bg-white text-black p-5 flex justify-between items-center
-                 md:p-7">
-        <h1 class="text-3xl font-bold
-                  md: text-4xl">
-          Turmaria</h1>
-        <nav class="space-x-3.5
-                    md:space-x-7">
+    <header class="bg-white text-black p-5 flex justify-between items-center md:p-7">
+        <%= link_to root_path do%>
+          <h1 class="text-3xl font-bold md:text-4xl transition-colors duration-300 hover:text-primary">Turmaria</h1>
+        <% end %>
+        <nav class="space-x-3.5 md:space-x-7">
           <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Escolas</a>
           <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Alunos</a>
           <a href="#" class="text-black hover:underline hover:text-blue-500 transition-colors duration-400">Professores</a>
+          <button class="btn btn-primary shadow-none">Entrar</button>
         </nav>
     </header>
     <main>

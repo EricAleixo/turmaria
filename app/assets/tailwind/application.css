@@ -5,3 +5,9 @@
 @source "../../../app/views/**/*";
 
 @plugin "./daisyui.js";
+/* @plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  --color-primary: #22C55E;
+  --color-secondary: teal
+} */
