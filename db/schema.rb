@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_01_115310) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_02_120538) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -33,12 +33,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_01_115310) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "alunos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "alunos", force: :cascade do |t|
     t.string "nome"
     t.date "data_nascimento"
+    t.bigint "turma_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "turma_id", null: false
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
   end
 
@@ -67,7 +67,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_01_115310) do
     t.index ["email"], name: "index_email_cadastros_on_email", unique: true
   end
 
-  create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "enderecos", force: :cascade do |t|
+    t.string "logradouro"
+    t.string "numero"
+    t.string "bairro"
+    t.string "cidade"
+    t.string "estado"
+    t.string "cep"
+    t.bigint "aluno_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id"], name: "index_enderecos_on_aluno_id"
+  end
+
+  create_table "escolas", force: :cascade do |t|
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -116,10 +129,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_01_115310) do
     t.integer "turno"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "escola_id", null: false
+    t.bigint "escola_id", null: false
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
   add_foreign_key "alunos", "turmas"
+  add_foreign_key "enderecos", "alunos"
   add_foreign_key "turmas", "escolas"
 end
