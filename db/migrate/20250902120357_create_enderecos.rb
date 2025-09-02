@@ -7,7 +7,7 @@ class CreateEnderecos < ActiveRecord::Migration[7.1]
       t.string :cidade
       t.string :estado
       t.string :cep
-      t.references :aluno, null: false, foreign_key: true, type: :bigint
+      t.references :aluno, null: false, foreign_key: true, type: :uuid
 
       t.timestamps
     end

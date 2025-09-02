@@ -74,13 +74,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_02_120538) do
     t.string "cidade"
     t.string "estado"
     t.string "cep"
-    t.bigint "aluno_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["aluno_id"], name: "index_enderecos_on_aluno_id"
+    t.bigint "aluno_id"
   end
 
-  create_table "escolas", force: :cascade do |t|
+  create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -129,7 +128,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_02_120538) do
     t.integer "turno"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "escola_id", null: false
+    t.uuid "escola_id", null: false
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
