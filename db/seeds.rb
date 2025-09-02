@@ -8,3 +8,38 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
+# Professor
+Professor.create!(
+  email: "professor@teste.com",
+  nome: "Professor Teste",
+  password: "123456",
+  password_confirmation: "123456",
+  confirmed_at: Time.now
+)
+
+# Coordenador
+Coordenador.create!(
+  email: "coordenador@teste.com",
+  nome: "Coordenador Teste",
+  password: "123456",
+  password_confirmation: "123456",
+  confirmed_at: Time.now
+)
+
+# Administrador
+Admin.create!(
+  email: "admin@teste.com",
+  nome: "Admin Teste",
+  password: "123456",
+  password_confirmation: "123456",
+  confirmed_at: Time.now
+)
+
+# SuperAdmin
+SuperAdmin.create!(
+  email: "superadmin@teste.com",
+  nome: "Super Admin",
+  password: "123456",
+  password_confirmation: "123456",
+  confirmed_at: Time.now
+)
