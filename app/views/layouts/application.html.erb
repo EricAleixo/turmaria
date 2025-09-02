@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
   <head>
     <title>SistemaAcademico</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,7 +12,28 @@
   </head>
 
   <body>
+    <header class="bg-white text-black p-5 flex justify-between items-center
+                 md:p-7">
+        <h1 class="text-3xl font-bold
+                  md: text-4xl">
+          Turmaria</h1>
+        <nav class="space-x-1
+                    md:space-x-7">
+          <a href="#" class=" text-xs text-black hover:underline hover:text-blue-500 transition-colors duration-
+                              md:text-base">Escolas</a>
+          <a href="#" class=" text-xs text-black hover:underline hover:text-blue-500 transition-colors duration-400
+                              md:text-base">Alunos</a>
+          <a href="#" class= "text-xs text-black hover:underline hover:text-blue-500 transition-colors duration-400
+                              md:text-base">Professores</a>
+        </nav>
+    </header>
     <main>
+      <% if notice.present? %>
+        <p class="notice"><%= notice %></p>
+      <% end %>
+      <% if alert.present? %>
+        <p class="alert"><%= alert %></p>
+      <% end %>
       <%= yield %>
     </main>
   </body>
