@@ -1,39 +1,174 @@
-<%= form_with(model: aluno, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+<%= form_with(model: aluno, class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
 
-<div class="flex justify-between items-center mb-8 border-b pb-4">
-<h1 class="text-2xl font-bold text-gray-700">Adicionar Aluno</h1>
-<%= link_to "Adicionar/Salvar", new_aluno_path, class: "btn btn-outline btn-sm" %>
-</div>
+  <div id="step-1" class="form-step">
+    <div class="flex justify-between items-center mb-8 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700">Adicionar Aluno - Etapa 1</h1>
+    </div>
 
-<div class="form-control w-full mb-6">
-<%= form.label :nome, "Nome do Aluno", class: "label label-text text-gray-600" %>
-<%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Franciso ittalo Pessoa" %>
-</div>
+    <div class="form-control w-full mb-6">
+      <%= form.label :nome, "Nome do Aluno", class: "label label-text text-gray-600" %>
+      <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
+    </div>
+    <div class="form-control w-full mb-6">
+      <%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600" %>
+      <%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
+    </div>
+    <div class="form-control w-full mb-6">
+      <%= label_tag :matricula, "Matrícula", class: "label label-text text-gray-600" %>
+      <%= text_field_tag :matricula, nil, class: "input input-bordered w-full", placeholder: "Digite a matrícula" %>
+    </div>
+    <div class="form-control w-full mb-6">
+      <%= label_tag :endereco, "Endereço", class: "label label-text text-gray-600" %>
+      <%= text_field_tag :endereco, nil, class: "input input-bordered w-full", placeholder: "Digite o endereço" %>
+    </div>
+    <div class="form-control w-full mb-6">
+      <%= label_tag :turma, "Turma", class: "label label-text text-gray-600" %>
+      <%= select_tag :turma,
+      options_for_select(["1º ano A", "1º ano B", "2º ano A", "2º ano B", "3º ano A", "3º ano B"]),
+      { prompt: "Selecione a turma", class: "select select-bordered w-full" } %>
+    </div>
+    
+    <div class="flex justify-end mt-10">
+      <button 
+        type="button" 
+        id="next-step-1" 
+        class="btn btn-primary text-white w-28 flex items-center justify-center gap-1"
+      >
+        Próximo
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke-width="1.5" 
+          stroke="currentColor" 
+          class="w-5 h-5"
+        >
+          <path 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" 
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
 
-<div class="form-control w-full mb-6">
-<%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600" %>
-<%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
-</div>
+  <div id="step-2" class="form-step hidden">
+    <div class="flex justify-between items-center mb-8 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700">Adicionar Aluno - Etapa 2</h1>
+    </div>
+    
+    <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+      <span class="block sm:inline"></span>
+    </div>
 
-<div class="form-control w-full mb-6">
-<%= label_tag :matricula, "Matrícula", class: "label label-text text-gray-600" %>
-<%= text_field_tag :matricula, nil, class: "input input-bordered w-full", placeholder: "Digite a matrícula" %>
-</div>
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-gray-700">Upload de CPF</h3>
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('cpf-modal').showModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+          Anexar
+        </button>
+      </div>
+      <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
+      <%= file_field_tag "cpf[]", multiple: true, class: "hidden", id: "cpf-upload" %>
+      <div id="cpf-files-list" class="mt-4 border rounded-lg"></div>
+    </div>
+    
+    <dialog id="cpf-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar CPF</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="cpf-upload" data-list-id="cpf-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="cpf-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('cpf-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
 
-<div class="form-control w-full mb-6">
-<%= label_tag :endereco, "Endereço", class: "label label-text text-gray-600" %>
-<%= text_field_tag :endereco, nil, class: "input input-bordered w-full", placeholder: "Digite o endereço" %>
-</div>
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('comprovante-modal').showModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+          Anexar
+        </button>
+      </div>
+      <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
+      <%= file_field_tag "comprovante_residencia[]", multiple: true, class: "hidden", id: "comprovante-upload" %>
+      <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
+    </div>
 
-<div class="form-control w-full mb-6">
-<%= label_tag :turma, "Turma", class: "label label-text text-gray-600" %>
-<%= select_tag :turma,
-options_for_select(["1º ano A", "1º ano B", "2º ano A", "2º ano B", "3º ano A", "3º ano B"]),
-{ prompt: "Selecione a turma", class: "select select-bordered w-full" } %>
-</div>
+    <dialog id="comprovante-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar Comprovante de Residência</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="comprovante-upload" data-list-id="comprovante-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="comprovante-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('comprovante-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
 
-<div class="flex justify-end mt-10">
-<%= form.submit "Salvar", class: "btn btn-primary text-white w-24" %>
-</div>
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-gray-700">Upload de Assinatura</h3>
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('assinatura-modal').showModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+          Anexar
+        </button>
+      </div>
+      <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 2 arquivos)</p>
+      <%= file_field_tag "assinatura[]", multiple: true, class: "hidden", id: "assinatura-upload" %>
+      <div id="assinatura-files-list" class="mt-4 border rounded-lg"></div>
+    </div>
 
+    <dialog id="assinatura-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar Assinatura</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="assinatura-upload" data-list-id="assinatura-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="assinatura-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('assinatura-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="flex justify-between mt-10">
+      <button 
+        type="button" 
+        id="prev-step-2" 
+        class="btn btn-primary text-white w-28 flex items-center justify-center gap-1"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke-width="1.5" 
+          stroke="currentColor" 
+          class="w-5 h-5"
+        >
+          <path 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" 
+          />
+        </svg>
+        Anterior
+      </button>
+      <%= form.submit "Salvar", class: "btn btn-primary text-white w-28" %>
+    </div>
+  </div>
 <% end %>
