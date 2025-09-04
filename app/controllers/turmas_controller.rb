@@ -1,34 +1,33 @@
 class TurmasController < ApplicationController
-  before_action :set_turma, only: %i[ show edit update destroy ]
+  before_action :set_escola
+  before_action :set_turma, only: %i[show edit update destroy]
 
-  # GET /turmas or /turmas.json
+  # GET /escolas/:escola_id/turmas or /escolas/:escola_id/turmas.json
   def index
-    @turmas = Turma.all
+    @turmas = @escola.turmas
   end
 
-  # GET /turmas/1 or /turmas/1.json
+  # GET /escolas/:escola_id/turmas/1 or /escolas/:escola_id/turmas/1.json
   def show
   end
 
-  # GET /turmas/new
+  # GET /escolas/:escola_id/turmas/new
   def new
-    @turma = Turma.new
+    @turma = @escola.turmas.build
   end
 
-  # GET /turmas/1/edit
+  # GET /escolas/:escola_id/turmas/1/edit
   def edit
   end
 
-  # POST /turmas or /turmas.json
+  # POST /escolas/:escola_id/turmas or /escolas/:escola_id/turmas.json
   def create
-    @turma = Turma.new(turma_params)
-    @turma.escola = Escola.first # Deixei assim pra teste, mais pra frente eu mudo 
-    
+    @turma = @escola.turmas.build(turma_params)
 
     respond_to do |format|
       if @turma.save
-        format.html { redirect_to @turma, notice: "Turma was successfully created." }
-        format.json { render :show, status: :created, location: @turma }
+        format.html { redirect_to [@escola, @turma], notice: "Turma foi criada com sucesso." }
+        format.json { render :show, status: :created, location: [@escola, @turma] }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @turma.errors, status: :unprocessable_entity }
@@ -36,12 +35,12 @@ class TurmasController < ApplicationController
     end
   end
 
-  # PATCH/PUT /turmas/1 or /turmas/1.json
+  # PATCH/PUT /escolas/:escola_id/turmas/1 or /escolas/:escola_id/turmas/1.json
   def update
     respond_to do |format|
       if @turma.update(turma_params)
-        format.html { redirect_to @turma, notice: "Turma was successfully updated." }
-        format.json { render :show, status: :ok, location: @turma }
+        format.html { redirect_to [@escola, @turma], notice: "Turma foi atualizada com sucesso." }
+        format.json { render :show, status: :ok, location: [@escola, @turma] }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @turma.errors, status: :unprocessable_entity }
@@ -49,20 +48,25 @@ class TurmasController < ApplicationController
     end
   end
 
-  # DELETE /turmas/1 or /turmas/1.json
+  # DELETE /escolas/:escola_id/turmas/1 or /escolas/:escola_id/turmas/1.json
   def destroy
     @turma.destroy!
 
     respond_to do |format|
-      format.html { redirect_to turmas_path, status: :see_other, notice: "Turma was successfully destroyed." }
+      format.html { redirect_to escola_turmas_path(@escola), status: :see_other, notice: "Turma foi excluída com sucesso." }
       format.json { head :no_content }
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    def set_escola
+      @escola = Escola.find(params[:escola_id])
+    end
+
+    # Use callbacks to share common setup or constraints between actions.
     def set_turma
-      @turma = Turma.find(params[:id])
+      @turma = @escola.turmas.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

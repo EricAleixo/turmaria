@@ -1,34 +1,38 @@
-<%= form_with(model: aluno, class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
+<%= form_with(model: [@escola, @turma, aluno], class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
+
+  <% if aluno.errors.any? %>
+    <div class="alert alert-error mb-6">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>
+          <h3 class="font-bold">Erro ao salvar!</h3>
+          <ul class="list-disc list-inside">
+            <% aluno.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </span>
+      </div>
+    </div>
+  <% end %>
 
   <div id="step-1" class="form-step">
     <div class="flex justify-between items-center mb-8 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">Adicionar Aluno - Etapa 1</h1>
+      <h1 class="text-2xl font-bold text-gray-700"><%= aluno.persisted? ? "Editar Aluno" : "Novo Aluno" %> - Etapa 1</h1>
     </div>
 
     <div class="form-control w-full mb-6">
-      <%= form.label :nome, "Nome do Aluno", class: "label label-text text-gray-600" %>
-      <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
+      <%= form.label :nome, "Nome do Aluno *", class: "label label-text text-gray-600 font-semibold" %>
+      <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa", required: true %>
     </div>
+    
     <div class="form-control w-full mb-6">
       <%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600" %>
       <%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
     </div>
-    <div class="form-control w-full mb-6">
-      <%= label_tag :matricula, "Matrícula", class: "label label-text text-gray-600" %>
-      <%= text_field_tag :matricula, nil, class: "input input-bordered w-full", placeholder: "Digite a matrícula" %>
-    </div>
-    <div class="form-control w-full mb-6">
-      <%= label_tag :endereco, "Endereço", class: "label label-text text-gray-600" %>
-      <%= text_field_tag :endereco, nil, class: "input input-bordered w-full", placeholder: "Digite o endereço" %>
-    </div>
-    <div class="form-control w-full mb-6">
-      <%= label_tag :turma, "Turma", class: "label label-text text-gray-600" %>
-      <%= select_tag :turma,
-      options_for_select(["1º ano A", "1º ano B", "2º ano A", "2º ano B", "3º ano A", "3º ano B"]),
-      { prompt: "Selecione a turma", class: "select select-bordered w-full" } %>
-    </div>
     
-    <div class="flex justify-end mt-10">
+    <div class="flex justify-between mt-10">
+      <%= link_to "Voltar", request.referer.present? ? request.referer : escola_turma_alunos_path(@escola, @turma), class: "btn btn-ghost" %>
       <button 
         type="button" 
         id="next-step-1" 
@@ -55,7 +59,7 @@
 
   <div id="step-2" class="form-step hidden">
     <div class="flex justify-between items-center mb-8 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">Adicionar Aluno - Etapa 2</h1>
+      <h1 class="text-2xl font-bold text-gray-700"><%= aluno.persisted? ? "Editar Aluno" : "Novo Aluno" %> - Etapa 2</h1>
     </div>
     
     <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
@@ -77,19 +81,6 @@
       <div id="cpf-files-list" class="mt-4 border rounded-lg"></div>
     </div>
     
-    <dialog id="cpf-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar CPF</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="cpf-upload" data-list-id="cpf-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="cpf-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
-        </div>
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('cpf-modal').close()">Fechar</button>
-        </div>
-      </div>
-    </dialog>
-
     <div class="bg-gray-50 p-4 rounded-lg mb-6">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
@@ -105,19 +96,6 @@
       <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
-    <dialog id="comprovante-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar Comprovante de Residência</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="comprovante-upload" data-list-id="comprovante-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="comprovante-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
-        </div>
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('comprovante-modal').close()">Fechar</button>
-        </div>
-      </div>
-    </dialog>
-
     <div class="bg-gray-50 p-4 rounded-lg mb-6">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de Assinatura</h3>
@@ -132,6 +110,32 @@
       <%= file_field_tag "assinatura[]", multiple: true, class: "hidden", id: "assinatura-upload" %>
       <div id="assinatura-files-list" class="mt-4 border rounded-lg"></div>
     </div>
+
+    <dialog id="cpf-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar CPF</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="cpf-upload" data-list-id="cpf-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="cpf-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('cpf-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="comprovante-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar Comprovante de Residência</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="comprovante-upload" data-list-id="comprovante-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="comprovante-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('comprovante-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
 
     <dialog id="assinatura-modal" class="modal">
       <div class="modal-box">
@@ -150,7 +154,7 @@
       <button 
         type="button" 
         id="prev-step-2" 
-        class="btn btn-primary text-white w-28 flex items-center justify-center gap-1"
+        class="btn btn-ghost w-28 flex items-center justify-center gap-1"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
@@ -168,7 +172,7 @@
         </svg>
         Anterior
       </button>
-      <%= form.submit "Salvar", class: "btn btn-primary text-white w-28" %>
+      <%= form.submit aluno.persisted? ? "Atualizar" : "Criar Aluno", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
     </div>
   </div>
 <% end %>

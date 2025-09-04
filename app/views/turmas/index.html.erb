@@ -13,22 +13,22 @@
     <% if @turmas.any? %>
       <div class="pt-4 px-4 flex flex-col items-center w-4/5 border border-black h-full rounded-xl overflow-y-auto">
         <% @turmas.each do |turma| %>
-          <%= link_to turma_path(turma), class: "flex flex-col itens-center mb-4 w-[calc(100%-20px)] w-full bg-secondary/10 border border-secondary/30 rounded-xl p-6 shadow" do %>
-            <h2 class="text-xl font-bold text-primary mb-2">Turma: <%= turma.nome %></h2>
-            <br><p class="text-gray-700 font-medium">Série: <span class="text-accent"><%= turma.serie %></span></p>
+          <%= link_to escola_turma_path(@escola, turma), class: "flex flex-col itens-center mb-4 w-[calc(100%-20px)] w-full bg-blue-50 border border-blue-200 rounded-xl p-6 shadow hover:bg-blue-100 transition-colors" do %>
+            <h2 class="text-xl font-bold text-blue-800 mb-2">Turma: <%= turma.nome %></h2>
+            <br><p class="text-gray-700 font-medium">Série: <span class="text-blue-600"><%= turma.serie %></span></p>
           <% end %>
         <% end %>
       </div>
   </div>
 
   <div class=" mt-8 mb-6">
-    <%= link_to "Nova Turma", new_turma_path, 
-        class: "bg-primary hover:bg-primary/90 text-white font-semibold px-5 py-2 rounded-lg transition" %>
+    <%= link_to "Nova Turma", new_escola_turma_path(@escola), 
+        class: "bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2 rounded-lg transition" %>
   </div>
 
   <% else %>
     <p class="text-center text-gray-600 mt-10">
-      Nenhuma turma registrada. Clique <%= link_to "aqui", new_turma_path, class: "text-accent font-semibold underline" %> para registrar uma turma.
+      Nenhuma turma registrada. Clique <%= link_to "aqui", new_escola_turma_path(@escola), class: "text-accent font-semibold underline" %> para registrar uma turma.
     </p>
   <% end %>
 

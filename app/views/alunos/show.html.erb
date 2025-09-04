@@ -7,9 +7,26 @@
 
   <h1 class="font-bold text-4xl">Showing aluno</h1>
 
-  <%= render @aluno %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Data de Nascimento</h3>
+        <p class="text-lg text-gray-800"><%= @aluno.data_nascimento.present? ? @aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></p>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Escola</h3>
+        <p class="text-lg text-gray-800"><%= @escola.nome %></p>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Turma</h3>
+        <p class="text-lg text-gray-800"><%= @turma.nome %> - <%= @turma.turno.humanize %></p>
+      </div>
+    </div>
+  </div>
 
-  <%= link_to "Edit this aluno", edit_aluno_path(@aluno), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to alunos", alunos_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this aluno", @aluno, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+  <%= link_to "Edit this aluno", edit_escola_turma_aluno_path(@escola, @turma, @aluno), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 inline-block font-medium" %>
+  <%= link_to "Back to alunos", escola_turma_alunos_path(@escola, @turma), class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-green-500 hover:bg-green-600 text-white inline-block font-medium" %>
+  <%= button_to "Destroy this aluno", escola_turma_aluno_path(@escola, @turma, @aluno), method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
 </div>

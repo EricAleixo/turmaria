@@ -1,15 +1,5 @@
 Rails.application.routes.draw do
-  resources :turmas do
-    resources :alunos, only: [:index]
-  end
-  resources :alunos
-  get 'escolas/index'
-  get 'escolas/show'
-  get 'escolas/new'
-  get 'escolas/edit'
-
   devise_for :professors
-  devise_for :coordenadors
   devise_for :admins
   devise_for :super_admins
 
@@ -21,7 +11,11 @@ Rails.application.routes.draw do
     post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
   end
 
-   resources :escolas
+  resources :escolas do
+    resources :turmas do
+      resources :alunos
+    end
+  end
 
   root to: "home#index"
   get "up" => "rails/health#show", as: :rails_health_check

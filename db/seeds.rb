@@ -27,6 +27,7 @@ Coordenador.create!(
 )
 
 # Administrador
+#ATENÇÃO: ÚNICO QUE ESTÁ FUNCIONANDO NO LOGIN
 Admin.create!(
   email: "admin@teste.com",
   nome: "Admin Teste",

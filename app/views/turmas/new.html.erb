@@ -1,43 +1,52 @@
 <div class="drawer lg:drawer-open bg-gray-100">
-<input id="my-drawer" type="checkbox" class="drawer-toggle" />
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-<div class="drawer-content flex flex-col items-center">
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Nova Turma</h1>
+      </div>
 
-<div class="w-full p-4">
-  <div class="flex items-center mb-6 lg:hidden">
-    <label for="my-drawer" class="btn btn-square btn-ghost">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-    </label>
-    <h1 class="text-xl font-bold ml-2">Adicionar Turma</h1>
+      <main class="w-full max-w-4xl mx-auto">
+        <div class="mb-4">
+          <nav class="text-sm breadcrumbs">
+            <ul>
+              <li><%= link_to "Escolas", escolas_path %></li>
+              <li><%= link_to @escola.nome, escola_path(@escola) %></li>
+              <li>Nova Turma</li>
+            </ul>
+          </nav>
+        </div>
+        <%= render "form", turma: @turma %>
+      </main>
+    </div>
+
   </div>
 
-  <main class="w-full max-w-4xl mx-auto">
-    <%= render "form", turma: @turma %>
-  </main>
-</div>
+  <aside class="drawer-side">
+    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 
-</div>
-
-<aside class="drawer-side">
-<label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-<div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-  <h1 class="text-2xl font-bold mb-8 px-4">
-    Dashboard
-  </h1>
-  
-  <ul>
-    <li class="mb-2">
-      <%= link_to "Escolas", new_escola_path, class: "block p-3 rounded-lg hover:bg-gray-100" %>
-    </li>
-    <li class="mb-2">
-      <%= link_to "Turmas", new_turma_path, class: "block p-3 rounded-lg hover:bg-gray-100" %>
-    </li>
-    <li class="mb-2">
-      <%= link_to "Alunos", new_aluno_path, class: "block p-3 rounded-lg hover:bg-gray-100" %>
-    </li>
-  </ul>
-</div>
-
-</aside>
+    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
+      <h1 class="text-2xl font-bold mb-8 px-4">
+        Dashboard
+      </h1>
+      
+      <ul>
+        <li class="mb-2">
+          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+              </svg>
+              Escolas
+            </div>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </aside>
 </div>

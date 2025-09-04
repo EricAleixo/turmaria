@@ -1,29 +1,40 @@
 <%= form_with(model: escola, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+  <% if escola.errors.any? %>
+    <div class="alert alert-error mb-6">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>
+          <h3 class="font-bold">Erro ao salvar!</h3>
+          <ul class="list-disc list-inside">
+            <% escola.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </span>
+      </div>
+    </div>
+  <% end %>
 
   <div class="flex justify-between items-center mb-8 border-b pb-4">
-    <h1 class="text-2xl font-bold text-gray-700">Adicionar Escola</h1>
-    <%= link_to "Adicionar/Salvar", new_escola_path, class: "btn btn-outline btn-sm" %>
+    <h1 class="text-2xl font-bold text-gray-700"><%= escola.persisted? ? "Editar Escola" : "Nova Escola" %></h1>
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= form.label :nome, "Escola", class: "label label-text text-gray-600" %>
-    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Colégio Estadual Dom Pedro II" %>
+    <%= form.label :nome, "Nome da Escola *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Colégio Estadual Dom Pedro II", required: true %>
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= label_tag :turma, "Turmas", class: "label label-text text-gray-600" %>
-    <%= select_tag :turma, 
-               options_for_select(["Manhã", "Tarde", "Integral", "Noturno"]), 
-               { prompt: "Selecione o turno principal", class: "select select-bordered w-full" } %>
+    <%= form.label :cnpj, "CNPJ *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :cnpj, class: "input input-bordered w-full", placeholder: "XX.XXX.XXX/XXXX-XX", required: true %>
+    <label class="label">
+      <span class="label-text-alt text-gray-500">Formato: XX.XXX.XXX/XXXX-XX</span>
+    </label>
   </div>
 
-  <div class="form-control w-full mb-6">
-    <%= label_tag :coordenador, "Coordenador(a)", class: "label label-text text-gray-600" %>
-    <%= text_field_tag :coordenador, nil, class: "input input-bordered w-full", placeholder: "Digite o nome do(a) coordenador(a)" %>
-  </div>
-
-  <div class="flex justify-end mt-10">
-    <%= form.submit "Save", class: "btn btn-primary text-white w-24" %>
+  <div class="flex justify-between mt-10">
+    <%= link_to "Voltar", request.referer.present? ? request.referer : escola_path(escola), class: "btn btn-ghost" %>
+    <%= form.submit escola.persisted? ? "Atualizar" : "Criar Escola", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
   </div>
 
 <% end %>

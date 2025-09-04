@@ -1,29 +1,171 @@
-<% content_for :title, "Alunos" %>
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-<div class="w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Alunos - <%= @turma.nome %></h1>
+      </div>
 
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Alunos</h1>
-    <%= link_to "New aluno", new_aluno_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
-  </div>
-
-  <div id="alunos" class="min-w-full divide-y divide-gray-200 space-y-5">
-    <% if @alunos.any? %>
-      <% @alunos.each do |aluno| %>
-        <div class="flex flex-col sm:flex-row justify-between items-center pb-5 sm:pb-0">
-          <%= render aluno %>
-          <div class="w-full sm:w-auto flex flex-col sm:flex-row space-x-2 space-y-2">
-            <%= link_to "Show", aluno, class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= link_to "Edit", edit_aluno_path(aluno), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= button_to "Destroy", aluno, method: :delete, class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-          </div>
+      <main class="w-full max-w-6xl mx-auto">
+        <!-- Breadcrumb -->
+        <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <li><%= link_to "Escolas", escolas_path, class: "text-blue-600 hover:text-blue-800" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800" %></li>
+            <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-blue-600 hover:text-blue-800" %></li>
+            <li class="text-gray-500">Alunos</li>
+          </ul>
         </div>
-      <% end %>
-    <% else %>
-      <p class="text-center my-10">No alunos found.</p>
-    <% end %>
+
+        <% if notice.present? %>
+          <div class="alert alert-success mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span><%= notice %></span>
+          </div>
+        <% end %>
+
+        <!-- Alunos Section -->
+        <div class="bg-white p-8 rounded-lg shadow-md">
+          <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-700">Alunos da Turma</h1>
+              <p class="text-gray-600"><%= @turma.nome %> - <%= @turma.serie %>º ano (<%= @turma.turno.humanize %>)</p>
+            </div>
+            <%= link_to new_escola_turma_aluno_path(@escola, @turma), class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar novo aluno" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Novo Aluno
+            <% end %>
+          </div>
+
+          <% if @alunos.any? %>
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto">
+              <table class="table w-full">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Data de Nascimento</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @alunos.each do |aluno| %>
+                    <tr>
+                      <td><%= aluno.nome %></td>
+                      <td><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                      <td>
+                        <div class="flex gap-2">
+                          <%= link_to escola_turma_aluno_path(@escola, @turma, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          <% end %>
+                          <%= link_to edit_escola_turma_aluno_path(@escola, @turma, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                          <% end %>
+                          <%= button_to escola_turma_aluno_path(@escola, @turma, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="md:hidden space-y-4">
+              <% @alunos.each do |aluno| %>
+                <div class="card bg-base-100 shadow-md border">
+                  <div class="card-body p-4">
+                    <div class="flex justify-between items-start mb-3">
+                      <div class="flex-1">
+                        <h3 class="card-title text-lg font-bold text-gray-800"><%= aluno.nome %></h3>
+                        <p class="text-sm text-gray-600">
+                          <span class="font-semibold">Nascimento:</span> <%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div class="card-actions justify-end">
+                      <div class="flex gap-2">
+                        <%= link_to escola_turma_aluno_path(@escola, @turma, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        <% end %>
+                        <%= link_to edit_escola_turma_aluno_path(@escola, @turma, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                          </svg>
+                        <% end %>
+                        <%= button_to escola_turma_aluno_path(@escola, @turma, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhum aluno cadastrado</h3>
+              <p class="text-gray-500 mb-4">Comece adicionando o primeiro aluno desta turma</p>
+              <%= link_to new_escola_turma_aluno_path(@escola, @turma), class: "btn bg-green-500 hover:bg-green-600 text-white" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Adicionar Primeiro Aluno
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </main>
+    </div>
+
   </div>
+
+  
+  <aside class="drawer-side">
+    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+
+    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
+      <h1 class="text-2xl font-bold mb-8 px-4">
+        Dashboard
+      </h1>
+      
+      <ul>
+        <li class="mb-2">
+          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+              </svg>
+              Escolas
+            </div>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </aside>
 </div>

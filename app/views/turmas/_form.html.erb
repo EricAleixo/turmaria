@@ -1,27 +1,42 @@
-<%= form_with(model: turma, class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+<%= form_with(model: [@escola, turma], class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+  <% if turma.errors.any? %>
+    <div class="alert alert-error mb-6">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>
+          <h3 class="font-bold">Erro ao salvar!</h3>
+          <ul class="list-disc list-inside">
+            <% turma.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </span>
+      </div>
+    </div>
+  <% end %>
 
   <div class="flex justify-between items-center mb-8 border-b pb-4">
-    <h1 class="text-2xl font-bold text-gray-700">Adicionar Turma</h1>
-    <%= link_to "Adicionar/Salvar", new_turma_path, class: "btn btn-outline btn-sm" %>
+    <h1 class="text-2xl font-bold text-gray-700"><%= turma.persisted? ? "Editar Turma" : "Nova Turma" %></h1>
+    <%= link_to "Adicionar/Salvar", new_escola_turma_path(@escola), class: "btn btn-outline btn-sm" %>
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= form.label :nome, "Nome da Turma", class: "label label-text text-gray-600" %>
-    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: 1º ano A" %>
+    <%= form.label :nome, "Nome da Turma *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: 1º ano A", required: true %>
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= form.label :serie, "Série", class: "label label-text text-gray-600" %>
-    <%= form.number_field :serie, class: "input input-bordered w-full", placeholder: "Ex: 1, 2 ou 3" %>
+    <%= form.label :serie, "Série *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :serie, class: "input input-bordered w-full", placeholder: "Ex: 1, 2 ou 3", required: true %>
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= form.label :turno, "Turno", class: "label label-text text-gray-600" %>
-    <%= form.select :turno, options_for_select([["Manhã", "manha"], ["Tarde", "tarde"], ["Noite", "noite"], ["Integral", "integral"]], turma.turno), { prompt: "Selecione o turno", class: "select select-bordered w-full" } %>
+    <%= form.label :turno, "Turno *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.select :turno, options_for_select([["Manhã", "manha"], ["Tarde", "tarde"], ["Noite", "noite"], ["Integral", "integral"]], turma.turno), { prompt: "Selecione o turno" }, { class: "select select-bordered w-full", required: true } %>
   </div>
 
   <div class="flex justify-end mt-10">
-    <%= form.submit "Salvar", class: "btn btn-primary text-white w-24" %>
+    <%= form.submit turma.persisted? ? "Atualizar" : "Criar Turma", class: "btn bg-green-500 hover:bg-green-600 text-white w-24" %>
   </div>
 
 <% end %>

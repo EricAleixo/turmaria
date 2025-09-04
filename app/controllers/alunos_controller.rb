@@ -1,39 +1,34 @@
 class AlunosController < ApplicationController
-  before_action :set_aluno, only: %i[ show edit update destroy ]
+  before_action :set_escola
+  before_action :set_turma
+  before_action :set_aluno, only: %i[show edit update destroy]
 
-  # GET /alunos or /alunos.json
+  # GET /escolas/:escola_id/turmas/:turma_id/alunos or /escolas/:escola_id/turmas/:turma_id/alunos.json
   def index
-    if params[:turma_id]
-      @turma =Turma.find(params[:turma_id])
-      @alunos = @turma.alunos
-    else
-      @alunos = Aluno.all
-    end
+    @alunos = @turma.alunos
   end
-  
 
-  # GET /alunos/1 or /alunos/1.json
+  # GET /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
   def show
   end
 
-  # GET /alunos/new
+  # GET /escolas/:escola_id/turmas/:turma_id/alunos/new
   def new
-    @aluno = Aluno.new
+    @aluno = @turma.alunos.build
   end
 
-  # GET /alunos/1/edit
+  # GET /escolas/:escola_id/turmas/:turma_id/alunos/1/edit
   def edit
   end
 
-  # POST /alunos or /alunos.json
+  # POST /escolas/:escola_id/turmas/:turma_id/alunos or /escolas/:escola_id/turmas/:turma_id/alunos.json
   def create
-    @aluno = Aluno.new(aluno_params)
-    @aluno.turma = Turma.first # Deixei assim pra teste, mais pra frente eu mudo 
+    @aluno = @turma.alunos.build(aluno_params)
 
     respond_to do |format|
       if @aluno.save
-        format.html { redirect_to @aluno, notice: "Aluno was successfully created." }
-        format.json { render :show, status: :created, location: @aluno }
+        format.html { redirect_to [@escola, @turma, @aluno], notice: "Aluno foi criado com sucesso." }
+        format.json { render :show, status: :created, location: [@escola, @turma, @aluno] }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @aluno.errors, status: :unprocessable_entity }
@@ -41,12 +36,12 @@ class AlunosController < ApplicationController
     end
   end
 
-  # PATCH/PUT /alunos/1 or /alunos/1.json
+  # PATCH/PUT /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
   def update
     respond_to do |format|
       if @aluno.update(aluno_params)
-        format.html { redirect_to @aluno, notice: "Aluno was successfully updated." }
-        format.json { render :show, status: :ok, location: @aluno }
+        format.html { redirect_to [@escola, @turma, @aluno], notice: "Aluno foi atualizado com sucesso." }
+        format.json { render :show, status: :ok, location: [@escola, @turma, @aluno] }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @aluno.errors, status: :unprocessable_entity }
@@ -54,24 +49,31 @@ class AlunosController < ApplicationController
     end
   end
 
-  # DELETE /alunos/1 or /alunos/1.json
+  # DELETE /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
   def destroy
     @aluno.destroy!
 
     respond_to do |format|
-      format.html { redirect_to alunos_path, status: :see_other, notice: "Aluno was successfully destroyed." }
+      format.html { redirect_to escola_turma_alunos_path(@escola, @turma), status: :see_other, notice: "Aluno foi excluído com sucesso." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_aluno
-      @aluno = Aluno.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def aluno_params
-      params.require(:aluno).permit(:nome, :data_nascimento)
-    end
+  def set_escola
+    @escola = Escola.find(params[:escola_id])
+  end
+
+  def set_turma
+    @turma = @escola.turmas.find(params[:turma_id])
+  end
+
+  def set_aluno
+    @aluno = @turma.alunos.find(params[:id])
+  end
+
+  def aluno_params
+    params.require(:aluno).permit(:nome, :data_nascimento)
+  end
 end
