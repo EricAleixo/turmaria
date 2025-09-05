@@ -12,8 +12,28 @@ Rails.application.routes.draw do
   end
 
   resources :escolas do
+    # Alunos directly under escola (not allocated to any turma)
+    resources :alunos do
+      member do
+        patch :assign_to_turma
+        patch :remove_from_turma
+      end
+    end
+    
     resources :turmas do
-      resources :alunos
+      # Alunos allocated to specific turma
+      resources :alunos, except: [:new, :create] do
+        member do
+          patch :remove_from_turma
+        end
+      end
+      
+      # Action to assign existing students to this turma
+      member do
+        get :assign_students
+        patch :assign_student
+        patch 'remove_from_turma/:aluno_id', to: 'turmas#remove_from_turma', as: :remove_from_turma
+      end
     end
   end
 

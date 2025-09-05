@@ -1,0 +1,88 @@
+pt-BR:
+  activerecord:
+    models:
+      aluno: "Aluno"
+      escola: "Escola"
+      turma: "Turma"
+      endereco: "Endereço"
+      admin: "Administrador"
+      super_admin: "Super Administrador"
+    attributes:
+      aluno:
+        nome: "Nome"
+        data_nascimento: "Data de Nascimento"
+        escola: "Escola"
+        turma: "Turma"
+        endereco: "Endereço"
+      escola:
+        nome: "Nome"
+        cnpj: "CNPJ"
+      turma:
+        nome: "Nome"
+        serie: "Série"
+        turno: "Turno"
+        escola: "Escola"
+      endereco:
+        logradouro: "Logradouro"
+        numero: "Número"
+        complemento: "Complemento"
+        bairro: "Bairro"
+        cidade: "Cidade"
+        estado: "Estado"
+        cep: "CEP"
+    errors:
+      models:
+        aluno:
+          attributes:
+            nome:
+              blank: "não pode ficar em branco"
+              too_short: "é muito curto (mínimo de %{count} caracteres)"
+            escola:
+              required: "é obrigatória"
+              blank: "não pode ficar em branco"
+            data_nascimento:
+              blank: "não pode ficar em branco"
+              invalid: "não é uma data válida"
+        escola:
+          attributes:
+            nome:
+              blank: "não pode ficar em branco"
+              too_short: "é muito curto (mínimo de %{count} caracteres)"
+            cnpj:
+              blank: "não pode ficar em branco"
+              invalid: "não é um CNPJ válido"
+        turma:
+          attributes:
+            nome:
+              blank: "não pode ficar em branco"
+            serie:
+              blank: "não pode ficar em branco"
+              inclusion: "não está incluído na lista"
+            turno:
+              blank: "não pode ficar em branco"
+              inclusion: "não está incluído na lista"
+            escola:
+              required: "é obrigatória"
+  errors:
+    messages:
+      required: "é obrigatório"
+      blank: "não pode ficar em branco"
+      too_short: "é muito curto (mínimo de %{count} caracteres)"
+      too_long: "é muito longo (máximo de %{count} caracteres)"
+      invalid: "não é válido"
+      inclusion: "não está incluído na lista"
+      exclusion: "não está disponível"
+      confirmation: "não confere"
+      accepted: "deve ser aceito"
+      empty: "não pode ficar vazio"
+      present: "deve ficar em branco"
+      not_a_number: "não é um número"
+      not_an_integer: "não é um número inteiro"
+      greater_than: "deve ser maior que %{count}"
+      greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+      equal_to: "deve ser igual a %{count}"
+      less_than: "deve ser menor que %{count}"
+      less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+      other_than: "deve ser diferente de %{count}"
+      odd: "deve ser ímpar"
+      even: "deve ser par"

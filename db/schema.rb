@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_03_212000) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_05_103300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -36,9 +36,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_03_212000) do
   create_table "alunos", force: :cascade do |t|
     t.string "nome"
     t.date "data_nascimento"
-    t.bigint "turma_id", null: false
+    t.bigint "turma_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "escola_id", null: false
+    t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
+    t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
   end
 
@@ -139,6 +142,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_03_212000) do
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
+  add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "turmas", "escolas"

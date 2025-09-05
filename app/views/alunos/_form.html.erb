@@ -1,4 +1,8 @@
-<%= form_with(model: [@escola, @turma, aluno], class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
+<% 
+  form_url = @turma ? [@escola, @turma, aluno] : [@escola, aluno]
+%>
+
+<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
 
   <% if aluno.errors.any? %>
     <div class="alert alert-error mb-6">
@@ -15,6 +19,8 @@
       </div>
     </div>
   <% end %>
+
+  <%= form.hidden_field :escola_id, value: @escola.id %>
 
   <div id="step-1" class="form-step">
     <div class="flex justify-between items-center mb-8 border-b pb-4">

@@ -1,61 +1,87 @@
 class AlunosController < ApplicationController
   before_action :set_escola
-  before_action :set_turma
-  before_action :set_aluno, only: %i[show edit update destroy]
+  before_action :set_turma, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+  before_action :set_aluno, only: [:show, :edit, :update, :destroy]
 
-  # GET /escolas/:escola_id/turmas/:turma_id/alunos or /escolas/:escola_id/turmas/:turma_id/alunos.json
   def index
-    @alunos = @turma.alunos
+    if @turma
+      # Quando estamos no contexto de uma turma, mostra apenas os alunos dessa turma
+      @alunos = @turma.alunos.includes(:endereco)
+      @allocated_alunos = @alunos
+      @unallocated_alunos = []
+    else
+      # Quando estamos no contexto da escola, mostra todos os alunos da escola
+      @alunos = Aluno.where(escola_id: @escola.id).includes(:turma, :endereco)
+      @allocated_alunos = @alunos.select { |a| a.turma_id.present? }
+      @unallocated_alunos = @alunos.select { |a| a.turma_id.nil? }
+    end
   end
 
-  # GET /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
   def show
   end
 
-  # GET /escolas/:escola_id/turmas/:turma_id/alunos/new
   def new
-    @aluno = @turma.alunos.build
+    @aluno = @escola.alunos.build
+    @aluno.build_endereco
+  end
+
+  def create
+    @aluno = @escola.alunos.build(aluno_params)
+    @aluno.turma = @turma if @turma
+
+    if @aluno.save
+      redirect_path = @turma ? escola_turma_alunos_path(@escola, @turma) : escola_alunos_path(@escola)
+      redirect_to redirect_path, notice: 'Aluno criado com sucesso.'
+    else
+      @aluno.build_endereco unless @aluno.endereco
+      render :new, status: :unprocessable_entity
+    end
   end
 
   # GET /escolas/:escola_id/turmas/:turma_id/alunos/1/edit
   def edit
   end
 
-  # POST /escolas/:escola_id/turmas/:turma_id/alunos or /escolas/:escola_id/turmas/:turma_id/alunos.json
-  def create
-    @aluno = @turma.alunos.build(aluno_params)
 
-    respond_to do |format|
-      if @aluno.save
-        format.html { redirect_to [@escola, @turma, @aluno], notice: "Aluno foi criado com sucesso." }
-        format.json { render :show, status: :created, location: [@escola, @turma, @aluno] }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @aluno.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
   def update
-    respond_to do |format|
-      if @aluno.update(aluno_params)
-        format.html { redirect_to [@escola, @turma, @aluno], notice: "Aluno foi atualizado com sucesso." }
-        format.json { render :show, status: :ok, location: [@escola, @turma, @aluno] }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @aluno.errors, status: :unprocessable_entity }
-      end
+    if @aluno.update(aluno_params)
+      redirect_path = @turma ? escola_turma_aluno_path(@escola, @turma, @aluno) : escola_aluno_path(@escola, @aluno)
+      redirect_to redirect_path, notice: 'Aluno atualizado com sucesso.'
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /escolas/:escola_id/turmas/:turma_id/alunos/1 or /escolas/:escola_id/turmas/:turma_id/alunos/1.json
-  def destroy
-    @aluno.destroy!
 
-    respond_to do |format|
-      format.html { redirect_to escola_turma_alunos_path(@escola, @turma), status: :see_other, notice: "Aluno foi excluído com sucesso." }
-      format.json { head :no_content }
+  def destroy
+    @aluno.destroy
+    redirect_path = @turma ? escola_turma_alunos_path(@escola, @turma) : escola_alunos_path(@escola)
+    redirect_to redirect_path, notice: 'Aluno removido com sucesso.'
+  end
+
+  def assign_to_turma
+    @turma = @escola.turmas.find(params[:turma_id])
+    @aluno = @escola.alunos.find(params[:id])
+    
+    if @aluno.update(turma: @turma)
+      redirect_to escola_turma_alunos_path(@escola, @turma), 
+                  notice: "#{@aluno.nome} foi alocado para a turma #{@turma.nome}."
+    else
+      redirect_to escola_alunos_path(@escola), 
+                  alert: 'Erro ao alocar aluno para a turma.'
+    end
+  end
+
+  def remove_from_turma
+    @aluno = @escola.alunos.find(params[:id])
+    turma_nome = @aluno.turma&.nome
+    
+    if @aluno.update(turma: nil)
+      redirect_to escola_alunos_path(@escola), 
+                  notice: "#{@aluno.nome} foi removido da turma #{turma_nome}."
+    else
+      redirect_to request.referer || escola_alunos_path(@escola), 
+                  alert: 'Erro ao remover aluno da turma.'
     end
   end
 
@@ -66,14 +92,19 @@ class AlunosController < ApplicationController
   end
 
   def set_turma
-    @turma = @escola.turmas.find(params[:turma_id])
+    @turma = @escola.turmas.find(params[:turma_id]) if params[:turma_id]
   end
 
   def set_aluno
-    @aluno = @turma.alunos.find(params[:id])
+    if @turma
+      @aluno = @turma.alunos.find(params[:id])
+    else
+      @aluno = @escola.alunos.find(params[:id])
+    end
   end
 
   def aluno_params
-    params.require(:aluno).permit(:nome, :data_nascimento)
+    params.require(:aluno).permit(:nome, :data_nascimento, :turma_id, :escola_id,
+                                  endereco_attributes: [:id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy])
   end
 end
