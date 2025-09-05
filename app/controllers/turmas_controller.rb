@@ -61,6 +61,29 @@ class TurmasController < ApplicationController
   def assign_students
     @unallocated_alunos = Aluno.where(escola_id: @escola.id, turma_id: nil)
     @allocated_alunos = @turma.alunos
+    
+    if request.patch?
+      if params[:student_ids].present?
+        student_ids = params[:student_ids]
+        students = Aluno.where(id: student_ids, escola_id: @escola.id, turma_id: nil)
+        
+        success_count = 0
+        students.each do |aluno|
+          if aluno.update(turma: @turma)
+            success_count += 1
+          end
+        end
+        
+        if success_count > 0
+          redirect_to assign_students_escola_turma_path(@escola, @turma), 
+                      notice: "#{success_count} aluno(s) foram alocados para a turma #{@turma.nome}."
+        else
+          redirect_to assign_students_escola_turma_path(@escola, @turma), 
+                      alert: 'Erro ao alocar alunos para a turma.'
+        end
+        return
+      end
+    end
   end
 
   def assign_student
