@@ -38,7 +38,53 @@
                 Alunos Alocados 
                 <span class="badge bg-green-100 text-green-800"><%= @allocated_alunos.count %></span>
               </h2>
-              
+              <div class="mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <!-- Search Input -->
+                  <div class="relative">
+                    <input type="text" 
+                           id="search-allocated" 
+                           name="allocated_search"
+                           value="<%= params[:allocated_search] %>"
+                           placeholder="Pesquisar alunos alocados..." 
+                           class="input input-bordered w-full pl-10 pr-4 py-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                         fill="none" 
+                         viewBox="0 0 24 24" 
+                         stroke-width="1.5" 
+                         stroke="currentColor" 
+                         class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                  </div>
+                  
+                  <!-- Age Filter -->
+                  <select name="allocated_age_filter" id="age-filter-allocated" class="select select-bordered select-sm">
+                    <option value="">Todas as idades</option>
+                    <option value="child" <%= 'selected' if params[:allocated_age_filter] == 'child' %>>Crianças (0-12)</option>
+                    <option value="teen" <%= 'selected' if params[:allocated_age_filter] == 'teen' %>>Adolescentes (13-17)</option>
+                    <option value="adult" <%= 'selected' if params[:allocated_age_filter] == 'adult' %>>Adultos (18+)</option>
+                  </select>
+                  
+                  <!-- Order Filter -->
+                  <select name="allocated_order_filter" id="order-filter-allocated" class="select select-bordered select-sm">
+                    <option value="recent" <%= 'selected' if params[:allocated_order_filter] == 'recent' %>>Mais recentes</option>
+                    <option value="oldest" <%= 'selected' if params[:allocated_order_filter] == 'oldest' %>>Mais antigos</option>
+                    <option value="name_asc" <%= 'selected' if params[:allocated_order_filter] == 'name_asc' %>>Nome A-Z</option>
+                    <option value="name_desc" <%= 'selected' if params[:allocated_order_filter] == 'name_desc' %>>Nome Z-A</option>
+                    <option value="age_asc" <%= 'selected' if params[:allocated_order_filter] == 'age_asc' %>>Idade crescente</option>
+                    <option value="age_desc" <%= 'selected' if params[:allocated_order_filter] == 'age_desc' %>>Idade decrescente</option>
+                  </select>
+                  
+                  <!-- Apply Filters Button -->
+                  <button type="button" id="apply-filters-allocated" class="btn btn-primary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    Filtrar
+                  </button>
+                </div>
+              </div>
               <% if @allocated_alunos.any? %>
                 <div class="overflow-x-auto relative">
                   <table class="table w-full">
@@ -51,6 +97,7 @@
                         </th>
                         <th class="text-left">Aluno</th>
                         <th class="text-center">Data de Nascimento</th>
+                        <th class="text-center">Idade</th>
                         <th class="text-center w-24">Ações</th>
                       </tr>
                     </thead>
@@ -81,11 +128,17 @@
                             </div>
                           </td>
                           <td class="text-center">
+                            <div class="badge badge-info badge-sm">
+                              <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                            </div>
+                          </td>
+                          <td class="text-center">
                             <button type="button" 
                                 class="btn btn-sm btn-circle btn-ghost text-red-600 hover:text-white hover:bg-red-500 transition-all remove-student-btn"
                                 title="Remover <%= aluno.nome %>"
                                 data-student-id="<%= aluno.id %>"
-                                data-student-name="<%= aluno.nome %>">
+                                data-student-name="<%= aluno.nome %>"
+                                onclick="openRemoveModal('<%= aluno.id %>', '<%= aluno.nome %>'); return false;">
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                               </svg>
@@ -96,7 +149,7 @@
                     </tbody>
                     <tfoot class="sticky bottom-0 bg-white z-10">
                       <tr>
-                        <td colspan="4" class="p-0">
+                        <td colspan="5" class="p-0">
                           <!-- Bulk Remove Actions -->
                           <div id="bulk-remove-section" class="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200 transition-all duration-300 hidden opacity-0 scale-95">
                             <div class="flex items-center gap-2">
@@ -107,11 +160,11 @@
                                 <span id="allocated-count" class="font-bold text-red-600">0</span> aluno(s) selecionado(s)
                               </span>
                             </div>
-                            <button type="button" id="bulk-remove-btn" class="btn btn-error btn-sm gap-2">
+                            <button type="button" id="bulk-remove-btn" class="btn btn-error btn-sm text-white flex items-center gap-2" style="display: none;" onclick="openBulkRemoveModal(); return false;">
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                               </svg>
-                              Remover Selecionados
+                              Remover selecionados
                             </button>
                           </div>
                         </td>
@@ -136,7 +189,53 @@
                 Alunos Disponíveis 
                 <span class="badge bg-blue-100 text-blue-800"><%= @unallocated_alunos.count %></span>
               </h2>
-              
+              <div class="mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <!-- Search Input -->
+                  <div class="relative">
+                    <input type="text" 
+                           id="search-available" 
+                           name="available_search"
+                           value="<%= params[:available_search] %>"
+                           placeholder="Pesquisar alunos disponíveis..." 
+                           class="input input-bordered w-full pl-10 pr-4 py-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                         fill="none" 
+                         viewBox="0 0 24 24" 
+                         stroke-width="1.5" 
+                         stroke="currentColor" 
+                         class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                  </div>
+                  
+                  <!-- Age Filter -->
+                  <select name="available_age_filter" id="age-filter-available" class="select select-bordered select-sm">
+                    <option value="">Todas as idades</option>
+                    <option value="child" <%= 'selected' if params[:available_age_filter] == 'child' %>>Crianças (0-12)</option>
+                    <option value="teen" <%= 'selected' if params[:available_age_filter] == 'teen' %>>Adolescentes (13-17)</option>
+                    <option value="adult" <%= 'selected' if params[:available_age_filter] == 'adult' %>>Adultos (18+)</option>
+                  </select>
+                  
+                  <!-- Order Filter -->
+                  <select name="available_order_filter" id="order-filter-available" class="select select-bordered select-sm">
+                    <option value="recent" <%= 'selected' if params[:available_order_filter] == 'recent' %>>Mais recentes</option>
+                    <option value="oldest" <%= 'selected' if params[:available_order_filter] == 'oldest' %>>Mais antigos</option>
+                    <option value="name_asc" <%= 'selected' if params[:available_order_filter] == 'name_asc' %>>Nome A-Z</option>
+                    <option value="name_desc" <%= 'selected' if params[:available_order_filter] == 'name_desc' %>>Nome Z-A</option>
+                    <option value="age_asc" <%= 'selected' if params[:available_order_filter] == 'age_asc' %>>Idade crescente</option>
+                    <option value="age_desc" <%= 'selected' if params[:available_order_filter] == 'age_desc' %>>Idade decrescente</option>
+                  </select>
+                  
+                  <!-- Apply Filters Button -->
+                  <button type="button" id="apply-filters-available" class="btn btn-primary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    Filtrar
+                  </button>
+                </div>
+              </div>
               <% if @unallocated_alunos.any? %>
                 <div class="overflow-x-auto max-h-96 relative">
                   <table class="table w-full">
@@ -149,6 +248,7 @@
                         </th>
                         <th class="text-left">Aluno</th>
                         <th class="text-center">Data de Nascimento</th>
+                        <th class="text-center">Idade</th>
                         <th class="text-center w-24">Ações</th>
                       </tr>
                     </thead>
@@ -179,12 +279,17 @@
                             </div>
                           </td>
                           <td class="text-center">
+                            <div class="badge badge-info badge-sm">
+                              <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                            </div>
+                          </td>
+                          <td class="text-center">
                             <%= button_to assign_student_escola_turma_path(@escola, @turma), 
                                 params: { aluno_id: aluno.id },
                                 method: :patch,
                                 class: "btn btn-sm btn-circle btn-ghost text-green-600 hover:text-white hover:bg-green-500 transition-all",
                                 title: "Alocar #{aluno.nome}",
-                                data: { turbo_confirm: "Alocar #{aluno.nome} para esta turma?" } do %>
+                                onclick: "return openAllocateModal('#{aluno.id}', '#{aluno.nome}')" do %>
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                               </svg>
@@ -195,7 +300,7 @@
                     </tbody>
                     <tfoot class="sticky bottom-0 bg-white z-10">
                       <tr>
-                        <td colspan="4" class="p-0">
+                        <td colspan="5" class="p-0">
                           <!-- Bulk Actions -->
                           <div id="bulk-assign-section" class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 transition-all duration-300 hidden opacity-0 scale-95">
                             <div class="flex items-center gap-2">
@@ -237,6 +342,107 @@
     </div>
   </div>
 
+  <!-- Confirmation Modals -->
+  <!-- Allocate Student Modal -->
+  <dialog id="allocate-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+        </svg>
+        Alocar Aluno
+      </h3>
+      <p class="py-4">Tem certeza que deseja alocar <strong id="allocate-student-name"></strong> para a turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeAllocateModal()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmAllocate()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Confirmar Alocação
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Bulk Allocate Modal -->
+  <dialog id="bulk-allocate-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+        </svg>
+        Alocar Selecionados
+      </h3>
+      <p class="py-4">Tem certeza que deseja alocar <strong id="bulk-allocate-count">0</strong> aluno(s) selecionado(s) para a turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeBulkAllocateModal()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmBulkAllocate()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Confirmar Alocação
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Remove Student Modal -->
+  <dialog id="remove-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        Remover Aluno
+      </h3>
+      <p class="py-4">Tem certeza que deseja remover <strong id="remove-student-name"></strong> da turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeRemoveModal()">Cancelar</button>
+        <button class="btn btn-error" onclick="confirmRemove()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Confirmar Remoção
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Bulk Remove Modal -->
+  <dialog id="bulk-remove-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        Remover Selecionados
+      </h3>
+      <p class="py-4">Tem certeza que deseja remover <strong id="bulk-remove-count">0</strong> aluno(s) selecionado(s) da turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeBulkRemoveModal()">Cancelar</button>
+        <button class="btn btn-error" onclick="confirmBulkRemove()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Confirmar Remoção
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
   <!-- Sidebar -->
   <aside class="drawer-side">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
@@ -251,7 +457,7 @@
           <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
             <div class="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0112 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0112 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12v-.008z" />
               </svg>
               Escolas
             </div>
@@ -263,239 +469,406 @@
 </div>
 
 <script data-turbo-permanent>
-function initializeAssignStudents() {
-  const selectAllCheckbox = document.getElementById('select-all-available');
-  const studentCheckboxes = document.querySelectorAll('.student-checkbox');
-  const selectedCountSpan = document.getElementById('selected-count');
-  const bulkAssignBtn = document.getElementById('bulk-assign-btn');
-  const bulkAssignForm = document.getElementById('bulk-assign-form');
-  const selectedStudentsInputs = document.getElementById('selected-students-inputs');
-  const bulkAssignSection = document.getElementById('bulk-assign-section');
+  // Define modal functions globally at the top
+  window.openAllocateModal = function(studentId, studentName) {
+    currentStudentId = studentId;
+    currentStudentName = studentName;
+    document.getElementById('allocate-student-name').textContent = studentName;
+    document.getElementById('allocate-modal').showModal();
+    return false;
+  };
 
-  selectAllCheckbox?.addEventListener('change', function() {
-    studentCheckboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
+  window.closeAllocateModal = function() {
+    document.getElementById('allocate-modal').close();
+    currentStudentId = null;
+    currentStudentName = null;
+  };
+
+  window.confirmAllocate = function() {
+    if (currentStudentId) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `<%= assign_student_escola_turma_path(@escola, @turma) %>`;
+      
+      const methodInput = document.createElement('input');
+      methodInput.type = 'hidden';
+      methodInput.name = '_method';
+      methodInput.value = 'PATCH';
+      
+      const tokenInput = document.createElement('input');
+      tokenInput.type = 'hidden';
+      tokenInput.name = 'authenticity_token';
+      tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
+      
+      const alunoInput = document.createElement('input');
+      alunoInput.type = 'hidden';
+      alunoInput.name = 'aluno_id';
+      alunoInput.value = currentStudentId;
+      
+      form.appendChild(methodInput);
+      form.appendChild(tokenInput);
+      form.appendChild(alunoInput);
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+    closeAllocateModal();
+  };
+
+  window.openRemoveModal = function(studentId, studentName) {
+    currentStudentId = studentId;
+    currentStudentName = studentName;
+    document.getElementById('remove-student-name').textContent = studentName;
+    document.getElementById('remove-modal').showModal();
+    return false;
+  };
+
+  window.closeRemoveModal = function() {
+    document.getElementById('remove-modal').close();
+    currentStudentId = null;
+    currentStudentName = null;
+  };
+
+  window.confirmRemove = function() {
+    if (currentStudentId) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${currentStudentId}`;
+      
+      const methodInput = document.createElement('input');
+      methodInput.type = 'hidden';
+      methodInput.name = '_method';
+      methodInput.value = 'PATCH';
+      
+      const tokenInput = document.createElement('input');
+      tokenInput.type = 'hidden';
+      tokenInput.name = 'authenticity_token';
+      tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
+      
+      form.appendChild(methodInput);
+      form.appendChild(tokenInput);
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+    closeRemoveModal();
+  };
+
+  window.openBulkAllocateModal = function() {
+    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+    document.getElementById('bulk-allocate-count').textContent = studentIds.length;
+    document.getElementById('bulk-allocate-modal').showModal();
+    return false;
+  };
+
+  window.closeBulkAllocateModal = function() {
+    document.getElementById('bulk-allocate-modal').close();
+  };
+
+  window.confirmBulkAllocate = function() {
+    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+    
+    if (studentIds.length === 0) {
+      return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `<%= assign_students_escola_turma_path(@escola, @turma) %>`;
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'PATCH';
+    
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = 'authenticity_token';
+    tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
+    
+    form.appendChild(methodInput);
+    form.appendChild(tokenInput);
+    
+    studentIds.forEach((id) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'student_ids[]';
+      input.value = id;
+      form.appendChild(input);
     });
-    updateSelectedCount();
-  });
+    
+    document.body.appendChild(form);
+    form.submit();
+    closeBulkAllocateModal();
+  };
 
-  studentCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      updateSelectAllState();
+  window.openBulkRemoveModal = function() {
+    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
+    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+    
+    if (studentIds.length === 0) {
+      return;
+    }
+    
+    document.getElementById('bulk-remove-count').textContent = studentIds.length;
+    document.getElementById('bulk-remove-modal').showModal();
+    return false;
+  };
+
+  window.closeBulkRemoveModal = function() {
+    document.getElementById('bulk-remove-modal').close();
+  };
+
+  window.confirmBulkRemove = function() {
+    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
+    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+    
+    if (studentIds.length === 0) {
+      return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma`;
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'PATCH';
+    
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = 'authenticity_token';
+    tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
+    
+    form.appendChild(methodInput);
+    form.appendChild(tokenInput);
+    
+    studentIds.forEach((id) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'student_ids[]';
+      input.value = id;
+      form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+    closeBulkRemoveModal();
+  };
+
+  function initializeAssignStudents() {
+    const selectAllCheckbox = document.getElementById('select-all-available');
+    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+    const selectedCountSpan = document.getElementById('selected-count');
+    const bulkAssignBtn = document.getElementById('bulk-assign-btn');
+    const bulkAssignForm = document.getElementById('bulk-assign-form');
+    const selectedStudentsInputs = document.getElementById('selected-students-inputs');
+    const bulkAssignSection = document.getElementById('bulk-assign-section');
+
+    // Modal variables
+    let currentStudentId = null;
+    let currentStudentName = null;
+
+    // Filter functionality
+    const applyFiltersAllocated = document.getElementById('apply-filters-allocated');
+    const applyFiltersAvailable = document.getElementById('apply-filters-available');
+
+    // Apply filters with animations
+    function applyFilters(type) {
+      const searchQuery = type === 'allocated' ? document.getElementById('search-allocated').value : document.getElementById('search-available').value;
+      const ageFilter = type === 'allocated' ? document.getElementById('age-filter-allocated').value : document.getElementById('age-filter-available').value;
+      const orderFilter = type === 'allocated' ? document.getElementById('order-filter-allocated').value : document.getElementById('order-filter-available').value;
+      
+      const params = new URLSearchParams(window.location.search);
+      if (searchQuery) params.set(type === 'allocated' ? 'allocated_search' : 'available_search', searchQuery);
+      else params.delete(type === 'allocated' ? 'allocated_search' : 'available_search');
+      
+      if (ageFilter) params.set(type === 'allocated' ? 'allocated_age_filter' : 'available_age_filter', ageFilter);
+      else params.delete(type === 'allocated' ? 'allocated_age_filter' : 'available_age_filter');
+      
+      if (orderFilter) params.set(type === 'allocated' ? 'allocated_order_filter' : 'available_order_filter', orderFilter);
+      else params.delete(type === 'allocated' ? 'allocated_order_filter' : 'available_order_filter');
+      
+      // Add loading animation
+      document.body.style.cursor = 'wait';
+      window.location.search = params.toString();
+    }
+
+    applyFiltersAllocated?.addEventListener('click', () => applyFilters('allocated'));
+    applyFiltersAvailable?.addEventListener('click', () => applyFilters('available'));
+
+    selectAllCheckbox?.addEventListener('change', function() {
+      studentCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
       updateSelectedCount();
     });
-  });
 
-  function updateSelectAllState() {
-    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    if (checkedBoxes.length === 0) {
-      selectAllCheckbox.indeterminate = false;
-      selectAllCheckbox.checked = false;
-    } else if (checkedBoxes.length === studentCheckboxes.length) {
-      selectAllCheckbox.indeterminate = false;
-      selectAllCheckbox.checked = true;
-    } else {
-      selectAllCheckbox.indeterminate = true;
-      selectAllCheckbox.checked = false;
-    }
-  }
-
-  function updateSelectedCount() {
-    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    const count = checkedBoxes.length;
-    
-    selectedCountSpan.textContent = count;
-    
-    if (count > 0) {
-      bulkAssignBtn.classList.remove('btn-disabled');
-      bulkAssignSection.classList.remove('hidden');
-      setTimeout(() => {
-        bulkAssignSection.classList.remove('opacity-0', 'scale-95');
-        bulkAssignSection.classList.add('opacity-100', 'scale-100');
-      }, 10);
-    } else {
-      bulkAssignBtn.classList.add('btn-disabled');
-      bulkAssignSection.classList.remove('opacity-100', 'scale-100');
-      bulkAssignSection.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => {
-        bulkAssignSection.classList.add('hidden');
-      }, 300);
-    }
-  }
-
-  bulkAssignBtn?.addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    
-    if (studentIds.length === 0) {
-      return;
-    }
-    
-    const confirmMessage = `Alocar ${studentIds.length} aluno(s) para esta turma?`;
-    
-    if (confirm(confirmMessage)) {
-      selectedStudentsInputs.innerHTML = '';
-      
-      studentIds.forEach((id, index) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'student_ids[]';
-        input.value = id;
-        selectedStudentsInputs.appendChild(input);
+    studentCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateSelectAllState();
+        updateSelectedCount();
       });
+    });
+
+    function updateSelectAllState() {
+      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+      if (checkedBoxes.length === 0) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = false;
+      } else if (checkedBoxes.length === studentCheckboxes.length) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = true;
+      } else {
+        selectAllCheckbox.indeterminate = true;
+        selectAllCheckbox.checked = false;
+      }
+    }
+
+    function updateSelectedCount() {
+      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+      const count = checkedBoxes.length;
       
-      bulkAssignForm.submit();
+      selectedCountSpan.textContent = count;
+      
+      if (count > 0) {
+        bulkAssignBtn.classList.remove('btn-disabled');
+        bulkAssignSection.classList.remove('hidden');
+        setTimeout(() => {
+          bulkAssignSection.classList.remove('opacity-0', 'scale-95');
+          bulkAssignSection.classList.add('opacity-100', 'scale-100');
+        }, 10);
+      } else {
+        bulkAssignBtn.classList.add('btn-disabled');
+        bulkAssignSection.classList.remove('opacity-100', 'scale-100');
+        bulkAssignSection.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+          bulkAssignSection.classList.add('hidden');
+        }, 300);
+      }
     }
-  });
 
-  const selectAllAllocatedCheckbox = document.getElementById('select-all-allocated');
-  const allocatedCheckboxes = document.querySelectorAll('.allocated-checkbox');
-  const allocatedCountSpan = document.getElementById('allocated-count');
-  const bulkRemoveBtn = document.getElementById('bulk-remove-btn');
-  const bulkRemoveForm = document.getElementById('bulk-remove-form');
-  const allocatedStudentsInputs = document.getElementById('allocated-students-inputs');
-
-  selectAllAllocatedCheckbox?.addEventListener('change', function() {
-    allocatedCheckboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-    updateAllocatedCount();
-  });
-
-  allocatedCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      updateSelectAllAllocatedState();
-      updateAllocatedCount();
-    });
-  });
-
-  function updateSelectAllAllocatedState() {
-    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-    if (checkedBoxes.length === 0) {
-      selectAllAllocatedCheckbox.indeterminate = false;
-      selectAllAllocatedCheckbox.checked = false;
-    } else if (checkedBoxes.length === allocatedCheckboxes.length) {
-      selectAllAllocatedCheckbox.indeterminate = false;
-      selectAllAllocatedCheckbox.checked = true;
-    } else {
-      selectAllAllocatedCheckbox.indeterminate = true;
-      selectAllAllocatedCheckbox.checked = false;
-    }
-  }
-
-  function updateAllocatedCount() {
-    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-    const count = checkedBoxes.length;
-    const bulkRemoveSection = document.getElementById('bulk-remove-section');
-    
-    allocatedCountSpan.textContent = count;
-    
-    if (count > 0) {
-      bulkRemoveSection.classList.remove('hidden');
-      setTimeout(() => {
-        bulkRemoveSection.classList.remove('opacity-0', 'scale-95');
-        bulkRemoveSection.classList.add('opacity-100', 'scale-100');
-      }, 10);
-    } else {
-      bulkRemoveSection.classList.remove('opacity-100', 'scale-100');
-      bulkRemoveSection.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => {
-        bulkRemoveSection.classList.add('hidden');
-      }, 300);
-    }
-  }
-
-  bulkRemoveBtn?.addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    
-    if (studentIds.length === 0) {
-      return;
-    }
-    
-    const confirmMessage = `Remover ${studentIds.length} aluno(s) desta turma?`;
-    
-    if (confirm(confirmMessage)) {
-      studentIds.forEach((studentId, index) => {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${studentId}`;
-        form.style.display = 'none';
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'authenticity_token';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-        
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'patch';
-        form.appendChild(methodInput);
-        
-        document.body.appendChild(form);
-        
-        if (index === studentIds.length - 1) {
-          form.submit();
-        } else {
-          fetch(form.action, {
-            method: 'PATCH',
-            headers: {
-              'X-CSRF-Token': csrfToken,
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(new FormData(form))
-          });
-        }
-        
-        document.body.removeChild(form);
-      });
-    }
-  });
-
-  const removeStudentBtns = document.querySelectorAll('.remove-student-btn');
-
-  removeStudentBtns.forEach(btn => {
-    btn.addEventListener('click', function(e) {
+    bulkAssignBtn?.addEventListener('click', function(e) {
       e.preventDefault();
       
-      const studentId = this.dataset.studentId;
-      const studentName = this.dataset.studentName;
+      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+      const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
       
-      const confirmMessage = `Remover ${studentName} desta turma?`;
-      
-      if (confirm(confirmMessage)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${studentId}`;
-        form.style.display = 'none';
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'authenticity_token';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-        
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'patch';
-        form.appendChild(methodInput);
-        
-        document.body.appendChild(form);
-        form.submit();
+      if (studentIds.length === 0) {
+        return;
       }
+      
+      openBulkAllocateModal();
     });
-  });
-}
 
-document.addEventListener('DOMContentLoaded', initializeAssignStudents);
-document.addEventListener('turbo:load', initializeAssignStudents);
+    const selectAllAllocatedCheckbox = document.getElementById('select-all-allocated');
+    const allocatedCheckboxes = document.querySelectorAll('.allocated-checkbox');
+    const allocatedCountSpan = document.getElementById('allocated-count');
+    const bulkRemoveBtn = document.getElementById('bulk-remove-btn');
+    const bulkRemoveSection = document.getElementById('bulk-remove-section');
+
+    selectAllAllocatedCheckbox?.addEventListener('change', function() {
+      allocatedCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      updateAllocatedCount();
+    });
+
+    allocatedCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateSelectAllAllocatedState();
+        updateAllocatedCount();
+      });
+    });
+
+    function updateSelectAllAllocatedState() {
+      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
+      if (checkedBoxes.length === 0) {
+        selectAllAllocatedCheckbox.indeterminate = false;
+        selectAllAllocatedCheckbox.checked = false;
+      } else if (checkedBoxes.length === allocatedCheckboxes.length) {
+        selectAllAllocatedCheckbox.indeterminate = false;
+        selectAllAllocatedCheckbox.checked = true;
+      } else {
+        selectAllAllocatedCheckbox.indeterminate = true;
+        selectAllAllocatedCheckbox.checked = false;
+      }
+    }
+
+    function updateAllocatedCount() {
+      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
+      const count = checkedBoxes.length;
+      
+      allocatedCountSpan.textContent = count;
+      
+      if (count > 0) {
+        bulkRemoveBtn.style.display = 'flex';
+        bulkRemoveSection.classList.remove('hidden');
+        setTimeout(() => {
+          bulkRemoveSection.classList.remove('opacity-0', 'scale-95');
+          bulkRemoveSection.classList.add('opacity-100', 'scale-100');
+        }, 10);
+      } else {
+        bulkRemoveBtn.style.display = 'none';
+        bulkRemoveSection.classList.remove('opacity-100', 'scale-100');
+        bulkRemoveSection.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+          bulkRemoveSection.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    bulkRemoveBtn?.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
+      const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+      
+      if (studentIds.length === 0) {
+        return;
+      }
+      
+      openBulkRemoveModal();
+    });
+
+    const removeStudentBtns = document.querySelectorAll('.remove-student-btn');
+
+    removeStudentBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const studentId = this.dataset.studentId;
+        const studentName = this.dataset.studentName;
+        
+        if (confirm(confirmMessage)) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${studentId}`;
+          form.style.display = 'none';
+          
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = 'authenticity_token';
+          csrfInput.value = csrfToken;
+          form.appendChild(csrfInput);
+          
+          const methodInput = document.createElement('input');
+          methodInput.type = 'hidden';
+          methodInput.name = '_method';
+          methodInput.value = 'patch';
+          form.appendChild(methodInput);
+          
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initializeAssignStudents);
+  document.addEventListener('turbo:load', initializeAssignStudents);
 </script>

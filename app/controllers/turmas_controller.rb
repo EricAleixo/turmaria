@@ -59,8 +59,80 @@ class TurmasController < ApplicationController
   end
 
   def assign_students
-    @unallocated_alunos = Aluno.where(escola_id: @escola.id, turma_id: nil)
-    @allocated_alunos = @turma.alunos
+    # Filtros separados para cada tabela
+    allocated_age_filter = params[:allocated_age_filter]
+    allocated_order_filter = params[:allocated_order_filter] || 'recent'
+    allocated_search_query = params[:allocated_search]
+
+    available_age_filter = params[:available_age_filter]
+    available_order_filter = params[:available_order_filter] || 'recent'
+    available_search_query = params[:available_search]
+
+    # Base queries
+    @allocated_alunos = @turma.alunos.includes(:escola)
+    @unallocated_alunos = Aluno.where(escola_id: @escola.id, turma_id: nil).includes(:escola)
+
+    # Aplicar filtros para alunos alocados
+    if allocated_age_filter.present?
+      case allocated_age_filter
+      when 'child'
+        @allocated_alunos = @allocated_alunos.where('idade BETWEEN ? AND ? OR idade IS NULL', 0, 12)
+      when 'teen'
+        @allocated_alunos = @allocated_alunos.where('idade BETWEEN ? AND ?', 13, 17)
+      when 'adult'
+        @allocated_alunos = @allocated_alunos.where('idade >= ?', 18)
+      end
+    end
+
+    if allocated_search_query.present?
+      @allocated_alunos = @allocated_alunos.where('nome ILIKE ?', "%#{allocated_search_query}%")
+    end
+
+    case allocated_order_filter
+    when 'recent'
+      @allocated_alunos = @allocated_alunos.order(created_at: :desc)
+    when 'oldest'
+      @allocated_alunos = @allocated_alunos.order(created_at: :asc)
+    when 'name_asc'
+      @allocated_alunos = @allocated_alunos.order(:nome)
+    when 'name_desc'
+      @allocated_alunos = @allocated_alunos.order(nome: :desc)
+    when 'age_asc'
+      @allocated_alunos = @allocated_alunos.order('idade ASC NULLS LAST')
+    when 'age_desc'
+      @allocated_alunos = @allocated_alunos.order('idade DESC NULLS LAST')
+    end
+
+    # Aplicar filtros para alunos disponíveis
+    if available_age_filter.present?
+      case available_age_filter
+      when 'child'
+        @unallocated_alunos = @unallocated_alunos.where('idade BETWEEN ? AND ? OR idade IS NULL', 0, 12)
+      when 'teen'
+        @unallocated_alunos = @unallocated_alunos.where('idade BETWEEN ? AND ?', 13, 17)
+      when 'adult'
+        @unallocated_alunos = @unallocated_alunos.where('idade >= ?', 18)
+      end
+    end
+
+    if available_search_query.present?
+      @unallocated_alunos = @unallocated_alunos.where('nome ILIKE ?', "%#{available_search_query}%")
+    end
+
+    case available_order_filter
+    when 'recent'
+      @unallocated_alunos = @unallocated_alunos.order(created_at: :desc)
+    when 'oldest'
+      @unallocated_alunos = @unallocated_alunos.order(created_at: :asc)
+    when 'name_asc'
+      @unallocated_alunos = @unallocated_alunos.order(:nome)
+    when 'name_desc'
+      @unallocated_alunos = @unallocated_alunos.order(nome: :desc)
+    when 'age_asc'
+      @unallocated_alunos = @unallocated_alunos.order('idade ASC NULLS LAST')
+    when 'age_desc'
+      @unallocated_alunos = @unallocated_alunos.order('idade DESC NULLS LAST')
+    end
     
     if request.patch?
       if params[:student_ids].present?
