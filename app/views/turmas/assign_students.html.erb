@@ -488,7 +488,7 @@
     if (currentStudentId) {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `<%= assign_student_escola_turma_path(@escola, @turma) %>`;
+      form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/assign_student';
       
       const methodInput = document.createElement('input');
       methodInput.type = 'hidden';
@@ -533,7 +533,7 @@
     if (currentStudentId) {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${currentStudentId}`;
+      form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
       
       const methodInput = document.createElement('input');
       methodInput.type = 'hidden';
@@ -545,8 +545,14 @@
       tokenInput.name = 'authenticity_token';
       tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
       
+      const alunoInput = document.createElement('input');
+      alunoInput.type = 'hidden';
+      alunoInput.name = 'student_id';
+      alunoInput.value = currentStudentId;
+      
       form.appendChild(methodInput);
       form.appendChild(tokenInput);
+      form.appendChild(alunoInput);
       
       document.body.appendChild(form);
       form.submit();
@@ -576,7 +582,7 @@
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `<%= assign_students_escola_turma_path(@escola, @turma) %>`;
+    form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/assign_students';
     
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
@@ -629,9 +635,10 @@
       return;
     }
     
+    // Create form to send array of student IDs to controller
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma`;
+    form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
     
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
@@ -646,6 +653,7 @@
     form.appendChild(methodInput);
     form.appendChild(tokenInput);
     
+    // Add each student ID as array parameter
     studentIds.forEach((id) => {
       const input = document.createElement('input');
       input.type = 'hidden';
@@ -846,7 +854,7 @@
         if (confirm(confirmMessage)) {
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = `/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma/${studentId}`;
+          form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
           form.style.display = 'none';
           
           const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -861,6 +869,12 @@
           methodInput.name = '_method';
           methodInput.value = 'patch';
           form.appendChild(methodInput);
+          
+          const alunoInput = document.createElement('input');
+          alunoInput.type = 'hidden';
+          alunoInput.name = 'student_id';
+          alunoInput.value = studentId;
+          form.appendChild(alunoInput);
           
           document.body.appendChild(form);
           form.submit();

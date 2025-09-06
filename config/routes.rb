@@ -33,7 +33,8 @@ Rails.application.routes.draw do
         get :assign_students
         patch :assign_student
         patch :assign_students
-        patch 'remove_from_turma/:aluno_id', to: 'turmas#remove_from_turma', as: :remove_from_turma
+        patch :remove_from_turma
+        patch 'remove_from_turma/:aluno_id', to: 'turmas#remove_from_turma', as: :remove_from_turma_individual
       end
     end
   end
