@@ -1,4 +1,4 @@
-<div class="drawer lg:drawer-open bg-gray-100">
+<div class="drawer lg:drawer-open bg-gray-100" data-escola-id="<%= @escola.id %>" data-turma-id="<%= @turma.id %>">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
   <div class="drawer-content flex flex-col items-center">
@@ -54,7 +54,7 @@
                          stroke-width="1.5" 
                          stroke="currentColor" 
                          class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                     </svg>
                   </div>
                   
@@ -86,7 +86,8 @@
                 </div>
               </div>
               <% if @allocated_alunos.any? %>
-                <div class="overflow-x-auto relative">
+                <!-- Desktop Table -->
+                <div class="hidden md:block overflow-x-auto relative">
                   <table class="table w-full">
                     <thead class="sticky top-0 bg-base-200 z-10">
                       <tr class="bg-base-200">
@@ -113,7 +114,7 @@
                             <div class="flex items-center gap-3">
                               <div class="avatar">
                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                                  <span class="text-white font-bold text-sm flex items-center justify-center w-full h-full"><%= aluno.nome.first.upcase %></span>
+                                  <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
                                 </div>
                               </div>
                               <div>
@@ -123,12 +124,12 @@
                             </div>
                           </td>
                           <td class="text-center">
-                            <div class="badge badge-outline badge-sm">
+                            <div class="badge badge-outline badge-sm whitespace-nowrap">
                               <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
                             </div>
                           </td>
                           <td class="text-center">
-                            <div class="badge badge-info badge-sm">
+                            <div class="badge badge-info badge-sm whitespace-nowrap">
                               <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
                             </div>
                           </td>
@@ -172,6 +173,78 @@
                     </tfoot>
                   </table>
                 </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden space-y-4">
+                  <!-- Mobile Select All -->
+                  <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" class="checkbox checkbox-primary" id="select-all-allocated-mobile" />
+                      <span class="text-sm font-medium">Selecionar todos</span>
+                    </label>
+                    <span class="text-sm text-gray-600"><%= @allocated_alunos.count %> alunos</span>
+                  </div>
+
+                  <!-- Mobile Cards List -->
+                  <% @allocated_alunos.each do |aluno| %>
+                    <div class="card bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                      <div class="card-body p-4">
+                        <div class="flex items-start justify-between">
+                          <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <label class="cursor-pointer">
+                              <input type="checkbox" class="checkbox checkbox-primary allocated-checkbox" data-student-id="<%= aluno.id %>" />
+                            </label>
+                            <div class="avatar">
+                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
+                              </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <div class="font-semibold text-gray-900 truncate"><%= aluno.nome %></div>
+                              <div class="text-sm text-green-600 font-medium">● Alocado</div>
+                            </div>
+                          </div>
+                          <button type="button" 
+                              class="btn btn-sm btn-circle btn-ghost text-red-600 hover:text-white hover:bg-red-500 transition-all remove-student-btn flex-shrink-0"
+                              title="Remover <%= aluno.nome %>"
+                              data-student-id="<%= aluno.id %>"
+                              data-student-name="<%= aluno.nome %>"
+                              onclick="openRemoveModal('<%= aluno.id %>', '<%= aluno.nome %>'); return false;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                          <div class="badge badge-outline badge-sm whitespace-nowrap">
+                            📅 <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
+                          </div>
+                          <div class="badge badge-info badge-sm whitespace-nowrap">
+                            🎂 <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Mobile Bulk Actions -->
+                  <div id="bulk-remove-section-mobile" class="flex flex-col gap-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200 transition-all duration-300 hidden opacity-0 scale-95">
+                    <div class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                      </svg>
+                      <span class="text-sm font-medium text-gray-700">
+                        <span id="allocated-count-mobile" class="font-bold text-red-600">0</span> aluno(s) selecionado(s)
+                      </span>
+                    </div>
+                    <button type="button" id="bulk-remove-btn-mobile" class="btn btn-error btn-sm text-white w-full flex items-center justify-center gap-2" style="display: none;" onclick="openBulkRemoveModal(); return false;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Remover selecionados
+                    </button>
+                  </div>
+                </div>
               <% else %>
                 <div class="text-center py-8">
                   <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,7 +278,7 @@
                          stroke-width="1.5" 
                          stroke="currentColor" 
                          class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                     </svg>
                   </div>
                   
@@ -237,7 +310,8 @@
                 </div>
               </div>
               <% if @unallocated_alunos.any? %>
-                <div class="overflow-x-auto max-h-96 relative">
+                <!-- Desktop Table -->
+                <div class="hidden md:block overflow-x-auto max-h-96 relative">
                   <table class="table w-full">
                     <thead class="sticky top-0 bg-base-200 z-10">
                       <tr class="bg-base-200">
@@ -264,7 +338,7 @@
                             <div class="flex items-center gap-3">
                               <div class="avatar">
                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                                  <span class="text-white font-bold text-sm flex items-center justify-center w-full h-full"><%= aluno.nome.first.upcase %></span>
+                                  <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
                                 </div>
                               </div>
                               <div>
@@ -274,12 +348,12 @@
                             </div>
                           </td>
                           <td class="text-center">
-                            <div class="badge badge-outline badge-sm">
+                            <div class="badge badge-outline badge-sm whitespace-nowrap">
                               <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
                             </div>
                           </td>
                           <td class="text-center">
-                            <div class="badge badge-info badge-sm">
+                            <div class="badge badge-info badge-sm whitespace-nowrap">
                               <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
                             </div>
                           </td>
@@ -325,6 +399,81 @@
                       </tr>
                     </tfoot>
                   </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden space-y-4 max-h-96 overflow-y-auto">
+                  <!-- Mobile Select All -->
+                  <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg sticky top-0 z-10">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" class="checkbox checkbox-primary" id="select-all-available-mobile" />
+                      <span class="text-sm font-medium">Selecionar todos</span>
+                    </label>
+                    <span class="text-sm text-gray-600"><%= @unallocated_alunos.count %> alunos</span>
+                  </div>
+
+                  <!-- Mobile Cards List -->
+                  <% @unallocated_alunos.each do |aluno| %>
+                    <div class="card bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                      <div class="card-body p-4">
+                        <div class="flex items-start justify-between">
+                          <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <label class="cursor-pointer">
+                              <input type="checkbox" class="checkbox checkbox-primary student-checkbox" data-student-id="<%= aluno.id %>" />
+                            </label>
+                            <div class="avatar">
+                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
+                              </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <div class="font-semibold text-gray-900 truncate"><%= aluno.nome %></div>
+                              <div class="text-sm text-green-600 font-medium">● Disponível</div>
+                            </div>
+                          </div>
+                          <%= button_to assign_student_escola_turma_path(@escola, @turma), 
+                              params: { aluno_id: aluno.id },
+                              method: :patch,
+                              class: "btn btn-sm btn-circle btn-ghost text-green-600 hover:text-white hover:bg-green-500 transition-all flex-shrink-0",
+                              title: "Alocar #{aluno.nome}",
+                              onclick: "return openAllocateModal('#{aluno.id}', '#{aluno.nome}')" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                          <% end %>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                          <div class="badge badge-outline badge-sm whitespace-nowrap">
+                            📅 <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
+                          </div>
+                          <div class="badge badge-info badge-sm whitespace-nowrap">
+                            🎂 <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Mobile Bulk Actions -->
+                  <div id="bulk-assign-section-mobile" class="flex flex-col gap-3 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 transition-all duration-300 hidden opacity-0 scale-95 sticky bottom-0 z-10">
+                    <div class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-sm font-medium text-gray-700">
+                        <span id="selected-count-mobile" class="font-bold text-blue-600">0</span> aluno(s) selecionado(s)
+                      </span>
+                    </div>
+                    <%= form_tag assign_students_escola_turma_path(@escola, @turma), method: :patch, id: 'bulk-assign-form-mobile' do %>
+                      <div id="selected-students-inputs-mobile"></div>
+                      <button type="submit" id="bulk-assign-btn-mobile" class="btn btn-primary btn-sm w-full flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                        </svg>
+                        Alocar Selecionados
+                      </button>
+                    <% end %>
+                  </div>
                 </div>
               <% else %>
                 <div class="text-center py-8">
@@ -468,421 +617,4 @@
   </aside>
 </div>
 
-<script data-turbo-permanent>
-  // Define modal functions globally at the top
-  window.openAllocateModal = function(studentId, studentName) {
-    currentStudentId = studentId;
-    currentStudentName = studentName;
-    document.getElementById('allocate-student-name').textContent = studentName;
-    document.getElementById('allocate-modal').showModal();
-    return false;
-  };
-
-  window.closeAllocateModal = function() {
-    document.getElementById('allocate-modal').close();
-    currentStudentId = null;
-    currentStudentName = null;
-  };
-
-  window.confirmAllocate = function() {
-    if (currentStudentId) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/assign_student';
-      
-      const methodInput = document.createElement('input');
-      methodInput.type = 'hidden';
-      methodInput.name = '_method';
-      methodInput.value = 'PATCH';
-      
-      const tokenInput = document.createElement('input');
-      tokenInput.type = 'hidden';
-      tokenInput.name = 'authenticity_token';
-      tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
-      
-      const alunoInput = document.createElement('input');
-      alunoInput.type = 'hidden';
-      alunoInput.name = 'aluno_id';
-      alunoInput.value = currentStudentId;
-      
-      form.appendChild(methodInput);
-      form.appendChild(tokenInput);
-      form.appendChild(alunoInput);
-      
-      document.body.appendChild(form);
-      form.submit();
-    }
-    closeAllocateModal();
-  };
-
-  window.openRemoveModal = function(studentId, studentName) {
-    currentStudentId = studentId;
-    currentStudentName = studentName;
-    document.getElementById('remove-student-name').textContent = studentName;
-    document.getElementById('remove-modal').showModal();
-    return false;
-  };
-
-  window.closeRemoveModal = function() {
-    document.getElementById('remove-modal').close();
-    currentStudentId = null;
-    currentStudentName = null;
-  };
-
-  window.confirmRemove = function() {
-    if (currentStudentId) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
-      
-      const methodInput = document.createElement('input');
-      methodInput.type = 'hidden';
-      methodInput.name = '_method';
-      methodInput.value = 'PATCH';
-      
-      const tokenInput = document.createElement('input');
-      tokenInput.type = 'hidden';
-      tokenInput.name = 'authenticity_token';
-      tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
-      
-      const alunoInput = document.createElement('input');
-      alunoInput.type = 'hidden';
-      alunoInput.name = 'student_id';
-      alunoInput.value = currentStudentId;
-      
-      form.appendChild(methodInput);
-      form.appendChild(tokenInput);
-      form.appendChild(alunoInput);
-      
-      document.body.appendChild(form);
-      form.submit();
-    }
-    closeRemoveModal();
-  };
-
-  window.openBulkAllocateModal = function() {
-    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    document.getElementById('bulk-allocate-count').textContent = studentIds.length;
-    document.getElementById('bulk-allocate-modal').showModal();
-    return false;
-  };
-
-  window.closeBulkAllocateModal = function() {
-    document.getElementById('bulk-allocate-modal').close();
-  };
-
-  window.confirmBulkAllocate = function() {
-    const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    
-    if (studentIds.length === 0) {
-      return;
-    }
-    
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/assign_students';
-    
-    const methodInput = document.createElement('input');
-    methodInput.type = 'hidden';
-    methodInput.name = '_method';
-    methodInput.value = 'PATCH';
-    
-    const tokenInput = document.createElement('input');
-    tokenInput.type = 'hidden';
-    tokenInput.name = 'authenticity_token';
-    tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
-    
-    form.appendChild(methodInput);
-    form.appendChild(tokenInput);
-    
-    studentIds.forEach((id) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'student_ids[]';
-      input.value = id;
-      form.appendChild(input);
-    });
-    
-    document.body.appendChild(form);
-    form.submit();
-    closeBulkAllocateModal();
-  };
-
-  window.openBulkRemoveModal = function() {
-    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    
-    if (studentIds.length === 0) {
-      return;
-    }
-    
-    document.getElementById('bulk-remove-count').textContent = studentIds.length;
-    document.getElementById('bulk-remove-modal').showModal();
-    return false;
-  };
-
-  window.closeBulkRemoveModal = function() {
-    document.getElementById('bulk-remove-modal').close();
-  };
-
-  window.confirmBulkRemove = function() {
-    const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-    const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-    
-    if (studentIds.length === 0) {
-      return;
-    }
-    
-    // Create form to send array of student IDs to controller
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
-    
-    const methodInput = document.createElement('input');
-    methodInput.type = 'hidden';
-    methodInput.name = '_method';
-    methodInput.value = 'PATCH';
-    
-    const tokenInput = document.createElement('input');
-    tokenInput.type = 'hidden';
-    tokenInput.name = 'authenticity_token';
-    tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
-    
-    form.appendChild(methodInput);
-    form.appendChild(tokenInput);
-    
-    // Add each student ID as array parameter
-    studentIds.forEach((id) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'student_ids[]';
-      input.value = id;
-      form.appendChild(input);
-    });
-    
-    document.body.appendChild(form);
-    form.submit();
-    closeBulkRemoveModal();
-  };
-
-  function initializeAssignStudents() {
-    const selectAllCheckbox = document.getElementById('select-all-available');
-    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
-    const selectedCountSpan = document.getElementById('selected-count');
-    const bulkAssignBtn = document.getElementById('bulk-assign-btn');
-    const bulkAssignForm = document.getElementById('bulk-assign-form');
-    const selectedStudentsInputs = document.getElementById('selected-students-inputs');
-    const bulkAssignSection = document.getElementById('bulk-assign-section');
-
-    // Modal variables
-    let currentStudentId = null;
-    let currentStudentName = null;
-
-    // Filter functionality
-    const applyFiltersAllocated = document.getElementById('apply-filters-allocated');
-    const applyFiltersAvailable = document.getElementById('apply-filters-available');
-
-    // Apply filters with animations
-    function applyFilters(type) {
-      const searchQuery = type === 'allocated' ? document.getElementById('search-allocated').value : document.getElementById('search-available').value;
-      const ageFilter = type === 'allocated' ? document.getElementById('age-filter-allocated').value : document.getElementById('age-filter-available').value;
-      const orderFilter = type === 'allocated' ? document.getElementById('order-filter-allocated').value : document.getElementById('order-filter-available').value;
-      
-      const params = new URLSearchParams(window.location.search);
-      if (searchQuery) params.set(type === 'allocated' ? 'allocated_search' : 'available_search', searchQuery);
-      else params.delete(type === 'allocated' ? 'allocated_search' : 'available_search');
-      
-      if (ageFilter) params.set(type === 'allocated' ? 'allocated_age_filter' : 'available_age_filter', ageFilter);
-      else params.delete(type === 'allocated' ? 'allocated_age_filter' : 'available_age_filter');
-      
-      if (orderFilter) params.set(type === 'allocated' ? 'allocated_order_filter' : 'available_order_filter', orderFilter);
-      else params.delete(type === 'allocated' ? 'allocated_order_filter' : 'available_order_filter');
-      
-      // Add loading animation
-      document.body.style.cursor = 'wait';
-      window.location.search = params.toString();
-    }
-
-    applyFiltersAllocated?.addEventListener('click', () => applyFilters('allocated'));
-    applyFiltersAvailable?.addEventListener('click', () => applyFilters('available'));
-
-    selectAllCheckbox?.addEventListener('change', function() {
-      studentCheckboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-      });
-      updateSelectedCount();
-    });
-
-    studentCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        updateSelectAllState();
-        updateSelectedCount();
-      });
-    });
-
-    function updateSelectAllState() {
-      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-      if (checkedBoxes.length === 0) {
-        selectAllCheckbox.indeterminate = false;
-        selectAllCheckbox.checked = false;
-      } else if (checkedBoxes.length === studentCheckboxes.length) {
-        selectAllCheckbox.indeterminate = false;
-        selectAllCheckbox.checked = true;
-      } else {
-        selectAllCheckbox.indeterminate = true;
-        selectAllCheckbox.checked = false;
-      }
-    }
-
-    function updateSelectedCount() {
-      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-      const count = checkedBoxes.length;
-      
-      selectedCountSpan.textContent = count;
-      
-      if (count > 0) {
-        bulkAssignBtn.classList.remove('btn-disabled');
-        bulkAssignSection.classList.remove('hidden');
-        setTimeout(() => {
-          bulkAssignSection.classList.remove('opacity-0', 'scale-95');
-          bulkAssignSection.classList.add('opacity-100', 'scale-100');
-        }, 10);
-      } else {
-        bulkAssignBtn.classList.add('btn-disabled');
-        bulkAssignSection.classList.remove('opacity-100', 'scale-100');
-        bulkAssignSection.classList.add('opacity-0', 'scale-95');
-        setTimeout(() => {
-          bulkAssignSection.classList.add('hidden');
-        }, 300);
-      }
-    }
-
-    bulkAssignBtn?.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-      const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-      
-      if (studentIds.length === 0) {
-        return;
-      }
-      
-      openBulkAllocateModal();
-    });
-
-    const selectAllAllocatedCheckbox = document.getElementById('select-all-allocated');
-    const allocatedCheckboxes = document.querySelectorAll('.allocated-checkbox');
-    const allocatedCountSpan = document.getElementById('allocated-count');
-    const bulkRemoveBtn = document.getElementById('bulk-remove-btn');
-    const bulkRemoveSection = document.getElementById('bulk-remove-section');
-
-    selectAllAllocatedCheckbox?.addEventListener('change', function() {
-      allocatedCheckboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-      });
-      updateAllocatedCount();
-    });
-
-    allocatedCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        updateSelectAllAllocatedState();
-        updateAllocatedCount();
-      });
-    });
-
-    function updateSelectAllAllocatedState() {
-      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-      if (checkedBoxes.length === 0) {
-        selectAllAllocatedCheckbox.indeterminate = false;
-        selectAllAllocatedCheckbox.checked = false;
-      } else if (checkedBoxes.length === allocatedCheckboxes.length) {
-        selectAllAllocatedCheckbox.indeterminate = false;
-        selectAllAllocatedCheckbox.checked = true;
-      } else {
-        selectAllAllocatedCheckbox.indeterminate = true;
-        selectAllAllocatedCheckbox.checked = false;
-      }
-    }
-
-    function updateAllocatedCount() {
-      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-      const count = checkedBoxes.length;
-      
-      allocatedCountSpan.textContent = count;
-      
-      if (count > 0) {
-        bulkRemoveBtn.style.display = 'flex';
-        bulkRemoveSection.classList.remove('hidden');
-        setTimeout(() => {
-          bulkRemoveSection.classList.remove('opacity-0', 'scale-95');
-          bulkRemoveSection.classList.add('opacity-100', 'scale-100');
-        }, 10);
-      } else {
-        bulkRemoveBtn.style.display = 'none';
-        bulkRemoveSection.classList.remove('opacity-100', 'scale-100');
-        bulkRemoveSection.classList.add('opacity-0', 'scale-95');
-        setTimeout(() => {
-          bulkRemoveSection.classList.add('hidden');
-        }, 300);
-      }
-    }
-
-    bulkRemoveBtn?.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-      const studentIds = Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
-      
-      if (studentIds.length === 0) {
-        return;
-      }
-      
-      openBulkRemoveModal();
-    });
-
-    const removeStudentBtns = document.querySelectorAll('.remove-student-btn');
-
-    removeStudentBtns.forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const studentId = this.dataset.studentId;
-        const studentName = this.dataset.studentName;
-        
-        if (confirm(confirmMessage)) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '/escolas/<%= @escola.id %>/turmas/<%= @turma.id %>/remove_from_turma';
-          form.style.display = 'none';
-          
-          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-          const csrfInput = document.createElement('input');
-          csrfInput.type = 'hidden';
-          csrfInput.name = 'authenticity_token';
-          csrfInput.value = csrfToken;
-          form.appendChild(csrfInput);
-          
-          const methodInput = document.createElement('input');
-          methodInput.type = 'hidden';
-          methodInput.name = '_method';
-          methodInput.value = 'patch';
-          form.appendChild(methodInput);
-          
-          const alunoInput = document.createElement('input');
-          alunoInput.type = 'hidden';
-          alunoInput.name = 'student_id';
-          alunoInput.value = studentId;
-          form.appendChild(alunoInput);
-          
-          document.body.appendChild(form);
-          form.submit();
-        }
-      });
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', initializeAssignStudents);
-  document.addEventListener('turbo:load', initializeAssignStudents);
-</script>
+<%= javascript_include_tag 'assign_students' %>
