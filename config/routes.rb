@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   devise_for :professors
   devise_for :admins
   devise_for :super_admins
@@ -11,7 +12,11 @@ Rails.application.routes.draw do
     post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
   end
 
+
   resources :escolas do
+    resources :ano_letivos do
+      resources :turmas
+    end
     # Alunos directly under escola (not allocated to any turma)
     resources :alunos do
       member do

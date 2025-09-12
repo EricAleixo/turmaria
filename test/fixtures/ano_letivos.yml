@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ano: 1
+  data_inicio: 2025-09-09
+  data_fim: 2025-09-09
+  status: 1
+
+two:
+  ano: 1
+  data_inicio: 2025-09-09
+  data_fim: 2025-09-09
+  status: 1

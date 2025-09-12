@@ -1,5 +1,6 @@
 class Escola < ApplicationRecord
-  has_many :turmas, dependent: :destroy
+  has_many :turmas
+  has_many :ano_letivos, dependent: :destroy
   has_many :alunos, through: :turmas
 
   validates :nome, presence: true, uniqueness: true

@@ -1,0 +1,83 @@
+<% if turbo_frame_request? %>
+  <%= form_with(model: [@escola, @ano_letivo], class: "bg-white p-8 rounded-lg shadow-md", data: { turbo_frame: "_top" }) do |form| %>
+    <% if @ano_letivo.errors.any? %>
+      <div class="alert alert-error mb-6">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>
+            <h3 class="font-bold">Erro ao salvar!</h3>
+            <ul class="list-disc list-inside">
+              <% @ano_letivo.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </span>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="flex justify-between items-center mb-8 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700"><%= @ano_letivo.persisted? ? "Editar Ano Letivo" : "Novo Ano Letivo" %></h1>
+    </div>
+
+    <%= form.label :ano, "Ano *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :ano, class: "input input-bordered w-full", placeholder: "Ex: 2025", required: true %>
+    
+    <%= form.label :data_inicio, "Data de Início *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.date_field :data_inicio, class: "input input-bordered w-full", required: true %>
+    
+    <%= form.label :data_fim, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.date_field :data_fim, class: "input input-bordered w-full", required: true %>
+    
+    <%= form.label :numero_bimestre, "Quantidade de Bimestres *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :numero_bimestre, class: "input input-bordered w-full", required: true %>
+    
+    <div class="flex justify-between mt-10">
+      <%= link_to "Voltar", request.referer.present? ? request.referer : [@escola, @ano_letivo], class: "btn btn-ghost" %>
+      <%= form.submit @ano_letivo.persisted? ? "Atualizar" : "Criar Ano Letivo", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
+    </div>
+  <% end %>
+<% else %>
+  <%= form_with(model: [@escola, @ano_letivo], class: "bg-white p-8 rounded-lg shadow-md", data: { turbo: false }) do |form| %>
+    <% if @ano_letivo.errors.any? %>
+      <div class="alert alert-error mb-6">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>
+            <h3 class="font-bold">Erro ao salvar!</h3>
+            <ul class="list-disc list-inside">
+              <% @ano_letivo.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </span>
+        </div>
+      </div>
+    <% end %>
+    
+    <div class="flex justify-between items-center mb-8 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700"><%= @ano_letivo.persisted? ? "Editar Ano Letivo" : "Novo Ano Letivo" %></h1>
+    </div>
+
+    <%= form.label :ano, "Ano *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :ano, class: "input input-bordered w-full", placeholder: "Ex: 2025", required: true %>
+    
+    <%= form.label :data_inicio, "Data de Início *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.date_field :data_inicio, class: "input input-bordered w-full", required: true %>
+    
+    <%= form.label :data_fim, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.date_field :data_fim, class: "input input-bordered w-full", required: true %>
+    
+    <%= form.label :numero_bimestre, "Quantidade de Bimestres *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :numero_bimestre, class: "input input-bordered w-full", required: true %>
+    
+    <div class="flex justify-between mt-10">
+      <%= link_to "Voltar", request.referer.present? ? request.referer : [@escola, @ano_letivo], class: "btn btn-ghost" %>
+      <%= form.submit @ano_letivo.persisted? ? "Atualizar" : "Criar Ano Letivo", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
+    </div>
+  <% end %>
+<% end %>

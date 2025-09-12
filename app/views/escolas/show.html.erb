@@ -200,6 +200,46 @@
           <% end %>
         </div>
 
+  <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-700">Anos Letivos</h2>
+    <%= link_to new_escola_ano_letivo_path(@escola), class: "bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-md shadow" do %>
+      <span class="mr-1">+</span> Novo Ano Letivo
+    <% end %>
+  </div>
+
+  <hr class="mb-6">
+
+  <% if @escola.ano_letivos.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @escola.ano_letivos.each do |ano| %>
+        <div class="border rounded-lg p-4 shadow hover:shadow-lg transition">
+          <h3 class="text-lg font-semibold text-gray-800">
+            Ano Letivo <%= ano.ano %>
+          </h3>
+          <p class="text-gray-600 mt-2">
+            Início: <%= ano.data_inicio.present? ? ano.data_inicio.strftime("%d/%m/%Y") : "Não informado" %>
+          </p>
+          <p class="text-gray-600">
+            Fim: <%= ano.data_fim.present? ? ano.data_fim.strftime("%d/%m/%Y") : "Não informado" %>
+          </p>
+
+          <div class="flex justify-end gap-2 mt-4">
+            <%= link_to escola_ano_letivo_path(@escola, ano), class: "bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded shadow text-sm" do %>
+              Ver
+            <% end %>
+            <%= link_to edit_escola_ano_letivo_path(@escola, ano), class: "bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded shadow text-sm" do %>
+              Editar
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-500">Nenhum ano letivo cadastrado ainda.</p>
+  <% end %>
+</div>
+
         <div class="bg-white p-8 rounded-lg shadow-md mb-6 mt-4">
           <div class="flex justify-between items-center mb-6 border-b pb-4">
             <div>
