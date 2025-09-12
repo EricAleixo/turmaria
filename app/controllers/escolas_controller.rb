@@ -14,6 +14,7 @@ class EscolasController < ApplicationController
 
   def new
     @escola = Escola.new
+    @escola.build_endereco
   end
 
   def edit
@@ -61,6 +62,7 @@ class EscolasController < ApplicationController
   end
 
   def escola_params
-    params.require(:escola).permit(:nome, :cnpj)
+    params.require(:escola).permit(:nome, :cnpj,
+  endereco_attributes: [:logradouro, :numero, :bairro, :cidade, :estado, :cep])
   end
 end
