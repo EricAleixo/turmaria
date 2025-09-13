@@ -53,7 +53,7 @@ class TurmasController < ApplicationController
     @turma.destroy!
 
     respond_to do |format|
-      format.html { redirect_to escola_turmas_path(@escola), status: :see_other, notice: "Turma foi excluída com sucesso." }
+      format.html { redirect_to escola_path(@escola), status: :see_other, notice: "Turma foi excluída com sucesso." }
       format.json { head :no_content }
     end
   end
@@ -263,6 +263,6 @@ class TurmasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def turma_params
-      params.require(:turma).permit(:nome, :serie, :turno)
+      params.require(:turma).permit(:nome, :serie, :turno, :ano_letivo_id)
     end
 end

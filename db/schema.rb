@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_10_125938) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -44,6 +44,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
+  end
+
+  create_table "ano_letivos", force: :cascade do |t|
+    t.integer "ano"
+    t.date "data_inicio"
+    t.date "data_fim"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "escola_id"
+    t.integer "numero_bimestre"
+    t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
   end
 
   create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -140,11 +151,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "escola_id", null: false
+    t.bigint "ano_letivo_id", null: false
+    t.index ["ano_letivo_id"], name: "index_turmas_on_ano_letivo_id"
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
+  add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "enderecos", "alunos"
+  add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

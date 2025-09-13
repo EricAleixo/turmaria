@@ -35,7 +35,15 @@
     <%= form.select :turno, options_for_select([["Manhã", "manha"], ["Tarde", "tarde"], ["Noite", "noite"], ["Integral", "integral"]], turma.turno), { prompt: "Selecione o turno" }, { class: "select select-bordered w-full", required: true } %>
   </div>
 
-  <div class="flex justify-end mt-10">
+  <div class= "form-control w-full mb-6">
+    <%= form.label :ano_letivo_id, "Ano Letivo", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.collection_select :ano_letivo_id, AnoLetivo.order(:ano), :id, :ano, { prompt: "Selecione o Ano Letivo" }, class: "select select-bordered w-full", required: true, id: 'turma_ano_letivo_id' %>
+
+    
+  </div>
+
+  <div class="flex justify-between mt-10">
+    <%=link_to "Adicionar Ano Letivo", new_escola_ano_letivo_path(@escola),data: {turbo_frame: "modal"}, class:"btn btn-sm btn-primary w-24"%>
     <%= form.submit turma.persisted? ? "Atualizar" : "Criar Turma", class: "btn bg-green-500 hover:bg-green-600 text-white w-24" %>
   </div>
 
