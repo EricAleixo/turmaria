@@ -3,7 +3,7 @@
 
   <div class="drawer-content flex flex-col items-center">
     
-    <div class="w-full p-4">
+    <div class="w-full p-6">
       <div class="flex items-center mb-6 lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -11,63 +11,104 @@
         <h1 class="text-xl font-bold ml-2"><%= @turma.nome %></h1>
       </div>
 
-      <main class="w-full max-w-4xl mx-auto">
-        <div class="text-sm breadcrumbs mb-4">
+      <main class="w-full max-w-5xl mx-auto">
+        <div class="text-sm breadcrumbs mb-5">
           <ul>
-            <li><%= link_to "Escolas", escolas_path, class: "text-blue-600 hover:text-blue-800" %></li>
-            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800" %></li>
-            <li class="text-gray-500"><%= @turma.nome %></li>
+            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600"><%= @turma.nome %></li>
           </ul>
         </div>
 
-        <div class="bg-white p-8 rounded-lg shadow-md mb-6">
-          <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-800"><%= @turma.nome %></h1>
-              <div class="flex gap-2 mt-2">
-                <span class="badge badge-primary"><%= @turma.serie %>º ano</span>
-                <span class="badge badge-outline"><%= @turma.turno.humanize %></span>
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-green-600 to-green-500 rounded-t-xl p-10 text-white shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20"></div>
+          <div class="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full -ml-10 -mb-10"></div>
+          <div class="flex justify-between items-center relative z-10">
+            <div class="w-full">
+              <h1 class="text-4xl font-bold tracking-tight"><%= @turma.nome %></h1>
+              <p class="text-green-100 mt-3 text-lg">Gerenciamento completo da turma</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-b-xl shadow-xl mb-8 relative">
+          <!-- Badge Section -->
+          <div class="flex gap-3 absolute -top-6 left-10">
+            <span class="badge badge-lg bg-green-600 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.serie %>º ano</span>
+            <span class="badge badge-lg bg-blue-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.turno.humanize %></span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-4 justify-end p-6 border-b border-gray-100">
+            <%= link_to edit_escola_turma_path(@escola, @turma), class: "btn btn-sm bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105", title: "Editar turma" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              Editar
+            <% end %>
+            <%= link_to assign_students_escola_turma_path(@escola, @turma), class: "btn btn-sm bg-green-500 hover:bg-green-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105", title: "Alocar alunos" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.329 0-4.52-.627-6.374-1.766z" />
+              </svg>
+              Alocar Alunos
+            <% end %>
+            <%= link_to escola_turma_alunos_path(@escola, @turma), class: "btn btn-sm bg-blue-500 hover:bg-blue-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105", title: "Ver alunos" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              Ver Alunos
+            <% end %>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="stat bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 shadow-lg border border-blue-200 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group">
+                <div class="flex items-center mb-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                    </svg>
+                  </div>
+                  <div class="stat-title text-blue-700 font-medium text-lg">Total de Alunos</div>
+                </div>
+                <div class="stat-value text-blue-800 text-5xl font-bold ml-16"><%= @turma.alunos.count %></div>
+                <div class="stat-desc text-blue-600 mt-3 ml-16 text-sm">Alunos matriculados nesta turma</div>
+              </div>
+              
+              <div class="stat bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 shadow-lg border border-green-200 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group">
+                <div class="flex items-center mb-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+                    </svg>
+                  </div>
+                  <div class="stat-title text-green-700 font-medium text-lg">Escola</div>
+                </div>
+                <div class="stat-value text-green-800 text-2xl font-bold ml-16"><%= @escola.nome %></div>
+                <div class="stat-desc text-green-600 mt-3 ml-16 text-sm">Instituição de ensino</div>
               </div>
             </div>
-            <div class="flex gap-2">
-              <%= link_to edit_escola_turma_path(@escola, @turma), class: "btn bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600", title: "Editar turma" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                </svg>
-                Editar
-              <% end %>
-              <%= link_to assign_students_escola_turma_path(@escola, @turma), class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Alocar alunos" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.329 0-4.52-.627-6.374-1.766z" />
-                </svg>
-                Alocar Alunos
-              <% end %>
-              <%= link_to escola_turma_alunos_path(@escola, @turma), class: "btn bg-blue-500 hover:bg-blue-600 text-white", title: "Ver alunos" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                </svg>
-                Ver Alunos
-              <% end %>
-            </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="stat bg-blue-50 rounded-lg p-4">
-              <div class="stat-title text-blue-600">Total de Alunos</div>
-              <div class="stat-value text-blue-800"><%= @turma.alunos.count %></div>
-            </div>
-            <div class="stat bg-green-50 rounded-lg p-4">
-              <div class="stat-title text-green-600">Escola</div>
-              <div class="stat-value text-green-800 text-lg"><%= @escola.nome %></div>
-            </div>
-          </div>
-
-          <div class="flex justify-between mt-6">
-            <%= link_to "Voltar", escola_path(@escola), class: "btn btn-ghost" %>
-            <%= button_to "Excluir Turma", escola_turma_path(@escola, @turma), 
+          <!-- Action Footer -->
+          <div class="flex justify-between p-8 bg-gradient-to-b from-white to-gray-50 rounded-b-xl border-t border-gray-100">
+            <%= link_to escola_path(@escola), class: "btn btn-sm btn-outline border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 shadow-sm hover:shadow" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+              </svg>
+              Voltar
+            <% end %>
+            <%= button_to escola_turma_path(@escola, @turma), 
                 method: :delete, 
-                class: "btn btn-error text-white", 
-                data: { turbo_confirm: "Tem certeza que deseja excluir esta turma?" } %>
+                class: "btn btn-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-300 shadow-sm hover:shadow", 
+                data: { turbo_confirm: "Tem certeza que deseja excluir esta turma?" } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+              Excluir Turma
+            <% end %>
           </div>
         </div>
       </main>
@@ -76,26 +117,25 @@
   </div>
 
   
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-              </svg>
-              Escolas
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <%= render 'shared/super_admin_sidebar' %>
+  
+  <!-- Informações da turma no sidebar -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.querySelector('.drawer-side .menu');
+      if (sidebar) {
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `
+          <div class="border-t border-gray-200 my-4"></div>
+          <div class="text-sm text-gray-500 mb-2 px-4">INFORMAÇÕES</div>
+          <div class="bg-blue-50 rounded-lg p-4 text-sm">
+            <div class="font-medium text-blue-700 mb-1">Turma Atual</div>
+            <div class="text-blue-800 font-bold mb-1"><%= @turma.nome %></div>
+            <div class="text-blue-600"><%= @turma.serie %>º ano - <%= @turma.turno.humanize %></div>
+          </div>
+        `;
+        sidebar.appendChild(infoDiv);
+      }
+    });
+  </script>
 </div>

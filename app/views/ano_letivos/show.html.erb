@@ -95,26 +95,5 @@
   </div>
 
   <!-- Sidebar -->
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escola_ano_letivos_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6M12 6.75h.008v.008H12V6.75z" />
-              </svg>
-              Anos Letivos
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <%= render 'shared/super_admin_sidebar' %>
 </div>

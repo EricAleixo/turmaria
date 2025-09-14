@@ -41,7 +41,7 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_scope :admin do
+  devise_scope :super_admin do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
@@ -49,6 +49,6 @@ Rails.application.routes.draw do
     post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
   end
 
-  root to: "dashboard#index"
+  root to: "home#index"
   get "up" => "rails/health#show", as: :rails_health_check
 end
