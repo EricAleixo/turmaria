@@ -38,9 +38,7 @@
         </div>
         <nav class="flex space-x-3.5 items-center md:space-x-7">
           <% if current_account.present? && current_page?(root_path) %>
-            <%= link_to escolas_path do %>
-              Escolas   
-            <% end %>
+
           <% end %>
           <% if current_account.present? %>
             <%= button_to destroy_user_session_path, method: :delete, class: "btn bg-red-600 text-white shadow-none d-flex align-items-center gap-2" do %>

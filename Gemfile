@@ -77,4 +77,4 @@ gem "tailwindcss-rails", "~> 4.3"
 
 gem "devise", "~> 4.9"
 
-
+gem "pundit", "~> 2.3"

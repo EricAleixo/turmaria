@@ -11,22 +11,119 @@
         <h1 class="text-xl font-bold ml-2">Escolas</h1>
       </div>
 
-      <main class="w-full max-w-4xl mx-auto">
+      <main class="w-full max-w-7xl mx-auto">
+        <!-- Analytics Dashboard -->
+        <div class="mb-8">
+          <!-- Statistics Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2"><%= @escolas.count %></div>
+                <div class="text-gray-600 font-medium">Total de Escolas</div>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2"><%= @escolas.joins(:turmas).count %></div>
+                <div class="text-gray-600 font-medium">Total de Turmas</div>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2"><%= @escolas.joins(:alunos).count %></div>
+                <div class="text-gray-600 font-medium">Total de Alunos</div>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-2"><%= (@escolas.joins(:alunos).count.to_f / @escolas.count).round(1) if @escolas.any? %></div>
+                <div class="text-gray-600 font-medium">Média Alunos/Escola</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção de Gráficos -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Gráfico de Distribuição de Turmas -->
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribuição de Turmas</h3>
+              <div class="h-64">
+                <canvas id="schoolsDistributionChart"></canvas>
+              </div>
+            </div>
+            
+            <!-- Gráfico de Alunos por Escola -->
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Alunos por Escola</h3>
+              <div class="h-64">
+                <canvas id="studentsPerSchoolChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico de Análise - Largura Completa -->
+          <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Análise de Crescimento do Sistema</h3>
+            <div class="h-64">
+              <canvas id="growthAnalysisChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schools Management Section -->
         <div class="bg-white p-8 rounded-lg shadow-md">
           <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h1 class="text-2xl font-bold text-gray-700">Escolas</h1>
+            <h1 class="text-2xl font-bold text-gray-700">Gerenciar Escolas</h1>
             <%= link_to "Nova Escola", new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar nova escola" %>
+          </div>
+
+          <!-- Filtering Bar -->
+          <div class="bg-white rounded-lg p-6 mb-6 border">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Filtros</h3>
+            <div class="flex flex-wrap gap-4 items-end">
+              <!-- Search Input -->
+              <div class="flex-1 min-w-64">
+                <input type="text" id="searchName" placeholder="Buscar por nome da escola..." class="input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500">
+              </div>
+
+              <!-- School Filter Dropdown -->
+              <div class="min-w-48">
+                <select id="schoolFilter" class="select select-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500">
+                  <option value="">Todas as escolas</option>
+                  <option value="most_students">Mais alunos</option>
+                  <option value="least_students">Menos alunos</option>
+                  <option value="most_classes">Mais turmas</option>
+                  <option value="least_classes">Menos turmas</option>
+                  <option value="with_cnpj">Com CNPJ</option>
+                  <option value="without_cnpj">Sem CNPJ</option>
+                </select>
+              </div>
+
+              <!-- Filter Button -->
+              <button id="applyFilters" class="btn bg-green-500 hover:bg-green-600 text-white border-0 px-8">
+                Filtrar
+              </button>
+
+              <!-- Clear Button -->
+              <button id="clearFilters" class="btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6">
+                Limpar
+              </button>
+            </div>
           </div>
 
           <% if @escolas.any? %>
             <!-- Desktop Table View -->
             <div class="hidden md:block overflow-x-auto">
-              <table class="table w-full">
+              <table id="schoolsTable" class="table w-full">
                 <thead>
                   <tr>
                     <th>Nome</th>
                     <th>CNPJ</th>
                     <th>Turmas</th>
+                    <th>Alunos</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -36,24 +133,28 @@
                       <td><%= escola.nome %></td>
                       <td><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></td>
                       <td><%= escola.turmas.count %></td>
+                      <td><%= escola.alunos.count %></td>
                       <td>
                         <div class="flex gap-2">
                           <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver escola" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                           <% end %>
-                          <%= link_to edit_escola_path(escola), class: "btn bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white border-0 btn-sm", title: "Editar escola" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800", title: "Editar escola" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                             </svg>
                           <% end %>
-                          <label for="delete-modal-<%= escola.id %>" class="btn btn-error btn-sm" title="Excluir escola">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <%= link_to escola_path(escola), method: :delete, 
+                                      confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
+                                      class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800", 
+                                      title: "Excluir escola" do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                             </svg>
-                          </label>
+                          <% end %>
                         </div>
                       </td>
                     </tr>
@@ -65,151 +166,444 @@
             <!-- Mobile Card View -->
             <div class="md:hidden space-y-4">
               <% @escolas.each do |escola| %>
-                <div class="card bg-base-100 shadow-md border">
-                  <div class="card-body p-4">
-                    <div class="flex justify-between items-start mb-3">
-                      <div class="flex-1">
-                        <h3 class="card-title text-lg font-bold text-gray-800"><%= escola.nome %></h3>
-                        <p class="text-sm text-gray-600 mt-1">
-                          <span class="font-semibold">CNPJ:</span> <%= escola.cnpj.present? ? escola.cnpj : "Não informado" %>
-                        </p>
-                        <p class="text-sm text-gray-600">
-                          <span class="font-semibold">Turmas:</span> <%= escola.turmas.count %>
-                        </p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border mobile-school-card">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-lg text-gray-800 mb-2"><%= escola.nome %></h3>
+                      <div class="space-y-1 text-sm text-gray-600">
+                        <div class="flex items-center">
+                          <span class="font-medium w-16">CNPJ:</span>
+                          <span><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></span>
+                        </div>
+                        <div class="flex items-center">
+                          <span class="font-medium w-16">Turmas:</span>
+                          <span class="text-green-600 font-semibold"><%= escola.turmas.count %></span>
+                        </div>
+                        <div class="flex items-center">
+                          <span class="font-medium w-16">Alunos:</span>
+                          <span class="text-blue-600 font-semibold"><%= escola.alunos.count %></span>
+                        </div>
                       </div>
                     </div>
-                    
-                    <div class="card-actions justify-end">
-                      <div class="flex gap-2">
-                        <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver escola" do %>
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        <% end %>
-                        <%= link_to edit_escola_path(escola), class: "btn bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white border-0 btn-sm", title: "Editar escola" do %>
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                          </svg>
-                        <% end %>
-                        <label for="delete-modal-<%= escola.id %>" class="btn btn-error btn-sm" title="Excluir escola">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                          </svg>
-                        </label>
-                      </div>
-                    </div>
+                  </div>
+                  
+                  <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50", title: "Ver escola" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    <% end %>
+                    <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50", title: "Editar escola" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                      </svg>
+                    <% end %>
+                    <%= link_to escola_path(escola), method: :delete, 
+                                confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
+                                class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800 hover:bg-red-50", 
+                                title: "Excluir escola" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    <% end %>
                   </div>
                 </div>
               <% end %>
             </div>
-
-            <!-- Delete Modals (shared between desktop and mobile) -->
-            <% @escolas.each do |escola| %>
-              <input type="checkbox" id="delete-modal-<%= escola.id %>" class="modal-toggle" />
-              <div class="modal">
-                <div class="modal-box">
-                  <h3 class="font-bold text-lg text-error">Confirmar Exclusão</h3>
-                  <p class="py-4">
-                    Tem certeza que deseja excluir a escola <strong><%= escola.nome %></strong>?
-                    <br>
-                    <span class="text-warning text-sm">Esta ação não pode ser desfeita e excluirá todas as turmas e alunos associados.</span>
-                  </p>
-                  
-                  <div class="form-control w-full mb-4">
-                    <label class="label">
-                      <span class="label-text font-semibold">Digite o nome da escola para confirmar:</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      placeholder="<%= escola.nome %>" 
-                      class="input input-bordered w-full confirm-name-input" 
-                      data-escola-id="<%= escola.id %>"
-                      data-escola-name="<%= escola.nome %>"
-                    />
-                  </div>
-                  
-                  <div class="modal-action">
-                    <label for="delete-modal-<%= escola.id %>" class="btn btn-ghost">Cancelar</label>
-                    <%= link_to "Excluir", escola_path(escola), 
-                        class: "btn btn-error", 
-                        id: "delete-btn-#{escola.id}", 
-                        style: "pointer-events: none; opacity: 0.5;",
-                        data: { 
-                          turbo_method: :delete
-                        } %>
-                  </div>
-                </div>
-                <label class="modal-backdrop" for="delete-modal-<%= escola.id %>"></label>
-              </div>
-            <% end %>
           <% else %>
-            <!-- Empty State -->
             <div class="text-center py-12">
-              <div class="mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.26-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma escola cadastrada</h3>
-              <p class="text-gray-500 mb-6">Comece adicionando sua primeira escola ao sistema.</p>
-              <%= link_to "Cadastrar Primeira Escola", new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white" %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma escola cadastrada</h3>
+              <p class="text-gray-500 mb-6">Comece criando sua primeira escola para gerenciar turmas e alunos.</p>
+              <%= link_to "Criar primeira escola", new_escola_path, class: "btn bg-blue-500 hover:bg-blue-600 text-white" %>
             </div>
           <% end %>
         </div>
       </main>
     </div>
-
   </div>
 
-  
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100 bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-              </svg>
-              Escolas
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <%= render 'shared/super_admin_sidebar' %>
 </div>
 
-<script>
-  function validateDeleteConfirmation(escolaId) {
-    const confirmNameInput = document.querySelector(`.confirm-name-input[data-escola-id="${escolaId}"]`);
-    const deleteButton = document.getElementById(`delete-btn-${escolaId}`);
-    const escolaName = confirmNameInput.getAttribute('data-escola-name');
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    if (confirmNameInput.value.trim().toLowerCase() === escolaName.trim().toLowerCase()) {
-      deleteButton.style.pointerEvents = 'auto';
-      deleteButton.style.opacity = '1';
-    } else {
-      deleteButton.style.pointerEvents = 'none';
-      deleteButton.style.opacity = '0.5';
-    }
+<!-- Chart Initialization Script -->
+<script>
+// Store chart instances globally for cleanup
+let schoolsDistributionChart, studentsPerSchoolChart, growthAnalysisChart;
+
+function initializeSchoolCharts() {
+  // Clean up existing charts if they exist
+  if (schoolsDistributionChart) {
+    schoolsDistributionChart.destroy();
+  }
+  if (studentsPerSchoolChart) {
+    studentsPerSchoolChart.destroy();
+  }
+  if (growthAnalysisChart) {
+    growthAnalysisChart.destroy();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const confirmNameInputs = document.querySelectorAll('.confirm-name-input');
+  // Check if chart elements exist before initializing
+  const schoolsDistributionCtx = document.getElementById('schoolsDistributionChart');
+  const studentsPerSchoolCtx = document.getElementById('studentsPerSchoolChart');
+  const growthAnalysisCtx = document.getElementById('growthAnalysisChart');
 
-    confirmNameInputs.forEach(input => {
-      input.addEventListener('input', () => {
-        const escolaId = input.getAttribute('data-escola-id');
-        validateDeleteConfirmation(escolaId);
-      });
-    });
+  if (!schoolsDistributionCtx || !studentsPerSchoolCtx || !growthAnalysisCtx) {
+    console.log('Chart elements not found, skipping initialization');
+    return;
+  }
+
+  // Prepare data from Rails
+  const schoolNames = <%= raw @escolas.pluck(:nome).to_json %>;
+  const turmasData = <%= raw @escolas.map { |e| e.turmas.count }.to_json %>;
+  const alunosData = <%= raw @escolas.map { |e| e.alunos.count }.to_json %>;
+
+  // Schools Distribution Chart (Line Chart - matching dashboard style)
+  schoolsDistributionChart = new Chart(schoolsDistributionCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: schoolNames,
+      datasets: [{
+        label: 'Turmas',
+        data: turmasData,
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
   });
+
+  // Students per School Chart (Line Chart - matching dashboard style)
+  studentsPerSchoolChart = new Chart(studentsPerSchoolCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: schoolNames,
+      datasets: [{
+        label: 'Alunos',
+        data: alunosData,
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+
+  // Growth Analysis Chart (Line Chart - matching dashboard style)
+  growthAnalysisChart = new Chart(growthAnalysisCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      datasets: [{
+        label: 'Crescimento do Sistema',
+        data: [1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, <%= @escolas.count %>],
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+}
+
+// Initialize on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  initializeSchoolCharts();
+});
+
+// Initialize on Turbo navigation
+document.addEventListener('turbo:load', function() {
+  initializeSchoolCharts();
+});
+
+// Clean up on Turbo before cache
+document.addEventListener('turbo:before-cache', function() {
+  if (schoolsDistributionChart) {
+    schoolsDistributionChart.destroy();
+    schoolsDistributionChart = null;
+  }
+  if (studentsPerSchoolChart) {
+    studentsPerSchoolChart.destroy();
+    studentsPerSchoolChart = null;
+  }
+  if (growthAnalysisChart) {
+    growthAnalysisChart.destroy();
+    growthAnalysisChart = null;
+  }
+});
+</script>
+
+<!-- Filtering JavaScript -->
+<script>
+let allSchools = [];
+let filteredSchools = [];
+
+// Initialize filtering system
+function initializeFiltering() {
+  // Store all school data for filtering
+  allSchools = [];
+  const tableRows = document.querySelectorAll('#schoolsTable tbody tr');
+  const mobileCards = document.querySelectorAll('.mobile-school-card');
+  
+  // Extract data from table rows
+  tableRows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 4) {
+      allSchools.push({
+        element: row,
+        mobileCard: mobileCards[index],
+        name: cells[0].textContent.trim().toLowerCase(),
+        cnpj: cells[1].textContent.trim(),
+        classes: parseInt(cells[2].textContent.trim()) || 0,
+        students: parseInt(cells[3].textContent.trim()) || 0
+      });
+    }
+  });
+  
+  filteredSchools = [...allSchools];
+  updateFilterStatus();
+  
+  // Add event listeners
+  setupFilterListeners();
+}
+
+function setupFilterListeners() {
+  const searchName = document.getElementById('searchName');
+  const searchCNPJ = document.getElementById('searchCNPJ');
+  const sortStudents = document.getElementById('sortStudents');
+  const sortClasses = document.getElementById('sortClasses');
+  const applyFilters = document.getElementById('applyFilters');
+  const clearFilters = document.getElementById('clearFilters');
+  
+  if (!searchName || !searchCNPJ || !sortStudents || !sortClasses || !applyFilters || !clearFilters) {
+    return;
+  }
+  
+  // Real-time search
+  searchName.addEventListener('input', debounce(applyAllFilters, 300));
+  searchCNPJ.addEventListener('input', debounce(applyAllFilters, 300));
+  
+  // Sort changes
+  sortStudents.addEventListener('change', function() {
+    if (this.value) {
+      sortClasses.value = '';
+    }
+    applyAllFilters();
+  });
+  
+  sortClasses.addEventListener('change', function() {
+    if (this.value) {
+      sortStudents.value = '';
+    }
+    applyAllFilters();
+  });
+  
+  // Button actions
+  applyFilters.addEventListener('click', applyAllFilters);
+  clearFilters.addEventListener('click', clearAllFilters);
+}
+
+function applyAllFilters() {
+  const searchName = document.getElementById('searchName').value.toLowerCase().trim();
+  const searchCNPJ = document.getElementById('searchCNPJ').value.trim();
+  const sortStudents = document.getElementById('sortStudents').value;
+  const sortClasses = document.getElementById('sortClasses').value;
+  
+  // Filter by name
+  filteredSchools = allSchools.filter(school => {
+    const nameMatch = !searchName || school.name.includes(searchName);
+    const cnpjMatch = !searchCNPJ || school.cnpj.includes(searchCNPJ);
+    return nameMatch && cnpjMatch;
+  });
+  
+  // Sort
+  if (sortStudents) {
+    filteredSchools.sort((a, b) => {
+      return sortStudents === 'most_students' ? b.students - a.students : a.students - b.students;
+    });
+  } else if (sortClasses) {
+    filteredSchools.sort((a, b) => {
+      return sortClasses === 'most_classes' ? b.classes - a.classes : a.classes - b.classes;
+    });
+  }
+  
+  // Update display
+  updateSchoolDisplay();
+  updateFilterStatus();
+}
+
+function clearAllFilters() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchCNPJ').value = '';
+  document.getElementById('sortStudents').value = '';
+  document.getElementById('sortClasses').value = '';
+  
+  filteredSchools = [...allSchools];
+  updateSchoolDisplay();
+  updateFilterStatus();
+}
+
+function updateSchoolDisplay() {
+  // Hide all schools first
+  allSchools.forEach(school => {
+    school.element.style.display = 'none';
+    if (school.mobileCard) {
+      school.mobileCard.style.display = 'none';
+    }
+  });
+  
+  // Show filtered schools
+  filteredSchools.forEach(school => {
+    school.element.style.display = '';
+    if (school.mobileCard) {
+      school.mobileCard.style.display = '';
+    }
+  });
+  
+  // Show/hide empty state
+  const emptyState = document.querySelector('.empty-state');
+  const tableContainer = document.querySelector('#schoolsTable').closest('.hidden');
+  const mobileContainer = document.querySelector('.md\\:hidden');
+  
+  if (filteredSchools.length === 0) {
+    if (tableContainer) tableContainer.style.display = 'none';
+    if (mobileContainer) mobileContainer.style.display = 'none';
+    showFilteredEmptyState();
+  } else {
+    if (tableContainer) tableContainer.style.display = '';
+    if (mobileContainer) mobileContainer.style.display = '';
+    hideFilteredEmptyState();
+  }
+}
+
+function updateFilterStatus() {
+  const filteredCount = document.getElementById('filteredCount');
+  if (filteredCount) {
+    filteredCount.textContent = filteredSchools.length;
+  }
+}
+
+function showFilteredEmptyState() {
+  let emptyState = document.querySelector('.filtered-empty-state');
+  if (!emptyState) {
+    const container = document.querySelector('.bg-white.p-8.rounded-lg.shadow-md');
+    emptyState = document.createElement('div');
+    emptyState.className = 'filtered-empty-state text-center py-12';
+    emptyState.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma escola encontrada</h3>
+      <p class="text-gray-500 mb-6">Tente ajustar os filtros ou limpar a busca.</p>
+      <button onclick="clearAllFilters()" class="btn bg-blue-500 hover:bg-blue-600 text-white">Limpar Filtros</button>
+    `;
+    container.appendChild(emptyState);
+  }
+  emptyState.style.display = 'block';
+}
+
+function hideFilteredEmptyState() {
+  const emptyState = document.querySelector('.filtered-empty-state');
+  if (emptyState) {
+    emptyState.style.display = 'none';
+  }
+}
+
+// Debounce function for search inputs
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Initialize filtering when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(initializeFiltering, 100);
+});
+
+document.addEventListener('turbo:load', function() {
+  setTimeout(initializeFiltering, 100);
+});
 </script>

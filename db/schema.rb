@@ -162,5 +162,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_12_123516) do
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "enderecos", "alunos"
+  add_foreign_key "enderecos", "escolas"
+  add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

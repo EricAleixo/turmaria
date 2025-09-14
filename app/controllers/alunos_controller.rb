@@ -1,4 +1,5 @@
 class AlunosController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_escola
   before_action :set_turma, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   before_action :set_aluno, only: [:show, :edit, :update, :destroy]
@@ -106,5 +107,11 @@ class AlunosController < ApplicationController
   def aluno_params
     params.require(:aluno).permit(:nome, :data_nascimento, :turma_id, :escola_id,
                                   endereco_attributes: [:id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy])
+  end
+
+  def authenticate_user!
+    unless super_admin_signed_in? || admin_signed_in?
+      redirect_to new_user_session_path, alert: 'Acesso negado. Faça login como administrador.'
+    end
   end
 end
