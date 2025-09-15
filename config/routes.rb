@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     get    "/signup", to: "devise/unified_registrations#new", as: :new_user_registration
     post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
   end
-
+ 
   resources :escolas do
     # Alunos directly under escola (not allocated to any turma)
     resources :alunos do
