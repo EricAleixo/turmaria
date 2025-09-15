@@ -1,63 +1,72 @@
-<% 
-  form_url = @turma ? [@escola, @turma, aluno] : [@escola, aluno]
+<%#
+    form_url = @turma ? [@escola, @turma, aluno] : [@escola, aluno]
 %>
 
-<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md", id: "student-form") do |form| %>
+<form action="" method="post" class="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto" id="student-form">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
-  <% if aluno.errors.any? %>
-    <div class="alert alert-error mb-6">
-      <div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span>
-          <h3 class="font-bold">Erro ao salvar!</h3>
-          <ul class="list-disc list-inside">
-            <% aluno.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </span>
-      </div>
+  <%# if aluno.errors.any? %>
+  <div class="alert alert-error mb-6 hidden" id="error-alert">
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>
+        <h3 class="font-bold">Erro ao salvar!</h3>
+        <ul id="error-list" class="list-disc list-inside">
+          <%# aluno.errors.full_messages.each do |message| %>
+          <%# <li><%= message %></li> %>
+          <%# end %>
+        </ul>
+      </span>
     </div>
-  <% end %>
+  </div>
+  <%# end %>
 
-  <%= form.hidden_field :escola_id, value: @escola.id %>
+  <input type="hidden" name="aluno[escola_id]" value="<%= @escola.id %>">
 
   <div id="step-1" class="form-step">
     <div class="flex justify-between items-center mb-8 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700"><%= aluno.persisted? ? "Editar Aluno" : "Novo Aluno" %> - Etapa 1</h1>
+      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 1</h1>
     </div>
 
-    <div class="form-control w-full mb-6">
-      <%= form.label :nome, "Nome do Aluno *", class: "label label-text text-gray-600 font-semibold" %>
-      <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa", required: true %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="form-control w-full">
+        <label for="aluno_nome" class="label label-text text-gray-600 font-semibold">Nome do Aluno *</label>
+        <input type="text" id="aluno_nome" name="aluno[nome]" class="input input-bordered w-full" placeholder="Ex: Francisco Ittalo Pessoa" required>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_data_nascimento" class="label label-text text-gray-600 font-semibold">Data de Nascimento *</label>
+        <input type="date" id="aluno_data_nascimento" name="aluno[data_nascimento]" class="input input-bordered w-full" required>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="form-control w-full">
+        <label for="aluno_cpf" class="label label-text text-gray-600 font-semibold">CPF do Aluno *</label>
+        <input type="text" id="aluno_cpf" name="aluno[cpf]" class="input input-bordered w-full" placeholder="000.000.000-00" required>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_rg" class="label label-text text-gray-600 font-semibold">RG do Aluno *</label>
+        <input type="text" id="aluno_rg" name="aluno[rg]" class="input input-bordered w-full" required>
+      </div>
     </div>
     
-    <div class="form-control w-full mb-6">
-      <%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600" %>
-      <%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="form-control w-full">
+        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone *</label>
+        <input type="text" id="aluno_telefone" name="aluno[telefone]" class="input input-bordered w-full" placeholder="(00) 00000-0000" required>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_email" class="label label-text text-gray-600 font-semibold">Email *</label>
+        <input type="email" id="aluno_email" name="aluno[email]" class="input input-bordered w-full" required>
+      </div>
     </div>
-    
+
     <div class="flex justify-between mt-10">
-      <%= link_to "Voltar", request.referer.present? ? request.referer : escola_turma_alunos_path(@escola, @turma), class: "btn btn-ghost" %>
-      <button 
-        type="button" 
-        id="next-step-1" 
-        class="btn btn-primary text-white w-28 flex items-center justify-center gap-1"
-      >
+      <a href="#" class="btn btn-ghost">Voltar</a>
+      <button type="button" id="next-step-1" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
         Próximo
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke-width="1.5" 
-          stroke="currentColor" 
-          class="w-5 h-5"
-        >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" 
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
         </svg>
       </button>
     </div>
@@ -65,11 +74,149 @@
 
   <div id="step-2" class="form-step hidden">
     <div class="flex justify-between items-center mb-8 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700"><%= aluno.persisted? ? "Editar Aluno" : "Novo Aluno" %> - Etapa 2</h1>
+      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 2</h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="form-control w-full">
+        <label for="aluno_sexo" class="label label-text text-gray-600">Sexo</label>
+        <select id="aluno_sexo" name="aluno[sexo]" class="select select-bordered w-full">
+          <option value="" disabled selected>Selecione</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_cor" class="label label-text text-gray-600">Cor</label>
+        <select id="aluno_cor" name="aluno[cor]" class="select select-bordered w-full">
+          <option value="" disabled selected>Selecione</option>
+          <option value="Branca">Branca</option>
+          <option value="Preta">Preta</option>
+          <option value="Parda">Parda</option>
+          <option value="Amarela">Amarela</option>
+          <option value="Indígena">Indígena</option>
+          <option value="Não declarada">Não declarada</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="form-control w-full">
+        <label for="aluno_tipo_sanguinio" class="label label-text text-gray-600">Tipo Sanguíneo</label>
+        <select id="aluno_tipo_sanguinio" name="aluno[tipo_sanguinio]" class="select select-bordered w-full">
+          <option value="" disabled selected>Selecione</option>
+          <option>A+</option>
+          <option>A-</option>
+          <option>B+</option>
+          <option>B-</option>
+          <option>AB+</option>
+          <option>AB-</option>
+          <option>O+</option>
+          <option>O-</option>
+        </select>
+      </div>
+      <div></div>
     </div>
     
+    <div class="form-control w-full mt-6">
+      <label class="label label-text text-gray-600 mb-2">Portador de Necessidade (PCD)</label>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <label class="label cursor-pointer">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Nenhuma" class="checkbox checkbox-primary necessidade-checkbox" />
+          <span class="label-text">Nenhuma</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Visual" class="checkbox checkbox-primary necessidade-checkbox" />
+          <span class="label-text">Visual</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Auditiva" class="checkbox checkbox-primary necessidade-checkbox" />
+          <span class="label-text">Auditiva</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Motora" class="checkbox checkbox-primary necessidade-checkbox" />
+          <span class="label-text">Motora</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Intelectual" class="checkbox checkbox-primary necessidade-checkbox" />
+          <span class="label-text">Intelectual</span> 
+        </label>
+        <label class="label cursor-pointer" for="outro-checkbox">
+          <input type="checkbox" name="necessidades_especiais_tipo[]" value="Outro(a)" class="checkbox checkbox-primary necessidade-checkbox" id="outro-checkbox" />
+          <span class="label-text">Outro(a)</span>
+        </label>
+      </div>
+    </div>
+    
+    <div id="outra-necessidade-field" class="form-control w-full mt-4 hidden">
+      <label for="aluno_outra_necessidade" class="label label-text text-gray-600 font-semibold">Especifique a necessidade</label>
+      <input type="text" id="aluno_outra_necessidade" name="aluno[outra_necessidade]" class="input input-bordered w-full" placeholder="Ex: Dislexia" />
+      
+      <div class="form-control w-full mt-4">
+        <label for="aluno_observacoes_pcd" class="label label-text text-gray-600 font-semibold">Observações</label>
+        <textarea id="aluno_observacoes_pcd" name="aluno[observacoes_pcd]" class="textarea textarea-bordered w-full" placeholder="Insira observações adicionais sobre a necessidade do aluno."></textarea>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="form-control w-full">
+        <label for="aluno_responsavel_1" class="label label-text text-gray-600 font-semibold">Nome Responsável 1 *</label>
+        <input type="text" id="aluno_responsavel_1" name="aluno[responsavel_1]" class="input input-bordered w-full" required>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_responsavel_2" class="label label-text text-gray-600 font-semibold">Nome Responsável 2</label>
+        <input type="text" id="aluno_responsavel_2" name="aluno[responsavel_2]" class="input input-bordered w-full">
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div class="form-control w-full">
+        <label for="aluno_telefone_responsavel_1" class="label label-text text-gray-600 font-semibold">Telefone Responsável 1 *</label>
+        <input type="text" id="aluno_telefone_responsavel_1" name="aluno[telefone_responsavel_1]" class="input input-bordered w-full" placeholder="(00) 00000-0000" required>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_telefone_responsavel_2" class="label label-text text-gray-600 font-semibold">Telefone Responsável 2</label>
+        <input type="text" id="aluno_telefone_responsavel_2" name="aluno[telefone_responsavel_2]" class="input input-bordered w-full" placeholder="(00) 00000-0000">
+      </div>
+    </div>
+    <div class="flex justify-between mt-10">
+      <button type="button" id="prev-step-2" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Anterior
+      </button>
+      <button type="button" id="next-step-2" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
+        Próximo
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="step-3" class="form-step hidden">
+    <div class="flex justify-between items-center mb-8 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 3</h1>
+    </div>
+
     <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
       <span class="block sm:inline"></span>
+    </div>
+
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-gray-700">Foto do Aluno</h3>
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('foto-modal').showModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+          Anexar
+        </button>
+      </div>
+      <p class="text-gray-500 mb-2 text-sm">Envie uma foto do aluno. (Máximo 1 arquivo)</p>
+      <input type="file" name="aluno[foto]" class="hidden" id="foto-upload">
+      <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg mb-6">
@@ -83,10 +230,10 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= file_field_tag "cpf[]", multiple: true, class: "hidden", id: "cpf-upload" %>
+      <input type="file" name="aluno[cpf][]" multiple class="hidden" id="cpf-upload">
       <div id="cpf-files-list" class="mt-4 border rounded-lg"></div>
     </div>
-    
+
     <div class="bg-gray-50 p-4 rounded-lg mb-6">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
@@ -98,24 +245,37 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= file_field_tag "comprovante_residencia[]", multiple: true, class: "hidden", id: "comprovante-upload" %>
+      <input type="file" name="aluno[comprovante_residencia][]" multiple class="hidden" id="comprovante-upload">
       <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg mb-6">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-700">Upload de Assinatura</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('assinatura-modal').showModal()">
+        <h3 class="text-lg font-bold text-gray-700">Histórico Acadêmico</h3>
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('historico-modal').showModal()">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
           Anexar
         </button>
       </div>
-      <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 2 arquivos)</p>
-      <%= file_field_tag "assinatura[]", multiple: true, class: "hidden", id: "assinatura-upload" %>
-      <div id="assinatura-files-list" class="mt-4 border rounded-lg"></div>
+      <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 1 arquivo)</p>
+      <input type="file" name="aluno[historico_academico]" class="hidden" id="historico-upload">
+      <div id="historico-files-list" class="mt-4 border rounded-lg"></div>
     </div>
+
+    <dialog id="foto-modal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Anexar Foto</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="foto-upload" data-list-id="foto-files-list">
+          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
+          <label for="foto-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="document.getElementById('foto-modal').close()">Fechar</button>
+        </div>
+      </div>
+    </dialog>
 
     <dialog id="cpf-modal" class="modal">
       <div class="modal-box">
@@ -143,42 +303,412 @@
       </div>
     </dialog>
 
-    <dialog id="assinatura-modal" class="modal">
+    <dialog id="historico-modal" class="modal">
       <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar Assinatura</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="assinatura-upload" data-list-id="assinatura-files-list">
+        <h3 class="font-bold text-lg mb-4">Anexar Histórico Acadêmico</h3>
+        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="historico-upload" data-list-id="historico-files-list">
           <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="assinatura-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+          <label for="historico-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
         </div>
         <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('assinatura-modal').close()">Fechar</button>
+          <button type="button" class="btn" onclick="document.getElementById('historico-modal').close()">Fechar</button>
         </div>
       </div>
     </dialog>
 
     <div class="flex justify-between mt-10">
-      <button 
-        type="button" 
-        id="prev-step-2" 
-        class="btn btn-ghost w-28 flex items-center justify-center gap-1"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke-width="1.5" 
-          stroke="currentColor" 
-          class="w-5 h-5"
-        >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" 
-          />
+      <button type="button" id="prev-step-3" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
         </svg>
         Anterior
       </button>
-      <%= form.submit aluno.persisted? ? "Atualizar" : "Criar Aluno", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
+      <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white" id="submit-btn">
+        Criar Aluno
+      </button>
     </div>
   </div>
-<% end %>
+</form>
+
+<dialog id="success-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span id="success-message"></span>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Fechar</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast toast-end z-[99]">
+  <div id="alert-container"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+
+    const nextStep1Btn = document.getElementById('next-step-1');
+    const nextStep2Btn = document.getElementById('next-step-2');
+    const prevStep2Btn = document.getElementById('prev-step-2');
+    const prevStep3Btn = document.getElementById('prev-step-3');
+    const studentForm = document.getElementById('student-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorAlert = document.getElementById('error-alert');
+    const errorList = document.getElementById('error-list');
+
+    // Mapeia os campos para cada etapa
+    const stepFields = {
+      'step-1': ['aluno_nome', 'aluno_data_nascimento', 'aluno_cpf', 'aluno_rg', 'aluno_telefone', 'aluno_email'],
+      'step-2': ['aluno_responsavel_1', 'aluno_telefone_responsavel_1'],
+    };
+
+    // Função para exibir a etapa correta com base nos erros
+    function showCorrectStep(errors) {
+      if (!errors) return;
+
+      let stepToShow = 'step-1';
+      for (const field in errors) {
+        if (stepFields['step-1'].includes(field)) {
+          stepToShow = 'step-1';
+          break;
+        }
+        if (stepFields['step-2'].includes(field)) {
+          stepToShow = 'step-2';
+          break;
+        }
+      }
+
+      // Esconde todas as etapas e exibe a correta
+      step1.classList.add('hidden');
+      step2.classList.add('hidden');
+      step3.classList.add('hidden');
+      document.getElementById(stepToShow).classList.remove('hidden');
+
+      // Exibe a mensagem de erro no topo
+      errorList.innerHTML = '';
+      for (const field in errors) {
+        errors[field].forEach(message => {
+          const li = document.createElement('li');
+          li.textContent = `${field.replace('_', ' ').replace(/aluno/g, 'Aluno')}: ${message}`;
+          errorList.appendChild(li);
+        });
+      }
+      errorAlert.classList.remove('hidden');
+    }
+
+    // Lógica original de navegação entre as etapas (mantida)
+    if (nextStep1Btn) {
+      nextStep1Btn.addEventListener('click', () => {
+        const nome = document.getElementById('aluno_nome');
+        const dataNascimento = document.getElementById('aluno_data_nascimento');
+        const cpf = document.getElementById('aluno_cpf');
+        const rg = document.getElementById('aluno_rg');
+        const telefone = document.getElementById('aluno_telefone');
+        const email = document.getElementById('aluno_email');
+        
+        if (!nome.value || !dataNascimento.value || !cpf.value || !rg.value || !telefone.value || !email.value) {
+          showDaisyAlert('Preencha todos os campos obrigatórios da Etapa 1.', 'warning');
+          return;
+        }
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+      });
+    }
+
+    if (nextStep2Btn) {
+      nextStep2Btn.addEventListener('click', () => {
+        const nomeResponsavel1 = document.getElementById('aluno_responsavel_1');
+        const telefoneResponsavel1 = document.getElementById('aluno_telefone_responsavel_1'); 
+        
+        if (!nomeResponsavel1.value || !telefoneResponsavel1.value) {
+          showDaisyAlert('Preencha o nome e o telefone de pelo menos 1 responsável.', 'warning');
+          return;
+        }
+        step2.classList.add('hidden');
+        step3.classList.remove('hidden');
+      });
+    }
+
+    if (prevStep2Btn) {
+      prevStep2Btn.addEventListener('click', () => {
+        step2.classList.add('hidden');
+        step1.classList.remove('hidden');
+      });
+    }
+    
+    if (prevStep3Btn) {
+      prevStep3Btn.addEventListener('click', () => {
+        step3.classList.add('hidden');
+        step2.classList.remove('hidden');
+      });
+    }
+
+    // A MÁGICA ACONTECE AQUI!
+    // Adiciona um ouvinte para o evento 'submit' do formulário
+    studentForm.addEventListener('submit', async (event) => {
+      // 1. Previne o comportamento padrão do navegador (recarregar a página)
+      event.preventDefault();
+
+      // Limpa mensagens de erro e mostra estado de carregamento
+      errorAlert.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="loading loading-spinner"></span>
+        Enviando...
+      `;
+
+      // 2. Extrai o ID da escola da URL de forma dinâmica
+      const pathParts = window.location.pathname.split('/');
+      // O ID da escola está na terceira parte do caminho da URL (índice 2)
+      // Ex: /escolas/7b180fc2-f739-4ab0-a831-b440935d399d/alunos/new
+      const escolaId = pathParts[2];
+      
+      // Valida se o ID foi encontrado
+      if (!escolaId) {
+          showDaisyAlert('Erro: Não foi possível encontrar o ID da escola na URL.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `Criar Aluno`;
+          return;
+      }
+      
+      // Constrói a URL de envio para o endpoint correto
+      const url = `/escolas/${escolaId}/alunos`;
+
+      // 3. Coleta todos os dados do formulário, incluindo os arquivos
+      const formData = new FormData(studentForm);
+
+      try {
+        // 4. Envia os dados para o servidor usando a API Fetch
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        });
+
+        // 5. Analisa a resposta do servidor
+        const result = await response.json();
+
+        // 6. Verifica se a resposta foi bem-sucedida
+        if (response.ok) {
+          // Se sim, mostra o modal de sucesso
+          document.getElementById('success-message').textContent = "Aluno salvo com sucesso!";
+          document.getElementById('success-modal').showModal();
+          studentForm.reset(); // Limpa o formulário
+          // Volta para o primeiro passo
+          step3.classList.add('hidden');
+          step1.classList.remove('hidden');
+        } else {
+          // Se houve erros de validação, mostra-os na tela
+          showCorrectStep(result.errors);
+        }
+      } catch (error) {
+        // Em caso de erro de conexão ou outro problema inesperado
+        showDaisyAlert('Ocorreu um erro ao enviar o formulário. Tente novamente.', 'error');
+        console.error('Erro:', error);
+      } finally {
+        // Volta o botão de submissão ao estado normal
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `Criar Aluno`;
+      }
+    });
+
+    // Lógica para o campo de Necessidades Especiais (mantida)
+    const outroCheckbox = document.getElementById('outro-checkbox');
+    const outraNecessidadeField = document.getElementById('outra-necessidade-field');
+    const checkboxes = document.querySelectorAll('.necessidade-checkbox');
+    const necessidadesInput = document.createElement('input');
+    necessidadesInput.type = 'hidden';
+    necessidadesInput.name = 'aluno[necessidades_especiais_tipo]';
+    studentForm.appendChild(necessidadesInput);
+
+    function updateNecessidadesInput() {
+      const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+      if (outroCheckbox.checked) {
+        const outraNecessidade = document.getElementById('aluno_outra_necessidade').value;
+        necessidadesInput.value = outraNecessidade ? `Outro(a): ${outraNecessidade}` : 'Outro(a)';
+      } else {
+        necessidadesInput.value = selected.join(', ');
+      }
+    }
+
+    outroCheckbox.addEventListener('change', () => {
+      if (outroCheckbox.checked) {
+        outraNecessidadeField.classList.remove('hidden');
+        checkboxes.forEach(checkbox => {
+          if (checkbox.id !== 'outro-checkbox') {
+            checkbox.checked = false;
+            checkbox.disabled = true;
+          }
+        });
+      } else {
+        outraNecessidadeField.classList.add('hidden');
+        checkboxes.forEach(checkbox => {
+          checkbox.disabled = false;
+        });
+      }
+      updateNecessidadesInput();
+    });
+
+    const nenhumaCheckbox = document.querySelector('input[value="Nenhuma"]');
+    if (nenhumaCheckbox) {
+      nenhumaCheckbox.addEventListener('change', () => {
+        if (nenhumaCheckbox.checked) {
+          checkboxes.forEach(checkbox => {
+            if (checkbox.value !== 'Nenhuma') {
+              checkbox.checked = false;
+              checkbox.disabled = true;
+            }
+          });
+        } else {
+          checkboxes.forEach(checkbox => {
+            if (checkbox.value !== 'Nenhuma') {
+              checkbox.disabled = false;
+            }
+          });
+        }
+      });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateNecessidadesInput));
+    document.getElementById('aluno_outra_necessidade').addEventListener('input', updateNecessidadesInput);
+
+
+    // Lógica de upload e notificações (mantida)
+    const uploadAreas = document.querySelectorAll('.upload-area');
+    const uploadInputs = document.querySelectorAll('input[type="file"]');
+    const uploadErrorMessage = document.getElementById('upload-error-message');
+    const FILE_SIZE_LIMIT_BYTES = 716800; // 700 KB
+    const MAX_FILES_FOTO = 1;
+    const MAX_FILES_CPF = 2;
+    const MAX_FILES_COMPROVANTE = 2;
+    const MAX_FILES_HISTORICO = 1;
+
+    uploadAreas.forEach(area => {
+      const inputId = area.dataset.inputId;
+      const fileInput = document.getElementById(inputId);
+
+      area.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        area.classList.add('border-blue-500');
+      });
+
+      area.addEventListener('dragleave', () => {
+        area.classList.remove('border-blue-500');
+      });
+
+      area.addEventListener('drop', (event) => {
+        event.preventDefault();
+        area.classList.remove('border-blue-500');
+        const files = event.dataTransfer.files;
+        handleFiles(files, fileInput);
+      });
+    });
+
+    uploadInputs.forEach(fileInput => {
+      fileInput.addEventListener('change', (event) => {
+        const files = event.target.files;
+        handleFiles(files, fileInput);
+      });
+    });
+
+    function handleFiles(files, fileInput) {
+      const filesArray = Array.from(files);
+      const fileType = fileInput.id.replace('-upload', '');
+      let maxFiles;
+
+      if (fileType === 'foto') maxFiles = MAX_FILES_FOTO;
+      else if (fileType === 'cpf') maxFiles = MAX_FILES_CPF;
+      else if (fileType === 'comprovante') maxFiles = MAX_FILES_COMPROVANTE;
+      else if (fileType === 'historico') maxFiles = MAX_FILES_HISTORICO;
+
+      const uploadedFilesList = document.getElementById(fileInput.id.replace('-upload', '-files-list'));
+      const currentFilesCount = uploadedFilesList.childElementCount;
+      const dataTransfer = new DataTransfer();
+
+      uploadErrorMessage.classList.add('hidden');
+
+      if (currentFilesCount + filesArray.length > maxFiles) {
+        showDaisyAlert(`Limite de ${maxFiles} arquivos para este tipo de documento atingido.`, 'warning');
+        return;
+      }
+
+      const existingFiles = Array.from(fileInput.files);
+      existingFiles.forEach(f => dataTransfer.items.add(f));
+
+      filesArray.forEach(file => {
+        if (file.size > FILE_SIZE_LIMIT_BYTES) {
+          showDaisyAlert(`O arquivo "${file.name}" excede o tamanho máximo de 700 KB.`, 'error');
+          return;
+        }
+        dataTransfer.items.add(file);
+        addFileToList(file, uploadedFilesList, fileInput);
+      });
+      
+      fileInput.files = dataTransfer.files;
+      if (filesArray.length > 0) {
+        showDaisyAlert(`Arquivo(s) selecionado(s) com sucesso!`, 'success');
+      }
+    }
+
+    function addFileToList(file, listElement, fileInput) {
+      const listItem = document.createElement('li');
+      listItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'border-b', 'last:border-b-0');
+      
+      const fileInfo = document.createElement('div');
+      fileInfo.classList.add('flex', 'items-center', 'gap-4');
+
+      const fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-500"><path fill-rule="evenodd" d="M19.5 7.5a3 3 0 00-3-3h-8.25a3 3 0 00-3 3v9a3 3 0 003 3h8.25a3 3 0 003-3v-9zM15 11.25a.75.75 0 00-1.5 0v3.75a.75.75 0 001.5 0v-3.75z" clip-rule="evenodd" /></svg>`;
+
+      fileInfo.innerHTML = `
+        <div class="flex items-center gap-2">
+          ${fileIcon}
+          <div>
+            <p class="text-sm font-semibold">${file.name}</p>
+            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+          </div>
+        </div>
+      `;
+      
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.classList.add('text-red-500', 'hover:text-red-700', 'transition', 'p-2', 'rounded-full', 'hover:bg-gray-200');
+      deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>`;
+      
+      deleteButton.onclick = () => {
+        const dataTransfer = new DataTransfer();
+        const files = Array.from(fileInput.files).filter(f => f !== file);
+        files.forEach(f => dataTransfer.items.add(f));
+        fileInput.files = dataTransfer.files;
+        listItem.remove();
+        showDaisyAlert('Arquivo removido.', 'info');
+      };
+      
+      listItem.appendChild(fileInfo);
+      listItem.appendChild(deleteButton);
+      listElement.appendChild(listItem);
+    }
+    
+    function showDaisyAlert(message, type) {
+      const alertContainer = document.getElementById('alert-container');
+      const alertDiv = document.createElement('div');
+      alertDiv.classList.add('alert', `alert-${type}`);
+      alertDiv.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>${message}</span>
+      `;
+      alertContainer.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 5000);
+    }
+  });
+</script>
