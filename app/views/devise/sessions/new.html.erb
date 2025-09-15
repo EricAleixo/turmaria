@@ -27,7 +27,7 @@
     <div>
       <h2 class="text-lg font-semibold mb-4 text-gray-800">Login</h2>
 
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
+      <%= form_for(resource, as: resource_name, url: user_session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
         <!-- Email -->
         <div>
           <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Email", class: "input input-bordered w-full focus:outline-none" %>

@@ -3,7 +3,7 @@
 <% else %>
   <%= link_to "Cadastrar-se", "/signup", class: "text-sm text-gray-500 hover:text-primary hover:underline block mb-2" %>
   <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
-    <%= link_to "Esqueceu a senha ?", new_password_path(resource_name), class: "text-sm text-gray-500 hover:text-primary hover:underline block mb-2" %>
+    <%= link_to "Esqueceu a senha ?", new_user_password_path(resource_name), class: "text-sm text-gray-500 hover:text-primary hover:underline block mb-2" %>
   <% end %>
   <% if devise_mapping.confirmable? && controller_name != 'confirmations' %>
     <%= link_to "Não recebeu instruções de confirmação?", new_confirmation_path(resource_name), class: "text-sm text-gray-500 hover:text-primary hover:underline block mb-2" %>
