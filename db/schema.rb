@@ -41,6 +41,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.datetime "updated_at", null: false
     t.uuid "escola_id", null: false
     t.integer "idade"
+    t.string "cpf"
+    t.string "rg"
+    t.string "telefone"
+    t.string "email"
+    t.string "sexo"
+    t.string "cor"
+    t.string "tipo_sanguinio"
+    t.string "necessidades_especiais_tipo"
+    t.text "observacoes_pcd"
+    t.string "responsavel_1"
+    t.string "responsavel_2"
+    t.string "telefone_responsavel_1"
+    t.string "telefone_responsavel_2"
+    t.string "foto_url"
+    t.string "cpf_url"
+    t.string "comprovante_residencia_url"
+    t.string "historico_academico_url"
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
@@ -95,6 +112,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
+    t.uuid "escola_id", null: false
+    t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
 
   create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -163,6 +182,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "enderecos", "alunos"
+  add_foreign_key "enderecos", "escolas"
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

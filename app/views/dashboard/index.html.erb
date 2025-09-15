@@ -1,0 +1,385 @@
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Painel do Super Administrador</h1>
+      </div>
+
+      <main class="w-full max-w-7xl mx-auto">
+        <!-- Cabeçalho do Painel -->
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Painel</h1>
+            <p class="text-gray-600 mt-1">Sistema Completo - Visão Geral</p>
+          </div>
+          <div class="flex gap-3">
+            <%= link_to new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Adicionar Escola
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Cartões de Estatísticas Principais -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Cartão de Escolas -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600 mb-2"><%= @total_schools %></div>
+              <div class="text-gray-600 font-medium">Escolas</div>
+              <div class="text-sm text-gray-400 mt-1">+<%= @schools_this_month %> este mês</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Turmas -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-green-600 mb-2"><%= @total_classes %></div>
+              <div class="text-gray-600 font-medium">Turmas</div>
+              <div class="text-sm text-gray-400 mt-1">+<%= @classes_this_month %> este mês</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Professores -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-purple-600 mb-2"><%= @total_teachers %></div>
+              <div class="text-gray-600 font-medium">Professores</div>
+              <div class="text-sm text-gray-400 mt-1">Sistema ativo</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Alunos -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-orange-600 mb-2"><%= @total_students %></div>
+              <div class="text-gray-600 font-medium">Alunos</div>
+              <div class="text-sm text-gray-400 mt-1">+<%= @students_this_month %> este mês</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cartões de Estatísticas Secundárias -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <!-- Média de Alunos por Escola -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-teal-600 mb-2"><%= @avg_students_per_school %></div>
+              <div class="text-gray-600 font-medium">Média Alunos/Escola</div>
+            </div>
+          </div>
+          
+          <!-- Média de Turmas por Escola -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @avg_classes_per_school %></div>
+              <div class="text-gray-600 font-medium">Média Turmas/Escola</div>
+            </div>
+          </div>
+          
+          <!-- Média de Alunos por Turma -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-pink-600 mb-2"><%= @avg_students_per_class %></div>
+              <div class="text-gray-600 font-medium">Média Alunos/Turma</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Gráfico de Notas Recentes -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Notas Recentes</h3>
+            <div class="h-64">
+              <canvas id="recentGradesChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- Gráfico de Visão Geral de Presença -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Visão Geral de Presença</h3>
+            <div class="h-64">
+              <canvas id="attendanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Análise - Largura Completa -->
+        <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Análise de Dados</h3>
+          <div class="h-64">
+            <canvas id="analysisChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Seções de Gerenciamento -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <!-- Maiores Escolas -->
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+              <h3 class="text-xl font-semibold text-gray-800">Maiores Escolas</h3>
+              <p class="text-gray-600 text-sm">Por número de alunos</p>
+            </div>
+            <div class="p-6">
+              <% if @top_schools.any? %>
+                <% @top_schools.each_with_index do |(nome, count), index| %>
+                  <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @top_schools.length - 1 %>">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm mr-3">
+                        <%= index + 1 %>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-800"><%= nome %></div>
+                      </div>
+                    </div>
+                    <div class="text-blue-600 font-semibold"><%= count %> alunos</div>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-gray-500 text-center py-4">Nenhuma escola encontrada</p>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Atividade Recente -->
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+              <h3 class="text-xl font-semibold text-gray-800">Atividade Recente</h3>
+              <p class="text-gray-600 text-sm">Últimas escolas cadastradas</p>
+            </div>
+            <div class="p-6">
+              <% if @recent_schools.any? %>
+                <% @recent_schools.each_with_index do |escola, index| %>
+                  <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @recent_schools.length - 1 %>">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-semibold text-sm mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-800"><%= escola.nome %></div>
+                        <div class="text-sm text-gray-500"><%= time_ago_in_words(escola.created_at) %> atrás</div>
+                      </div>
+                    </div>
+                    <div class="text-gray-400">
+                      <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-800" do %>
+                        Ver
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-gray-500 text-center py-4">Nenhuma atividade recente</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm mb-8">
+          <div class="p-6 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-800">Usuários do Sistema</h3>
+            <p class="text-gray-600 text-sm">Usuários do sistema por tipo</p>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="text-center p-4 bg-red-50 rounded-lg">
+                <div class="text-2xl font-bold text-red-600 mb-2"><%= @total_super_admins %></div>
+                <div class="text-gray-600 font-medium">Super Administradores</div>
+              </div>
+              <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600 mb-2"><%= @total_admins %></div>
+                <div class="text-gray-600 font-medium">Administradores</div>
+              </div>
+              <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600 mb-2"><%= @total_teachers %></div>
+                <div class="text-gray-600 font-medium">Professores</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <%= render 'shared/super_admin_sidebar' %>
+</div>
+
+<!-- CDN do Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Script de Inicialização do Gráfico -->
+<script>
+let recentGradesChart, attendanceChart, analysisChart;
+
+function initializeCharts() {
+  if (recentGradesChart) {
+    recentGradesChart.destroy();
+  }
+  if (attendanceChart) {
+    attendanceChart.destroy();
+  }
+  if (analysisChart) {
+    analysisChart.destroy();
+  }
+
+  // Verificar se os elementos do gráfico existem antes de inicializar
+  const recentGradesCtx = document.getElementById('recentGradesChart');
+  const attendanceCtx = document.getElementById('attendanceChart');
+  const analysisCtx = document.getElementById('analysisChart');
+
+  if (!recentGradesCtx || !attendanceCtx || !analysisCtx) {
+    console.log('Elementos dos gráficos não encontrados, pulando inicialização');
+    return;
+  }
+
+  recentGradesChart = new Chart(recentGradesCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Jun', 'Fev', 'Set', 'Ago', 'Bra', 'Jul'],
+      datasets: [{
+        label: 'Desempenho do Sistema',
+        data: [3, 1, 2, 4, 3, 2],
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 5,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+
+  attendanceChart = new Chart(attendanceCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      datasets: [{
+        label: 'Presença do Sistema',
+        data: [88, 94, 82, 96, 89, 93],
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+
+  analysisChart = new Chart(analysisCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Fev', 'Mar', 'Jun', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
+      datasets: [{
+        label: 'Crescimento do Sistema',
+        data: [<%= @monthly_growth.map { |m| m[:schools] + m[:students] + m[:classes] }.join(',') %>],
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initializeCharts();
+});
+
+document.addEventListener('turbo:load', function() {
+  initializeCharts();
+});
+
+document.addEventListener('turbo:before-cache', function() {
+  if (recentGradesChart) {
+    recentGradesChart.destroy();
+    recentGradesChart = null;
+  }
+  if (attendanceChart) {
+    attendanceChart.destroy();
+    attendanceChart = null;
+  }
+  if (analysisChart) {
+    analysisChart.destroy();
+    analysisChart = null;
+  }
+});
+</script>
