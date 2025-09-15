@@ -1,18 +1,17 @@
 class AlunosController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_all_users!
+
   before_action :set_escola
   before_action :set_turma, only: [:index, :show, :new, :create, :edit, :update, :destroy]
   before_action :set_aluno, only: [:show, :edit, :update, :destroy]
 
   def index
     if @turma
-      # Quando estamos no contexto de uma turma, mostra apenas os alunos dessa turma
-      @alunos = @turma.alunos # .includes(:endereco)
+      @alunos = @turma.alunos
       @allocated_alunos = @alunos
       @unallocated_alunos = []
     else
-      # Quando estamos no contexto da escola, mostra todos os alunos da escola
-      @alunos = Aluno.where(escola_id: @escola.id).includes(:turma, )# :endereco
+      @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
       @allocated_alunos = @alunos.select { |a| a.turma_id.present? }
       @unallocated_alunos = @alunos.select { |a| a.turma_id.nil? }
     end
@@ -23,28 +22,25 @@ class AlunosController < ApplicationController
 
   def new
     @aluno = @escola.alunos.build
-    # @aluno.build_endereco
   end
 
   def create
-  @aluno = @escola.alunos.build(aluno_params)
-  @aluno.turma = @turma if @turma
+    @aluno = @escola.alunos.build(aluno_params)
+    @aluno.turma = @turma if @turma
 
-  if @aluno.save
-    # Em caso de sucesso, devolve uma resposta JSON
-    # A URL para redirecionamento será tratada pelo JavaScript no frontend
-    redirect_url = @turma ? escola_turma_alunos_path(@escola, @turma) : escola_alunos_path(@escola)
-    render json: { success: true, message: 'Aluno criado com sucesso!', redirect_url: redirect_url }, status: :ok
-  else
-    # Em caso de falha, devolve uma resposta JSON com os erros
-    render json: { success: false, errors: @aluno.errors.full_messages }, status: :unprocessable_entity
+    respond_to do |format|
+      if @aluno.save
+        format.html { redirect_to [@escola, @aluno], notice: "Aluno criado com sucesso." }
+        format.json { render json: { success: true, message: "Aluno salvo com sucesso!" }, status: :created }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @aluno.errors.messages }, status: :unprocessable_entity }
+      end
+    end
   end
-end
 
-  # GET /escolas/:escola_id/turmas/:turma_id/alunos/1/edit
   def edit
   end
-
 
   def update
     if @aluno.update(aluno_params)
@@ -54,7 +50,6 @@ end
       render :edit, status: :unprocessable_entity
     end
   end
-
 
   def destroy
     @aluno.destroy
@@ -90,6 +85,12 @@ end
 
   private
 
+  def authenticate_all_users!
+    unless super_admin_signed_in? || admin_signed_in? || coordenador_signed_in? || professor_signed_in?
+      redirect_to new_user_session_path, alert: 'Acesso negado. Faça login como administrador, professor ou coordenador.'
+    end
+  end
+
   def set_escola
     @escola = Escola.find(params[:escola_id])
   end
@@ -107,30 +108,28 @@ end
   end
 
   def aluno_params
-<<<<<<< HEAD
-    params.require(:aluno).permit(:nome, :data_nascimento, :turma_id, :escola_id,
-                                  endereco_attributes: [:id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy])
+    params.require(:aluno).permit(
+      :nome, 
+      :data_nascimento, 
+      :cpf, 
+      :rg, 
+      :telefone, 
+      :email, 
+      :sexo, 
+      :cor, 
+      :tipo_sanguinio, 
+      :observacoes_pcd, 
+      :responsavel_1, 
+      :responsavel_2, 
+      :telefone_responsavel_1, 
+      :telefone_responsavel_2, 
+      :foto, 
+      :historico_academico,
+      :escola_id, # <-- Adicionado aqui
+      :turma_id, # <-- Adicionado aqui
+      cpf: [], 
+      comprovante_residencia: [], 
+      necessidades_especiais_tipo: []
+    )
   end
-
-  def authenticate_user!
-    unless super_admin_signed_in? || admin_signed_in?
-      redirect_to new_user_session_path, alert: 'Acesso negado. Faça login como administrador.'
-    end
-  end
-=======
-  # Parâmetros permitidos para o Aluno
-  # O nome dos campos precisa ser exatamente o que está no formulário HTML
-  params.require(:aluno).permit(
-    :nome, :data_nascimento, :cpf, :rg, :telefone, :email,
-    :sexo, :cor, :tipo_sanguinio,
-    :outra_necessidade, :observacoes_pcd,
-    :responsavel_1, :responsavel_2, :telefone_responsavel_1, :telefone_responsavel_2,
-    necessidades_especiais_tipo: [], # Para checkboxes, que vêm como um array
-    foto: [], # Para permitir um array de fotos
-    cpf_documento: [], # Para permitir um array de documentos de CPF
-    comprovante_residencia: [], # Para permitir um array de comprovantes de residência
-    historico_academico: [] # Para permitir um array de históricos acadêmicos
-  )
-end
->>>>>>> f10981f65bd0a1fd229dfde86603c964bb360458
 end
