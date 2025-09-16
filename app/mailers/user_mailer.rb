@@ -1,32 +1,20 @@
 class UserMailer < ApplicationMailer
-  default from: "leonardopereiracavalcante2025@gmail.com"
+  default from: ENV["EMAIL_USERNAME"]
 
-  def login_alert (user)
-    @user= user
-    @user_type = user.class.name
-    @reset_password_url = generate_reset_password_url(@user)
+  def login_alert(user)
+    @user = user
 
-    mail(
-      to: @user.email,
-      subject: "Turmaria - Alerta de login detectado"
-    )
+  if @user.reset_password_token.nil? || @user.reset_password_sent_at.nil?
+    @user.send_reset_password_instructions
+    @user.reload
   end
 
-  private
 
-  def generate_reset_password_url(user)
-    
-    raw, enc = Devise.token_generator.generate(user.class, :reset_password_token)
+  @reset_url = new_edit_user_password_url(
+    reset_password_token: @user.reset_password_token,
+    host: "localhost:3000"
+  )
 
-    user.reset_password_token = enc 
-    user.reset_password_sent_at = Time.now.utc
-    user.save(validate:false)
-
-    Rails.application.routes.url_helpers.send(
-      "edit_#{user.model_name.singular}_password_url",
-      reset_password_token:raw,
-      host: Rails.application.config.action_mailer.default_url_options[:host],
-      port: Rails.application.config.action_mailer.default_url_options[:port]
-    )
+  mail(to: @user.email, subject: "Alerta de login - Turmaria")
   end
 end

@@ -1,3 +1,6 @@
 class EmailCadastro < ApplicationRecord
-  validates :email, presence: true, uniqueness: true
+
+    belongs_to :user, polymorphic: true
+
+    validates :email, presence: true, uniqueness: true
 end

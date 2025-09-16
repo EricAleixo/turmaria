@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
 
-  devise_for :professors
-  devise_for :admins
-  devise_for :super_admins
+  devise_for :admins, skip: [:registrations, :passwords, :sessions]
+  devise_for :professors, skip: [:registrations, :passwords, :sessions]
+  devise_for :coordenadors, skip: [:registrations, :passwords, :sessions]
+  devise_for :super_admins, skip: [:registrations, :passwords, :sessions]
 
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
@@ -41,12 +42,19 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_scope :super_admin do
+  devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
-    delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
-    get    "/signup", to: "devise/unified_registrations#new", as: :new_user_registration
-    post   "/signup", to: "devise/unified_registrations#create", as: :user_registration
+    
+    get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
+    post   "/password",    to: "devise/unified_passwords#create", as: :user_password
+
+    get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
+    post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
+
+
+     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
+
   end
 
   root to: "home#index"
