@@ -10,28 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_12_123516) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
-    create_table "admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "email", default: "", null: false
-      t.string "encrypted_password", default: "", null: false
-      t.string "reset_password_token"
-      t.datetime "reset_password_sent_at"
-      t.datetime "remember_created_at"
-      t.string "nome"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.string "confirmation_token"
-      t.datetime "confirmed_at"
-      t.datetime "confirmation_sent_at"
-      t.string "unconfirmed_email"
-      t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true
-      t.index ["email"], name: "index_admins_on_email", unique: true
-      t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
-    end
+  create_table "admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_admins_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
+  end
 
   create_table "alunos", force: :cascade do |t|
     t.string "nome"
@@ -41,35 +41,63 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
     t.datetime "updated_at", null: false
     t.uuid "escola_id", null: false
     t.integer "idade"
+    t.string "cpf"
+    t.string "rg"
+    t.string "telefone"
+    t.string "email"
+    t.string "sexo"
+    t.string "cor"
+    t.string "tipo_sanguinio"
+    t.string "necessidades_especiais_tipo"
+    t.text "observacoes_pcd"
+    t.string "responsavel_1"
+    t.string "responsavel_2"
+    t.string "telefone_responsavel_1"
+    t.string "telefone_responsavel_2"
+    t.string "foto_url"
+    t.string "cpf_url"
+    t.string "comprovante_residencia_url"
+    t.string "historico_academico_url"
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
   end
 
-    create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "email", default: "", null: false
-      t.string "encrypted_password", default: "", null: false
-      t.string "reset_password_token"
-      t.datetime "reset_password_sent_at"
-      t.datetime "remember_created_at"
-      t.string "nome"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.string "confirmation_token"
-      t.datetime "confirmed_at"
-      t.datetime "confirmation_sent_at"
-      t.string "unconfirmed_email"
-      t.index ["confirmation_token"], name: "index_coordenadors_on_confirmation_token", unique: true
-      t.index ["email"], name: "index_coordenadors_on_email", unique: true
-      t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
-    end
+  create_table "ano_letivos", force: :cascade do |t|
+    t.integer "ano"
+    t.date "data_inicio"
+    t.date "data_fim"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "escola_id"
+    t.integer "numero_bimestre"
+    t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
+  end
 
-    create_table "email_cadastros", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "email"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.index ["email"], name: "index_email_cadastros_on_email", unique: true
-    end
+  create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_coordenadors_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_coordenadors_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
+  end
+
+  create_table "email_cadastros", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_email_cadastros_on_email", unique: true
+  end
 
   create_table "enderecos", force: :cascade do |t|
     t.string "logradouro"
@@ -81,57 +109,59 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
+    t.uuid "escola_id", null: false
+    t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
 
-    create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "nome"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.string "cnpj"
-      t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
-      t.index ["nome"], name: "index_escolas_on_nome", unique: true
-    end
+  create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "cnpj"
+    t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
+    t.index ["nome"], name: "index_escolas_on_nome", unique: true
+  end
 
-    create_table "nota", force: :cascade do |t|
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-    end
+  create_table "nota", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
-    create_table "professors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "email", default: "", null: false
-      t.string "encrypted_password", default: "", null: false
-      t.string "reset_password_token"
-      t.datetime "reset_password_sent_at"
-      t.datetime "remember_created_at"
-      t.string "nome"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.string "confirmation_token"
-      t.datetime "confirmed_at"
-      t.datetime "confirmation_sent_at"
-      t.string "unconfirmed_email"
-      t.index ["confirmation_token"], name: "index_professors_on_confirmation_token", unique: true
-      t.index ["email"], name: "index_professors_on_email", unique: true
-      t.index ["reset_password_token"], name: "index_professors_on_reset_password_token", unique: true
-    end
+  create_table "professors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_professors_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_professors_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_professors_on_reset_password_token", unique: true
+  end
 
-    create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-      t.string "email", default: "", null: false
-      t.string "encrypted_password", default: "", null: false
-      t.string "reset_password_token"
-      t.datetime "reset_password_sent_at"
-      t.datetime "remember_created_at"
-      t.string "nome"
-      t.datetime "created_at", null: false
-      t.datetime "updated_at", null: false
-      t.string "confirmation_token"
-      t.datetime "confirmed_at"
-      t.datetime "confirmation_sent_at"
-      t.string "unconfirmed_email"
-      t.index ["confirmation_token"], name: "index_super_admins_on_confirmation_token", unique: true
-      t.index ["email"], name: "index_super_admins_on_email", unique: true
-      t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
-    end
+  create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_super_admins_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_super_admins_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
+  end
 
   create_table "turmas", force: :cascade do |t|
     t.string "nome"
@@ -140,11 +170,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_05_170304) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "escola_id", null: false
+    t.bigint "ano_letivo_id", null: false
+    t.index ["ano_letivo_id"], name: "index_turmas_on_ano_letivo_id"
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
+  add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "enderecos", "alunos"
+  add_foreign_key "enderecos", "escolas"
+  add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

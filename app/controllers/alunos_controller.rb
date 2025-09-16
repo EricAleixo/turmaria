@@ -39,7 +39,7 @@ class AlunosController < ApplicationController
     # Em caso de falha, devolve uma resposta JSON com os erros
     render json: { success: false, errors: @aluno.errors.full_messages }, status: :unprocessable_entity
   end
-end
+  end
 
   # GET /escolas/:escola_id/turmas/:turma_id/alunos/1/edit
   def edit
@@ -107,17 +107,6 @@ end
   end
 
   def aluno_params
-<<<<<<< HEAD
-    params.require(:aluno).permit(:nome, :data_nascimento, :turma_id, :escola_id,
-                                  endereco_attributes: [:id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy])
-  end
-
-  def authenticate_user!
-    unless super_admin_signed_in? || admin_signed_in?
-      redirect_to new_user_session_path, alert: 'Acesso negado. Faça login como administrador.'
-    end
-  end
-=======
   # Parâmetros permitidos para o Aluno
   # O nome dos campos precisa ser exatamente o que está no formulário HTML
   params.require(:aluno).permit(
@@ -131,6 +120,5 @@ end
     comprovante_residencia: [], # Para permitir um array de comprovantes de residência
     historico_academico: [] # Para permitir um array de históricos acadêmicos
   )
-end
->>>>>>> f10981f65bd0a1fd229dfde86603c964bb360458
+  end
 end

@@ -7,7 +7,7 @@ class EscolasController < ApplicationController
 
   def show
     # Carrega todos os alunos da escola com a mesma lógica do alunos controller
-    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma, :endereco)
+    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
     @allocated_alunos = @alunos.select { |a| a.turma_id.present? }
     @unallocated_alunos = @alunos.select { |a| a.turma_id.nil? }
   end
