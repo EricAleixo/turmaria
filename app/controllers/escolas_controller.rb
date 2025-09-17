@@ -6,14 +6,8 @@ class EscolasController < ApplicationController
   end
 
   def show
-<<<<<<< HEAD
     # Carrega todos os alunos da escola com a mesma lógica do alunos controller
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
-=======
-    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma, :endereco)
-    @allocated_alunos = @alunos.select { |a| a.turma_id.present? }
-    @unallocated_alunos = @alunos.select { |a| a.turma_id.nil? }
->>>>>>> f350aba1a62bc664f392f95cad1228e50e0ef8cf
   end
 
   def new
