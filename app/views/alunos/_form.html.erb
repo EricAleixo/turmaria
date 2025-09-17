@@ -10,7 +10,7 @@
     <%= form.hidden_field :turma_id, value: @turma.id %>
   <% end %>
 
-  <div class="alert alert-error mb-6 hidden" id="error-alert">
+  <div class="alert alert-error mb-4 hidden" id="error-alert">
     <div>
       <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       <span>
@@ -22,44 +22,44 @@
   </div>
 
   <div id="step-1" class="form-step">
-    <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
       <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 1</h1>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="form-control w-full">
-        <label for="aluno_nome" class="label label-text text-gray-600 font-semibold">Nome do Aluno *</label>
-        <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa", required: true %>
+        <label for="aluno_nome" class="label label-text text-gray-600 font-semibold">Nome do Aluno</label>
+        <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
       </div>
       <div class="form-control w-full">
-        <label for="aluno_data_nascimento" class="label label-text text-gray-600 font-semibold">Data de Nascimento *</label>
-        <%= form.date_field :data_nascimento, class: "input input-bordered w-full", required: true %>
+        <label for="aluno_data_nascimento" class="label label-text text-gray-600 font-semibold">Data de Nascimento</label>
+        <%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
-        <label for="aluno_cpf" class="label label-text text-gray-600 font-semibold">CPF do Aluno *</label>
-        <%= form.text_field :cpf, class: "input input-bordered w-full", placeholder: "000.000.000-00", required: true %>
+        <label for="aluno_cpf" class="label label-text text-gray-600 font-semibold">CPF do Aluno</label>
+        <%= form.text_field :cpf, class: "input input-bordered w-full", placeholder: "000.000.000-00" %>
       </div>
       <div class="form-control w-full">
-        <label for="aluno_rg" class="label label-text text-gray-600 font-semibold">RG do Aluno *</label>
-        <%= form.text_field :rg, class: "input input-bordered w-full", required: true %>
+        <label for="aluno_rg" class="label label-text text-gray-600 font-semibold">RG do Aluno</label>
+        <%= form.text_field :rg, class: "input input-bordered w-full" %>
       </div>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
-        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone *</label>
-        <%= form.text_field :telefone, class: "input input-bordered w-full", placeholder: "(00) 00000-0000", required: true %>
+        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone</label>
+        <%= form.text_field :telefone, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
       </div>
       <div class="form-control w-full">
-        <label for="aluno_email" class="label label-text text-gray-600 font-semibold">Email *</label>
-        <%= form.email_field :email, class: "input input-bordered w-full", required: true %>
+        <label for="aluno_email" class="label label-text text-gray-600 font-semibold">Email</label>
+        <%= form.email_field :email, class: "input input-bordered w-full" %>
       </div>
     </div>
 
-    <div class="flex justify-between mt-10">
+    <div class="flex justify-between mt-6">
       <a href="#" class="btn btn-ghost">Voltar</a>
       <button type="button" id="next-step-1" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
         Próximo
@@ -71,11 +71,11 @@
   </div>
 
   <div id="step-2" class="form-step hidden">
-    <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
       <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 2</h1>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="form-control w-full">
         <label for="aluno_sexo" class="label label-text text-gray-600">Sexo</label>
         <%= form.select :sexo, options_for_select(["Masculino", "Feminino", "Outro"], selected: form.object.sexo), { include_blank: "Selecione" }, { class: "select select-bordered w-full" } %>
@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
         <label for="aluno_tipo_sanguinio" class="label label-text text-gray-600">Tipo Sanguíneo</label>
         <%= form.select :tipo_sanguinio, options_for_select(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], selected: form.object.tipo_sanguinio), { include_blank: "Selecione" }, { class: "select select-bordered w-full" } %>
@@ -94,7 +94,7 @@
       <div></div>
     </div>
     
-    <div class="form-control w-full mt-6">
+    <div class="form-control w-full mt-4">
       <label class="label label-text text-gray-600 mb-2">Portador de Necessidade (PCD)</label>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
         <label class="label cursor-pointer">
@@ -134,27 +134,27 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
-        <label for="aluno_responsavel_1" class="label label-text text-gray-600 font-semibold">Nome Responsável 1 *</label>
-        <%= form.text_field :responsavel_1, class: "input input-bordered w-full", required: true %>
+        <label for="aluno_responsavel_1" class="label label-text text-gray-600 font-semibold">Nome Responsável 1</label>
+        <%= form.text_field :responsavel_1, class: "input input-bordered w-full" %>
       </div>
       <div class="form-control w-full">
         <label for="aluno_responsavel_2" class="label label-text text-gray-600 font-semibold">Nome Responsável 2</label>
         <%= form.text_field :responsavel_2, class: "input input-bordered w-full" %>
       </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
-        <label for="aluno_telefone_responsavel_1" class="label label-text text-gray-600 font-semibold">Telefone Responsável 1 *</label>
-        <%= form.text_field :telefone_responsavel_1, class: "input input-bordered w-full", placeholder: "(00) 00000-0000", required: true %>
+        <label for="aluno_telefone_responsavel_1" class="label label-text text-gray-600 font-semibold">Telefone Responsável 1</label>
+        <%= form.text_field :telefone_responsavel_1, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
       </div>
       <div class="form-control w-full">
         <label for="aluno_telefone_responsavel_2" class="label label-text text-gray-600 font-semibold">Telefone Responsável 2</label>
         <%= form.text_field :telefone_responsavel_2, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
       </div>
     </div>
-    <div class="flex justify-between mt-10">
+    <div class="flex justify-between mt-6">
       <button type="button" id="prev-step-2" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -171,15 +171,16 @@
   </div>
 
   <div id="step-3" class="form-step hidden">
-    <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
       <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 3</h1>
+      <p class="text-xs text-gray-400">Campos opcionais</p>
     </div>
 
     <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
       <span class="block sm:inline"></span>
     </div>
 
-    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Foto do Aluno</h3>
         <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('foto-modal').showModal()">
@@ -194,7 +195,7 @@
       <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
-    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de CPF</h3>
         <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('cpf-modal').showModal()">
@@ -209,7 +210,7 @@
       <div id="cpf-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
-    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
         <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('comprovante-modal').showModal()">
@@ -224,7 +225,7 @@
       <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
-    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Histórico Acadêmico</h3>
         <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('historico-modal').showModal()">
@@ -291,7 +292,7 @@
       </div>
     </dialog>
 
-    <div class="flex justify-between mt-10">
+    <div class="flex justify-between mt-6">
       <button type="button" id="prev-step-3" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -324,3 +325,4 @@
 </div>
 
 <%= javascript_include_tag 'alunos_form' %>
+<%= javascript_include_tag 'mascaras' %>
