@@ -38,7 +38,7 @@
       <%= link_to "Voltar", request.referer.present? ? request.referer : [@escola, @ano_letivo], class: "btn btn-ghost" %>
       <%= form.submit @ano_letivo.persisted? ? "Atualizar" : "Criar Ano Letivo", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
     </div>
-  <% end %>
+  <% end %> 
 <% else %>
   <%= form_with(model: [@escola, @ano_letivo], class: "bg-white p-8 rounded-lg shadow-md", data: { turbo: false }) do |form| %>
     <% if @ano_letivo.errors.any? %>

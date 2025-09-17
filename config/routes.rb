@@ -10,7 +10,7 @@ Rails.application.routes.draw do
 
   get 'administradores', to: 'administradores#index'
 
-  get 'administradores/new', to: 'administradores#new'
+  get 'administradores/new', to: 'administradores#new', as: :new_administrador  
   post 'administradores', to: 'administradores#create'
 
 

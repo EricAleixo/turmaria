@@ -68,10 +68,14 @@
 
     <main>
       <% if notice.present? %>
-        <p class="notice"><%= notice %></p>
+        <div role="alert" class="alert alert-success alert-soft w-[80%] text-lg mx-auto">
+          <span><%= notice %></span>
+        </div>
       <% end %>
       <% if alert.present? %>
-        <p class="alert"><%= alert %></p>
+        <div role="alert" class="alert alert-warning alert-soft w-[80%] text-lg mx-auto">
+          <span><%= alert %></span>
+        </div>
       <% end %>
       <%= yield %>
     </main>

@@ -21,9 +21,11 @@
         
         <div class="overflow-x-auto">
             <div class="flex justify-end px-4">
-                <button class="btn bg-green-600 text-white">Adicionar Administrador</button>
+                <%= link_to new_administrador_path, class: "btn bg-green-500 text-white hover:bg-green-600" do %>
+                  Adicionar Administrador
+                <% end %>
             </div>
-            <table class="table">
+            <table class="table bg-white mt-4">
                 <!-- head -->
                 <thead>
                 <tr>
