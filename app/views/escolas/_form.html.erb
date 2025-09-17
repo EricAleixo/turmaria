@@ -33,44 +33,14 @@
   </div>
 
   <!-- Campos do Endereço -->
-<h3 class="text-xl font-semibold text-gray-600">Endereço</h3>
 <%= form.fields_for :endereco do |e| %>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="form-control w-full mb-6">
-      <%= e.label :logradouro, "Logradouro *", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :logradouro, class: "input input-bordered w-full", placeholder: "Ex: Rua das Flores", required: true %>
-    </div>
-
-    <div class="form-control w-full mb-6">
-      <%= e.label :numero, "Número *", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :numero, class: "input input-bordered w-full", placeholder: "Ex: 123", required: true %>
-    </div>
-
-    <div class="form-control w-full mb-6">
-      <%= e.label :bairro, "Bairro", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :bairro, class: "input input-bordered w-full", placeholder: "Ex: Centro" %>
-    </div>
-
-    <div class="form-control w-full mb-6">
-      <%= e.label :cidade, "Cidade", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :cidade, class: "input input-bordered w-full", placeholder: "Ex: São Paulo" %>
-    </div>
-
-    <div class="form-control w-full mb-6">
-      <%= e.label :estado, "Estado", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :estado, class: "input input-bordered w-full", placeholder: "Ex: SP" %>
-    </div>
-
-    <div class="form-control w-full mb-6">
-      <%= e.label :cep, "CEP", class: "label label-text text-gray-600 font-semibold" %>
-      <%= e.text_field :cep, class: "input input-bordered w-full", placeholder: "Ex: 01234-567" %>
-    </div>
-  </div>
+  <%= render "enderecos/form", form: e %>
 <% end %>
 
-
   <div class="flex justify-between mt-10">
-    <%= link_to "Voltar", request.referer.present? ? request.referer : escola_path(escola), class: "btn btn-ghost" %>
+    <%= link_to "Voltar", 
+      request.referer.presence || (escola.persisted? ? escola_path(escola) : escolas_path), 
+      class: "btn btn-ghost" %>
     <%= form.submit escola.persisted? ? "Atualizar" : "Criar Escola", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
   </div>
 

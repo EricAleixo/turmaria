@@ -6,7 +6,6 @@ class EscolasController < ApplicationController
   end
 
   def show
-    # Carrega todos os alunos da escola com a mesma lógica do alunos controller
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma, :endereco)
     @allocated_alunos = @alunos.select { |a| a.turma_id.present? }
     @unallocated_alunos = @alunos.select { |a| a.turma_id.nil? }
@@ -18,6 +17,7 @@ class EscolasController < ApplicationController
   end
 
   def edit
+    @escola.build_endereco if @escola.endereco.nil?
   end
 
   def create
@@ -62,7 +62,11 @@ class EscolasController < ApplicationController
   end
 
   def escola_params
-    params.require(:escola).permit(:nome, :cnpj,
-  endereco_attributes: [:logradouro, :numero, :bairro, :cidade, :estado, :cep])
+    params.require(:escola).permit(
+      :nome, :cnpj,
+      endereco_attributes: [
+        :id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy
+      ]
+    )
   end
 end
