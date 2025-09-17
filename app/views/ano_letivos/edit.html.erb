@@ -14,6 +14,16 @@
       </div>
 
       <main class="w-full max-w-4xl mx-auto">
+        <%# INSERÇÃO DO BREADCRUMB %>
+        <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @ano_letivo.ano, escola_ano_letivo_path(@escola, @ano_letivo), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600">Editar</li>
+          </ul>
+        </div>
+        <%# FIM DA INSERÇÃO %>
         <%= render 'form', ano_letivo: @ano_letivo %>
       </main>
     </div>
@@ -21,4 +31,4 @@
   </div>
 
   <%= render 'shared/super_admin_sidebar' %>
-</div>
+</div> 

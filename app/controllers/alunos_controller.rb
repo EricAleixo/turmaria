@@ -2,9 +2,10 @@ class AlunosController < ApplicationController
   before_action :authenticate_all_users!
 
   before_action :set_escola
-  before_action :set_turma, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+  before_action :set_turma, only: [:index, :new, :create, :edit, :update, :destroy]
   before_action :set_aluno, only: [:show, :edit, :update, :destroy]
 
+  # ... (todas as suas outras ações index, show, new, create, etc. ficam inalteradas)
   def index
     if @turma
       @alunos = @turma.alunos
@@ -94,16 +95,19 @@ class AlunosController < ApplicationController
   def set_escola
     @escola = Escola.find(params[:escola_id])
   end
-
+  
   def set_turma
-    @turma = @escola.turmas.find(params[:turma_id]) if params[:turma_id]
+    @turma = @escola.turmas.find(params[:turma_id]) if params[:turma_id].present?
   end
 
   def set_aluno
-    if @turma
+    if params[:turma_id].present?
+      @turma = @escola.turmas.find(params[:turma_id])
       @aluno = @turma.alunos.find(params[:id])
     else
       @aluno = @escola.alunos.find(params[:id])
+      # Nova linha para encontrar a turma do aluno, se existir
+      @turma = @aluno.turma
     end
   end
 
@@ -125,8 +129,8 @@ class AlunosController < ApplicationController
       :telefone_responsavel_2, 
       :foto, 
       :historico_academico,
-      :escola_id, # <-- Adicionado aqui
-      :turma_id, # <-- Adicionado aqui
+      :escola_id,
+      :turma_id,
       cpf: [], 
       comprovante_residencia: [], 
       necessidades_especiais_tipo: []

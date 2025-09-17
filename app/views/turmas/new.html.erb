@@ -12,46 +12,21 @@
       </div>
 
       <main class="w-full max-w-4xl mx-auto">
-        <div class="mb-4">
-          <nav class="text-sm breadcrumbs">
-            <ul>
-              <li><%= link_to "Escolas", escolas_path %></li>
-              <li><%= link_to @escola.nome, escola_path(@escola) %></li>
-              <li>Nova Turma</li>
-            </ul>
-          </nav>
+        <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600">Nova Turma</li>
+          </ul>
         </div>
         <%= render "form", turma: @turma %>
-      </main>
+      </main> 
     </div>
 
     <div class="modal-container">
       <turbo-frame id="modal"></turbo-frame>
     </div>
-
-
   </div>
 
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-              </svg>
-              Escolas
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <%= render 'shared/super_admin_sidebar' %>
 </div>
