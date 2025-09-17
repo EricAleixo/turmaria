@@ -31,6 +31,7 @@
   </div>
 
   <!-- Campos do Endereço -->
+<<<<<<< HEAD
 <h3 class="text-xl font-semibold text-gray-600 mb-3">Endereço</h3>
 <%= form.fields_for :endereco do |e| %>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,11 +65,16 @@
       <%= e.text_field :cep, class: "input input-bordered w-full", placeholder: "Ex: 01234-567" %>
     </div>
   </div>
+=======
+<%= form.fields_for :endereco do |e| %>
+  <%= render "enderecos/form", form: e %>
+>>>>>>> f350aba1a62bc664f392f95cad1228e50e0ef8cf
 <% end %>
 
-
   <div class="flex justify-between mt-10">
-    <%= link_to "Voltar", request.referer.present? ? request.referer : escola_path(escola), class: "btn btn-ghost" %>
+    <%= link_to "Voltar", 
+      request.referer.presence || (escola.persisted? ? escola_path(escola) : escolas_path), 
+      class: "btn btn-ghost" %>
     <%= form.submit escola.persisted? ? "Atualizar" : "Criar Escola", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
   </div>
 

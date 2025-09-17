@@ -1,0 +1,31 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="form-control w-full mb-6">
+    <%= form.label :logradouro, "Logradouro *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :logradouro, class: "input input-bordered w-full", placeholder: "Ex: Rua das Flores", required: true %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :numero, "Número *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :numero, class: "input input-bordered w-full", placeholder: "Ex: 123", required: true %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :bairro, "Bairro", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :bairro, class: "input input-bordered w-full", placeholder: "Ex: Centro" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :cidade, "Cidade", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :cidade, class: "input input-bordered w-full", placeholder: "Ex: São Paulo" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :estado, "Estado", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :estado, class: "input input-bordered w-full", placeholder: "Ex: SP" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :cep, "CEP", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :cep, class: "input input-bordered w-full", placeholder: "Ex: 01234-567" %>
+  </div>
+</div>
