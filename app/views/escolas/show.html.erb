@@ -243,7 +243,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <% @escola.alunos.limit(10).each do |aluno| %>
+                      <% @alunos.limit(10).each do |aluno| %>
                         <tr>
                           <td class="font-medium"><%= aluno.nome %></td>
                           <td><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informada" %></td>

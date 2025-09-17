@@ -8,6 +8,12 @@ Rails.application.routes.draw do
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
 
+  get 'administradores', to: 'administradores#index'
+
+  get 'administradores/new', to: 'administradores#new'
+  post 'administradores', to: 'administradores#create'
+
+
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :escolas do

@@ -1,0 +1,58 @@
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Dashboard </h1>
+      </div>
+
+      <main class="w-full max-w-7xl mx-auto">
+        <!-- Breadcrumb -->
+        <div class="text-sm breadcrumbs mb-5">
+          <ul>
+
+          </ul>
+        </div>
+        
+        <div class="card w-full max-w-lg bg-white shadow-xl mx-auto ">
+            <div class="card-body">
+                <h2 class="card-title text-green-600">Cadastrar Administrador</h2>
+                <%= form_with model: @administrador, url: "/administradores", local: true, html: { class: "space-y-4" } do |form| %>
+                    <div class="form-control">
+                        <%= form.label :nome, "Nome", class: "label-text" %>
+                        <%= form.text_field :nome, class: "input input-bordered w-full", required: true %>
+                    </div>
+
+                    <div class="form-control">
+                        <%= form.label :email, "Email", class: "label-text" %>
+                        <%= form.text_field :email, class: "input input-bordered w-full", required: true %>
+                    </div>
+
+                    <%# Colocar a senha do devise %>
+                    <div class="form-control">
+                        <%= form.password :password, "Senha", class: "label-text" %>
+                        <%= form.password_field :password, class: "input input-bordered w-full", required: true %>
+                    </div>
+
+                    <div class="form-control mt-6">
+                        <button class="btn bg-green-600 hover:bg-green-700 text-white w-full">
+                        Salvar
+                        </button>
+                    </div>
+                <%end%>
+            </div>
+        </div>
+
+        
+      </main>
+    </div>
+  </div>
+
+    <%= render "shared/super_admin_sidebar" %>
+  
+</div>

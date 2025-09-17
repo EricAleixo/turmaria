@@ -22,7 +22,12 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
         sign_in(user)
         UserMailer.login_alert(user).deliver_later
         flash[:notice] = "#{registro.user_type} logado com sucesso!"
-        redirect_to root_path
+
+        if user.is_a?(SuperAdmin)
+          redirect_to dashboard_path
+        else
+          redirect_to root_path
+        end
       else
         flash.now[:alert] = "Senha inválida"
         render :new
