@@ -8,11 +8,8 @@ Rails.application.routes.draw do
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
 
-  get 'administradores', to: 'administradores#index'
-
-  get 'administradores/new', to: 'administradores#new', as: :new_administrador  
-  post 'administradores', to: 'administradores#create'
-
+  # Complete CRUD for administradores
+  resources :administradores
 
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do

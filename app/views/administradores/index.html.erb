@@ -1,100 +1,177 @@
 <div class="drawer lg:drawer-open bg-gray-100">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-  <div class="drawer-content flex flex-col items-center">
-    
-    <div class="w-full p-4">
+  <div class="drawer-content flex flex-col">
+    <div class="w-full p-6">
       <div class="flex items-center mb-6 lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </label>
-        <h1 class="text-xl font-bold ml-2">Dashboard </h1>
+        <h1 class="text-xl font-bold ml-2">Dashboard</h1>
       </div>
 
       <main class="w-full max-w-7xl mx-auto">
-        <!-- Breadcrumb -->
-        <div class="text-sm breadcrumbs mb-5">
-          <ul>
-
-          </ul>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Administradores</h1>
+            <p class="text-gray-600">Gerencie os administradores do sistema</p>
+          </div>
+          <%= link_to new_administradore_path, class: "btn bg-green-500 hover:bg-green-600 text-white border-none" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Novo Administrador
+          <% end %>
         </div>
-        
-        <div class="overflow-x-auto">
-            <div class="flex justify-end px-4">
-                <%= link_to new_administrador_path, class: "btn bg-green-500 text-white hover:bg-green-600" do %>
-                  Adicionar Administrador
-                <% end %>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">Total de Administradores</p>
+                <p class="text-2xl font-bold text-gray-900"><%= @administradores.count %></p>
+              </div>
+              <div class="bg-blue-100 p-3 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
             </div>
-            <table class="table bg-white mt-4">
-                <!-- head -->
-                <thead>
-                <tr>
-                    <th>
-                    <label>
-                        <input type="checkbox" class="checkbox" />
-                    </label>
-                    </th>
-                    <th>Name</th>
-                    <th>Job</th>
-                    <th>Favorite Color</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
+          </div>
 
-                    <% if @administradores.present? %>
-                        <% @administradores.each do |admin| %>
-                            <tr>
-                                <th>
-                                    <label>
-                                        <input type="checkbox" class="checkbox" />
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar">
-                                        <div class="mask mask-squircle h-12 w-12">
-                                            <img
-                                            src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                                            alt="Avatar Tailwind CSS Component" />
-                                        </div>
-                                        </div>
-                                        <div>
-                                        <div class="font-bold"> <%= admin.email %> </div>
-                                        <div class="text-sm opacity-50">United States</div>
-                                        </div>
-                                    </div>
-                                </td>
-                            <td>
-                                Zemlak, Daniel and Leannon
-                                <br />
-                                <span class="badge badge-ghost badge-sm">Desktop Support Technician</span>
-                            </td>
-                            <td>Purple</td>
-                            <th>
-                                <button class="btn btn-ghost btn-xs">details</button>
-                            </th>
-                        </tr>
-                        <%end%>
-                    <% end %>
-                </tbody>
-                <!-- foot -->
-                <tfoot>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Job</th>
-                        <th>Favorite Color</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">Ativos</p>
+                <p class="text-2xl font-bold text-gray-900"><%= @administradores.where.not(confirmed_at: nil).count %></p>
+              </div>
+              <div class="bg-green-100 p-3 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">Pendentes</p>
+                <p class="text-2xl font-bold text-gray-900"><%= @administradores.where(confirmed_at: nil).count %></p>
+              </div>
+              <div class="bg-yellow-100 p-3 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
+        <% if @administradores.present? %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% @administradores.each do |admin| %>
+              <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="avatar placeholder">
+                    <div class="bg-green-500 text-white rounded-full w-12 h-12 relative">
+                      <span class="text-lg font-bold absolute top-1/2 left-1/2 -translate-1/2">
+                        <%= admin.nome.present? ? admin.nome.first.upcase : admin.email.first.upcase %>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-gray-900 font-bold text-lg">
+                      <%= admin.nome.present? ? admin.nome : 'Nome não informado' %>
+                    </h3>
+                    <p class="text-gray-600 text-sm">Administrador</p>
+                  </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-gray-700 text-sm"><%= admin.email %></span>
+                  </div>
+                  
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6" />
+                    </svg>
+                    <span class="text-gray-700 text-sm">Criado em <%= admin.created_at.strftime("%d/%m/%Y") %></span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <% if admin.confirmed_at.present? %>
+                      <div class="flex items-center gap-2 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Confirmado
+                      </div>
+                    <% else %>
+                      <div class="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+                        </svg>
+                        Pendente
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="flex gap-2">
+                  <%= link_to administradore_path(admin), class: "flex-1 btn btn-sm bg-blue-600 hover:bg-blue-700 text-white border-none" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  <% end %>
+                  
+                  <%= link_to edit_administradore_path(admin), class: "flex-1 btn btn-sm bg-yellow-500 hover:bg-yellow-600 text-white border-none" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  <% end %>
+                  
+                  <%= link_to administradore_path(admin), method: :delete, 
+                      class: "btn btn-sm bg-red-600 hover:bg-red-700 text-white border-none",
+                      data: { 
+                        confirm: "Tem certeza que deseja remover este administrador?",
+                        turbo_method: :delete 
+                      } do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <!-- Empty State -->
+          <div class="bg-white rounded-xl p-12 border border-gray-200 shadow-lg text-center">
+            <div class="max-w-md mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Nenhum administrador encontrado</h3>
+              <p class="text-gray-600 mb-6">Comece criando o primeiro administrador do sistema.</p>
+              <%= link_to new_administradore_path, class: "btn bg-green-500 hover:bg-green-600 text-white border-none" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Criar Primeiro Administrador
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </main>
     </div>
   </div>
 
-    <%= render "shared/super_admin_sidebar" %>
-  
+  <%= render "shared/super_admin_sidebar" %>
 </div>
