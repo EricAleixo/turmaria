@@ -80,43 +80,70 @@
             <%= link_to "Nova Escola", new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar nova escola" %>
           </div>
 
-          <!-- Filtering Bar -->
-          <div class="bg-white rounded-lg p-6 mb-6 border">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Filtros</h3>
-            <div class="flex flex-wrap gap-4 items-end">
-              <!-- Search Input -->
-              <div class="flex-1 min-w-64">
-                <input type="text" id="searchName" placeholder="Buscar por nome da escola..." class="input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500">
-              </div>
 
-              <!-- School Filter Dropdown -->
-              <div class="min-w-48">
-                <select id="schoolFilter" class="select select-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500">
-                  <option value="">Todas as escolas</option>
-                  <option value="most_students">Mais alunos</option>
-                  <option value="least_students">Menos alunos</option>
-                  <option value="most_classes">Mais turmas</option>
-                  <option value="least_classes">Menos turmas</option>
-                  <option value="with_cnpj">Com CNPJ</option>
-                  <option value="without_cnpj">Sem CNPJ</option>
-                </select>
-              </div>
+          <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+          
+            <div class="flex-1 min-w-64">
+              <%= form.text_field :busca, placeholder: "Buscar por nome da escola...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+            </div> 
 
-              <!-- Filter Button -->
-              <button id="applyFilters" class="btn bg-green-500 hover:bg-green-600 text-white border-0 px-8">
-                Filtrar
-              </button>
+        
+            <!-- Dropdown DaisyUI -->
+            <div class="dropdown">
+              <!-- Botão que abre o menu -->
+              <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
+                <span><%= params[:filtro_select].present? ? {
+                  "most_students" => "Mais alunos",
+                  "least_students" => "Menos alunos",
+                  "most_classes" => "Mais turmas",
+                  "least_classes" => "Menos turmas",
+                  "with_cnpj" => "Com CNPJ",
+                  "without_cnpj" => "Sem CNPJ"
+                }[params[:filtro_select]] || "Todas as escolas" : "Todas as escolas" %></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </label>
+          
+              <!-- Menu -->
+              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
+                <% [
+                  ["Todas as escolas", ""],
+                  ["Mais alunos", "most_students"],
+                  ["Menos alunos", "least_students"],
+                  ["Mais turmas", "most_classes"],
+                  ["Menos turmas", "least_classes"],
+                  ["Com CNPJ", "with_cnpj"],
+                  ["Sem CNPJ", "without_cnpj"]
+                ].each do |name, value| %>
 
-              <!-- Clear Button -->
-              <button id="clearFilters" class="btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6">
-                Limpar
-              </button>
+                  <li>
+                    <a href="#"
+                       data-value="<%= value %>"
+                       data-name="<%= name %>"
+                       class="link-filtro block w-full
+                       <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value %>">
+                      <%= name %>
+                    </a>
+                  </li>
+                <% end %>
+              </ul>
             </div>
-          </div>
 
+  <!-- Hidden input para guardar o valor -->
+  <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
+ 
+            <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
+ 
+            <%= link_to "Limpar", escolas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+            
+          <% end %>
+          
+        <%= turbo_frame_tag "escolas" do%>
           <% if @escolas.any? %>
             <!-- Desktop Table View -->
             <div class="hidden md:block overflow-x-auto">
+            
               <table id="schoolsTable" class="table w-full">
                 <thead>
                   <tr>
@@ -161,56 +188,58 @@
                   <% end %>
                 </tbody>
               </table>
+            
             </div>
 
             <!-- Mobile Card View -->
-            <div class="md:hidden space-y-4">
-              <% @escolas.each do |escola| %>
-                <div class="bg-white p-6 rounded-lg shadow-sm border mobile-school-card">
-                  <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1">
-                      <h3 class="font-semibold text-lg text-gray-800 mb-2"><%= escola.nome %></h3>
-                      <div class="space-y-1 text-sm text-gray-600">
-                        <div class="flex items-center">
-                          <span class="font-medium w-16">CNPJ:</span>
-                          <span><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></span>
-                        </div>
-                        <div class="flex items-center">
-                          <span class="font-medium w-16">Turmas:</span>
-                          <span class="text-green-600 font-semibold"><%= escola.turmas.count %></span>
-                        </div>
-                        <div class="flex items-center">
-                          <span class="font-medium w-16">Alunos:</span>
-                          <span class="text-blue-600 font-semibold"><%= escola.alunos.count %></span>
+            
+              <div class="md:hidden space-y-4">
+                <% @escolas.each do |escola| %>
+                  <div class="bg-white p-6 rounded-lg shadow-sm border mobile-school-card">
+                    <div class="flex justify-between items-start mb-4">
+                      <div class="flex-1">
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2"><%= escola.nome %></h3>
+                        <div class="space-y-1 text-sm text-gray-600">
+                          <div class="flex items-center">
+                            <span class="font-medium w-16">CNPJ:</span>
+                            <span><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="font-medium w-16">Turmas:</span>
+                            <span class="text-green-600 font-semibold"><%= escola.turmas.count %></span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="font-medium w-16">Alunos:</span>
+                            <span class="text-blue-600 font-semibold"><%= escola.alunos.count %></span>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                      <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50", title: "Ver escola" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      <% end %>
+                      <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50", title: "Editar escola" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                      <% end %>
+                      <%= link_to escola_path(escola), method: :delete, 
+                                  confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
+                                  class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800 hover:bg-red-50", 
+                                  title: "Excluir escola" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                      <% end %>
+                    </div>
                   </div>
-                  
-                  <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50", title: "Ver escola" do %>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    <% end %>
-                    <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50", title: "Editar escola" do %>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                      </svg>
-                    <% end %>
-                    <%= link_to escola_path(escola), method: :delete, 
-                                confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
-                                class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800 hover:bg-red-50", 
-                                title: "Excluir escola" do %>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
+                <% end %>
+              </div>
           <% else %>
             <div class="text-center py-12">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
@@ -221,6 +250,7 @@
               <%= link_to "Criar primeira escola", new_escola_path, class: "btn bg-blue-500 hover:bg-blue-600 text-white" %>
             </div>
           <% end %>
+        <% end %>
         </div>
       </main>
     </div>
@@ -409,201 +439,31 @@ document.addEventListener('turbo:before-cache', function() {
 });
 </script>
 
-<!-- Filtering JavaScript -->
 <script>
-let allSchools = [];
-let filteredSchools = [];
+  document.addEventListener('DOMContentLoaded', () => {
+    const hiddenInput = document.getElementById('filtro_select_hidden');
+    const labelSpan = document.getElementById('filtro-label');
+    const links = document.querySelectorAll('.link-filtro');
 
-// Initialize filtering system
-function initializeFiltering() {
-  // Store all school data for filtering
-  allSchools = [];
-  const tableRows = document.querySelectorAll('#schoolsTable tbody tr');
-  const mobileCards = document.querySelectorAll('.mobile-school-card');
-  
-  // Extract data from table rows
-  tableRows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td');
-    if (cells.length >= 4) {
-      allSchools.push({
-        element: row,
-        mobileCard: mobileCards[index],
-        name: cells[0].textContent.trim().toLowerCase(),
-        cnpj: cells[1].textContent.trim(),
-        classes: parseInt(cells[2].textContent.trim()) || 0,
-        students: parseInt(cells[3].textContent.trim()) || 0
+    links.forEach(link => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        // 1. Encontra e remove o estilo do item selecionado anteriormente
+        const previousSelected = document.querySelector('.link-filtro.bg-green-600');
+        if (previousSelected) {
+          previousSelected.classList.remove('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
+        }
+
+        // 2. Adiciona o estilo ao novo item
+        const selectedValue = event.target.dataset.value;
+        const selectedName = event.target.dataset.name;
+        event.target.classList.add('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
+
+        // 3. Atualiza o campo oculto e o texto do dropdown
+        hiddenInput.value = selectedValue;
+        labelSpan.textContent = selectedName;
       });
-    }
-  });
-  
-  filteredSchools = [...allSchools];
-  updateFilterStatus();
-  
-  // Add event listeners
-  setupFilterListeners();
-}
-
-function setupFilterListeners() {
-  const searchName = document.getElementById('searchName');
-  const searchCNPJ = document.getElementById('searchCNPJ');
-  const sortStudents = document.getElementById('sortStudents');
-  const sortClasses = document.getElementById('sortClasses');
-  const applyFilters = document.getElementById('applyFilters');
-  const clearFilters = document.getElementById('clearFilters');
-  
-  if (!searchName || !searchCNPJ || !sortStudents || !sortClasses || !applyFilters || !clearFilters) {
-    return;
-  }
-  
-  // Real-time search
-  searchName.addEventListener('input', debounce(applyAllFilters, 300));
-  searchCNPJ.addEventListener('input', debounce(applyAllFilters, 300));
-  
-  // Sort changes
-  sortStudents.addEventListener('change', function() {
-    if (this.value) {
-      sortClasses.value = '';
-    }
-    applyAllFilters();
-  });
-  
-  sortClasses.addEventListener('change', function() {
-    if (this.value) {
-      sortStudents.value = '';
-    }
-    applyAllFilters();
-  });
-  
-  // Button actions
-  applyFilters.addEventListener('click', applyAllFilters);
-  clearFilters.addEventListener('click', clearAllFilters);
-}
-
-function applyAllFilters() {
-  const searchName = document.getElementById('searchName').value.toLowerCase().trim();
-  const searchCNPJ = document.getElementById('searchCNPJ').value.trim();
-  const sortStudents = document.getElementById('sortStudents').value;
-  const sortClasses = document.getElementById('sortClasses').value;
-  
-  // Filter by name
-  filteredSchools = allSchools.filter(school => {
-    const nameMatch = !searchName || school.name.includes(searchName);
-    const cnpjMatch = !searchCNPJ || school.cnpj.includes(searchCNPJ);
-    return nameMatch && cnpjMatch;
-  });
-  
-  // Sort
-  if (sortStudents) {
-    filteredSchools.sort((a, b) => {
-      return sortStudents === 'most_students' ? b.students - a.students : a.students - b.students;
     });
-  } else if (sortClasses) {
-    filteredSchools.sort((a, b) => {
-      return sortClasses === 'most_classes' ? b.classes - a.classes : a.classes - b.classes;
-    });
-  }
-  
-  // Update display
-  updateSchoolDisplay();
-  updateFilterStatus();
-}
-
-function clearAllFilters() {
-  document.getElementById('searchName').value = '';
-  document.getElementById('searchCNPJ').value = '';
-  document.getElementById('sortStudents').value = '';
-  document.getElementById('sortClasses').value = '';
-  
-  filteredSchools = [...allSchools];
-  updateSchoolDisplay();
-  updateFilterStatus();
-}
-
-function updateSchoolDisplay() {
-  // Hide all schools first
-  allSchools.forEach(school => {
-    school.element.style.display = 'none';
-    if (school.mobileCard) {
-      school.mobileCard.style.display = 'none';
-    }
   });
-  
-  // Show filtered schools
-  filteredSchools.forEach(school => {
-    school.element.style.display = '';
-    if (school.mobileCard) {
-      school.mobileCard.style.display = '';
-    }
-  });
-  
-  // Show/hide empty state
-  const emptyState = document.querySelector('.empty-state');
-  const tableContainer = document.querySelector('#schoolsTable').closest('.hidden');
-  const mobileContainer = document.querySelector('.md\\:hidden');
-  
-  if (filteredSchools.length === 0) {
-    if (tableContainer) tableContainer.style.display = 'none';
-    if (mobileContainer) mobileContainer.style.display = 'none';
-    showFilteredEmptyState();
-  } else {
-    if (tableContainer) tableContainer.style.display = '';
-    if (mobileContainer) mobileContainer.style.display = '';
-    hideFilteredEmptyState();
-  }
-}
-
-function updateFilterStatus() {
-  const filteredCount = document.getElementById('filteredCount');
-  if (filteredCount) {
-    filteredCount.textContent = filteredSchools.length;
-  }
-}
-
-function showFilteredEmptyState() {
-  let emptyState = document.querySelector('.filtered-empty-state');
-  if (!emptyState) {
-    const container = document.querySelector('.bg-white.p-8.rounded-lg.shadow-md');
-    emptyState = document.createElement('div');
-    emptyState.className = 'filtered-empty-state text-center py-12';
-    emptyState.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-      </svg>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma escola encontrada</h3>
-      <p class="text-gray-500 mb-6">Tente ajustar os filtros ou limpar a busca.</p>
-      <button onclick="clearAllFilters()" class="btn bg-blue-500 hover:bg-blue-600 text-white">Limpar Filtros</button>
-    `;
-    container.appendChild(emptyState);
-  }
-  emptyState.style.display = 'block';
-}
-
-function hideFilteredEmptyState() {
-  const emptyState = document.querySelector('.filtered-empty-state');
-  if (emptyState) {
-    emptyState.style.display = 'none';
-  }
-}
-
-// Debounce function for search inputs
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-// Initialize filtering when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(initializeFiltering, 100);
-});
-
-document.addEventListener('turbo:load', function() {
-  setTimeout(initializeFiltering, 100);
-});
 </script>

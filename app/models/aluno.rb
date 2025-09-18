@@ -1,5 +1,5 @@
 class Aluno < ApplicationRecord
-  belongs_to :escola
+  belongs_to :escola, counter_cache: :alunos_count
   belongs_to :turma, optional: true
   # has_one :endereco, dependent: :destroy
   has_one :user, as: :profile, dependent: :destroy

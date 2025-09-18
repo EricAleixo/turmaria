@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_16_123935) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -121,8 +121,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "cnpj"
+    t.integer "turmas_count", default: 0
+    t.integer "alunos_count", default: 0
+    t.index ["alunos_count"], name: "index_escolas_on_alunos_count"
     t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
     t.index ["nome"], name: "index_escolas_on_nome", unique: true
+    t.index ["turmas_count"], name: "index_escolas_on_turmas_count"
   end
 
   create_table "nota", force: :cascade do |t|
