@@ -1,64 +1,171 @@
-<% content_for :title, "Showing aluno" %>
+<% content_for :title, "Detalhes do Aluno" %>
 
-<div class="drawer lg:drawer-open bg-gray-100">
+<div class="drawer lg:drawer-open bg-gray-100 min-h-screen">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-  <div class="drawer-content flex flex-col items-center">
+  <div class="drawer-content flex flex-col items-center p-4 md:p-8">
     
-    <div class="w-full p-4">
-      <div class="flex items-center mb-6 lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-        <h1 class="text-xl font-bold ml-2">Detalhes do Aluno</h1>
+    <div class="w-full flex items-center mb-6 lg:hidden">
+      <label for="my-drawer" class="btn btn-square btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </label>
+      <h1 class="text-xl font-bold ml-2">Detalhes do Aluno</h1>
+    </div>
+
+    <main class="w-full max-w-5xl mx-auto">
+      <div class="flex items-center mb-6">
+        <%= link_to escola_turma_alunos_path(@escola, @turma), class: "btn btn-ghost text-green-600" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Voltar para Alunos
+        <% end %>
       </div>
 
-      <main class="w-full max-w-4xl mx-auto">
-        <% if notice.present? %>
-          <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-        <% end %>
+      <h1 class="text-4xl font-bold mb-8">Detalhes do Aluno</h1>
 
-        <div class="text-sm breadcrumbs mb-4">
-          <ul>
-            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li class="text-gray-600"><%= @aluno.nome %></li>
-          </ul>
-        </div>
-        
-        <h1 class="font-bold text-4xl mb-6"><%= @aluno.nome %></h1>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div class="bg-white rounded-xl shadow-xl p-8 mb-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-              <div>
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Data de Nascimento</h3>
-                <p class="text-lg text-gray-800"><%= @aluno.data_nascimento.present? ? @aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></p>
-              </div>
+        <div class="card bg-white shadow-xl p-6 flex flex-col items-center text-center h-full">
+          <div class="avatar online mb-4">
+            <div class="w-24 rounded-full ring ring-green-500 ring-offset-base-100 ring-offset-2">
+              <% if @aluno.foto_url.present? %>
+                <%= image_tag @aluno.foto_url, alt: "Foto de Perfil de #{@aluno.nome}" %>
+              <% else %>
+                <div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 font-bold text-xl">
+                  Foto
+                </div>
+              <% end %>
             </div>
-            <div class="space-y-4">
-              <div>
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Escola</h3>
-                <p class="text-lg text-gray-800"><%= @escola.nome %></p>
-              </div>
-              <div>
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Turma</h3>
-                <p class="text-lg text-gray-800"><%= @turma.nome %> - <%= @turma.turno.humanize %></p>
-              </div>
-            </div>
+          </div>
+          <h2 class="text-2xl font-semibold mb-1"><%= @aluno.nome %></h2>
+          <p class="text-sm text-gray-500 mb-4">ID: <%= @aluno.id %></p>
+          <div class="badge badge-lg badge-success text-white">
+            Ativo
+          </div>
+          <div class="mt-4 space-y-2 w-full">
+            <label for="cpf-modal" class="btn btn-success text-white w-full">Ver CPF</label>
+            <label for="comprovante-modal" class="btn btn-success text-white w-full">Ver Comprovante</label>
+            <label for="historico-modal" class="btn btn-success text-white w-full">Ver Histórico</label>
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-4 mt-8">
-          <%= link_to "Editar este aluno", edit_escola_turma_aluno_path(@escola, @turma, @aluno), class: "btn bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg transition-all duration-300" %>
-          <%= link_to "Voltar para alunos", escola_turma_alunos_path(@escola, @turma), class: "btn bg-green-500 hover:bg-green-600 text-white shadow-lg transition-all duration-300" %>
-          <%= button_to "Excluir este aluno", escola_turma_aluno_path(@escola, @turma, @aluno), method: :delete, class: "btn bg-red-600 hover:bg-red-500 text-white shadow-lg transition-all duration-300", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } %>
+        <div class="card bg-white shadow-xl p-6 lg:col-span-2">
+          <h3 class="text-xl font-bold text-green-600 mb-4">Informações do Aluno</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+            <div class="space-y-4">
+              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Dados Pessoais</h4>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Nome</p>
+                  <p class="text-lg font-medium"><%= @aluno.nome %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Email</p>
+                  <p class="text-lg font-medium"><%= @aluno.email.presence || "Não informado" %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Data de Nascimento</p>
+                  <p class="text-lg font-medium"><%= @aluno.data_nascimento.present? ? @aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Telefone</p>
+                  <p class="text-lg font-medium"><%= @aluno.telefone.presence || "Não informado" %></p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Dados Acadêmicos</h4>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a46.045 46.045 0 01-.065 4.636l-5.694 3.203-5.694-3.203a46.045 46.045 0 01-.065-4.636L12 14z" stroke-linecap="round" stroke-linejoin="round" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Turma</p>
+                  <p class="text-lg font-medium"><%= @turma.nome %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m-1 4h1m-1 4h1m-1 4h1m-1 4h1m-1 4h1" /></svg>
+                <div>
+                  <p class="text-sm text-gray-500">Escola</p>
+                  <p class="text-lg font-medium"><%= @escola.nome %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-8">
+            <h3 class="text-xl font-bold text-green-600 mb-4">Ações</h3>
+            <div class="flex flex-col md:flex-row gap-4">
+              <%= link_to "Editar Aluno", edit_escola_turma_aluno_path(@escola, @turma, @aluno), class: "btn bg-yellow-500 hover:bg-yellow-600 text-white transition-all duration-300" %>
+              <%= button_to "Excluir Aluno", escola_turma_aluno_path(@escola, @turma, @aluno), method: :delete, class: "btn bg-red-600 hover:bg-red-500 text-white transition-all duration-300", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } %>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
+    </main>
+  </div>
+    
+  <%= render 'shared/super_admin_sidebar' %>
+</div>
+
+<input type="checkbox" id="cpf-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Documento: CPF</h3>
+    <div class="py-4">
+      <% if @aluno.cpf_url.present? %>
+        <%= link_to "Abrir PDF", @aluno.cpf_url, target: "_blank", class: "link link-hover text-blue-500" %>
+      <% else %>
+        <p class="text-gray-500">CPF: Não enviado</p>
+      <% end %>
+    </div>
+    <div class="modal-action">
+      <label for="cpf-modal" class="btn">Fechar</label>
     </div>
   </div>
-  
-  <%= render 'shared/super_admin_sidebar' %>
+</div>
+
+<input type="checkbox" id="comprovante-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Documento: Comprovante de Residência</h3>
+    <div class="py-4">
+      <% if @aluno.comprovante_residencia_url.present? %>
+        <%= link_to "Abrir PDF", @aluno.comprovante_residencia_url, target: "_blank", class: "link link-hover text-blue-500" %>
+      <% else %>
+        <p class="text-gray-500">Comprovante de Residência: Não enviado</p>
+      <% end %>
+    </div>
+    <div class="modal-action">
+      <label for="comprovante-modal" class="btn">Fechar</label>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="historico-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Documento: Histórico Acadêmico</h3>
+    <div class="py-4">
+      <% if @aluno.historico_academico_url.present? %>
+        <%= link_to "Abrir PDF", @aluno.historico_academico_url, target: "_blank", class: "link link-hover text-blue-500" %>
+      <% else %>
+        <p class="text-gray-500">Histórico Acadêmico: Não enviado</p>
+      <% end %>
+    </div>
+    <div class="modal-action">
+      <label for="historico-modal" class="btn">Fechar</label>
+    </div>
+  </div>
 </div>
  
