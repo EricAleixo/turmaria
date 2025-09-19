@@ -2,7 +2,26 @@ class EscolasController < ApplicationController
   before_action :set_escola, only: %i[show edit update destroy]
 
   def index
-    @escolas = Escola.all
+    @escolas= Escola.all
+
+    respond_to do |format|
+      format.html # renderiza a página normal
+      format.turbo_stream # deixa o turbo funcionar
+    end
+
+    if params[:busca].present?
+      @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
+    end
+
+      # Aplica o filtro de dropdown (ordenando ou filtrando o resultado da busca)
+    case params[:filtro_select]
+    when "most_students"   then @escolas = @escolas.mais_alunos
+    when "least_students"  then @escolas = @escolas.menos_alunos
+    when "most_classes"    then @escolas = @escolas.mais_turmas
+    when "least_classes"   then @escolas = @escolas.menos_turmas
+    when "with_cnpj"       then @escolas = @escolas.where.not(cnpj: "")
+    when "without_cnpj"    then @escolas = @escolas.where(cnpj: "")
+    end
   end
 
   def show
