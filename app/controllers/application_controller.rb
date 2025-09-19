@@ -21,6 +21,12 @@ class ApplicationController < ActionController::Base
   def user_signed_in?
     current_any_user.present?
   end
+
+  protected
+
+  def after_sign_in_path_for(resource)
+    if resource.is_a?(Aluno)
+      root_path
+    end
+  end
 end
-
-

@@ -1,4 +1,9 @@
 class Aluno < ApplicationRecord
+
+  devise :database_authenticatable, :registerable,
+      :recoverable, :rememberable, :validatable,
+      authentication_keys: [:matricula]
+
   belongs_to :escola, counter_cache: :alunos_count
   belongs_to :turma, optional: true
   # has_one :endereco, dependent: :destroy
@@ -11,6 +16,7 @@ class Aluno < ApplicationRecord
   validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: "formato incorreto (ex: 000.000.000-00)" }
   validates :telefone, format: { with: /\A\(\d{2}\)\s?\d{4,5}-\d{4}\z/, message: "formato incorreto (ex: (00) 00000-0000)" }
 
+  validates :matricula, presence: true, uniqueness: true
   
   # accepts_nested_attributes_for :endereco, allow_destroy: true
   accepts_nested_attributes_for :user, allow_destroy: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_16_123935) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_18_124120) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -58,8 +58,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_16_123935) do
     t.string "cpf_url"
     t.string "comprovante_residencia_url"
     t.string "historico_academico_url"
+    t.string "matricula"
+    t.string "encrypted_password"
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
+    t.index ["matricula"], name: "index_alunos_on_matricula", unique: true
     t.index ["turma_id"], name: "index_alunos_on_turma_id"
   end
 
