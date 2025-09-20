@@ -10,7 +10,7 @@ class AlunosController < ApplicationController
       @alunos = Aluno.includes(:escola, :turma).all
       @allocated_alunos = @alunos.select(&:turma_id)
       @unallocated_alunos = @alunos.reject(&:turma_id)
-    if @turma
+    elsif @turma
       @alunos = @turma.alunos
       @allocated_alunos = @alunos
       @unallocated_alunos = []
@@ -97,9 +97,9 @@ class AlunosController < ApplicationController
 
   def set_escola
     if super_admin_signed_in?
-      @escola= Escola.find(params:escola_id) if params[:escolas_id].present?
+      @escola= Escola.find(params[:escola_id]) if params[:escola_id].present?
     else
-    @escola = Escola.find(params[:escola_id])
+      @escola = Escola.find(params[:escola_id])
     end
   end
 
@@ -108,7 +108,11 @@ class AlunosController < ApplicationController
   end
 
   def set_aluno
-    if @turma
+    if super_admin_signed_in?
+      @aluno = Aluno.find(params[:id])
+      @escola = @aluno.escola
+      @turma = @aluno.turma
+    elsif @turma
       @aluno = @turma.alunos.find(params[:id])
     else
       @aluno = @escola.alunos.find(params[:id])
@@ -139,6 +143,5 @@ class AlunosController < ApplicationController
       comprovante_residencia: [], 
       necessidades_especiais_tipo: []
     )
-  end
   end
 end
