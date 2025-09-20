@@ -1,4 +1,6 @@
 class Admin < ApplicationRecord
+  # Relacionamentos
+  belongs_to :escola, optional: true
 
   include EmailCadastroUser
   # Include default devise modules. Others available are:

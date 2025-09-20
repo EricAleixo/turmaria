@@ -48,12 +48,66 @@
               </svg>
               Dashboard
             <% end %>
-            <%= button_to destroy_user_session_path, method: :delete, class: "btn bg-red-600 text-white shadow-none d-flex align-items-center gap-2" do %>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 002 2h3a2 2 0 002-2v-1m-7-8V7a2 2 0 012-2h3a2 2 0 012 2v1" />
-              </svg>
-              Sair
-            <% end %>
+            <div class="flex-none">
+            <!-- Enhanced User info in top bar -->
+            <div class="flex items-center space-x-4">
+              <!-- User Info -->
+              <div class="text-right hidden sm:block">
+                <p class="text-sm font-medium text-gray-900">
+                  <%= current_any_user&.nome.present? ? current_any_user.nome : current_user_type %>
+                </p>
+                <div class="flex items-center justify-end space-x-2">
+                  <p class="text-xs text-gray-500"><%= current_user_type %></p>
+                  <!-- School Badge for Admin -->
+                  <% if current_admin&.escola.present? %>
+                    <div class="badge badge-xs bg-green-100 text-green-700 border-green-200">
+                      <%= current_admin.escola.nome %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              
+              <!-- Avatar -->
+              <div class="avatar placeholder">
+                <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
+                  <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-1/2">
+                    <% if current_any_user&.nome.present? %>
+                      <%= current_any_user.nome.first.upcase %>
+                    <% elsif current_any_user&.email.present? %>
+                      <%= current_any_user.email.first.upcase %>
+                    <% else %>
+                      U
+                    <% end %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Logout Button -->
+              <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li>
+                    <div class="text-xs text-gray-500 px-3 py-2 border-b">
+                      <%= current_any_user&.email %>
+                    </div>
+                  </li>
+                  <li>
+                    <%= button_to destroy_user_session_path, method: :delete, 
+                        class: "text-red-600 hover:bg-red-50" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Sair
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
           <% else %>
             <%= link_to new_user_session_path, class: "btn btn-primary shadow-none d-flex align-items-center gap-2" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

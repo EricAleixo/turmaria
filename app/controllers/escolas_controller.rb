@@ -1,26 +1,39 @@
 class EscolasController < ApplicationController
+  layout 'dashboard'
   before_action :set_escola, only: %i[show edit update destroy]
 
   def index
-    @escolas= Escola.all
+    @escolas = Escola.includes(:turmas, :alunos, :endereco).all
+
+    # Statistics for dashboard
+    @total_escolas = @escolas.count
+    @total_turmas = Turma.count
+    @total_alunos = Aluno.count
+    @media_alunos_escola = @total_escolas > 0 ? (@total_alunos.to_f / @total_escolas).round(1) : 0
+
+    # Data for charts
+    @escolas_with_counts = @escolas.left_joins(:turmas, :alunos)
+                                  .group('escolas.id', 'escolas.nome')
+                                  .select('escolas.*, COUNT(DISTINCT turmas.id) as turmas_count, COUNT(DISTINCT alunos.id) as alunos_count')
 
     respond_to do |format|
       format.html # renderiza a página normal
       format.turbo_stream # deixa o turbo funcionar
     end
 
+    # Apply search filter
     if params[:busca].present?
       @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
     end
 
-      # Aplica o filtro de dropdown (ordenando ou filtrando o resultado da busca)
+    # Apply dropdown filter
     case params[:filtro_select]
-    when "most_students"   then @escolas = @escolas.mais_alunos
-    when "least_students"  then @escolas = @escolas.menos_alunos
-    when "most_classes"    then @escolas = @escolas.mais_turmas
-    when "least_classes"   then @escolas = @escolas.menos_turmas
-    when "with_cnpj"       then @escolas = @escolas.where.not(cnpj: "")
-    when "without_cnpj"    then @escolas = @escolas.where(cnpj: "")
+    when "most_students"   then @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) DESC')
+    when "least_students"  then @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) ASC')
+    when "most_classes"    then @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) DESC')
+    when "least_classes"   then @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) ASC')
+    when "with_cnpj"       then @escolas = @escolas.where.not(cnpj: [nil, ""])
+    when "without_cnpj"    then @escolas = @escolas.where(cnpj: [nil, ""])
     end
   end
 
@@ -34,19 +47,41 @@ class EscolasController < ApplicationController
     @escola.build_endereco
   end
 
+  def welcome
+    @escola = Escola.new
+    @escola.build_endereco
+  end
+
   def edit
     @escola.build_endereco if @escola.endereco.nil?
   end
 
   def create
     @escola = Escola.new(escola_params)
+    
+    # Se for um admin logado, associa automaticamente
+    if current_admin.present?
+      @escola.admin = current_admin
+    end
 
     respond_to do |format|
       if @escola.save
-        format.html { redirect_to @escola, notice: "Escola foi criada com sucesso." }
+        # Se for um admin, associa também na direção inversa
+        if current_admin.present? && current_admin.escola.nil?
+          current_admin.update(escola: @escola)
+        end
+        
+        format.html { redirect_to escola_url(@escola), notice: "Escola foi criada com sucesso." }
         format.json { render :show, status: :created, location: @escola }
       else
-        format.html { render :new, status: :unprocessable_entity }
+        @escola.build_endereco if @escola.endereco.nil?
+        
+        # Se veio da página de welcome, renderiza welcome em caso de erro
+        if request.referer&.include?('welcome')
+          format.html { render :welcome, status: :unprocessable_entity }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+        end
         format.json { render json: @escola.errors, status: :unprocessable_entity }
       end
     end
@@ -81,9 +116,9 @@ class EscolasController < ApplicationController
 
   def escola_params
     params.require(:escola).permit(
-      :nome, :cnpj,
+      :nome, :cnpj, :telefone, :email, :site,
       endereco_attributes: [
-        :id, :logradouro, :numero, :bairro, :cidade, :estado, :cep, :_destroy
+        :id, :logradouro, :numero, :complemento, :bairro, :cidade, :estado, :cep, :_destroy
       ]
     )
   end

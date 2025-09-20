@@ -1,15 +1,18 @@
 Rails.application.routes.draw do
 
-  devise_for :admins, skip: [:registrations, :passwords, :sessions]
-  devise_for :professors, skip: [:registrations, :passwords, :sessions]
-  devise_for :coordenadors, skip: [:registrations, :passwords, :sessions]
-  devise_for :super_admins, skip: [:registrations, :passwords, :sessions]
+  devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
+  devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
+  devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
+  devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
 
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
 
   # Complete CRUD for administradores
   resources :administradores
+
+  # Welcome route for escola onboarding
+  get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
 
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do

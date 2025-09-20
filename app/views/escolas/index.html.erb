@@ -1,113 +1,127 @@
-<div class="drawer lg:drawer-open bg-gray-100">
-  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-
-  <div class="drawer-content flex flex-col items-center">
-    
-    <div class="w-full p-4">
-      <div class="flex items-center mb-6 lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-        <h1 class="text-xl font-bold ml-2">Escolas</h1>
+<div class="min-h-screen bg-gray-100">
+  <!-- Dashboard Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard Geral</h1>
+        <%= link_to "Nova Escola", new_escola_path, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
       </div>
+    </div>
+  </div>
 
-      <main class="w-full max-w-7xl mx-auto">
-        <!-- Analytics Dashboard -->
-        <div class="mb-8">
-          <!-- Statistics Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-2"><%= @escolas.count %></div>
-                <div class="text-gray-600 font-medium">Total de Escolas</div>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <div class="text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2"><%= @escolas.joins(:turmas).count %></div>
-                <div class="text-gray-600 font-medium">Total de Turmas</div>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <div class="text-center">
-                <div class="text-3xl font-bold text-purple-600 mb-2"><%= @escolas.joins(:alunos).count %></div>
-                <div class="text-gray-600 font-medium">Total de Alunos</div>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <div class="text-center">
-                <div class="text-3xl font-bold text-orange-600 mb-2"><%= (@escolas.joins(:alunos).count.to_f / @escolas.count).round(1) if @escolas.any? %></div>
-                <div class="text-gray-600 font-medium">Média Alunos/Escola</div>
-              </div>
-            </div>
+  <div class="px-6">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Total de Escolas -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total de Escolas</p>
+            <p class="text-3xl font-bold text-blue-600"><%= @total_escolas %></p>
           </div>
-
-          <!-- Seção de Gráficos -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Gráfico de Distribuição de Turmas -->
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribuição de Turmas</h3>
-              <div class="h-64">
-                <canvas id="schoolsDistributionChart"></canvas>
-              </div>
-            </div>
-            
-            <!-- Gráfico de Alunos por Escola -->
-            <div class="bg-white rounded-lg p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">Alunos por Escola</h3>
-              <div class="h-64">
-                <canvas id="studentsPerSchoolChart"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <!-- Gráfico de Análise - Largura Completa -->
-          <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Análise de Crescimento do Sistema</h3>
-            <div class="h-64">
-              <canvas id="growthAnalysisChart"></canvas>
-            </div>
+          <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
           </div>
         </div>
+      </div>
 
-        <!-- Schools Management Section -->
-        <div class="bg-white p-8 rounded-lg shadow-md">
-          <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h1 class="text-2xl font-bold text-gray-700">Gerenciar Escolas</h1>
-            <%= link_to "Nova Escola", new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar nova escola" %>
+      <!-- Total de Turmas -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total de Turmas</p>
+            <p class="text-3xl font-bold text-green-600"><%= @total_turmas %></p>
           </div>
+          <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
 
+          </div>
+        </div>
+      </div>
 
-          <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
-          
-            <div class="flex-1 min-w-64">
-              <%= form.text_field :busca, placeholder: "Buscar por nome da escola...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
-            </div> 
+      <!-- Total de Alunos -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total de Alunos</p>
+            <p class="text-3xl font-bold text-purple-600"><%= @total_alunos %></p>
+          </div>
+          <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
 
-        
-            <!-- Dropdown DaisyUI -->
-            <div class="dropdown">
-              <!-- Botão que abre o menu -->
-              <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
-                <span><%= params[:filtro_select].present? ? {
-                  "most_students" => "Mais alunos",
-                  "least_students" => "Menos alunos",
-                  "most_classes" => "Mais turmas",
-                  "least_classes" => "Menos turmas",
-                  "with_cnpj" => "Com CNPJ",
-                  "without_cnpj" => "Sem CNPJ"
-                }[params[:filtro_select]] || "Todas as escolas" : "Todas as escolas" %></span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </label>
-          
-              <!-- Menu -->
-              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
-                <% [
+      <!-- Média Alunos/Escola -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Média Alunos/Escola</p>
+            <p class="text-3xl font-bold text-orange-600"><%= @media_alunos_escola %></p>
+          </div>
+          <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Distribuição de Turmas -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Distribuição de Turmas</h3>
+        <div class="h-64">
+          <canvas id="turmasChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Alunos por Escola -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Alunos por Escola</h3>
+        <div class="h-64">
+          <canvas id="alunosChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análise de Crescimento do Sistema -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Análise de Crescimento do Sistema</h3>
+      <div class="h-64">
+        <canvas id="crescimentoChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Gerenciar Escolas Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-900">Gerenciar Escolas</h2>
+          <%= link_to "Nova Escola", new_escola_path, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+        </div>
+      </div>
+
+      <!-- Search and Filter Controls -->
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <%= form_with url: escolas_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |form| %>
+          <div class="flex-1 min-w-64">
+            <%= form.text_field :busca, 
+                placeholder: "Buscar por nome da escola...", 
+                value: params[:busca],
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" %>
+          </div>
+          <div class="min-w-48">
+            <%= form.select :filtro_select, 
+                options_for_select([
                   ["Todas as escolas", ""],
                   ["Mais alunos", "most_students"],
                   ["Menos alunos", "least_students"],
@@ -115,355 +129,198 @@
                   ["Menos turmas", "least_classes"],
                   ["Com CNPJ", "with_cnpj"],
                   ["Sem CNPJ", "without_cnpj"]
-                ].each do |name, value| %>
-
-                  <li>
-                    <a href="#"
-                       data-value="<%= value %>"
-                       data-name="<%= name %>"
-                       class="link-filtro block w-full
-                       <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value %>">
-                      <%= name %>
-                    </a>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-
-  <!-- Hidden input para guardar o valor -->
-  <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
- 
-            <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
- 
-            <%= link_to "Limpar", escolas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
-            
-          <% end %>
-          
-        <%= turbo_frame_tag "escolas" do%>
-          <% if @escolas.any? %>
-            <!-- Desktop Table View -->
-            <div class="hidden md:block overflow-x-auto">
-            
-              <table id="schoolsTable" class="table w-full">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>CNPJ</th>
-                    <th>Turmas</th>
-                    <th>Alunos</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @escolas.each do |escola| %>
-                    <tr>
-                      <td><%= escola.nome %></td>
-                      <td><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></td>
-                      <td><%= escola.turmas.count %></td>
-                      <td><%= escola.alunos.count %></td>
-                      <td>
-                        <div class="flex gap-2">
-                          <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver escola" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          <% end %>
-                          <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800", title: "Editar escola" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                            </svg>
-                          <% end %>
-                          <%= link_to escola_path(escola), method: :delete, 
-                                      confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
-                                      class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800", 
-                                      title: "Excluir escola" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                          <% end %>
-                        </div>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            
-            </div>
-
-            <!-- Mobile Card View -->
-            
-              <div class="md:hidden space-y-4">
-                <% @escolas.each do |escola| %>
-                  <div class="bg-white p-6 rounded-lg shadow-sm border mobile-school-card">
-                    <div class="flex justify-between items-start mb-4">
-                      <div class="flex-1">
-                        <h3 class="font-semibold text-lg text-gray-800 mb-2"><%= escola.nome %></h3>
-                        <div class="space-y-1 text-sm text-gray-600">
-                          <div class="flex items-center">
-                            <span class="font-medium w-16">CNPJ:</span>
-                            <span><%= escola.cnpj.present? ? escola.cnpj : "Não informado" %></span>
-                          </div>
-                          <div class="flex items-center">
-                            <span class="font-medium w-16">Turmas:</span>
-                            <span class="text-green-600 font-semibold"><%= escola.turmas.count %></span>
-                          </div>
-                          <div class="flex items-center">
-                            <span class="font-medium w-16">Alunos:</span>
-                            <span class="text-blue-600 font-semibold"><%= escola.alunos.count %></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                      <%= link_to escola_path(escola), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50", title: "Ver escola" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      <% end %>
-                      <%= link_to edit_escola_path(escola), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50", title: "Editar escola" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
-                      <% end %>
-                      <%= link_to escola_path(escola), method: :delete, 
-                                  confirm: "Tem certeza que deseja excluir esta escola? Esta ação não pode ser desfeita.", 
-                                  class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800 hover:bg-red-50", 
-                                  title: "Excluir escola" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                      <% end %>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-          <% else %>
-            <div class="text-center py-12">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-              </svg>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma escola cadastrada</h3>
-              <p class="text-gray-500 mb-6">Comece criando sua primeira escola para gerenciar turmas e alunos.</p>
-              <%= link_to "Criar primeira escola", new_escola_path, class: "btn bg-blue-500 hover:bg-blue-600 text-white" %>
-            </div>
-          <% end %>
+                ], params[:filtro_select]),
+                {},
+                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" } %>
+          </div>
+          <div class="flex gap-2">
+            <%= form.submit "Filtrar", class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+            <%= link_to "Limpar", escolas_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+          </div>
         <% end %>
-        </div>
-      </main>
+      </div>
+
+      <!-- Schools Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CNPJ</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turmas</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alunos</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @escolas.each do |escola| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= escola.nome %></div>
+                  <% if escola.endereco&.cidade.present? %>
+                    <div class="text-sm text-gray-500"><%= escola.endereco.cidade %>, <%= escola.endereco.estado %></div>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= escola.cnpj.present? ? escola.cnpj : "-" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= escola.turmas.count %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= escola.alunos.count %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-900 p-1" do %>
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    <% end %>
+                    <%= link_to edit_escola_path(escola), class: "text-yellow-600 hover:text-yellow-900 p-1" do %>
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    <% end %>
+                    <%= button_to escola_path(escola), method: :delete, 
+                        confirm: "Tem certeza que deseja excluir esta escola?",
+                        class: "text-red-600 hover:text-red-900 p-1" do %>
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <% if @escolas.empty? %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma escola encontrada</h3>
+            <p class="mt-1 text-sm text-gray-500">Comece criando uma nova escola.</p>
+            <div class="mt-6">
+              <%= link_to "Nova Escola", new_escola_path, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
-
-  <%= render 'shared/super_admin_sidebar' %>
 </div>
 
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Chart Initialization Script -->
 <script>
-// Store chart instances globally for cleanup
-let schoolsDistributionChart, studentsPerSchoolChart, growthAnalysisChart;
-
-function initializeSchoolCharts() {
-  // Clean up existing charts if they exist
-  if (schoolsDistributionChart) {
-    schoolsDistributionChart.destroy();
-  }
-  if (studentsPerSchoolChart) {
-    studentsPerSchoolChart.destroy();
-  }
-  if (growthAnalysisChart) {
-    growthAnalysisChart.destroy();
-  }
-
-  // Check if chart elements exist before initializing
-  const schoolsDistributionCtx = document.getElementById('schoolsDistributionChart');
-  const studentsPerSchoolCtx = document.getElementById('studentsPerSchoolChart');
-  const growthAnalysisCtx = document.getElementById('growthAnalysisChart');
-
-  if (!schoolsDistributionCtx || !studentsPerSchoolCtx || !growthAnalysisCtx) {
-    console.log('Chart elements not found, skipping initialization');
-    return;
-  }
-
-  // Prepare data from Rails
-  const schoolNames = <%= raw @escolas.pluck(:nome).to_json %>;
-  const turmasData = <%= raw @escolas.map { |e| e.turmas.count }.to_json %>;
-  const alunosData = <%= raw @escolas.map { |e| e.alunos.count }.to_json %>;
-
-  // Schools Distribution Chart (Line Chart - matching dashboard style)
-  schoolsDistributionChart = new Chart(schoolsDistributionCtx.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: schoolNames,
-      datasets: [{
-        label: 'Turmas',
-        data: turmasData,
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: '#f3f4f6'
-          }
-        },
-        x: {
-          grid: {
-            color: '#f3f4f6'
-          }
-        }
-      }
-    }
-  });
-
-  // Students per School Chart (Line Chart - matching dashboard style)
-  studentsPerSchoolChart = new Chart(studentsPerSchoolCtx.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: schoolNames,
-      datasets: [{
-        label: 'Alunos',
-        data: alunosData,
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: '#f3f4f6'
-          }
-        },
-        x: {
-          grid: {
-            color: '#f3f4f6'
-          }
-        }
-      }
-    }
-  });
-
-  // Growth Analysis Chart (Line Chart - matching dashboard style)
-  growthAnalysisChart = new Chart(growthAnalysisCtx.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-      datasets: [{
-        label: 'Crescimento do Sistema',
-        data: [1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, <%= @escolas.count %>],
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: '#f3f4f6'
-          }
-        },
-        x: {
-          grid: {
-            color: '#f3f4f6'
-          }
-        }
-      }
-    }
-  });
-}
-
-// Initialize on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-  initializeSchoolCharts();
-});
-
-// Initialize on Turbo navigation
-document.addEventListener('turbo:load', function() {
-  initializeSchoolCharts();
-});
-
-// Clean up on Turbo before cache
-document.addEventListener('turbo:before-cache', function() {
-  if (schoolsDistributionChart) {
-    schoolsDistributionChart.destroy();
-    schoolsDistributionChart = null;
-  }
-  if (studentsPerSchoolChart) {
-    studentsPerSchoolChart.destroy();
-    studentsPerSchoolChart = null;
-  }
-  if (growthAnalysisChart) {
-    growthAnalysisChart.destroy();
-    growthAnalysisChart = null;
-  }
-});
-</script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const hiddenInput = document.getElementById('filtro_select_hidden');
-    const labelSpan = document.getElementById('filtro-label');
-    const links = document.querySelectorAll('.link-filtro');
-
-    links.forEach(link => {
-      link.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        // 1. Encontra e remove o estilo do item selecionado anteriormente
-        const previousSelected = document.querySelector('.link-filtro.bg-green-600');
-        if (previousSelected) {
-          previousSelected.classList.remove('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
+  // Chart configuration
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: '#f3f4f6'
         }
+      },
+      x: {
+        grid: {
+          color: '#f3f4f6'
+        }
+      }
+    }
+  };
 
-        // 2. Adiciona o estilo ao novo item
-        const selectedValue = event.target.dataset.value;
-        const selectedName = event.target.dataset.name;
-        event.target.classList.add('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
+  // Distribuição de Turmas Chart
+  const turmasCtx = document.getElementById('turmasChart').getContext('2d');
+  const turmasData = {
+    labels: [<%= raw @escolas.map(&:nome).map { |nome| "'#{nome}'" }.join(', ') %>],
+    datasets: [{
+      data: [<%= @escolas.map { |escola| escola.turmas.count }.join(', ') %>],
+      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      borderColor: '#10B981',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    }]
+  };
 
-        // 3. Atualiza o campo oculto e o texto do dropdown
-        hiddenInput.value = selectedValue;
-        labelSpan.textContent = selectedName;
-      });
-    });
+  new Chart(turmasCtx, {
+    type: 'line',
+    data: turmasData,
+    options: chartOptions
   });
+
+  // Alunos por Escola Chart
+  const alunosCtx = document.getElementById('alunosChart').getContext('2d');
+  const alunosData = {
+    labels: [<%= raw @escolas.map(&:nome).map { |nome| "'#{nome}'" }.join(', ') %>],
+    datasets: [{
+      data: [<%= @escolas.map { |escola| escola.alunos.count }.join(', ') %>],
+      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      borderColor: '#10B981',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    }]
+  };
+
+  new Chart(alunosCtx, {
+    type: 'line',
+    data: alunosData,
+    options: chartOptions
+  });
+
+  // Crescimento do Sistema Chart
+  const crescimentoCtx = document.getElementById('crescimentoChart').getContext('2d');
+  const crescimentoData = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+    datasets: [{
+      label: 'Escolas',
+      data: [0, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, <%= @total_escolas %>],
+      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+      borderColor: '#10B981',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4
+    }]
+  };
+
+  new Chart(crescimentoCtx, {
+    type: 'line',
+    data: crescimentoData,
+    options: {
+      ...chartOptions,
+      plugins: {
+        legend: {
+          display: true
+        }
+      }
+    }
+  });
+});
+
+// Handle Turbo navigation
+document.addEventListener('turbo:load', function() {
+  // Re-initialize charts if needed
+  if (typeof Chart !== 'undefined') {
+    Chart.helpers.each(Chart.instances, function(instance) {
+      instance.destroy();
+    });
+    // Trigger DOMContentLoaded to reinitialize charts
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+  }
+});
 </script>

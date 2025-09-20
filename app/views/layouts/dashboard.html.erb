@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html data-theme="light">
+  <head>
+    <title>Turmaria - <%= current_user_type || 'Sistema' %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50">
+    
+    <div class="drawer lg:drawer-open">
+      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+      
+      <!-- Main Content -->
+      <div class="drawer-content flex flex-col">
+        <!-- Top Navigation Bar - Using same header as application.html.erb -->
+        <header class="bg-white text-black p-2 flex justify-between items-center h-18
+                        sm:p-2
+                        md:p-7 h-20 shadow-sm border-b border-gray-200">
+          <div class="flex w-full items-center justify-between space-x-0
+                        md:space-x-2">
+            <!-- Mobile Menu Button for Sidebar -->
+            <div class="flex items-center space-x-3">
+              <div class="lg:hidden">
+                <label for="my-drawer" class="btn btn-square btn-ghost">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                  </svg>
+                </label>
+              </div>
+              
+              <!-- Logo and Brand -->
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="size-7
+                        sm:size-11
+                        md:size-13">
+                  <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+                  <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+                  <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
+                </svg>
+                <%= link_to root_path do%>
+                  <h1 class="text-xl font-bold md:text-4xl transition-colors duration-300 hover:text-primary
+                              sm:text-3xl
+                              lg:text-4xl">Turmaria</h1>
+                <% end %>
+              </div>
+            </div>
+            
+            <nav class="flex space-x-3.5 items-center md:space-x-7">
+              <% if current_any_user.present? && current_page?(root_path) %>
+
+              <% end %>
+              <% if current_any_user.present? %>
+                <%= link_to dashboard_path, class: "btn bg-green-600 text-white shadow-none d-flex align-items-center gap-2" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  Dashboard
+                <% end %>
+                <div class="flex-none">
+                <!-- Enhanced User info in top bar -->
+                <div class="flex items-center space-x-4">
+                  <!-- User Info -->
+                  <div class="text-right hidden sm:block">
+                    <p class="text-sm font-medium text-gray-900">
+                      <%= current_any_user&.nome.present? ? current_any_user.nome : current_user_type %>
+                    </p>
+                    <div class="flex items-center justify-end space-x-2">
+                      <p class="text-xs text-gray-500"><%= current_user_type %></p>
+                      <!-- School Badge for Admin -->
+                      <% if current_admin&.escola.present? %>
+                        <div class="badge badge-xs bg-green-100 text-green-700 border-green-200">
+                          <%= current_admin.escola.nome %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  
+                  <!-- Avatar -->
+                  <div class="avatar placeholder">
+                    <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
+                      <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-1/2">
+                        <% if current_any_user&.nome.present? %>
+                          <%= current_any_user.nome.first.upcase %>
+                        <% elsif current_any_user&.email.present? %>
+                          <%= current_any_user.email.first.upcase %>
+                        <% else %>
+                          U
+                        <% end %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Logout Button -->
+                  <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
+                    </div>
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                      <li>
+                        <div class="text-xs text-gray-500 px-3 py-2 border-b">
+                          <%= current_any_user&.email %>
+                        </div>
+                      </li>
+                      <li>
+                        <%= button_to destroy_user_session_path, method: :delete, 
+                            class: "text-red-600 hover:bg-red-50" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          Sair
+                        <% end %>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+                
+              <% else %>
+                <%= link_to new_user_session_path, class: "btn btn-primary shadow-none d-flex align-items-center gap-2" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 16l-4-4m0 0l4-4m-4 4h14m-6 4v1a2 2 0 002 2h3a2 2 0 002-2v-1m-7-8V7a2 2 0 012-2h3a2 2 0 012 2v1" />
+                  </svg>
+                  Entrar
+                <% end %>
+              <% end %>
+            </nav>
+          </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-6">
+          <% if notice.present? %>
+            <div role="alert" class="alert alert-success mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span><%= notice %></span>
+            </div>
+          <% end %>
+          
+          <% if alert.present? %>
+            <div role="alert" class="alert alert-warning mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span><%= alert %></span>
+            </div>
+          <% end %>
+          <%= yield %>
+        </main>
+      </div>
+
+      <!-- Dynamic Sidebar -->
+      <%= render_user_sidebar %>
+    </div>
+  </body>
+</html>

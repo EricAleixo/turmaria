@@ -9,10 +9,10 @@ class ApplicationController < ActionController::Base
   # Retorna o tipo de usuário logado como string
   def current_user_type
     case current_any_user
-    when Admin then "Admin"
+    when Admin then "Administrador"
     when Professor then "Professor"
     when Coordenador then "Coordenador"
-    when Aluno then "Aluno"
+    when SuperAdmin then "Super Admin"
     else nil
     end
   end
@@ -21,6 +21,31 @@ class ApplicationController < ActionController::Base
   def user_signed_in?
     current_any_user.present?
   end
+
+  protected
+
+  # Override Devise's after_confirmation_path_for to use our custom login path
+  def after_confirmation_path_for(resource_name, resource)
+    new_user_session_path
+  end
+
+  # Override Devise's after_sign_in_path_for to redirect based on user type and school association
+  def after_sign_in_path_for(resource)
+    case resource
+    when Admin
+      if resource.escola.present?
+        # Admin já tem escola, vai para o show da escola
+        escola_path(resource.escola)
+      else
+        # Admin não tem escola, vai para a tela de boas-vindas
+        welcome_escola_path
+      end
+    when SuperAdmin
+      # Super Admin vai para o dashboard de super admin
+      dashboard_path
+    else
+      # Outros tipos de usuário vão para o dashboard
+      dashboard_path
+    end
+  end
 end
-
-
