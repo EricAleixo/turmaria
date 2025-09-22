@@ -74,6 +74,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
     t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
   end
 
+  create_table "cidades", force: :cascade do |t|
+    t.string "nome"
+    t.bigint "estado_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["estado_id"], name: "index_cidades_on_estado_id"
+  end
+
   create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -106,14 +114,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
     t.string "logradouro"
     t.string "numero"
     t.string "bairro"
-    t.string "cidade"
-    t.string "estado"
     t.string "cep"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
+    t.bigint "cidade_id", null: false
     t.string "complemento"
+    t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
 
@@ -135,6 +143,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
     t.index ["nome"], name: "index_escolas_on_nome", unique: true
     t.index ["tipo"], name: "index_escolas_on_tipo"
     t.index ["turmas_count"], name: "index_escolas_on_turmas_count"
+  end
+
+  create_table "estados", force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "nota", force: :cascade do |t|
@@ -193,7 +207,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
+  add_foreign_key "cidades", "estados"
   add_foreign_key "enderecos", "alunos"
+  add_foreign_key "enderecos", "cidades"
   add_foreign_key "enderecos", "escolas"
   add_foreign_key "escolas", "admins"
   add_foreign_key "turmas", "ano_letivos"

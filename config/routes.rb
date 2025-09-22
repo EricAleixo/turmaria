@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
 
+  resources :estados
+
   # Complete CRUD for administradores
   resources :administradores
 
