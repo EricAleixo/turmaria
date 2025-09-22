@@ -63,69 +63,66 @@
             <% end %>
           </div>
 
-          <%= form_with url: alunos_path, method: :get, data: { turbo_frame: "alunos" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
-  
-          <div class="flex-1 min-w-64">
-            <%= form.text_field :busca, placeholder: "Buscar por nome do aluno...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
-          </div> 
+          <% modal_id = "filtro-modal" %>
 
-          <!-- Dropdown DaisyUI -->
-          <div class="dropdown">
-            <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-56 justify-between">
-              <span id="filtro-label">
-              <%= params[:filtro_select].present? ? {
-                "maiores" => "Maiores de idade",
-                "menores" => "Menores de idade",
-                "sexo_m" => "Sexo: Masculino",
-                "sexo_f" => "Sexo: Feminino",
-                "com_necessidades" => "Com necessidades especiais",
-                "sem_necessidades" => "Sem necessidades especiais",
-                "com_cpf" => "Com CPF",
-                "sem_cpf" => "Sem CPF",
-                "com_email" => "Com Email",
-                "sem_email" => "Sem Email",
-                "com_turma" => "Com Turma",
-                "sem_turma" => "Sem Turma"
-              }[params[:filtro_select]] || "Todos os alunos" : "Todos os alunos" %></span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <%= form_with url: alunos_path, method: :get, data: { turbo_frame: "alunos" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+
+            <!-- Campo de busca -->
+            <div class="flex-1 min-w-64">
+              <%= form.text_field :busca, 
+                placeholder: "Buscar por nome do aluno...", 
+                value: params[:busca], 
+                class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+            </div> 
+
+            <!-- Botão que abre o modal -->
+            <label for="<%= modal_id %>" class="btn bg-green-500 border-gray-300 text-white hover:bg-green-600">
+              Filtros
             </label>
 
-            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-56 p-2 shadow">
-              <% [
-                ["Todos os alunos", ""],
-                ["Maiores de idade", "maiores"],
-                ["Menores de idade", "menores"],
-                ["Sexo: Masculino", "sexo_m"],
-                ["Sexo: Feminino", "sexo_f"],
-                ["Com necessidades especiais", "com_necessidades"],
-                ["Sem necessidades especiais", "sem_necessidades"],
-                ["Com CPF", "com_cpf"],
-                ["Sem CPF", "sem_cpf"],
-                ["Com Email", "com_email"],
-                ["Sem Email", "sem_email"],
-                ["Com Turma", "com_turma"],
-                ["Sem Turma", "sem_turma"]
-              ].each do |name, value| %>
-                <li>
-                  <a href=""
-                     data-value="<%= value %>"
-                     data-name="<%= name %>"
-                     class="link-filtro block w-full
-                     <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value %>">
-                    <%= name %>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          </div>
+            <!-- Checkbox hidden que controla o modal -->
+            <input type="checkbox" id="<%= modal_id %>" class="modal-toggle" />
 
-          <!-- Hidden input -->
-          <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
+            <!-- Modal -->
+            <div class="modal">
+              <div class="modal-box max-w-lg bg-white border border-gray-200 shadow-lg">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">Filtrar alunos</h3>
 
-          <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
-          <%= link_to "Limpar", alunos_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                
+                  <% filtros = [
+                    {grupo: 'idade', opcoes: [['maiores', 'Maiores de idade'], ['menores', 'Menores de idade']]},
+                    {grupo: 'genero', opcoes: [['masculino', 'Masculino'], ['feminino', 'Feminino']]},
+                    {grupo: 'ne', opcoes: [['com_ne','Com N.E.'], ['sem_ne','Sem N.E.']]},
+                    {grupo: 'cpf', opcoes: [['com_cpf','Com CPF'], ['sem_cpf','Sem CPF']]},
+                    {grupo: 'email', opcoes: [['com_email','Com Email'], ['sem_email','Sem Email']]},
+                    {grupo: 'turma', opcoes: [['com_turma','Com Turma'], ['sem_turma','Sem Turma']]}
+                  ] %>
+
+                  <% filtros.each do |filtro| %>
+                    <% filtro[:opcoes].each do |value, label| %>
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" 
+                               name="filtro[]" 
+                               value="<%= value %>" 
+                               class="checkbox checkbox-sm checkbox-success <%= filtro[:grupo] %>-group"
+                               <%= "checked" if params[:filtro]&.include?(value) %> />
+                        <%= label %>
+                      </label>
+                    <% end %>
+                  <% end %>
+
+                </div>
+
+                <!-- Ações -->
+                <div class="modal-action">
+                  <button type="submit" class="btn bg-green-500 text-white hover:bg-green-600">
+                    Aplicar
+                  </button>
+                  <label for="<%= modal_id %>" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200">Cancelar</label>
+                </div>
+              </div>
+            </div>
 
           <% end %>
 
@@ -137,6 +134,7 @@
                   <tr>
                     <th>Nome</th>
                     <th>Data de Nascimento</th>
+                    <th>Matrícula</th>
                     <th>Status</th>
                     <th>Turma</th>
                     <th>Ações</th>
@@ -149,6 +147,7 @@
                       <tr class="bg-green-50 hover:bg-green-100">
                         <td class="text-green-800 font-medium"><%= aluno.nome %></td>
                         <td class="text-green-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-green-700"><%=aluno.matricula%></td>
                         <td><span class="badge bg-green-500 text-white">Alocado</span></td>
                         <td class="text-green-700"><%= aluno.turma.nome %></td>
                         <td>
@@ -196,6 +195,7 @@
                       <tr class="bg-gray-50 hover:bg-gray-100">
                         <td class="text-gray-800 font-medium"><%= aluno.nome %></td>
                         <td class="text-gray-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-gray-700"><%=aluno.matricula%></td>
                         <td><span class="badge bg-gray-500 text-white">Não Alocado</span></td>
                         <td class="text-gray-500">-</td>
                         <td>
@@ -243,6 +243,8 @@
                           <p class="text-sm text-green-700">
                             <span class="font-semibold">Nascimento:</span> <%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %>
                           </p>
+                          <p class="card-title text-lg font-bold text-green-800"><span class="font-semibold">Matrícula:</span>
+                            <%= aluno.matricula %></p>
                           <p class="text-sm text-green-700">
                             <span class="font-semibold">Turma:</span> <%= aluno.turma.nome %>
                           </p>
@@ -301,6 +303,8 @@
                           <p class="text-sm text-gray-700">
                             <span class="font-semibold">Nascimento:</span> <%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %>
                           </p>
+                          <p class="text-sm text-gray-500"><span class="font-semibold">Matrícula:</span>
+                            <%= aluno.matricula %></p>
                           <p class="text-sm text-gray-500">
                             <span class="font-semibold">Turma:</span> Não alocado
                           </p>
@@ -373,31 +377,18 @@
   <%= render 'shared/super_admin_sidebar' %>
 </div>
 
+<!--Checkbox-->
 <script>
-  document.addEventListener("turbo:load", () => {
-    const hiddenInput = document.getElementById('filtro_select_hidden');
-    const labelSpan = document.getElementById('filtro-label');
-    const links = document.querySelectorAll('.link-filtro');
-
-    links.forEach(link => {
-      link.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        // 1. Encontra e remove o estilo do item selecionado anteriormente
-        const previousSelected = document.querySelector('.link-filtro.bg-green-600');
-        if (previousSelected) {
-          previousSelected.classList.remove('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
-        }
-
-        // 2. Adiciona o estilo ao novo item
-        const selectedValue = event.target.dataset.value;
-        const selectedName = event.target.dataset.name;
-        event.target.classList.add('bg-green-600', 'text-white', 'hover:bg-green-600', 'hover:text-white');
-
-        // 3. Atualiza o campo oculto e o texto do dropdown
-        hiddenInput.value = selectedValue;
-        labelSpan.textContent = selectedName;
-      });
-    });
+  // Event delegation para exclusividade por grupo
+  document.querySelector('.modal-box').addEventListener('change', e => {
+    if(e.target.matches('input[type="checkbox"]')){
+      // Procura a classe do grupo que termina com "-group"
+      const group = Array.from(e.target.classList).find(c => c.endsWith('-group'));
+      if(group && e.target.checked){
+        document.querySelectorAll(`.${group}`).forEach(other => {
+          if(other !== e.target) other.checked = false;
+        });
+      }
+    }
   });
 </script>
