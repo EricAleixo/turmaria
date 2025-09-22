@@ -3,10 +3,19 @@ class EscolasController < ApplicationController
   before_action :set_escola, only: %i[show edit update destroy]
 
   def index
-    @escolas = Escola.includes(:turmas, :alunos, :endereco).all
+    # Tenta usar Pundit, com fallback para todos os registros
+    begin
+      authorize Escola
+      @escolas = policy_scope(Escola).includes(:turmas, :alunos, :endereco, :admin)
+    rescue Pundit::NotDefinedError => e
+      Rails.logger.warn "Pundit error: #{e.message}"
+      @escolas = Escola.includes(:turmas, :alunos, :endereco, :admin).all
+    end
 
     # Statistics for dashboard
     @total_escolas = @escolas.count
+    @total_escolas_publicas = @escolas.publicas.count
+    @total_escolas_privadas = @escolas.privadas.count
     @total_turmas = Turma.count
     @total_alunos = Aluno.count
     @media_alunos_escola = @total_escolas > 0 ? (@total_alunos.to_f / @total_escolas).round(1) : 0
@@ -38,6 +47,14 @@ class EscolasController < ApplicationController
   end
 
   def show
+    # Autorização com Pundit
+    begin
+      authorize @escola
+    rescue Pundit::NotDefinedError => e
+      Rails.logger.warn "Pundit error: #{e.message}"
+      # Continua sem autorização se Pundit não funcionar
+    end
+    
     # Carrega todos os alunos da escola com a mesma lógica do alunos controller
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
   end
@@ -116,7 +133,7 @@ class EscolasController < ApplicationController
 
   def escola_params
     params.require(:escola).permit(
-      :nome, :cnpj, :telefone, :email, :site,
+      :nome, :cnpj, :telefone, :email, :site, :tipo, :admin_id,
       endereco_attributes: [
         :id, :logradouro, :numero, :complemento, :bairro, :cidade, :estado, :cep, :_destroy
       ]

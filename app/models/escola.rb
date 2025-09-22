@@ -9,12 +9,43 @@ class Escola < ApplicationRecord
 
   accepts_nested_attributes_for :endereco, allow_destroy: true
 
+  # Validações
   validates :nome, presence: true, uniqueness: true
-  validates :cnpj, uniqueness: true, format: { with: /\A\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\z/, message: "deve estar no formato XX.XXX.XXX/XXXX-XX" }
+  validates :cnpj, uniqueness: true, format: { with: /\A\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\z/, message: "deve estar no formato XX.XXX.XXX/XXXX-XX" }, allow_blank: true
+  validates :tipo, presence: true, inclusion: { in: %w[publica privada], message: "deve ser pública ou privada" }
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
+  # Enums
+  enum tipo: { publica: 'publica', privada: 'privada' }
+
+  # Scopes
   scope :mais_alunos, -> { order(alunos_count: :desc) }
   scope :menos_alunos, -> { order(alunos_count: :asc) }
-
   scope :mais_turmas, -> { order(turmas_count: :desc) }
   scope :menos_turmas, -> { order(turmas_count: :asc) }
+  scope :publicas, -> { where(tipo: 'publica') }
+  scope :privadas, -> { where(tipo: 'privada') }
+
+  # Métodos
+  def tipo_humanizado
+    case tipo
+    when 'publica'
+      'Pública'
+    when 'privada'
+      'Privada'
+    end
+  end
+
+  def endereco_completo
+    return "Endereço não cadastrado" unless endereco.present?
+    
+    partes = []
+    partes << "#{endereco.logradouro}, #{endereco.numero}" if endereco.logradouro.present? && endereco.numero.present?
+    partes << endereco.complemento if endereco.complemento.present?
+    partes << endereco.bairro if endereco.bairro.present?
+    partes << "#{endereco.cidade} - #{endereco.estado}" if endereco.cidade.present? && endereco.estado.present?
+    partes << "CEP: #{endereco.cep}" if endereco.cep.present?
+    
+    partes.join(', ')
+  end
 end

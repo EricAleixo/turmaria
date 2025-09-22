@@ -48,4 +48,64 @@ module ApplicationHelper
     end
   end
 
+  # Verifica se o usuário atual pode ver informações de administradores
+  def can_see_admin_info?
+    # Usa Pundit policy para verificar permissão
+    policy = EscolaPolicy.new(controller.current_user, Escola.new)
+    policy.view_admin_info?
+  rescue
+    # Fallback caso não haja usuário logado
+    false
+  end
+
+  # Gera avatar do administrador (iniciais do nome quando não há foto)
+  def admin_avatar(admin, size: 'w-8 h-8', text_size: 'text-sm')
+    return nil unless admin
+
+    if admin.respond_to?(:avatar) && admin.avatar.present?
+      # Quando implementar upload de fotos, usar esta linha:
+      # image_tag admin.avatar, class: "#{size} rounded-full object-cover"
+      admin_initials_avatar(admin, size, text_size)
+    else
+      admin_initials_avatar(admin, size, text_size)
+    end
+  end
+
+  # Gera avatar com iniciais do nome
+  def admin_initials_avatar(admin, size = 'w-8 h-8', text_size = 'text-sm')
+    return nil unless admin&.nome
+
+    initials = admin.nome.split.map(&:first).join.upcase.first(2)
+    
+    # Cores baseadas no hash do nome para consistência
+    colors = [
+      'bg-blue-500 text-white',
+      'bg-green-500 text-white', 
+      'bg-purple-500 text-white',
+      'bg-red-500 text-white',
+      'bg-yellow-500 text-white',
+      'bg-indigo-500 text-white',
+      'bg-pink-500 text-white',
+      'bg-teal-500 text-white'
+    ]
+    
+    color_class = colors[admin.nome.hash % colors.length]
+    
+    content_tag :div, 
+                initials, 
+                class: "#{size} #{color_class} rounded-full flex items-center justify-center font-semibold #{text_size}",
+                title: admin.nome
+  end
+
+  # Tooltip com informações do administrador
+  def admin_tooltip_info(admin)
+    return '' unless admin
+
+    info = []
+    info << "Nome: #{admin.nome}"
+    info << "Email: #{admin.email}" if admin.email.present?
+    
+    info.join("\n")
+  end
+
 end

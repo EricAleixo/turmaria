@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_19_105500) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -28,10 +28,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_19_105500) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
-    t.uuid "escola_id"
     t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true
     t.index ["email"], name: "index_admins_on_email", unique: true
-    t.index ["escola_id"], name: "index_admins_on_escola_id"
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
@@ -130,10 +128,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_19_105500) do
     t.string "telefone"
     t.string "email"
     t.string "site"
+    t.string "tipo", default: "publica", null: false
     t.index ["admin_id"], name: "index_escolas_on_admin_id"
     t.index ["alunos_count"], name: "index_escolas_on_alunos_count"
     t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
     t.index ["nome"], name: "index_escolas_on_nome", unique: true
+    t.index ["tipo"], name: "index_escolas_on_tipo"
     t.index ["turmas_count"], name: "index_escolas_on_turmas_count"
   end
 
@@ -190,7 +190,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_19_105500) do
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
-  add_foreign_key "admins", "escolas"
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"

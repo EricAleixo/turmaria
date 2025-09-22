@@ -1,9 +1,24 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_any_user, :current_user_type, :user_signed_in?
+  include Pundit::Authorization
+  
+  helper_method :current_any_user, :current_user_type, :user_signed_in?, :current_user
+
+  # Tratamento de erros do Pundit
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   # Retorna o usuário logado (qualquer tipo)
   def current_any_user
     @current_any_user ||= current_admin || current_professor || current_coordenador || current_super_admin
+  end
+
+  # Alias para compatibilidade com Pundit
+  def current_user
+    current_any_user
+  end
+
+  # Método auxiliar para Pundit quando não há usuário logado
+  def pundit_user
+    current_user
   end
 
   # Retorna o tipo de usuário logado como string
@@ -47,5 +62,12 @@ class ApplicationController < ActionController::Base
       # Outros tipos de usuário vão para o dashboard
       dashboard_path
     end
+  end
+
+  private
+
+  def user_not_authorized
+    flash[:alert] = "Você não tem permissão para realizar essa ação."
+    redirect_to root_path
   end
 end
