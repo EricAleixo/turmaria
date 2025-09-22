@@ -101,14 +101,18 @@ class AlunosController < ApplicationController
   end
 
   def set_aluno
-    if params[:turma_id].present?
-      @turma = @escola.turmas.find(params[:turma_id])
-      @aluno = @turma.alunos.find(params[:id])
-    else
-      @aluno = @escola.alunos.find(params[:id])
-      # Nova linha para encontrar a turma do aluno, se existir
-      @turma = @aluno.turma
-    end
+  # Se a URL contém o ID da turma, busca o aluno dentro dela.
+  if params[:turma_id].present?
+    @turma = @escola.turmas.find(params[:turma_id])
+    @aluno = @turma.alunos.find(params[:id])
+  else
+    # Se não, busca o aluno diretamente na escola.
+    @aluno = @escola.alunos.find(params[:id])
+    # A turma do aluno pode ser nil, o que é tratado na view.
+    @turma = @aluno.turma
+  end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to escola_alunos_path(@escola), alert: "Aluno ou turma não encontrados."
   end
 
   def aluno_params
