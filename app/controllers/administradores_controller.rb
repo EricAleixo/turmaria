@@ -1,4 +1,5 @@
 class AdministradoresController < ApplicationController
+  layout 'dashboard'
   before_action :set_administrador, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -15,7 +16,7 @@ class AdministradoresController < ApplicationController
   def create
     @admin = Admin.new(admin_params)
     if @admin.save
-      redirect_to @admin, notice: "Administrador criado com sucesso!"
+      redirect_to administradore_path(@admin), notice: "Administrador criado com sucesso!"
     else
       flash.now[:alert] = "Falha ao salvar administrador"
       render :new, status: :unprocessable_entity
@@ -27,7 +28,7 @@ class AdministradoresController < ApplicationController
 
   def update
     if @admin.update(admin_params_for_update)
-      redirect_to @admin, notice: "Administrador atualizado com sucesso!"
+      redirect_to administradore_path(@admin), notice: "Administrador atualizado com sucesso!"
     else
       flash.now[:alert] = "Falha ao atualizar administrador"
       render :edit, status: :unprocessable_entity

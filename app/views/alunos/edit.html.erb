@@ -1,10 +1,11 @@
+<%# app/views/alunos/edit.html.erb %>
+
 <% content_for :title, "Editar Aluno" %>
 
 <div class="drawer lg:drawer-open bg-gray-100">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
   <div class="drawer-content flex flex-col items-center">
-    
     <div class="w-full p-4">
       <div class="flex items-center mb-6 lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
@@ -18,18 +19,23 @@
           <ul>
             <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
             <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to "Alunos", escola_turma_alunos_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @aluno.nome, escola_turma_aluno_path(@escola, @turma, @aluno), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% if @turma %>
+              <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to "Alunos", escola_turma_alunos_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @aluno.nome, escola_turma_aluno_path(@escola, @turma, @aluno), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% else %>
+              <li><%= link_to "Alunos", escola_alunos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @aluno.nome, escola_aluno_path(@escola, @aluno), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% end %>
             <li class="text-gray-600">Editar</li>
           </ul>
         </div>
 
-        <%= render "form", aluno: @aluno %>
+        <%= render "form", aluno: @aluno, editing: true %>
       </main>
     </div>
-
   </div>
 
   <%= render 'shared/super_admin_sidebar' %>
 </div>
+ 

@@ -1,5 +1,8 @@
 <%
-    form_url = @turma ? [@escola, @turma, @aluno] : [@escola, @aluno]
+  form_url = @turma ? [@escola, @turma, @aluno] : [@escola, @aluno]
+  
+  # A variável 'editing' é passada das views 'new' e 'edit'.
+  editing = local_assigns[:editing]
 %>
 
 <%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", id: "student-form") do |form| %>
@@ -23,7 +26,9 @@
 
   <div id="step-1" class="form-step">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 1</h1>
+      <h1 class="text-2xl font-bold text-gray-700">
+        <%= editing ? "Editar Aluno - Etapa 1" : "Novo Aluno - Etapa 1" %>
+      </h1>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -72,7 +77,9 @@
 
   <div id="step-2" class="form-step hidden">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 2</h1>
+      <h1 class="text-2xl font-bold text-gray-700">
+        <%= editing ? "Editar Aluno - Etapa 2" : "Novo Aluno - Etapa 2" %>
+      </h1>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -118,20 +125,15 @@
           <span class="label-text">Intelectual</span> 
         </label>
         <label class="label cursor-pointer" for="outro-checkbox">
-          <%= form.check_box :necessidades_especiais_tipo, { class: "checkbox checkbox-primary necessidade-checkbox", id: "outro-checkbox" }, "Outro(a)", nil %>
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox", id: "outro-checkbox" }, "Outro(a)", nil %>
           <span class="label-text">Outro(a)</span>
         </label>
       </div>
     </div>
     
-    <div id="outra-necessidade-field" class="form-control w-full mt-4 hidden">
-      <label for="aluno_outra_necessidade" class="label label-text text-gray-600 font-semibold">Especifique a necessidade</label>
-      <%= form.text_field :outra_necessidade, class: "input input-bordered w-full", placeholder: "Ex: Dislexia" %>
-      
-      <div class="form-control w-full mt-4">
-        <label for="aluno_observacoes_pcd" class="label label-text text-gray-600 font-semibold">Observações</label>
-        <%= form.text_area :observacoes_pcd, class: "textarea textarea-bordered w-full", placeholder: "Insira observações adicionais sobre a necessidade do aluno." %>
-      </div>
+    <div id="outra-necessidade-field" class="form-control w-full mt-4 <%= 'hidden' unless @aluno.necessidades_especiais_tipo.present? && @aluno.necessidades_especiais_tipo.include?('Outro(a)') %>">
+      <label for="aluno_observacoes_pcd" class="label label-text text-gray-600 font-semibold">Observações</label>
+      <%= form.text_area :observacoes_pcd, class: "textarea textarea-bordered w-full", placeholder: "Insira observações adicionais sobre a necessidade do aluno." %>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -172,7 +174,9 @@
 
   <div id="step-3" class="form-step hidden">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">Novo Aluno - Etapa 3</h1>
+      <h1 class="text-2xl font-bold text-gray-700">
+        <%= editing ? "Editar Aluno - Etapa 3" : "Novo Aluno - Etapa 3" %>
+      </h1>
       <p class="text-xs text-gray-400">Campos opcionais</p>
     </div>
 
@@ -300,7 +304,7 @@
         Anterior
       </button>
       <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white" id="submit-btn">
-        Criar Aluno
+        <%= editing ? "Salvar Alterações" : "Criar Aluno" %>
       </button>
     </div>
   </div>

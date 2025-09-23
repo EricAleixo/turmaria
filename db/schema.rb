@@ -9,8 +9,8 @@
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
- 
-ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
+
+ActiveRecord::Schema[7.1].define(version: 2025_09_22_134607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -48,7 +48,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.string "sexo"
     t.string "cor"
     t.string "tipo_sanguinio"
-    t.string "necessidades_especiais_tipo"
+    t.text "necessidades_especiais_tipo", default: [], array: true
     t.text "observacoes_pcd"
     t.string "responsavel_1"
     t.string "responsavel_2"
@@ -113,6 +113,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
+    t.string "complemento"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
 
@@ -121,8 +122,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "cnpj"
+    t.integer "turmas_count", default: 0
+    t.integer "alunos_count", default: 0
+    t.uuid "admin_id"
+    t.string "telefone"
+    t.string "email"
+    t.string "site"
+    t.string "tipo", default: "publica", null: false
+    t.index ["admin_id"], name: "index_escolas_on_admin_id"
+    t.index ["alunos_count"], name: "index_escolas_on_alunos_count"
     t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
     t.index ["nome"], name: "index_escolas_on_nome", unique: true
+    t.index ["tipo"], name: "index_escolas_on_tipo"
+    t.index ["turmas_count"], name: "index_escolas_on_turmas_count"
   end
 
   create_table "nota", force: :cascade do |t|
@@ -183,6 +195,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_15_112203) do
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "escolas"
+  add_foreign_key "escolas", "admins"
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

@@ -1,208 +1,191 @@
-<div class="drawer lg:drawer-open bg-gray-100">
-  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-  <div class="drawer-content flex flex-col">
-    <div class="w-full p-6">
-      <div class="flex items-center mb-6 lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-        <h1 class="text-xl font-bold ml-2">Dashboard</h1>
+<!-- Header with back button -->
+<div class="flex items-center mb-6">
+  <%= link_to administradores_path, class: "flex items-center text-blue-600 hover:text-blue-700 transition-colors" do %>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Voltar aos Administradores
+  <% end %>
+</div>
+
+<!-- Main title -->
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900 mb-2">Novo Administrador</h1>
+  <p class="text-gray-600">Crie uma nova conta de administrador do sistema</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <!-- Form Card -->
+  <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="bg-green-100 p-3 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Informações do Administrador</h2>
+        <p class="text-gray-600 text-sm">Preencha os dados para criar a conta</p>
+      </div>
+    </div>
+    
+    <%= form_with model: @admin, url: administradores_path, local: true, html: { class: "space-y-6", multipart: true } do |form| %>
+      <div class="space-y-4">
+        <!-- Photo Upload -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-gray-900 font-medium">Foto do Perfil</span>
+          </label>
+          <div class="flex items-center gap-4">
+            <div class="avatar placeholder">
+              <div class="w-16 h-16 rounded-full bg-green-500 text-white relative" id="current-avatar">
+                <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="current-initial">A</span>
+              </div>
+            </div>
+            <div class="flex-1">
+              <%= form.file_field :foto, 
+                  class: "file-input file-input-bordered w-full bg-white border-gray-300 focus:border-green-500", 
+                  accept: "image/*",
+                  id: "foto-input" %>
+              <div class="text-xs text-gray-500 mt-1">JPG, PNG ou GIF (máx. 2MB)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-gray-900 font-medium">Nome Completo</span>
+          </label>
+          <%= form.text_field :nome, 
+              class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
+              required: true, 
+              placeholder: "Digite o nome completo", 
+              id: "nome-input" %>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-gray-900 font-medium">Email</span>
+          </label>
+          <%= form.email_field :email, 
+              class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
+              required: true, 
+              placeholder: "exemplo@email.com", 
+              id: "email-input" %>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-gray-900 font-medium">Senha</span>
+          </label>
+          <%= form.password_field :password, 
+              class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
+              required: true, 
+              placeholder: "Mínimo 6 caracteres" %>
+          <label class="label">
+            <span class="label-text-alt text-gray-500">A senha deve ter pelo menos 6 caracteres</span>
+          </label>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-gray-900 font-medium">Confirmar Senha</span>
+          </label>
+          <%= form.password_field :password_confirmation, 
+              class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
+              required: true, 
+              placeholder: "Digite a senha novamente" %>
+        </div>
       </div>
 
-      <main class="w-full max-w-7xl mx-auto">
-        <!-- Header with back button -->
-        <div class="flex items-center mb-6">
-          <%= link_to administradores_path, class: "flex items-center text-blue-600 hover:text-blue-700 transition-colors" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Voltar aos Administradores
-          <% end %>
-        </div>
+      <div class="divider"></div>
 
-        <!-- Main title -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Novo Administrador</h1>
-          <p class="text-gray-600">Crie uma nova conta de administrador do sistema</p>
+      <div class="flex gap-3">
+        <%= form.submit "Criar Administrador", 
+            class: "flex-1 btn bg-green-500 hover:bg-green-600 text-white border-none" %>
+        <%= link_to administradores_path, 
+            class: "btn btn-ghost text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400" do %>
+          Cancelar
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Preview Card -->
+  <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="bg-blue-100 p-3 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">Pré-visualização</h3>
+        <p class="text-gray-600 text-sm">Como o perfil aparecerá no sistema</p>
+      </div>
+    </div>
+    
+    <!-- User Profile Preview -->
+    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="avatar placeholder">
+          <div class="bg-green-500 text-white rounded-full w-16 h-16 relative ring-4 ring-green-500/20 transition-all duration-300" id="preview-avatar">
+            <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="preview-initial">A</span>
+          </div>
+        </div>
+        <div>
+          <div class="font-bold text-lg text-gray-900" id="preview-name">Nome do Administrador</div>
+          <div class="text-sm text-gray-600">Administrador</div>
+        </div>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span class="text-gray-700" id="preview-email">email@exemplo.com</span>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Form Card -->
-          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="bg-green-100 p-3 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-xl font-bold text-gray-900">Informações do Administrador</h2>
-                <p class="text-gray-600 text-sm">Preencha os dados para criar a conta</p>
-              </div>
-            </div>
-            
-            <%= form_with model: @admin, url: administradores_path, local: true, html: { class: "space-y-6", multipart: true } do |form| %>
-              <div class="space-y-4">
-                <!-- Photo Upload -->
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text text-gray-900 font-medium">Foto do Perfil</span>
-                  </label>
-                  <div class="flex items-center gap-4">
-                    <div class="avatar placeholder">
-                      <div class="w-16 h-16 rounded-full bg-green-500 text-white relative" id="current-avatar">
-                        <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="current-initial">A</span>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <%= form.file_field :foto, 
-                          class: "file-input file-input-bordered w-full bg-white border-gray-300 focus:border-green-500", 
-                          accept: "image/*",
-                          id: "foto-input" %>
-                      <div class="text-xs text-gray-500 mt-1">JPG, PNG ou GIF (máx. 2MB)</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text text-gray-900 font-medium">Nome Completo</span>
-                  </label>
-                  <%= form.text_field :nome, 
-                      class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
-                      required: true, 
-                      placeholder: "Digite o nome completo", 
-                      id: "nome-input" %>
-                </div>
-
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text text-gray-900 font-medium">Email</span>
-                  </label>
-                  <%= form.email_field :email, 
-                      class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
-                      required: true, 
-                      placeholder: "exemplo@email.com", 
-                      id: "email-input" %>
-                </div>
-
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text text-gray-900 font-medium">Senha</span>
-                  </label>
-                  <%= form.password_field :password, 
-                      class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
-                      required: true, 
-                      placeholder: "Mínimo 6 caracteres" %>
-                  <label class="label">
-                    <span class="label-text-alt text-gray-500">A senha deve ter pelo menos 6 caracteres</span>
-                  </label>
-                </div>
-
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text text-gray-900 font-medium">Confirmar Senha</span>
-                  </label>
-                  <%= form.password_field :password_confirmation, 
-                      class: "input input-bordered w-full bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-green-500", 
-                      required: true, 
-                      placeholder: "Digite a senha novamente" %>
-                </div>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="flex gap-3">
-                <%= form.submit "Criar Administrador", 
-                    class: "flex-1 btn bg-green-500 hover:bg-green-600 text-white border-none" %>
-                <%= link_to administradores_path, 
-                    class: "btn btn-ghost text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400" do %>
-                  Cancelar
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-
-          <!-- Preview Card -->
-          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="bg-blue-100 p-3 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-gray-900">Pré-visualização</h3>
-                <p class="text-gray-600 text-sm">Como o perfil aparecerá no sistema</p>
-              </div>
-            </div>
-            
-            <!-- User Profile Preview -->
-            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-              <div class="flex items-center gap-4 mb-6">
-                <div class="avatar placeholder">
-                  <div class="bg-green-500 text-white rounded-full w-16 h-16 relative ring-4 ring-green-500/20 transition-all duration-300" id="preview-avatar">
-                    <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="preview-initial">A</span>
-                  </div>
-                </div>
-                <div>
-                  <div class="font-bold text-lg text-gray-900" id="preview-name">Nome do Administrador</div>
-                  <div class="text-sm text-gray-600">Administrador</div>
-                </div>
-              </div>
-              
-              <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-gray-700" id="preview-email">email@exemplo.com</span>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div class="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
-                    </svg>
-                    Pendente de confirmação
-                  </div>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6" />
-                  </svg>
-                  <span class="text-gray-700">Criado hoje</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Info Alert -->
-            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div class="flex items-start gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div class="text-sm text-blue-700">
-                  <p class="font-medium mb-1">Informações importantes:</p>
-                  <ul class="space-y-1 text-blue-600">
-                    <li>• O administrador receberá um email de confirmação</li>
-                    <li>• Acesso total ao sistema após confirmação</li>
-                    <li>• Pode gerenciar escolas, turmas e alunos</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+            </svg>
+            Pendente de confirmação
           </div>
         </div>
-      </main>
+        
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6" />
+          </svg>
+          <span class="text-gray-700">Criado hoje</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Info Alert -->
+    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-start gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="text-sm text-blue-700">
+          <p class="font-medium mb-1">Informações importantes:</p>
+          <ul class="space-y-1 text-blue-600">
+            <li>• O administrador receberá um email de confirmação</li>
+            <li>• Acesso total ao sistema após confirmação</li>
+            <li>• Pode gerenciar escolas, turmas e alunos</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
-  <%= render "shared/super_admin_sidebar" %>
 </div>
 
 <script>

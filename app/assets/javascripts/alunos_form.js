@@ -65,7 +65,6 @@ function initializeForm() {
   }
 
   // --- LÓGICA DO BOTÃO ---
-  // A lógica de validação foi removida para permitir a navegação sem preencher os campos.
   if (nextStep1Btn) {
     nextStep1Btn.addEventListener('click', (event) => {
       event.preventDefault();
@@ -99,7 +98,6 @@ function initializeForm() {
   }
   // --- FIM DA LÓGICA DO BOTÃO ---
 
-
   // Lógica de submissão do formulário
   if (studentForm) {
     studentForm.addEventListener('submit', async (event) => {
@@ -109,48 +107,13 @@ function initializeForm() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loading loading-spinner"></span> Enviando...`;
       }
-      const formData = new FormData();
-      const formElements = studentForm.elements;
-      for (let i = 0; i < formElements.length; i++) {
-        const element = formElements[i];
-        if (element.type === 'submit' || element.type === 'button') continue;
-        const name = element.name;
-        const value = element.value;
-        if (name === 'aluno[necessidades_especiais_tipo][]' && element.checked) {
-          if (value === 'Outro(a)') {
-            const outraNecessidadeInput = document.getElementById('aluno_outra_necessidade');
-            if (outraNecessidadeInput && outraNecessidadeInput.value.trim() !== '') {
-              formData.append(name, outraNecessidadeInput.value.trim());
-            }
-          } else {
-            formData.append(name, value);
-          }
-        } else if (name === 'aluno[outra_necessidade]' && document.getElementById('outro-checkbox').checked) {
-          continue;
-        } else if (element.type === 'file') {
-          for (const file of element.files) {
-            formData.append(name, file, file.name);
-          }
-        } else if (value.trim() !== '') {
-          formData.append(name, value);
-        }
-      }
-      const url = studentForm.action;
-      const urlParts = url.split('/');
-      const escolaIndex = urlParts.indexOf('escolas');
-      const turmaIndex = urlParts.indexOf('turmas');
-      if (escolaIndex > -1) {
-        const escolaId = urlParts[escolaIndex + 1];
-        formData.append('aluno[escola_id]', escolaId);
-      }
-      if (turmaIndex > -1) {
-        const turmaId = urlParts[turmaIndex + 1];
-        formData.append('aluno[turma_id]', turmaId);
-      }
+      
+      const formData = new FormData(studentForm);
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
       try {
-        const response = await fetch(url, {
-          method: 'POST',
+        const response = await fetch(studentForm.action, {
+          method: studentForm.method,
           body: formData,
           headers: {
             'X-CSRF-Token': csrfToken,
@@ -189,44 +152,46 @@ function initializeForm() {
   const outraNecessidadeField = document.getElementById('outra-necessidade-field');
   const checkboxes = document.querySelectorAll('.necessidade-checkbox');
   const nenhumaCheckbox = document.querySelector('input[value="Nenhuma"]');
-  if (outroCheckbox && outraNecessidadeField) {
-    outroCheckbox.addEventListener('change', () => {
-      if (outroCheckbox.checked) {
-        checkboxes.forEach(otherCb => {
-          if (otherCb.id !== 'outro-checkbox' && otherCb.value !== 'Nenhuma') {
-            otherCb.checked = false;
-          }
-        });
-        outraNecessidadeField.classList.remove('hidden');
-      } else {
-        outraNecessidadeField.classList.add('hidden');
-      }
-    });
-  }
+
+  const toggleObservacoesField = () => {
+    if (outroCheckbox && outraNecessidadeField) {
+      outraNecessidadeField.classList.toggle('hidden', !outroCheckbox.checked);
+    }
+  };
+
   if (nenhumaCheckbox) {
     nenhumaCheckbox.addEventListener('change', () => {
       if (nenhumaCheckbox.checked) {
         checkboxes.forEach(otherCb => {
           if (otherCb.value !== 'Nenhuma') {
             otherCb.checked = false;
-            otherCb.disabled = true;
           }
         });
-        outraNecessidadeField.classList.add('hidden');
-      } else {
-        checkboxes.forEach(otherCb => otherCb.disabled = false);
       }
+      toggleObservacoesField();
     });
   }
+
+  if (outroCheckbox) {
+    outroCheckbox.addEventListener('change', () => {
+      if (outroCheckbox.checked && nenhumaCheckbox) {
+        nenhumaCheckbox.checked = false;
+      }
+      toggleObservacoesField();
+    });
+  }
+
   checkboxes.forEach(cb => {
-    if (cb.value !== 'Nenhuma' && cb.id !== 'outro-checkbox') {
+    if (cb.value !== 'Nenhuma' && cb.value !== 'Outro(a)') {
       cb.addEventListener('change', () => {
-        if (cb.checked) {
-          if (nenhumaCheckbox) nenhumaCheckbox.checked = false;
+        if (cb.checked && nenhumaCheckbox) {
+          nenhumaCheckbox.checked = false;
         }
       });
     }
   });
+
+  toggleObservacoesField();
 
   // Lógica de upload e notificações
   const uploadAreas = document.querySelectorAll('.upload-area');
@@ -236,6 +201,7 @@ function initializeForm() {
   const MAX_FILES_CPF = 2;
   const MAX_FILES_COMPROVANTE = 2;
   const MAX_FILES_HISTORICO = 1;
+
   uploadAreas.forEach(area => {
     const inputId = area.dataset.inputId;
     const fileInput = document.getElementById(inputId);
@@ -253,12 +219,14 @@ function initializeForm() {
       handleFiles(files, fileInput);
     });
   });
+
   uploadInputs.forEach(fileInput => {
     fileInput.addEventListener('change', (event) => {
       const files = event.target.files;
       handleFiles(files, fileInput);
     });
   });
+
   function handleFiles(files, fileInput) {
     const filesArray = Array.from(files);
     const fileType = fileInput.id.replace('-upload', '');
@@ -267,15 +235,19 @@ function initializeForm() {
     else if (fileType === 'cpf') maxFiles = MAX_FILES_CPF;
     else if (fileType === 'comprovante') maxFiles = MAX_FILES_COMPROVANTE;
     else if (fileType === 'historico') maxFiles = MAX_FILES_HISTORICO;
+
     const uploadedFilesList = document.getElementById(fileInput.id.replace('-upload', '-files-list'));
     const currentFilesCount = uploadedFilesList.childElementCount;
     const dataTransfer = new DataTransfer();
+
     if (currentFilesCount + filesArray.length > maxFiles) {
       showDaisyAlert(`Limite de ${maxFiles} arquivos para este tipo de documento atingido.`, 'warning');
       return;
     }
+
     const existingFiles = Array.from(fileInput.files);
     existingFiles.forEach(f => dataTransfer.items.add(f));
+
     filesArray.forEach(file => {
       if (file.size > FILE_SIZE_LIMIT_BYTES) {
         showDaisyAlert(`O arquivo "${file.name}" excede o tamanho máximo de 700 KB.`, 'error');
@@ -284,11 +256,14 @@ function initializeForm() {
       dataTransfer.items.add(file);
       addFileToList(file, uploadedFilesList, fileInput);
     });
+
     fileInput.files = dataTransfer.files;
+
     if (filesArray.length > 0) {
       showDaisyAlert(`Arquivo(s) selecionado(s) com sucesso!`, 'success');
     }
   }
+
   function addFileToList(file, listElement, fileInput) {
     const listItem = document.createElement('li');
     listItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'border-b', 'last:border-b-0');
@@ -325,7 +300,7 @@ function initializeForm() {
 // Inicializa a lógica APENAS APÓS UMA PEQUENA DEMORA
 // Isso ajuda a contornar condições de corrida com o Turbolinks
 function setupFormWithDelay() {
-    setTimeout(initializeForm, 50); // 50ms de atraso
+  setTimeout(initializeForm, 50); // 50ms de atraso
 }
 
 document.addEventListener('turbolinks:load', setupFormWithDelay);
