@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
+  devise_for :alunos, skip:[:registrations] , controllers: { sessions: 'alunos/sessions' }
 
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
