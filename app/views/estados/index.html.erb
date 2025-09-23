@@ -1,0 +1,88 @@
+<!-- app/views/estados/index.html.erb -->
+
+<%= render 'shared/super_admin_sidebar' %>
+
+<div class="min-h-screen flex flex-col bg-base-200">
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-10">
+    <h1 class="text-4xl font-bold mb-2">Estados Brasileiros</h1>
+    <p class="text-gray-600 mb-8">Gerencie informações sobre os estados e suas cidades</p>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Total de Estados -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body items-center text-center">
+          <h2 class="card-title text-gray-500">Total de Estados</h2>
+          <p class="text-3xl font-bold text-primary"><%= Estado.count %></p>
+        </div>
+      </div>
+
+      <!-- Total de Cidades -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body items-center text-center">
+          <h2 class="card-title text-gray-500">Total de Cidades</h2>
+          <p class="text-3xl font-bold text-success"><%= Cidade.count %></p>
+        </div>
+      </div>
+
+      <!-- Maior Estado -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body items-center text-center">
+          <h2 class="card-title text-gray-500">Maior Estado</h2>
+          <p class="text-2xl font-bold text-info">
+            <%= Estado.all.max_by { |e| e.cidades.size }&.nome || "N/A" %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de adicionar -->
+    <div class="flex justify-end mb-4">
+      <%= link_to '➕ Adicionar Estado', new_estado_path, class: 'btn btn-success' %>
+    </div>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto bg-base-100 shadow rounded-lg">
+      <table class="table table-zebra w-full text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>UF</th>
+            <th>Região</th>
+            <th>Cidades</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @estados.each_with_index do |estado, index| %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= estado.nome %></td>
+              <td><span class="badge badge-neutral"><%= estado.uf %></span></td>
+              <td>
+                <% cor_regiao = case estado.regiao
+                  when "Sul" then "success"
+                  when "Sudeste" then "primary"
+                  when "Nordeste" then "warning"
+                  else "neutral"
+                end %>
+                <span class="badge badge-<%= cor_regiao %>"><%= estado.regiao %></span>
+              </td>
+              <td><%= estado.cidades.count %> <small class="text-xs">municípios</small></td>
+              <td class="space-x-2">
+                <%= link_to '👁️', estado_path(estado), class: 'btn btn-xs btn-outline' %>
+                <%= link_to '✏️', edit_estado_path(estado), class: 'btn btn-xs btn-outline btn-info' %>
+                <%= link_to '🗑️', estado_path(estado), method: :delete, data: { confirm: 'Tem certeza?' }, class: 'btn btn-xs btn-outline btn-error' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer fixado no final -->
+  <footer class="footer footer-center p-4 bg-base-300 text-base-content mt-auto">
+
+</div>

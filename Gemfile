@@ -4,6 +4,7 @@ ruby "3.2.3"
 
 gem "dotenv-rails"
 
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.3"
 
@@ -78,3 +79,5 @@ gem "tailwindcss-rails", "~> 4.3"
 gem "devise", "~> 4.9"
 
 gem "pundit", "~> 2.3"
+
+gem "rails-ujs", "~> 0.1.0"
