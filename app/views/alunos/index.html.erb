@@ -10,8 +10,10 @@
         </label>
         <% if @turma %>
           <h1 class="text-xl font-bold ml-2">Alunos - <%= @turma.nome %></h1>
-        <% else %>
+        <% elsif @escola %>
           <h1 class="text-xl font-bold ml-2">Alunos - <%= @escola.nome %></h1>
+        <% else %>
+          <h1 class="text-xl font-bold ml-2">Todos os alunos</h1>
         <% end %>
       </div>
 
@@ -20,7 +22,9 @@
         <div class="text-sm breadcrumbs mb-4">
           <ul>
             <li><%= link_to "Escolas", escolas_path, class: "text-blue-600 hover:text-blue-800" %></li>
-            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800" %></li>
+            <% if @escola%>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800" %></li>
+            <%end%>
             <% if @turma %>
               <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-blue-600 hover:text-blue-800" %></li>
             <% end %>
@@ -43,10 +47,13 @@
                 Alunos da Turma <%= @turma.nome %>
               <% else %>
                 Alunos da Escola
+                
               <% end %>
             </h1>
 
-            <% unless @turma %>
+            
+
+            <% unless @turma || @escola.nil? %>
               <%= link_to new_escola_aluno_path(@escola), class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar novo aluno" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -56,6 +63,69 @@
             <% end %>
           </div>
 
+          <% modal_id = "filtro-modal" %>
+
+          <%= form_with url: alunos_path, method: :get, data: { turbo_frame: "alunos" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+
+            <!-- Campo de busca -->
+            <div class="flex-1 min-w-64">
+              <%= form.text_field :busca, 
+                placeholder: "Buscar por nome do aluno...", 
+                value: params[:busca], 
+                class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+            </div> 
+
+            <!-- Botão que abre o modal -->
+            <label for="<%= modal_id %>" class="btn bg-green-500 border-gray-300 text-white hover:bg-green-600">
+              Filtros
+            </label>
+
+            <!-- Checkbox hidden que controla o modal -->
+            <input type="checkbox" id="<%= modal_id %>" class="modal-toggle" />
+
+            <!-- Modal -->
+            <div class="modal">
+              <div class="modal-box max-w-lg bg-white border border-gray-200 shadow-lg">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">Filtrar alunos</h3>
+
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                
+                  <% filtros = [
+                    {grupo: 'idade', opcoes: [['maiores', 'Maiores de idade'], ['menores', 'Menores de idade']]},
+                    {grupo: 'genero', opcoes: [['masculino', 'Masculino'], ['feminino', 'Feminino']]},
+                    {grupo: 'ne', opcoes: [['com_ne','Com N.E.'], ['sem_ne','Sem N.E.']]},
+                    {grupo: 'cpf', opcoes: [['com_cpf','Com CPF'], ['sem_cpf','Sem CPF']]},
+                    {grupo: 'email', opcoes: [['com_email','Com Email'], ['sem_email','Sem Email']]},
+                    {grupo: 'turma', opcoes: [['com_turma','Com Turma'], ['sem_turma','Sem Turma']]}
+                  ] %>
+
+                  <% filtros.each do |filtro| %>
+                    <% filtro[:opcoes].each do |value, label| %>
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" 
+                               name="filtro[]" 
+                               value="<%= value %>" 
+                               class="checkbox checkbox-sm checkbox-success <%= filtro[:grupo] %>-group"
+                               <%= "checked" if params[:filtro]&.include?(value) %> />
+                        <%= label %>
+                      </label>
+                    <% end %>
+                  <% end %>
+
+                </div>
+
+                <!-- Ações -->
+                <div class="modal-action">
+                  <button type="submit" class="btn bg-green-500 text-white hover:bg-green-600">
+                    Aplicar
+                  </button>
+                  <label for="<%= modal_id %>" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200">Cancelar</label>
+                </div>
+              </div>
+            </div>
+
+          <% end %>
+
           <% if @alunos.any? %>
             <!-- Desktop Table View -->
             <div class="hidden md:block overflow-x-auto">
@@ -64,6 +134,7 @@
                   <tr>
                     <th>Nome</th>
                     <th>Data de Nascimento</th>
+                    <th>Matrícula</th>
                     <th>Status</th>
                     <th>Turma</th>
                     <th>Ações</th>
@@ -76,6 +147,7 @@
                       <tr class="bg-green-50 hover:bg-green-100">
                         <td class="text-green-800 font-medium"><%= aluno.nome %></td>
                         <td class="text-green-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-green-700"><%=aluno.matricula%></td>
                         <td><span class="badge bg-green-500 text-white">Alocado</span></td>
                         <td class="text-green-700"><%= aluno.turma.nome %></td>
                         <td>
@@ -123,25 +195,31 @@
                       <tr class="bg-gray-50 hover:bg-gray-100">
                         <td class="text-gray-800 font-medium"><%= aluno.nome %></td>
                         <td class="text-gray-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-gray-700"><%=aluno.matricula%></td>
                         <td><span class="badge bg-gray-500 text-white">Não Alocado</span></td>
                         <td class="text-gray-500">-</td>
                         <td>
                           <div class="flex gap-2">
-                            <%= link_to escola_aluno_path(@escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                            <% end %>
-                            <%= link_to edit_escola_aluno_path(@escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                            <%if aluno.escola%>
+                              <%= link_to escola_aluno_path(aluno.escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <%end%>
+                            <%= link_to edit_escola_aluno_path(aluno.escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                               </svg>
+
                             <% end %>
-                            <%= button_to escola_aluno_path(@escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                            <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                               </svg>
+                              <%end%>
+                            <%else%>
+                              <span class = "text-gray-400 italic">Sem escola</span>  
                             <% end %>
                           </div>
                         </td>
@@ -165,6 +243,8 @@
                           <p class="text-sm text-green-700">
                             <span class="font-semibold">Nascimento:</span> <%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %>
                           </p>
+                          <p class="card-title text-lg font-bold text-green-800"><span class="font-semibold">Matrícula:</span>
+                            <%= aluno.matricula %></p>
                           <p class="text-sm text-green-700">
                             <span class="font-semibold">Turma:</span> <%= aluno.turma.nome %>
                           </p>
@@ -223,6 +303,8 @@
                           <p class="text-sm text-gray-700">
                             <span class="font-semibold">Nascimento:</span> <%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %>
                           </p>
+                          <p class="text-sm text-gray-500"><span class="font-semibold">Matrícula:</span>
+                            <%= aluno.matricula %></p>
                           <p class="text-sm text-gray-500">
                             <span class="font-semibold">Turma:</span> Não alocado
                           </p>
@@ -232,22 +314,26 @@
                       
                       <div class="card-actions justify-end">
                         <div class="flex gap-2">
-                          <%= link_to escola_aluno_path(@escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          <% end %>
-                          <%= link_to edit_escola_aluno_path(@escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                            </svg>
-                          <% end %>
-                          <%= button_to escola_aluno_path(@escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                          <% end %>
+                          <%if aluno.escola.present?%>
+                            <%= link_to escola_aluno_path(aluno.escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            <% end %>
+                            <%= link_to edit_escola_aluno_path(aluno.escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+                            <% end %>
+                            <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                              </svg>
+                            <% end %>
+                          <%else%>
+                            <span class="text-gray-400 italic">Sem escola</span>
+                          <%end%>
                         </div>
                       </div>
                     </div>
@@ -287,27 +373,22 @@
 
   </div>
 
-  
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-              </svg>
-              Escolas
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
+  <%= render 'shared/super_admin_sidebar' %>
 </div>
+
+<!--Checkbox-->
+<script>
+  // Event delegation para exclusividade por grupo
+  document.querySelector('.modal-box').addEventListener('change', e => {
+    if(e.target.matches('input[type="checkbox"]')){
+      // Procura a classe do grupo que termina com "-group"
+      const group = Array.from(e.target.classList).find(c => c.endsWith('-group'));
+      if(group && e.target.checked){
+        document.querySelectorAll(`.${group}`).forEach(other => {
+          if(other !== e.target) other.checked = false;
+        });
+      }
+    }
+  });
+</script>

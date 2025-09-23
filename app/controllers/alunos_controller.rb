@@ -7,7 +7,11 @@ class AlunosController < ApplicationController
 
   # ... (todas as suas outras ações index, show, new, create, etc. ficam inalteradas)
   def index
-    if @turma
+    if super_admin_signed_in? && @escola.nil?
+      @alunos = Aluno.includes(:escola, :turma).all
+      @allocated_alunos = @alunos.select(&:turma_id)
+      @unallocated_alunos = @alunos.reject(&:turma_id)
+    elsif @turma
       @alunos = @turma.alunos
       @allocated_alunos = @alunos
       @unallocated_alunos = []
@@ -93,7 +97,11 @@ class AlunosController < ApplicationController
   end
 
   def set_escola
-    @escola = Escola.find(params[:escola_id])
+    if super_admin_signed_in?
+      @escola= Escola.find(params[:escola_id]) if params[:escola_id].present?
+    else
+      @escola = Escola.find(params[:escola_id])
+    end
   end
   
   def set_turma
@@ -101,18 +109,15 @@ class AlunosController < ApplicationController
   end
 
   def set_aluno
-  # Se a URL contém o ID da turma, busca o aluno dentro dela.
-  if params[:turma_id].present?
-    @turma = @escola.turmas.find(params[:turma_id])
-    @aluno = @turma.alunos.find(params[:id])
-  else
-    # Se não, busca o aluno diretamente na escola.
-    @aluno = @escola.alunos.find(params[:id])
-    # A turma do aluno pode ser nil, o que é tratado na view.
-    @turma = @aluno.turma
-  end
-  rescue ActiveRecord::RecordNotFound
-    redirect_to escola_alunos_path(@escola), alert: "Aluno ou turma não encontrados."
+    if super_admin_signed_in?
+      @aluno = Aluno.find(params[:id])
+      @escola = @aluno.escola
+      @turma = @aluno.turma
+    elsif @turma
+      @aluno = @turma.alunos.find(params[:id])
+    else
+      @aluno = @escola.alunos.find(params[:id])
+    end
   end
 
   def aluno_params
