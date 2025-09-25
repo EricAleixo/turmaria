@@ -15,14 +15,14 @@
       <main class="w-full max-w-7xl mx-auto">
         <div class="flex items-center mb-6">
           <% if @turma %>
-            <%= link_to escola_turma_alunos_path(@escola, @turma), class: "flex items-center text-blue-600 hover:text-blue-700 transition-colors" do %>
+            <%= link_to escola_turma_alunos_path(@escola, @turma), class: "flex items-center text-green-600 hover:text-green-700 transition-colors" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Voltar para a Turma
             <% end %>
           <% else %>
-            <%= link_to escola_alunos_path(@escola), class: "flex items-center text-blue-600 hover:text-blue-700 transition-colors" do %>
+            <%= link_to escola_alunos_path(@escola), class: "flex items-center text-green-600 hover:text-green-700 transition-colors" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>

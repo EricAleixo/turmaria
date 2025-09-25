@@ -150,14 +150,17 @@ end
     comprovante_residencia_url: [], 
     historico_academico_url: []
   ).tap do |whitelisted_params|
-    # Sua lógica de conversão continua aqui
-    if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-      if whitelisted_params[:necessidades_especiais_tipo].blank?
-        whitelisted_params[:necessidades_especiais_tipo] = []
-      else
+      # Lógica para converter string em array, se necessário
+      if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
         whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
       end
-    end
+
+      # -------------------------------------------------------------------
+      # >> Lógica para definir "Nenhuma" se o array estiver vazio <<
+      # -------------------------------------------------------------------
+      if whitelisted_params[:necessidades_especiais_tipo].blank?
+        whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
+      end
   end
 end
 end
