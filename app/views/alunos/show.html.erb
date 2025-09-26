@@ -14,19 +14,22 @@
 
       <main class="w-full max-w-7xl mx-auto">
         <div class="flex items-center mb-6">
-          <% if @turma %>
-            <%= link_to escola_turma_alunos_path(@escola, @turma), class: "flex items-center text-green-600 hover:text-green-700 transition-colors" do %>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Voltar para a Turma
-            <% end %>
-          <% else %>
+          <div class="flex items-center">
             <%= link_to escola_alunos_path(@escola), class: "flex items-center text-green-600 hover:text-green-700 transition-colors" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Voltar para Alunos
+            <% end %>
+          </div>
+
+          <% if @aluno.turma.present? %>
+            <%= link_to escola_turma_path(@escola, @aluno.turma), class: "ml-4 flex items-center text-green-600 hover:text-green-700 transition-colors" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.5 13a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z" />
+              </svg>
+              Ir para Turma
             <% end %>
           <% end %>
         </div>
@@ -325,9 +328,9 @@
               </div>
             </div>
             
-                <div class="space-y-2">
-            <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Documentos</h4>
-            <div class="grid grid-cols-1 gap-2">
+            <div class="space-y-2">
+              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Documentos</h4>
+              <div class="grid grid-cols-1 gap-2">
                 <%# Botão 1 %>
                 <label for="cpf-modal" class="btn bg-green-600 hover:bg-green-700 text-white border-none">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
@@ -349,7 +352,7 @@
                 </svg>
                 Ver Histórico
                 </label>
-            </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,11 +1,9 @@
 <%
   form_url = @turma ? [@escola, @turma, @aluno] : [@escola, @aluno]
-  
-  # A variável 'editing' é passada das views 'new' e 'edit'.
   editing = local_assigns[:editing]
 %>
 
-<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", id: "student-form") do |form| %>
+<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", id: "student-form", data: { controller: "student-form" }) do |form| %>
 
   <%= form.hidden_field :escola_id, value: @escola.id %>
   
@@ -327,6 +325,5 @@
 <div class="toast toast-end z-[99]">
   <div id="alert-container"></div>
 </div>
- 
-<%= javascript_include_tag 'alunos_form' %>
+
 <%= javascript_include_tag 'mascaras' %>
