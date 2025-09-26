@@ -1,29 +1,55 @@
 class EstadosController < ApplicationController
   def index
-    @estados = Estado.order(:nome)# Ordena pelo campo logradouro, por exemplo
+    @estados = Estado.order(:nome)
   end
 
   def show
-    @estados = Estado.find(params[:id])
+    @estado = Estado.find(params[:id])
   end
 
-  # Se quiser criar, editar ou deletar, pode adicionar os métodos abaixo:
-  # def new
-  #   @endereco = Endereco.new
-  # end
+  def new
+    @estado = Estado.new
+  end
 
-  # def create
-  #   @endereco = Endereco.new(endereco_params)
-  #   if @endereco.save
-  #     redirect_to enderecos_path, notice: 'Endereço criado com sucesso.'
-  #   else
-  #     render :new
-  #   end
-  # end
+  def create
+    @estado = Estado.new(estado_params)
+    if @estado.save
+      redirect_to estados_path
+    else
+      render :new
+    end
+  end
+
+def update
+  @estado = Estado.find(params[:id])
+  if @estado.update(estado_params)
+    redirect_to estados_path
+  else
+    render :edit
+  end
+end
+
+
+  def edit
+  @estado = Estado.find(params[:id])
+end
+
+  def confirm_delete
+    @estado = Estado.find(params[:id])
+  end
+
+  def destroy
+  @estado = Estado.find(params[:id])
+  @estado.destroy
+
+  redirect_to estados_path
+end
+
+
 
   private
 
-  def endereco_params
-    params.require(:endereco).permit(:logradouro, :bairro, :cidade_id, :estado_id, :cep)
+  def estado_params
+    params.require(:estado).permit(:nome, :sigla, :regiao)
   end
 end

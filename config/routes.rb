@@ -8,7 +8,13 @@ Rails.application.routes.draw do
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
 
-  resources :estados
+  resources :estados do
+  member do
+    get :confirm_delete
+  end
+
+  resources :cidades, only: [:index]
+end
 
   # Complete CRUD for administradores
   resources :administradores

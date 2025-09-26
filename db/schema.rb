@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_25_113300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -125,8 +125,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
-    t.string "complemento"
     t.bigint "cidade_id", null: false
+    t.string "complemento"
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
@@ -155,6 +155,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_220510) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sigla"
+    t.string "regiao"
   end
 
   create_table "nota", force: :cascade do |t|

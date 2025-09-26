@@ -1,0 +1,9 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-8 rounded shadow max-w-md text-center">
+    <h2 class="text-2xl font-bold mb-4">Excluir Estado</h2>
+    <p class="mb-6">Tem certeza que deseja excluir o estado <strong><%= @estado.nome %></strong>?</p>
+    
+    <%= button_to 'Confirmar Exclusão', estado_path(@estado), method: :delete, class: "btn btn-error px-6 py-2 rounded" %>
+    <%= link_to 'Cancelar', estados_path, class: "ml-4 btn btn-outline" %>
+  </div>
+</div>
