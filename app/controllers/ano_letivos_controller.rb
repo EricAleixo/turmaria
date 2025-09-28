@@ -1,4 +1,7 @@
 class AnoLetivosController < ApplicationController
+
+  layout 'dashboard'
+
   before_action :set_escola, only: %i[index new create]
   before_action :set_ano_letivo, only: %i[show edit update destroy]
 

@@ -7,4 +7,17 @@ class Turma < ApplicationRecord
 
   validates :nome, presence: true
   validates :serie, presence: true
+  validate :ano_letivo_deve_pertencer_a_escola
+
+  private
+ 
+  def ano_letivo_deve_pertencer_a_escola
+  return unless ano_letivo.present? && escola.present?
+  
+  if ano_letivo.escola_id != escola.id
+    Rails.logger.error "🛑 ERRO! Tentativa de Turma (Escola #{escola.id}) usar Ano Letivo (Escola #{ano_letivo.escola_id})"
+    
+    errors.add(:base, "O Ano Letivo selecionado não pertence a esta Escola.")
+  end
+end 
 end

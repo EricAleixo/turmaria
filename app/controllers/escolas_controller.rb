@@ -135,8 +135,9 @@ class EscolasController < ApplicationController
     params.require(:escola).permit(
       :nome, :cnpj, :telefone, :email, :site, :tipo, :admin_id,
       endereco_attributes: [
-        :id, :logradouro, :numero, :complemento, :bairro, :cidade, :estado, :cep, :_destroy
+        :id, :logradouro, :numero, :complemento, :bairro, :cidade_id, :cep, :_destroy
       ]
     )
   end
+
 end

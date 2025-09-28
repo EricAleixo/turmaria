@@ -1,4 +1,6 @@
 class EstadosController < ApplicationController
+  layout 'dashboard'
+
   def index
     @estados = Estado.order(:nome)# Ordena pelo campo logradouro, por exemplo
   end

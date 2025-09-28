@@ -43,7 +43,7 @@ class Escola < ApplicationRecord
     partes << "#{endereco.logradouro}, #{endereco.numero}" if endereco.logradouro.present? && endereco.numero.present?
     partes << endereco.complemento if endereco.complemento.present?
     partes << endereco.bairro if endereco.bairro.present?
-    partes << "#{endereco.cidade} - #{endereco.estado}" if endereco.cidade.present? && endereco.estado.present?
+    partes << "#{endereco.cidade.nome} - #{endereco.cidade.estado.nome}" if endereco.cidade.present?
     partes << "CEP: #{endereco.cep}" if endereco.cep.present?
     
     partes.join(', ')

@@ -14,10 +14,14 @@ class TurmasController < ApplicationController
   # GET /escolas/:escola_id/turmas/new
   def new
     @turma = @escola.turmas.build
+    # 🟢 CORREÇÃO CRÍTICA: Variável padronizada para @anos_letivos
+    @anos_letivos = @escola.ano_letivos.order(ano: :desc)
   end
 
   # GET /escolas/:escola_id/turmas/1/edit
   def edit
+    # 🟢 CORREÇÃO CRÍTICA: Variável padronizada para @anos_letivos
+    @anos_letivos = @escola.ano_letivos.order(ano: :desc)
   end
 
   # POST /escolas/:escola_id/turmas or /escolas/:escola_id/turmas.json
@@ -29,6 +33,8 @@ class TurmasController < ApplicationController
         format.html { redirect_to [@escola, @turma], notice: "Turma foi criada com sucesso." }
         format.json { render :show, status: :created, location: [@escola, @turma] }
       else
+        # 🟢 CORREÇÃO CRÍTICA: Variável padronizada para @anos_letivos
+        @anos_letivos = @escola.ano_letivos.order(ano: :desc)
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @turma.errors, status: :unprocessable_entity }
       end
@@ -42,6 +48,8 @@ class TurmasController < ApplicationController
         format.html { redirect_to [@escola, @turma], notice: "Turma foi atualizada com sucesso." }
         format.json { render :show, status: :ok, location: [@escola, @turma] }
       else
+        # 🟢 CORREÇÃO CRÍTICA: Variável padronizada para @anos_letivos
+        @anos_letivos = @escola.ano_letivos.order(ano: :desc)
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @turma.errors, status: :unprocessable_entity }
       end
@@ -57,6 +65,8 @@ class TurmasController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  # ... (O restante das actions assign_students, assign_student, remove_from_turma permanece inalterado)
 
   def assign_students
     # Filtros separados para cada tabela
@@ -258,6 +268,7 @@ class TurmasController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_turma
+      # Nota: A busca está corretamente scoped para garantir que a turma pertence à escola atual.
       @turma = @escola.turmas.find(params[:id])
     end
 
@@ -266,3 +277,4 @@ class TurmasController < ApplicationController
       params.require(:turma).permit(:nome, :serie, :turno, :ano_letivo_id)
     end
 end
+ 

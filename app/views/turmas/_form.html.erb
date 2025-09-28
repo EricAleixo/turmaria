@@ -17,7 +17,7 @@
 
   <div class="flex justify-between items-center mb-8 border-b pb-4">
     <h1 class="text-2xl font-bold text-gray-700"><%= turma.persisted? ? "Editar Turma" : "Nova Turma" %></h1>
-    <%= link_to "Adicionar/Salvar", new_escola_turma_path(@escola), class: "btn btn-outline btn-sm" %>
+    <%= link_to "Voltar para Turmas", escola_turmas_path(@escola), class: "btn btn-outline btn-sm" %>
   </div>
 
   <div class="form-control w-full mb-6">
@@ -26,7 +26,7 @@
   </div>
 
   <div class="form-control w-full mb-6">
-    <%= form.label :serie, "Série *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.label :serie, "Série *", class: "label label-text text-gray-600 font-semibold" %> 
     <%= form.number_field :serie, class: "input input-bordered w-full", placeholder: "Ex: 1, 2 ou 3", required: true %>
   </div>
 
@@ -37,7 +37,9 @@
 
   <div class= "form-control w-full mb-6">
     <%= form.label :ano_letivo_id, "Ano Letivo", class: "label label-text text-gray-600 font-semibold" %>
-    <%= form.collection_select :ano_letivo_id, AnoLetivo.order(:ano), :id, :ano, { prompt: "Selecione o Ano Letivo" }, class: "select select-bordered w-full", required: true, id: 'turma_ano_letivo_id' %>
+    
+    <%# 🛑 CORREÇÃO APLICADA: Substituindo AnoLetivo.order(:ano) pela variável de instância @anos_letivos %>
+    <%= form.collection_select :ano_letivo_id, @anos_letivos, :id, :ano, { prompt: "Selecione o Ano Letivo" }, { class: "select select-bordered w-full", required: true, id: 'turma_ano_letivo_id' } %>
   </div>
 
   <div class="flex justify-between mt-10">
