@@ -50,18 +50,18 @@ class AlunosController < ApplicationController
 
   def update
   respond_to do |format|
-    if @aluno.update(aluno_params)
-      format.html { 
-        redirect_path = @turma ? escola_turma_aluno_path(@escola, @turma, @aluno) : escola_aluno_path(@escola, @aluno)
-        redirect_to redirect_path, notice: 'Aluno atualizado com sucesso.'
-      }
-      format.json { render json: { success: true, message: 'Aluno atualizado com sucesso!' }, status: :ok }
-    else
-      format.html { render :edit, status: :unprocessable_entity }
-      format.json { render json: { errors: @aluno.errors.messages }, status: :unprocessable_entity }
+      if @aluno.update(aluno_params)
+        format.html { 
+          redirect_path = @turma ? escola_turma_aluno_path(@escola, @turma, @aluno) : escola_aluno_path(@escola, @aluno)
+          redirect_to redirect_path, notice: 'Aluno atualizado com sucesso.'
+        }
+        format.json { render json: { success: true, message: 'Aluno atualizado com sucesso!' }, status: :ok }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @aluno.errors.messages }, status: :unprocessable_entity }
+      end
     end
   end
-end
 
   def destroy
     @aluno.destroy
@@ -151,17 +151,17 @@ end
     comprovante_residencia_url: [], 
     historico_academico_url: []
   ).tap do |whitelisted_params|
-      # Lógica para converter string em array, se necessário
-      if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-        whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
-      end
+        # Lógica para converter string em array, se necessário
+        if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
+          whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+        end
 
-      # -------------------------------------------------------------------
-      # >> Lógica para definir "Nenhuma" se o array estiver vazio <<
-      # -------------------------------------------------------------------
-      if whitelisted_params[:necessidades_especiais_tipo].blank?
-        whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
-      end
+        # -------------------------------------------------------------------
+        # >> Lógica para definir "Nenhuma" se o array estiver vazio <<
+        # -------------------------------------------------------------------
+        if whitelisted_params[:necessidades_especiais_tipo].blank?
+          whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
+        end
+    end
   end
-end
 end

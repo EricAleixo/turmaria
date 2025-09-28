@@ -1,4 +1,7 @@
 class TurmasController < ApplicationController
+
+  layout 'dashboard'
+
   before_action :set_escola
   before_action :set_turma, only: %i[show edit update destroy assign_students assign_student remove_from_turma]
 

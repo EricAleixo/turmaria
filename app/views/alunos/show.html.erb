@@ -5,12 +5,21 @@
   
   <div class="drawer-content flex flex-col">
     <div class="w-full p-6">
-      <div class="flex items-center mb-6 lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-        <h1 class="text-xl font-bold ml-2">Dashboard</h1>
-      </div>
+
+      <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% if @turma %>
+              <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to "Alunos", escola_turma_alunos_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% else %>
+              <li><%= link_to "Alunos", escola_alunos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @aluno.nome, escola_aluno_path(@escola, @aluno), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <% end %>
+            <li class="text-gray-600"><%= @aluno.nome %></li>
+          </ul>
+        </div>
 
       <main class="w-full max-w-7xl mx-auto">
         <div class="flex items-center mb-6">
@@ -65,69 +74,197 @@
           </div>
           
           <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              Contato
-            </h3>
-            <div class="space-y-4">
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Email
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.email.presence || 'Não informado' %></p>
+            </div>
+            Informações de Contato
+          </h3>
+          
+          <div class="space-y-4">
+            
+            <!-- Seção: Dados Pessoais -->
+            <div class="mb-6">
+              <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                Dados Pessoais
+              </h4>
+              
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-md transition-all">
+                  <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-sm font-medium text-blue-800 block">Email</span>
+                    <p class="text-blue-900 font-semibold break-all"><%= @aluno.email.presence || 'Não informado' %></p>
+                  </div>
+                  <% if @aluno.email.present? %>
+                    <a href="mailto:<%= @aluno.email %>" class="p-2 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  <% end %>
+                </div>
+                
+                <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-md transition-all">
+                  <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <span class="text-sm font-medium text-green-800 block">Telefone</span>
+                    <p class="text-green-900 font-semibold"><%= @aluno.telefone.presence || 'Não informado' %></p>
+                  </div>
+                  <% if @aluno.telefone.present? %>
+                    <a href="tel:<%= @aluno.telefone %>" class="p-2 text-green-600 hover:bg-green-200 rounded-lg transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                      </svg>
+                    </a>
+                  <% end %>
+                </div>
               </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                  </svg>
-                  Telefone
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.telefone.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Responsável 1
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.responsavel_1.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                  </svg>
-                  Telefone Responsável 1
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.telefone_responsavel_1.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Responsável 2
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.responsavel_2.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                  </svg>
-                  Telefone Responsável 2
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.telefone_responsavel_2.presence || 'Não informado' %></p>
+            </div>
+
+            <!-- Divisor -->
+            <div class="border-t border-gray-200 my-6"></div>
+            
+            <!-- Seção: Responsáveis -->
+            <div>
+              <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                Responsáveis
+              </h4>
+              
+              <div class="space-y-4">
+                
+                <!-- Responsável 1 - Card Agrupado -->
+                <% if @aluno.responsavel_1.present? || @aluno.telefone_responsavel_1.present? %>
+                  <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200 overflow-hidden">
+                    <!-- Cabeçalho do Responsável -->
+                    <div class="bg-purple-500 text-white p-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div class="flex-1">
+                          <h5 class="font-bold text-lg">Responsável Principal</h5>
+                          <p class="text-purple-100 font-medium"><%= @aluno.responsavel_1.presence || 'Nome não informado' %></p>
+                        </div>
+                        <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium">
+                          <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          Primário
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Informações de Contato -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
+                        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                          </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <span class="text-xs text-purple-600 font-medium block">TELEFONE</span>
+                          <p class="text-purple-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_1.presence || 'Não informado' %></p>
+                        </div>
+                        <% if @aluno.telefone_responsavel_1.present? %>
+                          <div class="ml-2">
+                            <a href="tel:<%= @aluno.telefone_responsavel_1 %>" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                              </svg>
+                              Ligar
+                            </a>
+                          </div>
+                        <% else %>
+                          <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
+                            Sem contato
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <!-- Responsável 2 - Card Agrupado -->
+                <% if @aluno.responsavel_2.present? || @aluno.telefone_responsavel_2.present? %>
+                  <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 overflow-hidden">
+                    <!-- Cabeçalho do Responsável -->
+                    <div class="bg-orange-500 text-white p-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div class="flex-1">
+                          <h5 class="font-bold text-lg">Responsável Secundário</h5>
+                          <p class="text-orange-100 font-medium"><%= @aluno.responsavel_2.presence || 'Nome não informado' %></p>
+                        </div>
+                        <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium">
+                          <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                          Secundário
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Informações de Contato -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
+                        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                          </svg>
+                        </div>
+                        <div class="flex-1">
+                          <span class="text-xs text-orange-600 font-medium block">TELEFONE</span>
+                          <p class="text-orange-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_2.presence || 'Não informado' %></p>
+                        </div>
+                        <% if @aluno.telefone_responsavel_2.present? %>
+                          <a href="tel:<%= @aluno.telefone_responsavel_2 %>" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                            </svg>
+                            Ligar
+                          </a>
+                        <% else %>
+                          <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
+                            Sem contato
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <!-- Mensagem caso não tenha responsáveis -->
+                <% if @aluno.responsavel_1.blank? && @aluno.telefone_responsavel_1.blank? && @aluno.responsavel_2.blank? && @aluno.telefone_responsavel_2.blank? %>
+                  <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h5 class="font-medium text-gray-700 mb-1">Nenhum responsável cadastrado</h5>
+                    <p class="text-sm text-gray-500">Informações de responsáveis ainda não foram fornecidas</p>
+                  </div>
+                <% end %>
+                
               </div>
             </div>
           </div>
+        </div>
 
           <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg flex flex-col justify-between">
             <div>
@@ -194,173 +331,247 @@
         </div>
 
         <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
-          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Informações Adicionais
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
-            <div class="space-y-2">
-              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Dados Pessoais</h4>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h8m-9 4h9m-11 4h13a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Idade
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.idade.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-400">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                  </svg>
-                  CPF
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.cpf.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-400">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                  </svg>
-                  RG
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.rg.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-400">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                  </svg>
-                  Sexo
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.sexo.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21h-2a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2z" />
-                  </svg>
-                  Cor
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.cor.presence || 'Não informado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.5C12 4.568 10.432 3 8.5 3S5 4.568 5 6.5c0 3.5 7 12.5 7 12.5s7-9 7-12.5C19 4.568 17.432 3 15.5 3S12 4.568 12 6.5z" />
-                  </svg>
-                  Tipo Sanguíneo
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.tipo_sanguinio.presence || 'Não informado' %></p>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Dados Acadêmicos</h4>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.956-1.077 3.5-3 3.5s-3-1.544-3-3.5m6 0C12 9.044 10.923 7.5 9 7.5S6 9.044 6 11m6 0H6m0 0a3 3 0 00-3 3v2a3 3 0 003 3h6a3 3 0 003-3v-2a3 3 0 00-3-3m-6 0H6z" />
-                  </svg>
-                  Turma
-                </span>
-                <p class="text-gray-900 font-medium"><%= @aluno.turma.present? ? @aluno.turma.nome : 'Não alocado' %></p>
-              </div>
-              <div>
-                <span class="text-gray-500 text-base flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                  Escola
-                </span>
-                <p class="text-gray-900 font-medium"><%= @escola.nome %></p>
-              </div>
-              
-              <%# Código para Necessidades Especiais %>
-              <div class="mt-8">
-                <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Necessidades Especiais</h4>
-                <% if @aluno.necessidades_especiais_tipo.present? || @aluno.observacoes_pcd.present? %>
-                  <% if @aluno.necessidades_especiais_tipo.present? %>
-                    <div>
-                      <span class="text-gray-500 text-base flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-400">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                        Tipo
-                      </span>
-                      <div class="flex flex-wrap gap-2 mt-2">
-                        <% @aluno.necessidades_especiais_tipo.each do |tipo| %>
-                          <span class="badge badge-info text-white"><%= tipo %></span>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% else %>
-                    <div>
-                      <span class="text-gray-500 text-base flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-400">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                        Tipo
-                      </span>
-                      <span class="text-gray-900 font-medium">Nenhuma</span>
-                    </div>
-                  <% end %>
-                  
-                  <% if @aluno.observacoes_pcd.present? %>
-                    <div class="mt-4">
-                      <span class="text-gray-500 text-base flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.832 4.432c.325 2.053 2.553 3.5 4.832 3.5s4.507-1.447 4.832-3.5m0 0a1 1 0 001.336-1.336 1 1 0 00-1.336-1.336 1 1 0 00-1.336 1.336 1 1 0 001.336 1.336zm-4.832 0a1 1 0 001.336-1.336 1 1 0 00-1.336-1.336 1 1 0 00-1.336 1.336 1 1 0 001.336 1.336z" />
-                        </svg>
-                        Observações
-                      </span>
-                      <p class="text-gray-900 font-medium whitespace-pre-wrap mt-1"><%= @aluno.observacoes_pcd %></p>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <p class="mt-2 text-gray-900 font-medium">Nenhuma informação salva</p>
-                <% end %>
-              </div>
-            </div>
-            
-            <div class="space-y-2">
-              <h4 class="text-md font-semibold text-gray-600 uppercase tracking-wide">Documentos</h4>
-              <div class="grid grid-cols-1 gap-2">
-                <%# Botão 1 %>
-                <label for="cpf-modal" class="btn bg-green-600 hover:bg-green-700 text-white border-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                </svg>
-                Ver CPF
-                </label>
-                <%# Botão 2 %>
-                <label for="comprovante-modal" class="btn bg-green-600 hover:bg-green-700 text-white border-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                </svg>
-                Ver Comprovante
-                </label>
-                <%# Botão 3 %>
-                <label for="historico-modal" class="btn bg-green-600 hover:bg-green-700 text-white border-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                </svg>
-                Ver Histórico
-                </label>
-              </div>
-            </div>
+  <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+    Informações Adicionais
+  </h3>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+    
+    <!-- Seção 1: Dados Pessoais -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <h4 class="text-lg font-semibold text-gray-800">Dados Pessoais</h4>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h8m-9 4h9m-11 4h13a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Idade</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.idade.presence || 'Não informado' %></p>
           </div>
         </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">CPF</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.cpf.presence || 'Não informado' %></p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">RG</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.rg.presence || 'Não informado' %></p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Sexo</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.sexo.presence || 'Não informado' %></p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21h-2a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2z" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Cor</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.cor.presence || 'Não informado' %></p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Tipo Sanguíneo</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.tipo_sanguinio.presence || 'Não informado' %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 2: Dados Acadêmicos -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <h4 class="text-lg font-semibold text-gray-800">Dados Acadêmicos</h4>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Turma</span>
+            <p class="text-gray-900 font-semibold"><%= @aluno.turma.present? ? @aluno.turma.nome : 'Não alocado' %></p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <div>
+            <span class="text-sm font-medium text-gray-600">Escola</span>
+            <p class="text-gray-900 font-semibold"><%= @escola.nome %></p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Necessidades Especiais -->
+      <div class="mt-8">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800">Necessidades Especiais</h4>
+        </div>
+        
+        <% if @aluno.necessidades_especiais_tipo.present? || @aluno.observacoes_pcd.present? %>
+          <div class="space-y-4">
+            <% if @aluno.necessidades_especiais_tipo.present? %>
+              <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div class="flex items-start gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                  <div class="flex-1">
+                    <span class="text-sm font-medium text-purple-800 block mb-2">Tipos</span>
+                    <div class="flex flex-wrap gap-2">
+                      <% @aluno.necessidades_especiais_tipo.each do |tipo| %>
+                        <span class="badge bg-purple-600 text-white border-none"><%= tipo %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if @aluno.observacoes_pcd.present? %>
+              <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div class="flex items-start gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div class="flex-1">
+                    <span class="text-sm font-medium text-yellow-800 block mb-2">Observações</span>
+                    <p class="text-yellow-800 whitespace-pre-wrap"><%= @aluno.observacoes_pcd %></p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-gray-700">Nenhuma necessidade especial informada</span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Seção 3: Documentos -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h4 class="text-lg font-semibold text-gray-800">Documentos</h4>
+      </div>
+      
+      <div class="space-y-3">
+        <!-- Botão CPF -->
+        <label for="cpf-modal" class="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border border-green-200 cursor-pointer transition-all hover:shadow-md group">
+          <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center group-hover:bg-green-700 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="block font-semibold text-green-800 group-hover:text-green-900">CPF</span>
+            <span class="block text-sm text-green-600">Visualizar documento</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 group-hover:text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </label>
+        
+        <!-- Botão Comprovante -->
+        <label for="comprovante-modal" class="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 cursor-pointer transition-all hover:shadow-md group">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m0 0h8a1 1 0 001-1V10M9 21h6m-3-9v6" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="block font-semibold text-blue-800 group-hover:text-blue-900">Comprovante de Residência</span>
+            <span class="block text-sm text-blue-600">Visualizar documento</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 group-hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </label>
+        
+        <!-- Botão Histórico -->
+        <label for="historico-modal" class="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 cursor-pointer transition-all hover:shadow-md group">
+          <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center group-hover:bg-purple-700 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="block font-semibold text-purple-800 group-hover:text-purple-900">Histórico Acadêmico</span>
+            <span class="block text-sm text-purple-600">Visualizar documento</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 group-hover:text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
       </main>
     </div>
   </div>
-
-  <%= render 'shared/super_admin_sidebar' %>
 </div>
 
 <input type="checkbox" id="cpf-modal" class="modal-toggle" />

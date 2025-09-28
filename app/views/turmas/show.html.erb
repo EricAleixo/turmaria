@@ -115,27 +115,5 @@
     </div>
 
   </div>
-
   
-  <%= render 'shared/super_admin_sidebar' %>
-  
-  <!-- Informações da turma no sidebar -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const sidebar = document.querySelector('.drawer-side .menu');
-      if (sidebar) {
-        const infoDiv = document.createElement('div');
-        infoDiv.innerHTML = `
-          <div class="border-t border-gray-200 my-4"></div>
-          <div class="text-sm text-gray-500 mb-2 px-4">INFORMAÇÕES</div>
-          <div class="bg-blue-50 rounded-lg p-4 text-sm">
-            <div class="font-medium text-blue-700 mb-1">Turma Atual</div>
-            <div class="text-blue-800 font-bold mb-1"><%= @turma.nome %></div>
-            <div class="text-blue-600"><%= @turma.serie %>º ano - <%= @turma.turno.humanize %></div>
-          </div>
-        `;
-        sidebar.appendChild(infoDiv);
-      }
-    });
-  </script>
 </div>

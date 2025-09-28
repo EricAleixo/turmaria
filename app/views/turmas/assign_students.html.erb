@@ -113,8 +113,8 @@
                           <td>
                             <div class="flex items-center gap-3">
                               <div class="avatar">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                                  <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
                                 </div>
                               </div>
                               <div>
@@ -195,9 +195,9 @@
                               <input type="checkbox" class="checkbox checkbox-primary allocated-checkbox" data-student-id="<%= aluno.id %>" />
                             </label>
                             <div class="avatar">
-                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                                <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
-                              </div>
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
+                                </div>
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-semibold text-gray-900 truncate"><%= aluno.nome %></div>
@@ -337,8 +337,8 @@
                           <td>
                             <div class="flex items-center gap-3">
                               <div class="avatar">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                                  <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
                                 </div>
                               </div>
                               <div>
@@ -422,8 +422,8 @@
                               <input type="checkbox" class="checkbox checkbox-primary student-checkbox" data-student-id="<%= aluno.id %>" />
                             </label>
                             <div class="avatar">
-                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                                <span class="text-white font-bold text-sm text-center"><%= aluno.nome.first.upcase %></span>
+                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                <span class="text-white font-bold text-sm absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
                               </div>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -591,30 +591,6 @@
       <button>close</button>
     </form>
   </dialog>
-
-  <!-- Sidebar -->
-  <aside class="drawer-side">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-
-    <div class="menu p-4 w-72 min-h-full bg-white text-base-content">
-      <h1 class="text-2xl font-bold mb-8 px-4">
-        Dashboard
-      </h1>
-      
-      <ul>
-        <li class="mb-2">
-          <%= link_to escolas_path, class: "block p-3 rounded-lg hover:bg-gray-100" do %>
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0112 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12v-.008z" />
-              </svg>
-              Escolas
-            </div>
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </aside>
 </div>
   
 <%= javascript_include_tag 'assign_students' %>
