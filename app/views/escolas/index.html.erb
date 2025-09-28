@@ -120,6 +120,8 @@
           <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
             <span id="filtro-label">
             <%= params[:filtro_select].present? ? {
+              "publicas" => "Escolas Públicas",
+              "privadas" => "Escolas Privadas",
               "most_students" => "Mais alunos",
               "least_students" => "Menos alunos",
               "most_classes" => "Mais turmas",
@@ -476,23 +478,19 @@
 </div>
 
 <script>
+  // --- Parte 1: gráficos ---
   document.addEventListener('DOMContentLoaded', function() {
-    // Configuração para os gráficos
     const chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
           position: 'bottom',
-          labels: {
-            boxWidth: 12,
-            padding: 15
-          }
+          labels: { boxWidth: 12, padding: 15 }
         }
       }
     };
-    
-    // Gráfico de Turmas
+
     const turmasCtx = document.getElementById('turmasChart');
     if (turmasCtx) {
       new Chart(turmasCtx, {
@@ -502,16 +500,11 @@
           datasets: [{
             data: <%= raw @escolas.map { |e| e.turmas.count }.to_json %>,
             backgroundColor: [
-              'rgba(59, 130, 246, 0.8)',
-              'rgba(147, 51, 234, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(249, 115, 22, 0.8)',
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(236, 72, 153, 0.8)',
-              'rgba(79, 70, 229, 0.8)',
-              'rgba(245, 158, 11, 0.8)',
-              'rgba(6, 182, 212, 0.8)',
-              'rgba(168, 85, 247, 0.8)'
+              'rgba(59, 130, 246, 0.8)', 'rgba(147, 51, 234, 0.8)', 
+              'rgba(16, 185, 129, 0.8)', 'rgba(249, 115, 22, 0.8)', 
+              'rgba(239, 68, 68, 0.8)', 'rgba(236, 72, 153, 0.8)', 
+              'rgba(79, 70, 229, 0.8)', 'rgba(245, 158, 11, 0.8)', 
+              'rgba(6, 182, 212, 0.8)', 'rgba(168, 85, 247, 0.8)'
             ],
             borderWidth: 1
           }]
@@ -519,8 +512,7 @@
         options: chartOptions
       });
     }
-    
-    // Gráfico de Alunos
+
     const alunosCtx = document.getElementById('alunosChart');
     if (alunosCtx) {
       new Chart(alunosCtx, {
@@ -530,16 +522,11 @@
           datasets: [{
             data: <%= raw @escolas.map { |e| e.alunos.count }.to_json %>,
             backgroundColor: [
-              'rgba(249, 115, 22, 0.8)',
-              'rgba(59, 130, 246, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(147, 51, 234, 0.8)',
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(236, 72, 153, 0.8)',
-              'rgba(79, 70, 229, 0.8)',
-              'rgba(245, 158, 11, 0.8)',
-              'rgba(6, 182, 212, 0.8)',
-              'rgba(168, 85, 247, 0.8)'
+              'rgba(249, 115, 22, 0.8)', 'rgba(59, 130, 246, 0.8)', 
+              'rgba(16, 185, 129, 0.8)', 'rgba(147, 51, 234, 0.8)', 
+              'rgba(239, 68, 68, 0.8)', 'rgba(236, 72, 153, 0.8)', 
+              'rgba(79, 70, 229, 0.8)', 'rgba(245, 158, 11, 0.8)', 
+              'rgba(6, 182, 212, 0.8)', 'rgba(168, 85, 247, 0.8)'
             ],
             borderWidth: 1
           }]
@@ -547,16 +534,44 @@
         options: chartOptions
       });
     }
-    
-    // Manipulação do filtro dropdown
-    document.querySelectorAll('.link-filtro').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const value = this.getAttribute('data-value');
-        const name = this.getAttribute('data-name');
-        document.getElementById('filtro-label').textContent = name;
-        document.getElementById('filtro_select_hidden').value = value;
+  });
+
+  // --- Parte 2: filtro (único listener limpo) ---
+  document.addEventListener("turbo:load", () => {
+    const hiddenInput = document.getElementById("filtro_select_hidden");
+    const labelSpan = document.getElementById("filtro-label");
+    const links = document.querySelectorAll(".link-filtro");
+
+    links.forEach(link => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const selectedLink = event.currentTarget;
+
+        // Remove o estilo anterior
+        const previousSelected = document.querySelector(".link-filtro.bg-green-600");
+        if (previousSelected) {
+          previousSelected.classList.remove("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+        }
+
+        // Aplica novo estilo
+        selectedLink.classList.add("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+
+        // Atualiza hidden e label (agora só aqui)
+        hiddenInput.value = selectedLink.dataset.value;
+        labelSpan.textContent = selectedLink.dataset.name;
       });
     });
   });
+
+document.addEventListener("turbo:load", () => {
+  const input = document.querySelector('form input[name="busca"]');
+  let timeout;
+
+  input.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      input.form.requestSubmit();
+    }, 300); // espera 300ms depois da última tecla
+  });
+});
 </script>

@@ -1,4 +1,5 @@
 class AlunosController < ApplicationController
+  layout 'dashboard'
   before_action :authenticate_all_users!
 
   before_action :set_escola
