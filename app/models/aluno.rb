@@ -1,37 +1,49 @@
 class Aluno < ApplicationRecord
 
   devise :database_authenticatable, :registerable,
-      :recoverable, :rememberable, :validatable,
-      authentication_keys: [:matricula]
+       :recoverable, :rememberable,
+       authentication_keys: [:matricula]
 
   belongs_to :escola, counter_cache: :alunos_count
   belongs_to :turma, optional: true
   has_one :user, as: :profile, dependent: :destroy
-
-  # Apenas o campo 'nome' é obrigatório agora
+ 
+  # Validações:
+  # Apenas 'nome' é obrigatório para a criação do aluno.
+  # A matricula não é obrigatória na criação, pois será gerada automaticamente.
   validates :nome, presence: true
-  
-  # As outras validações de formato continuam, mas não exigem o preenchimento
-  # Se o campo for preenchido, a validação de formato será aplicada.
+
+  # A validação de unicidade da matrícula ainda é necessária,
+  # mas a presença é verificada apenas quando o campo não está vazio.
+  validates :matricula, uniqueness: true, allow_blank: true
+
+  # Esta validação sobrescreve a validação padrão do Devise,
+  # permitindo que o campo 'email' possa ser nulo ou vazio.
+  validates :email, allow_blank: true, format: { with: URI::MailTo::EMAIL_REGEXP, message: "formato incorreto" }
+
+  # As outras validações de formato continuam, mas agora permitem
+  # que os campos fiquem em branco.
   validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: "formato incorreto (ex: 000.000.000-00)" }, allow_blank: true
   validates :telefone, format: { with: /\A\(\d{2}\)\s?\d{4,5}-\d{4}\z/, message: "formato incorreto (ex: (00) 00000-0000)" }, allow_blank: true
-  
-  # Adicionei allow_blank: true para as outras validações. Isso faz com que
-  # o campo possa estar em branco, mas se for preenchido, o formato deve ser
-  # o correto.
-  validates :data_nascimento, :cpf, :rg, :telefone, :email, :responsavel_1, :telefone_responsavel_1, presence: false
-  
+
   validate :turma_belongs_to_same_escola, if: :turma_id?
 
-  validates :nome, :data_nascimento, :cpf, :rg, :telefone, :email, presence: true
-  validates :responsavel_1, :telefone_responsavel_1, presence: true
-  validates :cpf, format: { with: /\A\d{3}\.\d{3}\.\d{3}-\d{2}\z/, message: "formato incorreto (ex: 000.000.000-00)" }
-  validates :telefone, format: { with: /\A\(\d{2}\)\s?\d{4,5}-\d{4}\z/, message: "formato incorreto (ex: (00) 00000-0000)" }
-
-  validates :matricula, presence: true, uniqueness: true
-  
-  # accepts_nested_attributes_for :endereco, allow_destroy: true
   accepts_nested_attributes_for :user, allow_destroy: true
+
+  # >>> AQUI ESTÁ O NOVO CÓDIGO <<<
+  # Callback que gera a matrícula automaticamente se ela não estiver presente
+  before_validation :generate_matricula, on: :create
+  
+  def generate_matricula
+    # Esta é a lógica de geração da matrícula.
+    # Exemplo: Uma string que combina o ID da escola e um timestamp.
+    # Isso garante que a matrícula seja única.
+    if self.matricula.blank?
+      timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+      self.matricula = "ESC-#{escola.id}-#{timestamp}"
+    end
+  end
+  # >>> FIM DO NOVO CÓDIGO <<<
 
   scope :allocated, -> { where.not(turma_id: nil) }
   scope :unallocated, -> { where(turma_id: nil) }

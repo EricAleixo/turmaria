@@ -108,4 +108,14 @@ module ApplicationHelper
     info.join("\n")
   end
 
+  def dashboard_link_path
+    if current_super_admin.present?
+      dashboard_path
+    elsif current_admin.present?
+      escolas_path
+    else
+      root_path
+    end
+  end
+
 end

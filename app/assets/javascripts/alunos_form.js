@@ -11,6 +11,7 @@ function initializeForm() {
   const step2 = document.getElementById('step-2');
   const step3 = document.getElementById('step-3');
 
+  // --- Funções Auxiliares (Mantenha-as como estão) ---
   function showDaisyAlert(message, type) {
     const alertContainer = document.getElementById('alert-container');
     const alertDiv = document.createElement('div');
@@ -63,9 +64,81 @@ function initializeForm() {
     }
     if (errorAlert) errorAlert.classList.remove('hidden');
   }
+  
+  function handleFiles(files, fileInput) {
+    const filesArray = Array.from(files);
+    const fileType = fileInput.id.replace('-upload', '');
+    let maxFiles;
+    const MAX_FILES_CPF = 2;
+    const MAX_FILES_COMPROVANTE = 2;
+    const MAX_FILES_HISTORICO = 1;
+    const FILE_SIZE_LIMIT_BYTES = 716800; // 700 KB
+
+    if (fileType === 'cpf') maxFiles = MAX_FILES_CPF;
+    else if (fileType === 'comprovante') maxFiles = MAX_FILES_COMPROVANTE;
+    else if (fileType === 'historico') maxFiles = MAX_FILES_HISTORICO;
+
+    const uploadedFilesList = document.getElementById(fileInput.id.replace('-upload', '-files-list'));
+    const currentFilesCount = uploadedFilesList.childElementCount;
+    const dataTransfer = new DataTransfer();
+
+    if (currentFilesCount + filesArray.length > maxFiles) {
+      showDaisyAlert(`Limite de ${maxFiles} arquivos para este tipo de documento atingido.`, 'warning');
+      return;
+    }
+
+    const existingFiles = Array.from(fileInput.files);
+    existingFiles.forEach(f => dataTransfer.items.add(f));
+
+    filesArray.forEach(file => {
+      if (file.size > FILE_SIZE_LIMIT_BYTES) {
+        showDaisyAlert(`O arquivo "${file.name}" excede o tamanho máximo de 700 KB.`, 'error');
+        return;
+      }
+      dataTransfer.items.add(file);
+      addFileToList(file, uploadedFilesList, fileInput);
+    });
+
+    fileInput.files = dataTransfer.files;
+
+    if (filesArray.length > 0) {
+      showDaisyAlert(`Arquivo(s) selecionado(s) com sucesso!`, 'success');
+    }
+  }
+
+  function addFileToList(file, listElement, fileInput) {
+    const listItem = document.createElement('li');
+    listItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'border-b', 'last:border-b-0');
+    const fileInfo = document.createElement('div');
+    fileInfo.classList.add('flex', 'items-center', 'gap-4');
+    const fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-500"><path fill-rule="evenodd" d="M19.5 7.5a3 3 0 00-3-3h-8.25a3 3 0 00-3 3v9a3 3 0 003 3h8.25a3 3 0 003-3v-9zM15 11.25a.75.75 0 00-1.5 0v3.75a.75.75 0 001.5 0v-3.75z" clip-rule="evenodd" /></svg>`;
+    fileInfo.innerHTML = `
+      <div class="flex items-center gap-2">
+        ${fileIcon}
+        <div>
+          <p class="text-sm font-semibold">${file.name}</p>
+          <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+        </div>
+      </div>
+    `;
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.classList.add('text-red-500', 'hover:text-red-700', 'transition', 'p-2', 'rounded-full', 'hover:bg-gray-200');
+    deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>`;
+    deleteButton.onclick = () => {
+      const dataTransfer = new DataTransfer();
+      const files = Array.from(fileInput.files).filter(f => f !== file);
+      files.forEach(f => dataTransfer.items.add(f));
+      fileInput.files = dataTransfer.files;
+      listItem.remove();
+      showDaisyAlert('Arquivo removido.', 'info');
+    };
+    listItem.appendChild(fileInfo);
+    listItem.appendChild(deleteButton);
+    listElement.appendChild(listItem);
+  }
 
   // --- LÓGICA DO BOTÃO ---
-  // A lógica de validação foi removida para permitir a navegação sem preencher os campos.
   if (nextStep1Btn) {
     nextStep1Btn.addEventListener('click', (event) => {
       event.preventDefault();
@@ -97,8 +170,8 @@ function initializeForm() {
       if (step2) step2.classList.remove('hidden');
     });
   }
-  // --- FIM DA LÓGICA DO BOTÃO ---
 
+  // --- FIM DA LÓGICA DO BOTÃO ---
 
   // Lógica de submissão do formulário
   if (studentForm) {
@@ -109,48 +182,13 @@ function initializeForm() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loading loading-spinner"></span> Enviando...`;
       }
-      const formData = new FormData();
-      const formElements = studentForm.elements;
-      for (let i = 0; i < formElements.length; i++) {
-        const element = formElements[i];
-        if (element.type === 'submit' || element.type === 'button') continue;
-        const name = element.name;
-        const value = element.value;
-        if (name === 'aluno[necessidades_especiais_tipo][]' && element.checked) {
-          if (value === 'Outro(a)') {
-            const outraNecessidadeInput = document.getElementById('aluno_outra_necessidade');
-            if (outraNecessidadeInput && outraNecessidadeInput.value.trim() !== '') {
-              formData.append(name, outraNecessidadeInput.value.trim());
-            }
-          } else {
-            formData.append(name, value);
-          }
-        } else if (name === 'aluno[outra_necessidade]' && document.getElementById('outro-checkbox').checked) {
-          continue;
-        } else if (element.type === 'file') {
-          for (const file of element.files) {
-            formData.append(name, file, file.name);
-          }
-        } else if (value.trim() !== '') {
-          formData.append(name, value);
-        }
-      }
-      const url = studentForm.action;
-      const urlParts = url.split('/');
-      const escolaIndex = urlParts.indexOf('escolas');
-      const turmaIndex = urlParts.indexOf('turmas');
-      if (escolaIndex > -1) {
-        const escolaId = urlParts[escolaIndex + 1];
-        formData.append('aluno[escola_id]', escolaId);
-      }
-      if (turmaIndex > -1) {
-        const turmaId = urlParts[turmaIndex + 1];
-        formData.append('aluno[turma_id]', turmaId);
-      }
+
+      const formData = new FormData(studentForm);
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
       try {
-        const response = await fetch(url, {
-          method: 'POST',
+        const response = await fetch(studentForm.action, {
+          method: studentForm.method,
           body: formData,
           headers: {
             'X-CSRF-Token': csrfToken,
@@ -189,44 +227,46 @@ function initializeForm() {
   const outraNecessidadeField = document.getElementById('outra-necessidade-field');
   const checkboxes = document.querySelectorAll('.necessidade-checkbox');
   const nenhumaCheckbox = document.querySelector('input[value="Nenhuma"]');
-  if (outroCheckbox && outraNecessidadeField) {
-    outroCheckbox.addEventListener('change', () => {
-      if (outroCheckbox.checked) {
-        checkboxes.forEach(otherCb => {
-          if (otherCb.id !== 'outro-checkbox' && otherCb.value !== 'Nenhuma') {
-            otherCb.checked = false;
-          }
-        });
-        outraNecessidadeField.classList.remove('hidden');
-      } else {
-        outraNecessidadeField.classList.add('hidden');
-      }
-    });
-  }
+
+  const toggleObservacoesField = () => {
+    if (outroCheckbox && outraNecessidadeField) {
+      outraNecessidadeField.classList.toggle('hidden', !outroCheckbox.checked);
+    }
+  };
+
   if (nenhumaCheckbox) {
     nenhumaCheckbox.addEventListener('change', () => {
       if (nenhumaCheckbox.checked) {
         checkboxes.forEach(otherCb => {
           if (otherCb.value !== 'Nenhuma') {
             otherCb.checked = false;
-            otherCb.disabled = true;
           }
         });
-        outraNecessidadeField.classList.add('hidden');
-      } else {
-        checkboxes.forEach(otherCb => otherCb.disabled = false);
       }
+      toggleObservacoesField();
     });
   }
+
+  if (outroCheckbox) {
+    outroCheckbox.addEventListener('change', () => {
+      if (outroCheckbox.checked && nenhumaCheckbox) {
+        nenhumaCheckbox.checked = false;
+      }
+      toggleObservacoesField();
+    });
+  }
+
   checkboxes.forEach(cb => {
-    if (cb.value !== 'Nenhuma' && cb.id !== 'outro-checkbox') {
+    if (cb.value !== 'Nenhuma' && cb.value !== 'Outro(a)') {
       cb.addEventListener('change', () => {
-        if (cb.checked) {
-          if (nenhumaCheckbox) nenhumaCheckbox.checked = false;
+        if (cb.checked && nenhumaCheckbox) {
+          nenhumaCheckbox.checked = false;
         }
       });
     }
   });
+
+  toggleObservacoesField();
 
   // Lógica de upload e notificações
   const uploadAreas = document.querySelectorAll('.upload-area');
@@ -236,9 +276,11 @@ function initializeForm() {
   const MAX_FILES_CPF = 2;
   const MAX_FILES_COMPROVANTE = 2;
   const MAX_FILES_HISTORICO = 1;
+
   uploadAreas.forEach(area => {
     const inputId = area.dataset.inputId;
     const fileInput = document.getElementById(inputId);
+    if (!fileInput) return;
     area.addEventListener('dragover', (event) => {
       event.preventDefault();
       area.classList.add('border-blue-500');
@@ -253,80 +295,16 @@ function initializeForm() {
       handleFiles(files, fileInput);
     });
   });
+
   uploadInputs.forEach(fileInput => {
     fileInput.addEventListener('change', (event) => {
       const files = event.target.files;
       handleFiles(files, fileInput);
     });
   });
-  function handleFiles(files, fileInput) {
-    const filesArray = Array.from(files);
-    const fileType = fileInput.id.replace('-upload', '');
-    let maxFiles;
-    if (fileType === 'foto') maxFiles = MAX_FILES_FOTO;
-    else if (fileType === 'cpf') maxFiles = MAX_FILES_CPF;
-    else if (fileType === 'comprovante') maxFiles = MAX_FILES_COMPROVANTE;
-    else if (fileType === 'historico') maxFiles = MAX_FILES_HISTORICO;
-    const uploadedFilesList = document.getElementById(fileInput.id.replace('-upload', '-files-list'));
-    const currentFilesCount = uploadedFilesList.childElementCount;
-    const dataTransfer = new DataTransfer();
-    if (currentFilesCount + filesArray.length > maxFiles) {
-      showDaisyAlert(`Limite de ${maxFiles} arquivos para este tipo de documento atingido.`, 'warning');
-      return;
-    }
-    const existingFiles = Array.from(fileInput.files);
-    existingFiles.forEach(f => dataTransfer.items.add(f));
-    filesArray.forEach(file => {
-      if (file.size > FILE_SIZE_LIMIT_BYTES) {
-        showDaisyAlert(`O arquivo "${file.name}" excede o tamanho máximo de 700 KB.`, 'error');
-        return;
-      }
-      dataTransfer.items.add(file);
-      addFileToList(file, uploadedFilesList, fileInput);
-    });
-    fileInput.files = dataTransfer.files;
-    if (filesArray.length > 0) {
-      showDaisyAlert(`Arquivo(s) selecionado(s) com sucesso!`, 'success');
-    }
-  }
-  function addFileToList(file, listElement, fileInput) {
-    const listItem = document.createElement('li');
-    listItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'border-b', 'last:border-b-0');
-    const fileInfo = document.createElement('div');
-    fileInfo.classList.add('flex', 'items-center', 'gap-4');
-    const fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-500"><path fill-rule="evenodd" d="M19.5 7.5a3 3 0 00-3-3h-8.25a3 3 0 00-3 3v9a3 3 0 003 3h8.25a3 3 0 003-3v-9zM15 11.25a.75.75 0 00-1.5 0v3.75a.75.75 0 001.5 0v-3.75z" clip-rule="evenodd" /></svg>`;
-    fileInfo.innerHTML = `
-      <div class="flex items-center gap-2">
-        ${fileIcon}
-        <div>
-          <p class="text-sm font-semibold">${file.name}</p>
-          <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
-        </div>
-      </div>
-    `;
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.classList.add('text-red-500', 'hover:text-red-700', 'transition', 'p-2', 'rounded-full', 'hover:bg-gray-200');
-    deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>`;
-    deleteButton.onclick = () => {
-      const dataTransfer = new DataTransfer();
-      const files = Array.from(fileInput.files).filter(f => f !== file);
-      files.forEach(f => dataTransfer.items.add(f));
-      fileInput.files = dataTransfer.files;
-      listItem.remove();
-      showDaisyAlert('Arquivo removido.', 'info');
-    };
-    listItem.appendChild(fileInfo);
-    listItem.appendChild(deleteButton);
-    listElement.appendChild(listItem);
-  }
 }
 
-// Inicializa a lógica APENAS APÓS UMA PEQUENA DEMORA
-// Isso ajuda a contornar condições de corrida com o Turbolinks
-function setupFormWithDelay() {
-    setTimeout(initializeForm, 50); // 50ms de atraso
-}
-
-document.addEventListener('turbolinks:load', setupFormWithDelay);
-document.addEventListener('DOMContentLoaded', setupFormWithDelay);
+// O ponto de entrada principal para a inicialização do formulário
+// Removendo o `setTimeout` e usando os eventos do Turbo diretamente.
+document.addEventListener('turbo:load', initializeForm);
+document.addEventListener('turbo:render', initializeForm);

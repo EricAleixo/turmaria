@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_25_140530) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -48,7 +48,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_140530) do
     t.string "sexo"
     t.string "cor"
     t.string "tipo_sanguinio"
-    t.string "necessidades_especiais_tipo"
+    t.text "necessidades_especiais_tipo", default: [], array: true
     t.text "observacoes_pcd"
     t.string "responsavel_1"
     t.string "responsavel_2"

@@ -1,0 +1,26 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Novo Professor</h1>
+          <div class="text-sm breadcrumbs mt-1">
+            <ul>
+              <li><%= link_to "Professores", professors_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li class="text-gray-600">Novo Professor</li>
+            </ul>
+          </div>
+        </div>
+        <%= link_to "Voltar", professors_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="px-6">
+    <div class="max-w-4xl mx-auto">
+      <%= render 'form', professor: @professor %>
+    </div>
+  </div>
+</div>
