@@ -139,125 +139,186 @@
             
             <!-- Seção: Responsáveis -->
             <div>
-              <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                Responsáveis
-              </h4>
-              
-              <div class="space-y-4">
-                
-                <!-- Responsável 1 - Card Agrupado -->
-                <% if @aluno.responsavel_1.present? || @aluno.telefone_responsavel_1.present? %>
-                  <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200 overflow-hidden">
-                    <!-- Cabeçalho do Responsável -->
-                    <div class="bg-purple-500 text-white p-4">
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div class="flex-1">
-                          <h5 class="font-bold text-lg">Responsável Principal</h5>
-                          <p class="text-purple-100 font-medium"><%= @aluno.responsavel_1.presence || 'Nome não informado' %></p>
-                        </div>
-                        <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium">
-                          <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                          Primário
-                        </div>
+  <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+    <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+    Responsáveis
+  </h4>
+  
+  <div class="space-y-4">
+    
+    <!-- Responsável 1 - Card Agrupado -->
+    <% if @aluno.responsavel_1.present? || @aluno.telefone_responsavel_1.present? %>
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200 overflow-hidden">
+        <!-- Cabeçalho do Responsável -->
+        <div class="bg-purple-500 text-white p-3 sm:p-4">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h5 class="font-bold text-base sm:text-lg">Responsável Principal</h5>
+              <p class="text-purple-100 font-medium text-sm sm:text-base truncate"><%= @aluno.responsavel_1.presence || 'Nome não informado' %></p>
+            </div>
+            <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0">
+              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span class="hidden sm:inline">Primário</span>
+              <span class="sm:hidden">1º</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informações de Contato -->
+        <div class="p-3 sm:p-4">
+          <!-- Layout Mobile - Empilhado -->
+          <div class="sm:hidden space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+              <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs text-purple-600 font-medium block">TELEFONE</span>
+                <p class="text-purple-900 font-bold text-base break-all"><%= @aluno.telefone_responsavel_1.presence || 'Não informado' %></p>
+              </div>
+            </div>
+            <% if @aluno.telefone_responsavel_1.present? %>
+              <div class="w-full">
+                <a href="tel:<%= @aluno.telefone_responsavel_1 %>" class="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition-all w-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                  </svg>
+                  Ligar
+                </a>
+              </div>
+            <% else %>
+              <div class="w-full px-4 py-3 bg-gray-200 text-gray-500 rounded-lg text-sm text-center">
+                Sem contato
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Layout Desktop - Horizontal -->
+          <div class="hidden sm:flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
+            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="text-xs text-purple-600 font-medium block">TELEFONE</span>
+              <p class="text-purple-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_1.presence || 'Não informado' %></p>
+            </div>
+            <% if @aluno.telefone_responsavel_1.present? %>
+              <div class="ml-2">
+                <a href="tel:<%= @aluno.telefone_responsavel_1 %>" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                  </svg>
+                  Ligar
+                </a>
+              </div>
+            <% else %>
+              <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
+                Sem contato
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <!-- Responsável 2 - Card Agrupado -->
+    <% if @aluno.responsavel_2.present? || @aluno.telefone_responsavel_2.present? %>
+      <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 overflow-hidden">
+        <!-- Cabeçalho do Responsável -->
+        <div class="bg-orange-500 text-white p-3 sm:p-4">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h5 class="font-bold text-base sm:text-lg">Responsável Secundário</h5>
+              <p class="text-orange-100 font-medium text-sm sm:text-base truncate"><%= @aluno.responsavel_2.presence || 'Nome não informado' %></p>
+            </div>
+            <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0">
+              <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+              <span class="hidden sm:inline">Secundário</span>
+              <span class="sm:hidden">2º</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informações de Contato -->
+        <div class="p-3 sm:p-4">
+          <!-- Layout Mobile - Empilhado -->
+          <div class="sm:hidden space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+              <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs text-orange-600 font-medium block">TELEFONE</span>
+                <p class="text-orange-900 font-bold text-base break-all"><%= @aluno.telefone_responsavel_2.presence || 'Não informado' %></p>
+              </div>
+            </div>
+            <% if @aluno.telefone_responsavel_2.present? %>
+              <div class="w-full">
+                <a href="tel:<%= @aluno.telefone_responsavel_2 %>" class="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg font-medium transition-all w-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                  </svg>
+                  Ligar
+                </a>
+              </div>
+            <% else %>
+              <div class="w-full px-4 py-3 bg-gray-200 text-gray-500 rounded-lg text-sm text-center">
+                Sem contato
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Layout Desktop - Horizontal -->
+          <div class="hidden sm:flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
+            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                  </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs text-orange-600 font-medium block">TELEFONE</span>
+                  <p class="text-orange-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_2.presence || 'Não informado' %></p>
+              </div>
+                <% if @aluno.telefone_responsavel_2.present? %>
+                    <a href="tel:<%= @aluno.telefone_responsavel_2 %>" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
+                      </svg>
+                        Ligar
+                    </a>
+                  <% else %>
+                      <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
+                        Sem contato
                       </div>
-                    </div>
-                    
-                    <!-- Informações de Contato -->
-                    <div class="p-4">
-                      <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
-                        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                          </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <span class="text-xs text-purple-600 font-medium block">TELEFONE</span>
-                          <p class="text-purple-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_1.presence || 'Não informado' %></p>
-                        </div>
-                        <% if @aluno.telefone_responsavel_1.present? %>
-                          <div class="ml-2">
-                            <a href="tel:<%= @aluno.telefone_responsavel_1 %>" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                              </svg>
-                              Ligar
-                            </a>
-                          </div>
-                        <% else %>
-                          <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
-                            Sem contato
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-                
-                <!-- Responsável 2 - Card Agrupado -->
-                <% if @aluno.responsavel_2.present? || @aluno.telefone_responsavel_2.present? %>
-                  <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 overflow-hidden">
-                    <!-- Cabeçalho do Responsável -->
-                    <div class="bg-orange-500 text-white p-4">
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div class="flex-1">
-                          <h5 class="font-bold text-lg">Responsável Secundário</h5>
-                          <p class="text-orange-100 font-medium"><%= @aluno.responsavel_2.presence || 'Nome não informado' %></p>
-                        </div>
-                        <div class="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs font-medium">
-                          <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                          Secundário
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <!-- Informações de Contato -->
-                    <div class="p-4">
-                      <div class="flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-all group">
-                        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                          </svg>
-                        </div>
-                        <div class="flex-1">
-                          <span class="text-xs text-orange-600 font-medium block">TELEFONE</span>
-                          <p class="text-orange-900 font-bold text-lg break-all"><%= @aluno.telefone_responsavel_2.presence || 'Não informado' %></p>
-                        </div>
-                        <% if @aluno.telefone_responsavel_2.present? %>
-                          <a href="tel:<%= @aluno.telefone_responsavel_2 %>" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all group-hover:scale-105">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.986.986l.51 2.551a1 1 0 01-.225.961l-1.528 1.528a11.058 11.058 0 005.15 5.15l1.528-1.528a1 1 0 01.961-.225l2.551.51a1 1 0 01.986.986V19a2 2 0 01-2 2h-1C9.754 21 3 14.246 3 6V5z" />
-                            </svg>
-                            Ligar
-                          </a>
-                        <% else %>
-                          <div class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm">
-                            Sem contato
-                          </div>
-                        <% end %>
-                      </div>
+                  <% end %>
                     </div>
                   </div>
                 <% end %>
                 
                 <!-- Mensagem caso não tenha responsáveis -->
                 <% if @aluno.responsavel_1.blank? && @aluno.telefone_responsavel_1.blank? && @aluno.responsavel_2.blank? && @aluno.telefone_responsavel_2.blank? %>
-                  <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <h5 class="font-medium text-gray-700 mb-1">Nenhum responsável cadastrado</h5>
-                    <p class="text-sm text-gray-500">Informações de responsáveis ainda não foram fornecidas</p>
+                    <h5 class="font-medium text-gray-700 mb-1 text-sm sm:text-base">Nenhum responsável cadastrado</h5>
+                    <p class="text-xs sm:text-sm text-gray-500">Informações de responsáveis ainda não foram fornecidas</p>
                   </div>
                 <% end %>
                 

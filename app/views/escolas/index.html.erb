@@ -130,7 +130,7 @@
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
       <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
         
-        <div class="flex-1 min-w-64">
+        <div class="flex-1 min-w-64 pr-5">
           <%= form.text_field :busca, placeholder: "Buscar por nome da escola...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
         </div> 
 
