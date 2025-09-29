@@ -126,7 +126,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
     t.string "complemento"
-    t.bigint "cidade_id"
+    t.bigint "cidade_id", null: false
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
