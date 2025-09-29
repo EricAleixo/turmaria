@@ -126,7 +126,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
     t.string "complemento"
-    t.bigint "cidade_id", null: false
+    t.bigint "cidade_id"
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
   end
@@ -242,4 +242,3 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end
- 

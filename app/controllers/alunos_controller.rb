@@ -6,7 +6,9 @@ class AlunosController < ApplicationController
   before_action :set_turma, only: [:index, :new, :create, :edit, :update, :destroy]
   before_action :set_aluno, only: [:show, :edit, :update, :destroy]
 
-  # ... (todas as suas outras ações index, show, new, create, etc. ficam inalteradas)
+  # -------------------------------
+  # INDEX
+  # -------------------------------
   def index
     if super_admin_signed_in? && @escola.nil?
       @alunos = Aluno.includes(:escola, :turma).all
@@ -23,13 +25,22 @@ class AlunosController < ApplicationController
     end
   end
 
+  # -------------------------------
+  # SHOW
+  # -------------------------------
   def show
   end
 
+  # -------------------------------
+  # NEW
+  # -------------------------------
   def new
     @aluno = @escola.alunos.build
   end
 
+  # -------------------------------
+  # CREATE
+  # -------------------------------
   def create
     @aluno = @escola.alunos.build(aluno_params)
     @aluno.turma = @turma if @turma
@@ -45,16 +56,22 @@ class AlunosController < ApplicationController
     end
   end
 
+  # -------------------------------
+  # EDIT
+  # -------------------------------
   def edit
   end
 
+  # -------------------------------
+  # UPDATE
+  # -------------------------------
   def update
-  respond_to do |format|
+    respond_to do |format|
       if @aluno.update(aluno_params)
-        format.html { 
+        format.html do
           redirect_path = @turma ? escola_turma_aluno_path(@escola, @turma, @aluno) : escola_aluno_path(@escola, @aluno)
           redirect_to redirect_path, notice: 'Aluno atualizado com sucesso.'
-        }
+        end
         format.json { render json: { success: true, message: 'Aluno atualizado com sucesso!' }, status: :ok }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -62,14 +79,19 @@ class AlunosController < ApplicationController
       end
     end
   end
-end
 
+  # -------------------------------
+  # DESTROY
+  # -------------------------------
   def destroy
     @aluno.destroy
     redirect_path = @turma ? escola_turma_alunos_path(@escola, @turma) : escola_alunos_path(@escola)
     redirect_to redirect_path, notice: 'Aluno removido com sucesso.'
   end
 
+  # -------------------------------
+  # ALOCAÇÃO DE TURMAS
+  # -------------------------------
   def assign_to_turma
     @turma = @escola.turmas.find(params[:turma_id])
     @aluno = @escola.alunos.find(params[:id])
@@ -96,6 +118,9 @@ end
     end
   end
 
+  # -------------------------------
+  # PRIVATE METHODS
+  # -------------------------------
   private
 
   def authenticate_all_users!
@@ -106,7 +131,7 @@ end
 
   def set_escola
     if super_admin_signed_in?
-      @escola= Escola.find(params[:escola_id]) if params[:escola_id].present?
+      @escola = Escola.find(params[:escola_id]) if params[:escola_id].present?
     else
       @escola = Escola.find(params[:escola_id])
     end
@@ -129,40 +154,38 @@ end
   end
 
   def aluno_params
-  params.require(:aluno).permit(
-    :escola_id, 
-    :turma_id, 
-    :data_nascimento, 
-    :nome, 
-    :email, 
-    :telefone, 
-    :responsavel_1, 
-    :telefone_responsavel_1, 
-    :responsavel_2, 
-    :telefone_responsavel_2, 
-    :idade, 
-    :cpf, 
-    :rg, 
-    :sexo, 
-    :cor, 
-    :tipo_sanguinio, 
-    :observacoes_pcd, 
-    necessidades_especiais_tipo: [], # ALTERADO: Permite a string como parâmetro
-    cpf_url: [], 
-    comprovante_residencia_url: [], 
-    historico_academico_url: []
-  ).tap do |whitelisted_params|
-        # Lógica para converter string em array, se necessário
-        if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-          whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
-        end
+    params.require(:aluno).permit(
+      :escola_id, 
+      :turma_id, 
+      :data_nascimento, 
+      :nome, 
+      :email, 
+      :telefone, 
+      :responsavel_1, 
+      :telefone_responsavel_1, 
+      :responsavel_2, 
+      :telefone_responsavel_2, 
+      :idade, 
+      :cpf, 
+      :rg, 
+      :sexo, 
+      :cor, 
+      :tipo_sanguinio, 
+      :observacoes_pcd, 
+      necessidades_especiais_tipo: [], 
+      cpf_url: [], 
+      comprovante_residencia_url: [], 
+      historico_academico_url: []
+    ).tap do |whitelisted_params|
+      # Converter string em array
+      if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
+        whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+      end
 
-        # -------------------------------------------------------------------
-        # >> Lógica para definir "Nenhuma" se o array estiver vazio <<
-        # -------------------------------------------------------------------
-        if whitelisted_params[:necessidades_especiais_tipo].blank?
-          whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
-        end
+      # Se vazio, define como "Nenhuma"
+      if whitelisted_params[:necessidades_especiais_tipo].blank?
+        whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
+      end
     end
   end
 end
