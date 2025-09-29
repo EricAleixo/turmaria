@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
+  devise_for :alunos, skip:[:registrations] , controllers: { sessions: 'alunos/sessions' }
 
   # Dashboard route (will use DashboardController with Pundit authorization)
   get 'dashboard', to: 'dashboard#index'
@@ -19,6 +20,7 @@ Rails.application.routes.draw do
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
+    resources :professors
     resources :escolas do
       resources :ano_letivos do
         resources :turmas

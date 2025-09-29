@@ -25,10 +25,10 @@
           <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-white/20">
             <li><%= link_to "Escolas", escolas_path, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
             <% if @escola%>
-              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800" %></li>
             <%end%>
             <% if @turma %>
-              <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+              <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-blue-600 hover:text-blue-800" %></li>
             <% end %>
             <li class="text-slate-500 font-medium">Alunos</li>
           </ul>
@@ -42,63 +42,97 @@
           </div>
         <% end %>
 
-        <!-- Premium Card Container -->
-        <div class="bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-white/20">
-          <!-- Header with Gradient Background -->
-          <div class="bg-gradient-to-r from-blue-500 to-green-300 text-white rounded-2xl p-6 mb-8 shadow-xl">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 class="text-2xl lg:text-4xl font-bold mb-2">
-                  <% if @turma %>
-                    Alunos da Turma <%= @turma.nome %>
-                  <% elsif @escola %>
-                    Alunos da Escola <%= @escola.nome %>
-                  <% else %>
-                    Todos os Alunos
+        <!-- Alunos Section -->
+        <div class="bg-white p-8 rounded-lg shadow-md">
+          <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-800">
+              <% if @turma %>
+                Alunos da Turma <%= @turma.nome %>
+              <% else %>
+                Alunos da Escola
+                
+              <% end %>
+            </h1>
+
+            
+
+            <% unless @turma || @escola.nil? %>
+              <%= link_to new_escola_aluno_path(@escola), class: "btn bg-green-500 hover:bg-green-600 text-white", title: "Adicionar novo aluno" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Novo Aluno
+              <% end %>
+            <% end %>
+          </div>
+
+          <% modal_id = "filtro-modal" %>
+
+          <%= form_with url: alunos_path, method: :get, data: { turbo_frame: "alunos" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+
+            <!-- Campo de busca -->
+            <div class="flex-1 min-w-64">
+              <%= form.text_field :busca, 
+                placeholder: "Buscar por nome do aluno...", 
+                value: params[:busca], 
+                class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+            </div> 
+
+            <!-- Botão que abre o modal -->
+            <label for="<%= modal_id %>" class="btn bg-green-500 border-gray-300 text-white hover:bg-green-600">
+              Filtros
+            </label>
+
+            <!-- Checkbox hidden que controla o modal -->
+            <input type="checkbox" id="<%= modal_id %>" class="modal-toggle" />
+
+            <!-- Modal -->
+            <div class="modal">
+              <div class="modal-box max-w-lg bg-white border border-gray-200 shadow-lg">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">Filtrar alunos</h3>
+
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                
+                  <% filtros = [
+                    {grupo: 'idade', opcoes: [['maiores', 'Maiores de idade'], ['menores', 'Menores de idade']]},
+                    {grupo: 'genero', opcoes: [['masculino', 'Masculino'], ['feminino', 'Feminino']]},
+                    {grupo: 'ne', opcoes: [['com_ne','Com N.E.'], ['sem_ne','Sem N.E.']]},
+                    {grupo: 'cpf', opcoes: [['com_cpf','Com CPF'], ['sem_cpf','Sem CPF']]},
+                    {grupo: 'email', opcoes: [['com_email','Com Email'], ['sem_email','Sem Email']]},
+                    {grupo: 'turma', opcoes: [['com_turma','Com Turma'], ['sem_turma','Sem Turma']]}
+                  ] %>
+
+                  <% filtros.each do |filtro| %>
+                    <% filtro[:opcoes].each do |value, label| %>
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" 
+                               name="filtro[]" 
+                               value="<%= value %>" 
+                               class="checkbox checkbox-sm checkbox-success <%= filtro[:grupo] %>-group"
+                               <%= "checked" if params[:filtro]&.include?(value) %> />
+                        <%= label %>
+                      </label>
+                    <% end %>
                   <% end %>
-                </h1>
-                <div class="badge badge-lg bg-white/20 text-white border-white/30">
-                  <%= @alunos.count %> <%= @alunos.count == 1 ? 'aluno' : 'alunos' %>
+
+                </div>
+
+                <!-- Ações -->
+                <div class="modal-action">
+                  <button type="submit" class="btn bg-green-500 text-white hover:bg-green-600">
+                    Aplicar
+                  </button>
+                  <label for="<%= modal_id %>" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200">Cancelar</label>
                 </div>
               </div>
-              <% if @escola %>
-                <%= link_to new_escola_aluno_path(@escola), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-1">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                  Novo Aluno
-                <% end %>
-                <%= link_to escolas_path, class: "btn btn-md bg-blue-600 text-white hover:bg-blue-700 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-1">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                  </svg>
-                  Escolas
-                <% end %>
-              <% end %>
             </div>
-          </div>
-          
-          <% if @alunos.empty? %>
-            <!-- Enhanced Empty State -->
-            <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
-              <div class="max-w-md mx-auto">
-                <div class="text-6xl mb-4">👨‍🎓</div>
-                <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum aluno encontrado</h3>
-                <p class="text-slate-500 mb-6">Não existem alunos cadastrados para esta escola ou turma.</p>
-                <% if @escola %>
-                  <%= link_to new_escola_aluno_path(@escola), class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mr-2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    Adicionar Aluno
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
-          <% else %>
-            <!-- Tabela para desktop -->
+
+          <% end %>
+
+          <% if @alunos.any? %>
+            <!-- Desktop Table View -->
             <div class="hidden md:block overflow-x-auto">
-              <table class="table w-full shadow-xl rounded-xl overflow-hidden">
+              <table class="table w-full">
                 <thead>
                   <tr class="bg-gradient-to-r from-blue-500 to-green-300 text-white">
                     <th class="rounded-tl-xl">Nome</th>
@@ -113,34 +147,13 @@
                 <tbody class="bg-white">
                   <% @alunos.each do |aluno| %>
                     <% if aluno.turma.present? %>
-                      <tr class="hover:bg-blue-50 transition-all duration-300 border-b border-gray-200 group">
-                        <td class="py-4">
-                          <div class="flex items-center gap-3">
-                            <div class="avatar placeholder">
-                              <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
-                                <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
-                              </div>
-                            </div>
-                            <span class="font-bold text-slate-700"><%= aluno.nome %></span>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="badge badge-lg bg-gradient-to-r from-blue-400 to-green-300 text-white border-0 font-medium">
-                            Escola
-                          </div>
-                        </td>
-                        <td class="text-slate-600 font-medium"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
-                        <td>
-                          <div class="badge badge-outline badge-lg border-blue-300 text-blue-600 font-mono">
-                            <%= aluno.matricula.present? ? truncate(aluno.matricula, length: 12) : "Matrícula" %>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="badge badge-lg bg-gradient-to-r from-blue-400 to-green-300 text-white border-0 shadow-lg font-bold">
-                            Alocado
-                          </div>
-                        </td>
-                        <td class="text-slate-600 font-medium"><%= aluno.turma.nome %></td>
+                      <!-- Aluno Alocado - Verde -->
+                      <tr class="bg-green-50 hover:bg-green-100">
+                        <td class="text-green-800 font-medium"><%= aluno.nome %></td>
+                        <td class="text-green-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-green-700"><%=aluno.matricula%></td>
+                        <td><span class="badge bg-green-500 text-white">Alocado</span></td>
+                        <td class="text-green-700"><%= aluno.turma.nome %></td>
                         <td>
                           <div class="flex gap-2 opacity-70 group-hover:opacity-100 transition-all duration-300">
                             <%= link_to escola_turma_aluno_path(aluno.escola, aluno.turma, aluno), class: "btn btn-sm btn-circle bg-gradient-to-r from-blue-500 to-green-300 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg", title: "Ver aluno" do %>
@@ -210,10 +223,40 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
                               <% end %>
-                            <% else %>
-                              <div class="badge badge-ghost text-slate-400">
-                                Sem escola
-                              </div>
+                            <% end %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% else %>
+                      <!-- Aluno Não Alocado - Cinza -->
+                      <tr class="bg-gray-50 hover:bg-gray-100">
+                        <td class="text-gray-800 font-medium"><%= aluno.nome %></td>
+                        <td class="text-gray-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></td>
+                        <td class = "text-gray-700"><%=aluno.matricula%></td>
+                        <td><span class="badge bg-gray-500 text-white">Não Alocado</span></td>
+                        <td class="text-gray-500">-</td>
+                        <td>
+                          <div class="flex gap-2">
+                            <%if aluno.escola%>
+                              <%= link_to escola_aluno_path(aluno.escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <%end%>
+                            <%= link_to edit_escola_aluno_path(aluno.escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+
+                            <% end %>
+                            <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                              </svg>
+                              <%end%>
+                            <%else%>
+                              <span class = "text-gray-400 italic">Sem escola</span>  
                             <% end %>
                           </div>
                         </td>
@@ -223,12 +266,13 @@
                 </tbody>
               </table>
             </div>
-            
-            <!-- Cards para mobile -->
-            <div class="grid grid-cols-1 gap-4 md:hidden">
+
+            <!-- Mobile Card View -->
+            <div class="md:hidden space-y-4">
               <% @alunos.each do |aluno| %>
                 <% if aluno.turma.present? %>
-                  <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-blue-100">
+                  <!-- Aluno Alocado - Verde -->
+                  <div class="card bg-green-50 shadow-md border border-green-200">
                     <div class="card-body p-4">
                       <div class="flex justify-between items-start">
                         <div class="flex items-center gap-3">
@@ -307,7 +351,8 @@
                     </div>
                   </div>
                 <% else %>
-                  <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-200">
+                  <!-- Aluno Não Alocado - Cinza -->
+                  <div class="card bg-gray-50 shadow-md border border-gray-200">
                     <div class="card-body p-4">
                       <div class="flex justify-between items-start">
                         <div class="flex items-center gap-3">
@@ -323,76 +368,60 @@
                             </div>
                           </div>
                         </div>
-                        <div class="dropdown dropdown-end">
-                          <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
-                            </svg>
-                          </label>
-                          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                            <% if aluno.escola.present? %>
-                              <li>
-                                <%= link_to escola_aluno_path(aluno.escola, aluno) do %>
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  </svg>
-                                  Ver aluno
-                                <% end %>
-                              </li>
-                              <li>
-                                <%= link_to edit_escola_aluno_path(aluno.escola, aluno) do %>
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                  </svg>
-                                  Editar aluno
-                                <% end %>
-                              </li>
-                              <li>
-                                <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                  </svg>
-                                  Excluir aluno
-                                <% end %>
-                              </li>
-                            <% else %>
-                              <li>
-                                <div class="text-slate-400 px-2 py-1">
-                                  Sem escola
-                                </div>
-                              </li>
-                            <% end %>
-                          </ul>
-                        </div>
+                        <span class="badge bg-gray-500 text-white">Não Alocado</span>
                       </div>
                       
-                      <div class="divider my-2"></div>
-                      
-                      <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span class="text-slate-500">Escola:</span>
-                          <div class="badge badge-sm bg-gradient-to-r from-slate-400 to-gray-500 text-white border-0 font-medium">
-                            Escola
-                          </div>
-                        </div>
-                        <div>
-                          <span class="text-slate-500">Turma:</span>
-                          <span class="font-medium text-slate-400">Sem turma</span>
-                        </div>
-                        <div>
-                          <span class="text-slate-500">Nascimento:</span>
-                          <span class="font-medium text-slate-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></span>
-                        </div>
-                        <div>
-                          <span class="text-slate-500">Matrícula:</span>
-                          <div class="badge badge-outline badge-sm border-slate-300 text-slate-600 font-mono">
-                            <%= aluno.matricula.present? ? truncate(aluno.matricula, length: 12) : "Matrícula" %>
-                          </div>
+                      <div class="card-actions justify-end">
+                        <div class="flex gap-2">
+                          <%if aluno.escola.present?%>
+                            <%= link_to escola_aluno_path(aluno.escola, aluno), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver aluno" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            <% end %>
+                            <%= link_to edit_escola_aluno_path(aluno.escola, aluno), class: "btn btn-warning btn-sm", title: "Editar aluno" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+                            <% end %>
+                            <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, class: "btn btn-error btn-sm", title: "Excluir aluno", data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                              </svg>
+                            <% end %>
+                          <%else%>
+                            <span class="text-gray-400 italic">Sem escola</span>
+                          <%end%>
                         </div>
                       </div>
                     </div>
                   </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              <% if @turma %>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhum aluno alocado</h3>
+                <p class="text-gray-500 mb-4">Use o botão "Alocar Alunos" para adicionar alunos a esta turma</p>
+                <%= link_to assign_students_escola_turma_path(@escola, @turma), class: "btn bg-green-500 hover:bg-green-600 text-white" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                  </svg>
+                  Alocar Alunos
+                <% end %>
+              <% else %>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhum aluno cadastrado</h3>
+                <p class="text-gray-500 mb-4">Comece adicionando o primeiro aluno desta escola</p>
+                <%= link_to new_escola_aluno_path(@escola), class: "btn bg-green-500 hover:bg-green-600 text-white" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Adicionar Primeiro Aluno
                 <% end %>
               <% end %>
             </div>
@@ -401,4 +430,7 @@
       </main>
     </div>
   </div>
+
+
+  <%= render 'shared/super_admin_sidebar' %>
 </div>

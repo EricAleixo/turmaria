@@ -11,7 +11,7 @@ class EscolasController < ApplicationController
       Rails.logger.warn "Pundit error: #{e.message}"
       @escolas = Escola.includes(:turmas, :alunos, :endereco, :admin).all
     end
-
+     
     # Statistics for dashboard
     @total_escolas = @escolas.count
     @total_escolas_publicas = @escolas.publicas.count
@@ -43,6 +43,8 @@ class EscolasController < ApplicationController
     when "least_classes"   then @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) ASC')
     when "with_cnpj"       then @escolas = @escolas.where.not(cnpj: [nil, ""])
     when "without_cnpj"    then @escolas = @escolas.where(cnpj: [nil, ""])
+    when "publicas"         then @escolas = @escolas.where(tipo:"publica")
+    when "privadas"         then @escolas = @escolas.where(tipo:"privada")
     end
   end
 

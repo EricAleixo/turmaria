@@ -62,6 +62,7 @@ class AlunosController < ApplicationController
       end
     end
   end
+end
 
   def destroy
     @aluno.destroy

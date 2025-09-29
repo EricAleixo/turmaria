@@ -162,6 +162,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "professor_turmas", force: :cascade do |t|
+    t.uuid "professor_id", null: false
+    t.bigint "turma_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["professor_id"], name: "index_professor_turmas_on_professor_id"
+    t.index ["turma_id"], name: "index_professor_turmas_on_turma_id"
+  end
+
   create_table "professors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -175,8 +184,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "cpf"
+    t.date "data_nascimento"
+    t.string "telefone"
+    t.string "foto"
+    t.string "formacao"
+    t.string "tipo_professor", default: "titular", null: false
+    t.uuid "escola_id"
     t.index ["confirmation_token"], name: "index_professors_on_confirmation_token", unique: true
+    t.index ["cpf"], name: "index_professors_on_cpf", unique: true
     t.index ["email"], name: "index_professors_on_email", unique: true
+    t.index ["escola_id"], name: "index_professors_on_escola_id"
     t.index ["reset_password_token"], name: "index_professors_on_reset_password_token", unique: true
   end
 
@@ -218,6 +236,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
   add_foreign_key "enderecos", "cidades"
   add_foreign_key "enderecos", "escolas"
   add_foreign_key "escolas", "admins"
+  add_foreign_key "professor_turmas", "professors"
+  add_foreign_key "professor_turmas", "turmas"
+  add_foreign_key "professors", "escolas"
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end
