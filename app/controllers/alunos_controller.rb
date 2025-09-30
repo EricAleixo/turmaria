@@ -140,6 +140,7 @@ class AlunosController < ApplicationController
       :historico_academico,
       :escola_id,
       :turma_id,
+      :cidade_id,
       cpf: [], 
       comprovante_residencia: [], 
       necessidades_especiais_tipo: []

@@ -1,0 +1,27 @@
+<div class="min-h-screen flex bg-base-200">
+  <main class="flex-1 px-8 py-10 max-w-2xl mx-auto">
+
+    <h1 class="text-3xl font-bold mb-4">Editar Cidade</h1>
+    <p class="text-gray-600 mb-6">
+      Você está editando a cidade do estado <strong><%= @estado.nome %> (<%= @estado.sigla %>)</strong>
+    </p>
+
+    <div class="bg-base-100 shadow-lg rounded-lg p-6">
+      <%= form_with model: [@estado, @cidade], local: true do |form| %>
+        <div class="form-control mb-4">
+          <%= form.label :nome, "Nome da Cidade", class: "label" %>
+          <%= form.text_field :nome, class: "input input-bordered w-full", autofocus: true %>
+          <% if @cidade.errors[:nome].any? %>
+            <span class="text-red-500 text-sm mt-1"><%= @cidade.errors[:nome].first %></span>
+          <% end %>
+        </div>
+
+        <div class="flex justify-between mt-6">
+          <%= link_to "Cancelar", estado_cidades_path(@estado), class: "btn btn-ghost" %>
+          <%= form.submit "Salvar Alterações", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+
+  </main>
+</div>

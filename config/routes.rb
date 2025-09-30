@@ -1,30 +1,33 @@
 Rails.application.routes.draw do
-  # Devise para os diferentes tipos de usuários, com skips e controllers customizados
+  # Devise para diferentes tipos de usuários com skips e controllers customizados
   devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
 
-  # Dashboard route
+  # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
 
-  # Estados com CRUD completo e cidades aninhadas com CRUD completo
+  # Estados com rota customizada para confirmação de exclusão e cidades aninhadas, também com confirmação de exclusão
   resources :estados do
     member do
-      get :confirm_delete
+      get :confirm_delete  # /estados/:id/confirm_delete
     end
 
-    # Aqui habilito TODAS as ações para cidades (index, new, create, edit, update, show, destroy)
-    resources :cidades
+    resources :cidades do
+      member do
+        get :confirm_delete  # /estados/:estado_id/cidades/:id/confirm_delete
+      end
+    end
   end
 
   # CRUD completo para administradores
   resources :administradores
 
-  # Rota de boas-vindas para escolas (escola onboarding)
+  # Rota de boas-vindas para escolas
   get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
 
-  # Rotas autenticadas para diferentes tipos de usuários, controladas pelo Pundit
+  # Rotas autenticadas para admins e super_admins
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
 
@@ -33,7 +36,6 @@ Rails.application.routes.draw do
         resources :turmas
       end
 
-      # Alunos diretamente em escola (não alocados a turma)
       resources :alunos do
         member do
           patch :assign_to_turma
@@ -42,7 +44,6 @@ Rails.application.routes.draw do
       end
 
       resources :turmas do
-        # Alunos alocados a turma
         resources :alunos, except: [:new, :create] do
           member do
             patch :remove_from_turma
@@ -60,16 +61,16 @@ Rails.application.routes.draw do
     end
   end
 
-  # Devise scope para professor (rotas de login/logout/password)
+  # Devise scope para professor com rotas customizadas
   devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
 
     get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
-    post   "/password",    to: "devise/unified_passwords#create", as: :user_password
+    post   "/password",     to: "devise/unified_passwords#create", as: :user_password
 
     get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
-    post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
+    post   "/password",     to: "devise/unified_passwords#update", as: :reset_user_password
 
     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
   end
@@ -77,6 +78,6 @@ Rails.application.routes.draw do
   # Root da aplicação
   root to: "home#index"
 
-  # Health check endpoint
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end
