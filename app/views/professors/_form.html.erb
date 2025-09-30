@@ -30,10 +30,10 @@
   </div>
 
   <div class="px-6 py-6">
-    <!-- Basic Information -->
     <div class="mb-8">
       <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Campos de texto -->
         <div>
           <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= form.text_field :nome, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "Ex: João da Silva", required: true %>
@@ -59,28 +59,60 @@
           <%= form.text_field :telefone, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "(00) 90000-0000" %>
         </div>
 
+        <!-- Dropdown Escola -->
         <div>
           <%= form.label :escola_id, "Escola *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.collection_select :escola_id, Escola.all.order(:nome), :id, :nome, { prompt: "Selecione uma escola" }, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", required: true %>
+          <%= form.hidden_field :escola_id, id: "escola_hidden", value: @professor.escola_id %>
+          <div class="relative w-full">
+            <button type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-left flex justify-between items-center" id="escola_button">
+              <span id="escola_label"><%= @professor.escola.present? ? @professor.escola.nome : "Selecione a escola" %></span>
+              <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <ul id="escola_list" class="hidden absolute z-10 mt-1 w-full bg-base-100 shadow-lg rounded-lg overflow-auto max-h-60">
+              <% Escola.all.order(:nome).each do |escola| %>
+                <li><a href="#" data-value="<%= escola.id %>" class="block px-4 py-2 hover:bg-green-100 escola-option"><%= escola.nome %></a></li>
+              <% end %>
+            </ul>
+          </div>
         </div>
 
+        <!-- Dropdown Tipo de Professor -->
         <div>
-            <%= form.label :tipo_professor, "Tipo de Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= form.select :tipo_professor, 
-                options_for_select([['Contratado', 'contratado'], ['Concursado', 'concursado']], @professor.tipo_professor),
-                { prompt: "Selecione o tipo" },
-                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", required: true } %>
+          <%= form.label :tipo_professor, "Tipo de Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.hidden_field :tipo_professor, id: "tipo_hidden", value: @professor.tipo_professor %>
+          <div class="relative w-full">
+            <button type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-left flex justify-between items-center" id="tipo_button">
+              <span id="tipo_label"><%= @professor.tipo_professor.present? ? @professor.tipo_professor.titleize : "Selecione o tipo" %></span>
+              <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <ul id="tipo_list" class="hidden absolute z-10 mt-1 w-full bg-base-100 shadow-lg rounded-lg overflow-auto max-h-60">
+              <% [['Contratado','contratado'], ['Concursado','concursado']].each do |label, value| %>
+                <li><a href="#" data-value="<%= value %>" class="block px-4 py-2 hover:bg-green-100 tipo-option"><%= label %></a></li>
+              <% end %>
+            </ul>
+          </div>
         </div>
+
+        <!-- Dropdown Formação -->
         <div>
-            <%= form.label :formacao, "Formação do Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= form.select :formacao, 
-                options_for_select([['Doutorado', 'doutorado'],['Mestrado', 'mestrado'], ['Pós graduado', 'pos_graduado'],['Graduado', 'graduado']], @professor.formacao),
-                { prompt: "Selecione a formação" },
-                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", required: true } %>
+          <%= form.label :formacao, "Formação do Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.hidden_field :formacao, id: "formacao_hidden", value: @professor.formacao %>
+          <div class="relative w-full">
+            <button type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-left flex justify-between items-center" id="formacao_button">
+              <span id="formacao_label"><%= @professor.formacao.present? ? @professor.formacao.titleize : "Selecione a formação" %></span>
+              <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <ul id="formacao_list" class="hidden absolute z-10 mt-1 w-full bg-base-100 shadow-lg rounded-lg overflow-auto max-h-60">
+              <% [['Doutorado','doutorado'], ['Mestrado','mestrado'], ['Pós graduado','pos_graduado'], ['Graduado','graduado']].each do |label, value| %>
+                <li><a href="#" data-value="<%= value %>" class="block px-4 py-2 hover:bg-green-100 formacao-option"><%= label %></a></li>
+              <% end %>
+            </ul>
+          </div>
         </div>
-        </div>
+
       </div>
     </div>
+  </div>
 
   <!-- Form Actions -->
   <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
@@ -88,7 +120,39 @@
       <%= link_to "Cancelar", professors_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
       <%= form.submit @professor.persisted? ? "Atualizar Professor" : "Criar Professor", class: "bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors" %>
     </div>
-
- 
   </div>
 <% end %>
+
+<!-- JS para atualizar hidden_fields e manter botão estilo original -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dropdowns = [
+      {btnId: "escola_button", listId: "escola_list", hiddenId: "escola_hidden", labelId: "escola_label", optionClass: "escola-option"},
+      {btnId: "tipo_button", listId: "tipo_list", hiddenId: "tipo_hidden", labelId: "tipo_label", optionClass: "tipo-option"},
+      {btnId: "formacao_button", listId: "formacao_list", hiddenId: "formacao_hidden", labelId: "formacao_label", optionClass: "formacao-option"}
+    ];
+
+    dropdowns.forEach(d => {
+      const btn = document.getElementById(d.btnId);
+      const list = document.getElementById(d.listId);
+
+      btn.addEventListener("click", () => list.classList.toggle("hidden"));
+
+      document.querySelectorAll("." + d.optionClass).forEach(el => {
+        el.addEventListener("click", e => {
+          e.preventDefault();
+          document.getElementById(d.hiddenId).value = el.dataset.value;
+          document.getElementById(d.labelId).textContent = el.textContent;
+          list.classList.add("hidden");
+        });
+      });
+
+      // Fecha ao clicar fora
+      document.addEventListener("click", e => {
+        if (!btn.contains(e.target) && !list.contains(e.target)) {
+          list.classList.add("hidden");
+        }
+      });
+    });
+  });
+</script>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_30_130033) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -126,9 +126,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
     t.string "complemento"
-    t.bigint "cidade_id"
+    t.bigint "cidade_id", null: false
+    t.uuid "professor_id", null: false
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
+    t.index ["professor_id"], name: "index_enderecos_on_professor_id"
   end
 
   create_table "escolas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -189,9 +191,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.string "telefone"
     t.string "foto"
     t.string "formacao"
-    t.string "tipo_professor", default: "titular", null: false
+    t.string "tipo_professor", default: "titular"
     t.uuid "escola_id"
+    t.uuid "coordenador_id"
     t.index ["confirmation_token"], name: "index_professors_on_confirmation_token", unique: true
+    t.index ["coordenador_id"], name: "index_professors_on_coordenador_id"
     t.index ["cpf"], name: "index_professors_on_cpf", unique: true
     t.index ["email"], name: "index_professors_on_email", unique: true
     t.index ["escola_id"], name: "index_professors_on_escola_id"
@@ -235,10 +239,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "cidades"
   add_foreign_key "enderecos", "escolas"
+  add_foreign_key "enderecos", "professors"
   add_foreign_key "escolas", "admins"
   add_foreign_key "professor_turmas", "professors"
   add_foreign_key "professor_turmas", "turmas"
   add_foreign_key "professors", "escolas"
+  add_foreign_key "professors", "professors", column: "coordenador_id"
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

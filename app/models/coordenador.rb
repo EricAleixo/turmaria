@@ -1,9 +1,12 @@
 class Coordenador < ApplicationRecord
 
   include EmailCadastroUser
+
+  has_many :professors
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :confirmable
+
 end

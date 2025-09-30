@@ -81,9 +81,9 @@
               <% @professores.each do |professor| %>
                 <tr>
                   <td><%= professor.nome %></td>
-                  <td><%= professor.cpf %></td>
-                  <td><%= professor.formacao.humanize.titleize %></td>
-                  <td><%= professor.tipo_professor.titleize %></td>
+                  <td><%= professor&.cpf || "-" %></td>
+                  <td><%= professor.formacao&.humanize&.titleize || "-"%></td>
+                  <td><%= professor.tipo_professor&.titleize || "-"%></td>
                   <td>
                     <div class="flex gap-2">
                       <%= link_to professor_path(professor), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver professor", data: { turbo_frame: "_top" } do %>
@@ -162,7 +162,7 @@
                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
                       </svg>
-                      <%= professor.tipo_professor %>
+                      <%= professor.tipo_professor&.titleize || "Tipo não informado"%>
                     </span>
                   </div>
                 </div>
@@ -176,7 +176,7 @@
                       </svg>
                     </div>
                     <p class="text-xs font-medium text-blue-700 uppercase tracking-wide">CPF</p>
-                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= professor.cpf %></p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= professor&.cpf || "Não informado" %></p>
                   </div>
                   <div class="bg-gradient-to-br from-blue-100 to-blue-200/80 border border-blue-300/50 rounded-xl p-4 text-center shadow-sm">
                     <div class="flex items-center justify-center mb-2">
@@ -185,7 +185,7 @@
                       </svg>
                     </div>
                     <p class="text-xs font-medium text-blue-800 uppercase tracking-wide">Materias</p>
-                    <p class="text-2xl font-bold text-blue-800 mt-1"></p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1">Sem materias</p>
                   </div>
                 </div>
 
