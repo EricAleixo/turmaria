@@ -1,4 +1,3 @@
-<!-- Seção Turmas -->
 <div class="mb-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
   <div class="flex items-center justify-between border-b border-gray-200 p-6">
     <h3 class="text-2xl font-bold text-gray-800">Turmas da Escola</h3>
@@ -9,16 +8,15 @@
     </div>
 
     <div class="sm:hidden dropdown dropdown-end">
-      <label tabindex="0" class="btn btn-ghost btn-circle text-blue-500">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
         </svg>
-      </label>
-
-      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-box w-52 border border-gray-200">
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
         <li>
-          <%= link_to escola_turmas_path(escola), class: "flex items-center gap-2 text-blue-500" do %>
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to escola_turmas_path(escola), class: "flex items-center gap-2 hover:bg-blue-50 text-gray-700 hover:text-blue-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
@@ -26,8 +24,8 @@
           <% end %>
         </li>
         <li>
-          <%= link_to new_escola_turma_path(escola), class: "flex items-center gap-2 text-blue-500" do %>
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to new_escola_turma_path(escola), class: "flex items-center gap-2 hover:bg-blue-50 text-gray-700 hover:text-blue-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Nova Turma
@@ -100,7 +98,6 @@
   <% end %>
 </div>
 
-<!-- Seção Alunos -->
 <div class="mb-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
   <div class="flex items-center justify-between border-b border-gray-200 p-6">
     <h3 class="text-2xl font-bold text-gray-800">Alunos da Escola</h3>
@@ -111,16 +108,15 @@
     </div>
 
     <div class="sm:hidden dropdown dropdown-end">
-      <label tabindex="0" class="btn btn-ghost btn-circle text-green-500">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle bg-green-50 hover:bg-green-100 text-green-600 border border-green-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
         </svg>
-      </label>
-
-      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-box w-52 border border-gray-200">
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
         <li>
-          <%= link_to escola_alunos_path(escola), class: "flex items-center gap-2 text-green-500" do %>
-            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to escola_alunos_path(escola), class: "flex items-center gap-2 hover:bg-green-50 text-gray-700 hover:text-green-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
@@ -128,8 +124,8 @@
           <% end %>
         </li>
         <li>
-          <%= link_to new_escola_aluno_path(escola), class: "flex items-center gap-2 text-green-500" do %>
-            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to new_escola_aluno_path(escola), class: "flex items-center gap-2 hover:bg-green-50 text-gray-700 hover:text-green-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Novo Aluno
@@ -214,7 +210,6 @@
   <% end %>
 </div>
 
-<!-- Seção Anos Letivos -->
 <div class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
   <div class="flex items-center justify-between border-b border-gray-200 p-6">
     <h3 class="text-2xl font-bold text-gray-800">Anos Letivos</h3>
@@ -225,16 +220,15 @@
     </div>
 
     <div class="sm:hidden dropdown dropdown-end">
-      <label tabindex="0" class="btn btn-ghost btn-circle text-purple-700">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
         </svg>
-      </label>
-
-      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-box w-52 border border-gray-200">
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
         <li>
-          <%= link_to escola_ano_letivos_path(escola), class: "flex items-center gap-2 text-purple-700" do %>
-            <svg class="h-5 w-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to escola_ano_letivos_path(escola), class: "flex items-center gap-2 hover:bg-purple-50 text-gray-700 hover:text-purple-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
@@ -242,8 +236,8 @@
           <% end %>
         </li>
         <li>
-          <%= link_to new_escola_ano_letivo_path(escola), class: "flex items-center gap-2 text-purple-700" do %>
-            <svg class="h-5 w-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to new_escola_ano_letivo_path(escola), class: "flex items-center gap-2 hover:bg-purple-50 text-gray-700 hover:text-purple-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Novo Ano Letivo
