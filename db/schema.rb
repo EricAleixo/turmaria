@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_29_122829) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -226,6 +226,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_204740) do
     t.bigint "ano_letivo_id", null: false
     t.index ["ano_letivo_id"], name: "index_turmas_on_ano_letivo_id"
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "profile_type", null: false
+    t.bigint "profile_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["profile_type", "profile_id"], name: "index_users_on_profile"
   end
 
   add_foreign_key "alunos", "escolas"
