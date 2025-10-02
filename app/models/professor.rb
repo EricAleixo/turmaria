@@ -13,6 +13,9 @@ class Professor < ApplicationRecord
   has_many :turmas, through: :professor_turmas
   has_one :endereco, dependent: :destroy
   has_many :alunos, through: :turmas
+  has_many :professor_disciplinas
+  has_many :disciplinas, through: :professor_disciplinas
+
   accepts_nested_attributes_for :endereco
 
   enum tipo_professor: { concursado: "concursado", contratado: "contratado" }

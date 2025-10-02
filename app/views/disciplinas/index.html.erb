@@ -1,0 +1,159 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Dashboard Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Disciplinas</h1>
+        <%= link_to "Nova Disciplina", new_disciplina_path, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6">
+    <!-- Filtro e busca -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <%= form_with url: disciplinas_path, method: :get, data: { turbo_frame: "disciplinas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+        <div class="flex-1 min-w-64">
+          <%= form.text_field :busca, placeholder: "Buscar por nome da disciplina...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+        </div>
+
+        <!-- Dropdown Disciplinas -->
+        <div class="dropdown">
+          <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
+            <span id="filtro-label">
+              <%= params[:filtro_select].present? ? Disciplina.find_by(id: params[:filtro_select])&.nome || "Todas as disciplinas" : "Todas as disciplinas" %>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </label>
+
+          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
+            <% [["Todas as disciplinas",""], *Disciplina.all.order(:nome).map { |d| [d.nome, d.id] }].each do |name, value| %>
+              <li>
+                <a href="#"
+                   data-value="<%= value %>"
+                   data-name="<%= name %>"
+                   class="link-filtro block w-full <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value.to_s %>">
+                  <%= name %>
+                </a>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+        <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
+        <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
+        <%= link_to "Limpar", disciplinas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+      <% end %>
+    </div>
+
+    <!-- Lista de disciplinas -->
+    <%= turbo_frame_tag "disciplinas" do %>
+      <% if @disciplinas&.any? %>
+        <!-- Tabela desktop -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Escola</th>
+                <th>Professores</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @disciplinas.each do |disciplina| %>
+                <tr>
+                  <td><%= disciplina.nome %></td>
+                  <td><%= disciplina.escola&.nome || "-" %></td>
+                  <td><%= disciplina.professores.map(&:nome).join(", ").presence || "-" %></td>
+                  <td>
+                    <div class="flex gap-2">
+                      <%= link_to disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver disciplina", data: { turbo_frame: "_top" } do %>Ver<% end %>
+                      <%= link_to edit_disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800", title: "Editar disciplina", data: { turbo_frame: "_top" } do %>Editar<% end %>
+                      <%= button_to disciplina_path(disciplina), method: :delete,
+                            data: { confirm: "Tem certeza que deseja excluir esta disciplina?" },
+                            class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800",
+                            form: { data: { turbo_frame: "_top" } },
+                            title: "Excluir disciplina" do %>Excluir<% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cards mobile -->
+        <div class="md:hidden space-y-4">
+          <% @disciplinas.each do |disciplina| %>
+            <div class="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div class="relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                  <h3 class="text-xl font-bold text-gray-900 mb-1"><%= disciplina.nome %></h3>
+                </div>
+                <div class="grid grid-cols-1 gap-2 mb-4">
+                  <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+                    <p class="text-xs font-medium text-gray-700 uppercase tracking-wide">Escola</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= disciplina.escola&.nome || "Não informado" %></p>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+                    <p class="text-xs font-medium text-gray-700 uppercase tracking-wide">Professores</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= disciplina.professores.map(&:nome).join(", ").presence || "Nenhum" %></p>
+                  </div>
+                </div>
+
+                <div class="flex justify-center space-x-2 pt-4 border-t border-gray-200">
+                  <%= link_to disciplina_path(disciplina), data: { turbo_frame: "_top" }, class: "flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200" do %>Ver<% end %>
+                  <%= link_to edit_disciplina_path(disciplina), class: "flex items-center px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-all duration-200" do %>Editar<% end %>
+                  <%= button_to disciplina_path(disciplina), method: :delete,
+                        data: { confirm: "Tem certeza que deseja excluir esta disciplina?" },
+                        class: "flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200" do %>Excluir<% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Filtro disciplinas
+  document.addEventListener("turbo:load", () => {
+    const hiddenInput = document.getElementById("filtro_select_hidden");
+    const labelSpan = document.getElementById("filtro-label");
+    const links = document.querySelectorAll(".link-filtro");
+
+    links.forEach(link => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const selectedLink = event.currentTarget;
+
+        const previousSelected = document.querySelector(".link-filtro.bg-green-600");
+        if (previousSelected) {
+          previousSelected.classList.remove("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+        }
+
+        selectedLink.classList.add("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+
+        hiddenInput.value = selectedLink.dataset.value;
+        labelSpan.textContent = selectedLink.dataset.name;
+      });
+    });
+  });
+
+  // Busca automática
+  document.addEventListener("turbo:load", () => {
+    const input = document.querySelector('form input[name="busca"]');
+    let timeout;
+    input.addEventListener("input", () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        input.form.requestSubmit();
+      }, 300);
+    });
+  });
+</script>

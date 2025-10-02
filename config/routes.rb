@@ -20,10 +20,12 @@ Rails.application.routes.draw do
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
+    resources :disciplinas
     resources :professors do
       resources :alunos
     end
     resources :escolas do
+      resources :disciplinas
       resources :ano_letivos do
         resources :turmas
       end

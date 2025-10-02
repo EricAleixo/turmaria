@@ -1,0 +1,109 @@
+<%= form_with(model: @disciplina, local: false,class:"bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
+  <% if @disciplina.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-red-800">Erro ao salvar!</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc list-inside space-y-1">
+              <% @disciplina.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Nome e Escola -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div>
+      <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :nome, class: "w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500", required: true %>
+    </div>
+
+    <!-- Dropdown Escola -->
+    <div>
+      <%= form.label :escola_id, "Escola *", class: "block text-sm font-medium text-gray-700" %>
+      <%= form.hidden_field :escola_id, id: "escola_hidden", value: @disciplina.escola_id %>
+      <div class="relative w-full">
+        <button type="button" class="w-full px-3 py-2 border rounded-lg flex justify-between items-center" id="escola_button">
+          <span id="escola_label"><%= @disciplina.escola.present? ? @disciplina.escola.nome : "Selecione a escola" %></span>
+          <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <ul id="escola_list" class="hidden absolute z-10 mt-1 w-full bg-white shadow-lg rounded-lg overflow-auto max-h-60">
+          <% Escola.all.order(:nome).each do |escola| %>
+            <li>
+              <a href="#" data-value="<%= escola.id %>" class="block px-4 py-2 hover:bg-green-100 escola-option"><%= escola.nome %></a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Busca de Professores -->
+  <div class="mb-4">
+    <%= form.label :busca_professor, "Buscar Professores", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <div class="flex gap-2">
+      <%= form.text_field :busca_professor, value: params.dig(:disciplina, :busca_professor), placeholder: "Digite o nome do professor", class: "flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" %>
+      <%= form.submit "Buscar", name: "buscar_professor", class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg" %>
+    </div>
+  </div>
+
+  <!-- Lista de Professores (Turbo Frame) -->
+  <%= turbo_frame_tag "lista_professores" do %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
+      <% @professores_selecionaveis.each do |prof| %>
+        <label class="flex items-center gap-2 border rounded-lg p-2 hover:bg-green-50">
+          <%= check_box_tag "disciplina[professor_ids][]", prof.id, @disciplina.professores.include?(prof) %>
+          <%= prof.nome %>
+        </label>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Form Actions -->
+  <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+    <%= link_to "Cancelar", disciplinas_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg" %>
+    <%= form.submit @disciplina.persisted? ? "Atualizar Disciplina" : "Criar Disciplina", class: "bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg" %>
+  </div>
+<% end %>
+
+<script>
+document.addEventListener("turbo:load", () => {
+  const btn = document.getElementById("escola_button");
+  const list = document.getElementById("escola_list");
+  const hidden = document.getElementById("escola_hidden");
+  const label = document.getElementById("escola_label");
+
+  if (!btn) return;
+
+  // Abrir/Fechar dropdown
+  btn.addEventListener("click", () => list.classList.toggle("hidden"));
+
+  // Seleção de escola
+  document.querySelectorAll(".escola-option").forEach(el => {
+    el.addEventListener("click", e => {
+      e.preventDefault();
+      hidden.value = el.dataset.value;
+      label.textContent = el.textContent;
+      list.classList.add("hidden");
+    });
+  });
+
+  // Fechar dropdown ao clicar fora
+  document.addEventListener("click", e => {
+    if (!btn.contains(e.target) && !list.contains(e.target)) {
+      list.classList.add("hidden");
+    }
+  });
+});
+</script>

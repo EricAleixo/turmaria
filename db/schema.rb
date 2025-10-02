@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_30_130033) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_01_122243) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -106,6 +106,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_30_130033) do
     t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
   end
 
+  create_table "disciplinas", force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "escola_id", null: false
+    t.index ["escola_id"], name: "index_disciplinas_on_escola_id"
+  end
+
   create_table "email_cadastros", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -159,9 +167,25 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_30_130033) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "materia", force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nome"], name: "index_materia_on_nome", unique: true
+  end
+
   create_table "nota", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "professor_disciplinas", force: :cascade do |t|
+    t.uuid "professor_id", null: false
+    t.bigint "disciplina_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["disciplina_id"], name: "index_professor_disciplinas_on_disciplina_id"
+    t.index ["professor_id"], name: "index_professor_disciplinas_on_professor_id"
   end
 
   create_table "professor_turmas", force: :cascade do |t|
@@ -236,11 +260,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_30_130033) do
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "cidades", "estados"
+  add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "cidades"
   add_foreign_key "enderecos", "escolas"
   add_foreign_key "enderecos", "professors"
   add_foreign_key "escolas", "admins"
+  add_foreign_key "professor_disciplinas", "disciplinas"
+  add_foreign_key "professor_disciplinas", "professors"
   add_foreign_key "professor_turmas", "professors"
   add_foreign_key "professor_turmas", "turmas"
   add_foreign_key "professors", "escolas"
