@@ -10,26 +10,33 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
     email = params[resource_name][:email]
     password = params[resource_name][:password]
 
-
     @resource = OpenStruct.new(email: email)
 
     registro = EmailCadastro.find_by(email: email)
 
     if registro
-      user = registro.user_type.constantize.find(registro.user_id)
+      # 🚨 Linha corrigida: use .find_by(id: ...) em vez de .find(...)
+      user = registro.user_type.constantize.find_by(id: registro.user_id) 
 
-      if user.valid_password?(password)
-        sign_in(user)
-        UserMailer.login_alert(user).deliver_later
-        flash[:notice] = "#{registro.user_type} logado com sucesso!"
+      if user # Verifica se o usuário foi encontrado
+        if user.valid_password?(password)
+          # ... (Resto da lógica de login bem-sucedido)
+          sign_in(user)
+          UserMailer.login_alert(user).deliver_later
+          flash[:notice] = "#{registro.user_type} logado com sucesso!"
 
-        if user.is_a?(SuperAdmin)
-          redirect_to dashboard_path
+          if user.is_a?(SuperAdmin)
+            redirect_to dashboard_path
+          else
+            redirect_to root_path
+          end
         else
-          redirect_to root_path
+          flash.now[:alert] = "Senha inválida"
+          render :new
         end
       else
-        flash.now[:alert] = "Senha inválida"
+        # Novo tratamento: O EmailCadastro existe, mas o usuário (SuperAdmin, Professor, etc.) não.
+        flash.now[:alert] = "Dados inconsistentes. Usuário não encontrado."
         render :new
       end
     else
@@ -37,7 +44,7 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
       render :new
     end
   end
-
+ 
 
   def destroy
     scope = case current_any_user

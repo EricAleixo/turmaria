@@ -6,8 +6,8 @@ class Professor < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :confirmable
-
-  belongs_to :escola
+ 
+  belongs_to :escola, optional: true
   belongs_to :coordenador, optional: true
   has_many :professor_turmas
   has_many :turmas, through: :professor_turmas
@@ -38,4 +38,4 @@ class Professor < ApplicationRecord
 
   partes.join(', ')
   end
-end
+end 

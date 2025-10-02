@@ -35,7 +35,6 @@ class Aluno < ApplicationRecord
   before_validation :generate_matricula, on: :create
   
   def generate_matricula
-    # Esta é a lógica de geração da matrícula.
     # Exemplo: Uma string que combina o ID da escola e um timestamp.
     # Isso garante que a matrícula seja única.
     if self.matricula.blank?
