@@ -1,46 +1,15 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+puts "Criando estado e cidade..."
+estado1 = Estado.create!(nome: "São Paulo 2")
+cidade1 = Cidade.create!(nome: "Campinas 2", estado: estado1)
 
-# Professor
-Professor.create!(
-  email: "professor@teste.com",
-  nome: "Professor Teste",
-  password: "123456",
-  password_confirmation: "123456",
-  confirmed_at: Time.now
+puts "Criando escola..."
+escola1 = Escola.create!(
+  nome: "Escola Municipal Exemplo 1",
+  cnpj: "12.345.678/0001-98",
+  telefone: "1234-5677",
+  email: "contato@escolaexemplo1.com",
+  site: "www.escolaexemplo1.com",
+  tipo: "privada"
 )
 
-# Coordenador
-Coordenador.create!(
-  email: "coordenador@teste.com",
-  nome: "Coordenador Teste",
-  password: "123456",
-  password_confirmation: "123456",
-  confirmed_at: Time.now
-)
-
-# Administrador
-#ATENÇÃO: ÚNICO QUE ESTÁ FUNCIONANDO NO LOGIN
-Admin.create!(
-  email: "admin@teste.com",
-  nome: "Admin Teste",
-  password: "123456",
-  password_confirmation: "123456",
-  confirmed_at: Time.now
-)
-
-# SuperAdmin
-SuperAdmin.create!(
-  email: "superadmin@teste.com",
-  nome: "Super Admin",
-  password: "123456",
-  password_confirmation: "123456",
-  confirmed_at: Time.now
-)
+puts "Cidade e escola criadas com sucesso!"
