@@ -256,6 +256,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_01_122243) do
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "profile_type", null: false
+    t.bigint "profile_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["profile_type", "profile_id"], name: "index_users_on_profile"
+  end
+
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"

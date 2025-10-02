@@ -106,4 +106,4 @@ class Aluno < ApplicationRecord
       self.idade = idade_calculada
     end
   end
-end
+end 
