@@ -1,0 +1,281 @@
+<%# 
+# Partial: professors/dashboard/_main_content.html.erb
+# 
+# Dependências esperadas (mockadas no controller):
+# @professor_nome: String
+# @turmas_ativas: Integer
+# @disciplinas_contagem: Integer
+# @alunos_unicos: Integer
+# @media_presenca: String (ex: "92.5%")
+# @media_geral_notas: String (ex: "7.8")
+# @pior_turma_media: String (ex: "6.5")
+# @notas_lancadas_mes: Integer
+# @disciplinas_e_turmas: Array (ex: [{nome: 'Matemática', turma: '9º A'}, ...])
+# @grafico_desempenho_disciplinas: Hash (para Chart.js)
+# @grafico_evolucao_notas: Hash (para Chart.js)
+# @grafico_presenca_turmas: Hash (para Chart.js)
+%>
+
+<div class="w-full p-4">
+  <main class="w-full max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Painel do Professor</h1>
+        <p class="text-gray-600 mt-1">Bem-vindo(a), <%= @professor_nome || 'Professor(a) Mock' %> - Visão Geral</p>
+      </div>
+      <div class="flex gap-3">
+        <%# Botão principal agora é VERDE (green-600) %>
+        <%= link_to "#", class: "btn bg-green-600 hover:bg-green-700 text-white" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.932zm0 0L19.5 7.125M18 14.25v2.25M6 18h.75m1.5 0h.75" />
+          </svg>
+          Lançar Notas/Faltas
+        <% end %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      
+      <%# Cartão 1: Turmas Ativas (Cor primária: GREEN) %>
+      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600 mb-2"><%= @turmas_ativas %></div>
+          <div class="text-gray-600 font-medium">Turmas Ativas</div>
+        </div>
+      </div>
+      
+      <%# Cartão 2: Disciplinas Lecionadas (Cor secundária: GREEN) %>
+      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600 mb-2"><%= @disciplinas_contagem %></div>
+          <div class="text-gray-600 font-medium">Disciplinas Únicas</div>
+        </div>
+      </div>
+      
+      <%# Cartão 3: Total de Alunos Únicos (Mantido Roxo) %>
+      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-purple-600">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-purple-600 mb-2"><%= @alunos_unicos %></div>
+          <div class="text-gray-600 font-medium">Alunos Únicos (Total)</div>
+        </div>
+      </div>
+      
+      <%# Cartão 4: Média Geral de Notas (Mantido Laranja) %>
+      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-orange-600">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-orange-600 mb-2"><%= @media_geral_notas %></div>
+          <div class="text-gray-600 font-medium">Média Geral de Notas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      
+      <%# Média de Presença (Mantido Teal) %>
+      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-teal-600">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-teal-600 mb-2"><%= @media_presenca %></div>
+          <div class="text-gray-600 font-medium">Média de Presença</div>
+        </div>
+      </div>
+      
+      <%# Pior Turma (Mantido Vermelho) %>
+      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-red-600">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-red-600 mb-2"><%= @pior_turma_media %></div>
+          <div class="text-gray-600 font-medium">Média Pior Turma</div>
+        </div>
+      </div>
+      
+      <%# Notas Lançadas (Mantido Indigo) %>
+      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-indigo-600">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @notas_lancadas_mes %></div>
+          <div class="text-gray-600 font-medium">Notas Lançadas (Mês)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg p-6 shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Desempenho Médio por Disciplina</h3>
+        <div class="h-64">
+          <canvas id="disciplinesPerformanceChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg p-6 shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Evolução da Média de Notas (Semestral)</h3>
+        <div class="h-64">
+          <canvas id="gradesEvolutionChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      
+      <div class="bg-white rounded-lg shadow-md">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-800">Minhas Disciplinas e Turmas</h3>
+          <p class="text-gray-600 text-sm">O que você está lecionando este ano.</p>
+        </div>
+        <div class="p-6 max-h-96 overflow-y-auto">
+          <% if @disciplinas_e_turmas.any? %>
+            <% @disciplinas_e_turmas.each_with_index do |item, index| %>
+              <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @disciplinas_e_turmas.length - 1 %>">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold text-sm mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3.04.514M12 6.042V4.75M12 6.042a8.967 8.967 0 014.96-.282m1.026-.064a9.71 9.71 0 011.054-.316A7.5 7.5 0 0021 6.042m-1.018 7.072a7.5 7.5 0 01-1.054.316m-1.026.064a8.967 8.967 0 00-4.96.282m-1.026-.064a9.71 9.71 0 01-1.054.316M12 21.042V19.75M12 21.042a8.967 8.967 0 01-4.96-.282m4.96.282a8.967 8.967 0 004.96-.282" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-medium text-gray-800"><%= item[:disciplina] %></div>
+                    <div class="text-sm text-gray-500">Turma: <%= item[:turma] %></div>
+                  </div>
+                </div>
+                <%# Botão 'Gerenciar' agora é VERDE (green-600) %>
+                <div class="text-gray-400">
+                  <%= link_to 'Gerenciar', '#', class: "text-green-600 hover:text-green-800 text-sm" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-gray-500 text-center py-4">Nenhuma disciplina ou turma atribuída.</p>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg p-6 shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Presença por Turma (Geral)</h3>
+        <div class="h-64">
+          <canvas id="attendanceByClassChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let disciplinesPerformanceChart, gradesEvolutionChart, attendanceByClassChart;
+
+function initializeProfessorCharts() {
+  
+  // Destruir instâncias antigas para evitar duplicidade em Turbo/Turbolinks
+  if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
+  if (gradesEvolutionChart) gradesEvolutionChart.destroy();
+  if (attendanceByClassChart) attendanceByClassChart.destroy();
+
+  // --- Gráfico 1: Desempenho por Disciplina (Barra) ---
+  const perfCtx = document.getElementById('disciplinesPerformanceChart');
+  const perfData = <%= raw (@grafico_desempenho_disciplinas || {}).to_json %>;
+
+  if (perfCtx && perfData.labels && perfData.data) {
+    disciplinesPerformanceChart = new Chart(perfCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: perfData.labels,
+        datasets: [{
+          label: 'Média de Notas',
+          data: perfData.data,
+          backgroundColor: [
+            'rgba(16, 185, 129, 0.8)', // green-500 (AGORA É A PRIMEIRA COR)
+            'rgba(59, 130, 246, 0.8)', // blue-500
+            'rgba(168, 85, 247, 0.8)', // purple-500
+            'rgba(249, 115, 22, 0.8)', // orange-500
+          ],
+          borderColor: [
+            'rgb(16, 185, 129)',
+            'rgb(59, 130, 246)',
+            'rgb(168, 85, 247)',
+            'rgb(249, 115, 22)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, max: 10, title: { display: true, text: 'Média de Nota (0-10)' } }
+        }
+      }
+    });
+  }
+
+  // --- Gráfico 2: Evolução de Notas (Linha) ---
+  const evoCtx = document.getElementById('gradesEvolutionChart');
+  const evoData = <%= raw (@grafico_evolucao_notas || {}).to_json %>;
+
+  if (evoCtx && evoData.labels && evoData.data) {
+    gradesEvolutionChart = new Chart(evoCtx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: evoData.labels,
+        datasets: [{
+          label: 'Média Geral',
+          data: evoData.data,
+          borderColor: '#10B981', // green-500
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, max: 10, title: { display: true, text: 'Média de Nota (0-10)' } }
+        }
+      }
+    });
+  }
+
+  // --- Gráfico 3: Presença por Turma (Doughnut) ---
+  const attCtx = document.getElementById('attendanceByClassChart');
+  const attData = <%= raw (@grafico_presenca_turmas || {}).to_json %>;
+
+  if (attCtx && attData.labels && attData.data) {
+    attendanceByClassChart = new Chart(attCtx.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: attData.labels,
+        datasets: [{
+          data: attData.data,
+          backgroundColor: [
+            '#06B6D4', // cyan-500
+            '#F97316', // orange-500
+            '#A855F7', // purple-500
+            '#EF4444' // red-500
+          ],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right' }
+        }
+      }
+    });
+  }
+}
+
+// Inicializar gráficos em carregamento de página e Turbo/Turbolinks
+document.addEventListener('DOMContentLoaded', initializeProfessorCharts);
+document.addEventListener('turbo:load', initializeProfessorCharts);
+
+// Limpeza de gráficos antes do cache do Turbo
+document.addEventListener('turbo:before-cache', function() {
+  if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
+  if (gradesEvolutionChart) gradesEvolutionChart = null;
+  if (attendanceByClassChart) attendanceByClassChart.destroy();
+});
+</script>
