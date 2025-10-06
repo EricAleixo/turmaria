@@ -105,6 +105,14 @@ module DisciplinaHelper
     end
   end
 
+  def badge_direita(area)
+    cfg = area_cfg(area) 
+
+    badge = content_tag(:span, area.to_s.titleize.upcase, class: "px-3 py-1 text-xs font-medium rounded-full bg-#{cfg[:bg]} text-#{cfg[:text]}")
+
+    badge
+  end
+
   def badge_area(area)
     cfg = area_cfg(area)
 

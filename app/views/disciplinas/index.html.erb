@@ -17,7 +17,13 @@
           <%= form.text_field :busca, placeholder: "Buscar por nome da disciplina...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
         </div>
 
-        <!-- Dropdown Disciplinas -->
+        <%# Define quais disciplinas mostrar %>
+        <% disciplinas = if current_professor
+                           current_professor.disciplinas.order(:nome)
+                         else
+                           Disciplina.all.order(:nome)
+                         end %>
+
         <div class="dropdown">
           <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
             <span id="filtro-label">
@@ -29,7 +35,7 @@
           </label>
 
           <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
-            <% [["Todas as disciplinas",""], *Disciplina.all.order(:nome).map { |d| [d.nome, d.id] }].each do |name, value| %>
+            <% [["Todas as disciplinas",""], *disciplinas.map { |d| [d.nome, d.id] }].each do |name, value| %>
               <li>
                 <a href="#"
                    data-value="<%= value %>"
@@ -45,6 +51,7 @@
         <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
         <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
         <%= link_to "Limpar", disciplinas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+
       <% end %>
     </div>
 
@@ -67,7 +74,7 @@
                 <tr>
                   <td><%= disciplina.nome %></td>
                   <td><%= disciplina.escola&.nome || "-" %></td>
-                  <td><%= disciplina.professores.map(&:nome).join(", ").presence || "-" %></td>
+                  <td><%= disciplina.professores.map { |p| p == current_professor ? "Você" : p.nome }.join(", ").presence || "-" %></td>
                   <td>
                     <div class="flex gap-2">
                       <%= link_to disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver disciplina", data: { turbo_frame: "_top" } do %>                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

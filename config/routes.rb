@@ -28,6 +28,9 @@ Rails.application.routes.draw do
     resources :disciplinas
     resources :professors do
       resources :alunos
+      member do 
+        patch :update_disciplinas
+      end
     end
     resources :escolas do
       resources :disciplinas
@@ -71,6 +74,9 @@ Rails.application.routes.draw do
       end
     end
     get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
+    resources :professor do
+      resources :disciplinas
+    end
   end
 
   devise_scope :professor do

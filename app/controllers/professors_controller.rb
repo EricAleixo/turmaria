@@ -3,11 +3,13 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
+    
     @professores = Professor.all
   end
 
   def show
     # Não precisa de código aqui, @professor é definido por set_professor
+    @disciplinas = Disciplina.all
   end
 
   def new
@@ -57,6 +59,12 @@ class ProfessorsController < ApplicationController
   def destroy
     @professor.destroy
     redirect_to professors_path, notice: "Professor excluído com sucesso!"
+  end
+
+  def update_disciplinas
+    @professor = Professor.find(params[:id])
+    @professor.disciplina_ids = params[:disciplina_ids] || []
+    redirect_to @professor, notice: "Disciplinas atualizadas com sucesso!"
   end
 
   private
