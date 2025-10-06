@@ -14,9 +14,14 @@ Rails.application.routes.draw do
   # Complete CRUD for administradores
   resources :administradores
 
+  # Professor-Turma associations - MANUAL ROUTES
+  get '/professors/:professor_id/turmas', to: 'professor_turmas#show', as: 'professor_professor_turmas'
+  post '/professors/:professor_id/turmas', to: 'professor_turmas#create'
+  delete '/professors/:professor_id/turmas/:id', to: 'professor_turmas#destroy', as: 'professor_professor_turma'
+
   # Welcome route for escola onboarding
   get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
-
+  
   # Authenticated routes for all user types (authorization handled by Pundit)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
@@ -57,6 +62,17 @@ Rails.application.routes.draw do
     end
   end
 
+  constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
+    get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
+    get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
+    resources :frequencias, controller: 'professor/frequencias' do
+      member do
+        patch :update_presencas
+      end
+    end
+    get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
+  end
+
   devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
@@ -66,7 +82,6 @@ Rails.application.routes.draw do
 
     get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
     post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
-
 
      delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
 

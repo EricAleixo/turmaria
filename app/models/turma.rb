@@ -4,23 +4,27 @@ class Turma < ApplicationRecord
   belongs_to :ano_letivo
   belongs_to :escola, counter_cache: true
   has_many :alunos
-  
   has_many :professor_turmas
   has_many :professores, through: :professor_turmas
+  has_many :frequencias, dependent: :destroy
 
   validates :nome, presence: true
   validates :serie, presence: true
   validate :ano_letivo_deve_pertencer_a_escola
 
-  private
- 
-  def ano_letivo_deve_pertencer_a_escola
-  return unless ano_letivo.present? && escola.present?
-  
-  if ano_letivo.escola_id != escola.id
-    Rails.logger.error "🛑 ERRO! Tentativa de Turma (Escola #{escola.id}) usar Ano Letivo (Escola #{ano_letivo.escola_id})"
-    
-    errors.add(:base, "O Ano Letivo selecionado não pertence a esta Escola.")
+  def nome_completo
+    "#{nome} - #{escola.nome} (#{serie}º #{turno.humanize})"
   end
-end 
+
+  private
+
+  def ano_letivo_deve_pertencer_a_escola
+    return unless ano_letivo.present? && escola.present?
+
+    if ano_letivo.escola_id != escola.id
+      Rails.logger.error " ERRO! Tentativa de Turma (Escola #{escola.id}) usar Ano Letivo (Escola #{ano_letivo.escola_id})"
+
+      errors.add(:base, "O Ano Letivo selecionado não pertence a esta Escola.")
+    end
+  end
 end

@@ -15,27 +15,29 @@ class Professor < ApplicationRecord
   has_many :alunos, through: :turmas
   has_many :professor_disciplinas
   has_many :disciplinas, through: :professor_disciplinas
+  has_many :frequencias, dependent: :destroy
 
   accepts_nested_attributes_for :endereco
 
   enum tipo_professor: { concursado: "concursado", contratado: "contratado" }
-  enum formacao: { mestrado: "mestrado", doutorado: "doutorado", pos_graduado:"pos_graduado", graduado:"graduado" }
+  enum formacao: { mestrado: "mestrado", doutorado: "doutorado", pos_graduado:"pos_graduado", graduatedo:"graduado" }
 
   validates :nome, :cpf, presence: true
   validates :cpf, uniqueness: true
 
- def endereco_completo
-  return "Endereço não cadastrado" unless endereco.present?
-
-  partes = []
-  partes << "#{endereco.logradouro}, #{endereco.numero}" if endereco.logradouro.present? && endereco.numero.present?
-  partes << endereco.complemento if endereco.complemento.present?
-  partes << endereco.bairro if endereco.bairro.present?
-  if endereco.cidade.present?
-    partes << "#{endereco.cidade.nome} - #{endereco.cidade.estado.nome}"
+  def endereco_completo
+    return "Endereço não cadastrado" unless endereco.present?
+    
+    parts = []
+    parts << "#{endereco.logradouro}, #{endereco.numero}" if endereco.logradouro.present? && endereco.numero.present?
+    parts << endereco.complemento if endereco.complemento.present?
+    parts << endereco.bairro if endereco.bairro.present?
+    if endereco.cidade.present?
+      parts << "#{endereco.cidade.nome} - #{endereco.cidade.estado.nome}"
+    end
+    parts << "CEP: #{endereco.cep}" if endereco.cep.present?
+    
+    parts.join(', ')
   end
-  partes << "CEP: #{endereco.cep}" if endereco.cep.present?
 
-  partes.join(', ')
-  end
-end 
+end

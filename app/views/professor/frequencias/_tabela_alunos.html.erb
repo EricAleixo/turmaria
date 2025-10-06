@@ -1,0 +1,167 @@
+<div class="bg-white rounded-lg overflow-hidden">
+  <div class="space-y-4 p-4">
+    <% @turma.alunos.order(:nome).each do |aluno| %>
+      <div class="bg-gray-50 rounded-lg aluno-row" data-aluno-id="<%= aluno.id %>">
+        <div class="flex items-center justify-between p-4">
+          <!-- Info do Aluno -->
+          <div class="flex items-center flex-1">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+              <span class="text-sm font-bold text-white">
+                <%= aluno.nome.split.map(&:first).join.upcase %>
+              </span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900"><%= aluno.nome %></h3>
+              <p class="text-sm text-gray-500">Matrícula: <%= aluno.matricula %></p>
+            </div>
+          </div>
+
+          <!-- Botões de Status -->
+          <div class="flex items-center gap-3">
+            <!-- Presente -->
+            <button type="button" 
+                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn active" 
+                    data-aluno-id="<%= aluno.id %>" 
+                    data-status="presente"
+                    onclick="setStatus(<%= aluno.id %>, 'presente')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Presente
+            </button>
+
+            <!-- Falta -->
+             <button type="button" 
+                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn falta-btn" 
+                    data-aluno-id="<%= aluno.id %>" 
+                    data-status="falta"
+                    onclick="setStatus(<%= aluno.id %>, 'falta')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Falta
+            </button>
+
+            <!-- Justificada -->
+            <button type="button" 
+                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn justificada-btn" 
+                    data-aluno-id="<%= aluno.id %>" 
+                    data-status="justificada"
+                    onclick="setStatus(<%= aluno.id %>, 'justificada')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              Justificada
+            </button>
+          </div>
+
+          <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
+        </div>
+
+        <!-- Campo de Observações -->
+        <div class="px-4 pb-4">
+          <input type="text" 
+                 name="alunos[<%= aluno.id %>][observacoes]" 
+                 placeholder="Observações..." 
+                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.status-btn {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
+.status-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.presente-btn.active {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.falta-btn.active {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.justificada-btn.active {
+  background-color: #fefce8;
+  border-color: #ca8a04;
+  color: #a16207;
+}
+
+.aluno-row {
+  transition: all 0.2s ease;
+}
+
+.aluno-row.bg-green-50 {
+  background-color: #f0fdf4;
+  border-color: #16a34a;
+}
+
+.aluno-row.bg-red-50 {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+}
+
+.aluno-row.bg-yellow-50 {
+  background-color: #fefce8;
+  border-color: #ca8a04;
+}
+</style>
+
+<script>
+function setStatus(alunoId, status) {
+  // Remover classe active de todos os botões do aluno
+  const buttons = document.querySelectorAll(`[data-aluno-id="${alunoId}"].status-btn`);
+  buttons.forEach(btn => btn.classList.remove('active'));
+  
+  // Adicionar classe active ao botão clicado
+  const activeButton = document.querySelector(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
+  activeButton.classList.add('active');
+  
+  // Atualizar o campo hidden
+  const hiddenField = document.getElementById(`status_${alunoId}`);
+  hiddenField.value = status;
+  
+  // Atualizar cor da linha
+  updateRowColor(alunoId, status);
+}
+
+function updateRowColor(alunoId, status) {
+  const row = document.querySelector(`div[data-aluno-id="${alunoId}"]`);
+  if (!row) return;
+
+  row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
+  
+  switch(status) {
+    case 'presente':
+      row.classList.add('bg-green-50');
+      break;
+    case 'falta':
+      row.classList.add('bg-red-50');
+      break;
+    case 'justificada':
+      row.classList.add('bg-yellow-50');
+      break;
+  }
+}
+
+function marcarTodos(status) {
+  const alunos = document.querySelectorAll('[data-aluno-id]');
+  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+  
+  alunoIds.forEach(alunoId => {
+    setStatus(parseInt(alunoId), status);
+  });
+}
+</script>
