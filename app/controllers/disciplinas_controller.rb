@@ -5,8 +5,6 @@ class DisciplinasController < ApplicationController
   # GET /disciplinas
   def index
     @disciplinas = Disciplina.includes(:escola, :professores).all
-
-    
   end
 
   # GET /disciplinas/1
@@ -17,14 +15,34 @@ class DisciplinasController < ApplicationController
   def new
     @disciplina = Disciplina.new
 
-    if params[:buscar_professor].present? && params[:disciplina].present?
-      busca = params[:disciplina][:busca_professor]
-      @professores_selecionaveis = Professor.where("nome ILIKE ?", "%#{busca}%").order(:nome)
-    else
-      @professores_selecionaveis = Professor.all.order(:nome)
+    # Filtro de escolas
+    escolas = if params[:escola_busca].present?
+                @escolas = Escola.where("nome ILIKE ?", "%#{params[:escola_busca]}%").limit(20)
+              else
+                @escolas = []
+              end
+
+    # Filtro de professores
+    professores = []
+    if params[:professor_busca].present? && params[:escola_id].present?
+      professores = Professor.where(escola_id: params[:escola_id])
+                              .where("nome ILIKE ?", "%#{params[:professor_busca]}%")
+                              .order(:nome)
+                              .limit(20)
+    elsif params[:professor_busca].present?
+      professores = Professor.where("nome ILIKE ?", "%#{params[:professor_busca]}%")
+                              .order(:nome)
+                              .limit(20)
+    end
+
+    # Se for JSON, retorna só os dados para autocomplete e encerra
+    if request.format.json?
+      return render json: {
+        escolas: @escolas.as_json(only: [:id, :nome]),
+        professores: professores.as_json(only: [:id, :nome, :escola_id])
+      }
     end
   end
-
 
   # GET /disciplinas/1/edit
   def edit
@@ -32,24 +50,32 @@ class DisciplinasController < ApplicationController
 
   # POST /disciplinas
   def create
-    @disciplina = Disciplina.new(disciplina_params)
+    @disciplina = Disciplina.new(disciplina_params.except(:professor_ids))
+
+    # atribuindo professores many-to-many
+    if disciplina_params[:professor_ids].present?
+      @disciplina.professores = Professor.where(id: disciplina_params[:professor_ids])
+    end
 
     if @disciplina.save
-      redirect_to @disciplina, notice: "Disciplina criada com sucesso."
+      redirect_to disciplinas_path, notice: "Disciplina criada com sucesso!"
     else
-      render :new, status: :unprocessable_entity
+      render :new
     end
   end
 
   # PATCH/PUT /disciplinas/1
   def update
-    if @disciplina.update(disciplina_params)
+    if @disciplina.update(disciplina_params.except(:professor_ids))
+      if disciplina_params[:professor_ids].present?
+        @disciplina.professores = Professor.where(id: disciplina_params[:professor_ids].reject(&:blank?))
+      end
+    
       redirect_to @disciplina, notice: "Disciplina atualizada com sucesso."
     else
       render :edit, status: :unprocessable_entity
     end
   end
-
   # DELETE /disciplinas/1
   def destroy
     @disciplina.destroy
@@ -63,7 +89,7 @@ class DisciplinasController < ApplicationController
   end
 
   def disciplina_params
-    # aceitando escola_id e múltiplos professores
-    params.require(:disciplina).permit(:nome, :escola_id, professor_ids: [])
+    params.require(:disciplina).permit(:nome, :area, :escola_id, professor_ids: [])
   end
+
 end
