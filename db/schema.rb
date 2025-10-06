@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_01_122243) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -166,6 +166,31 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_01_122243) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "frequencia_alunos", force: :cascade do |t|
+    t.bigint "frequencia_id", null: false
+    t.bigint "aluno_id", null: false
+    t.string "status", default: "presente", null: false
+    t.text "observacoes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id"], name: "index_frequencia_alunos_on_aluno_id"
+    t.index ["frequencia_id", "aluno_id"], name: "index_frequencia_alunos_on_frequencia_id_and_aluno_id", unique: true
+    t.index ["frequencia_id"], name: "index_frequencia_alunos_on_frequencia_id"
+  end
+
+  create_table "frequencias", force: :cascade do |t|
+    t.bigint "turma_id", null: false
+    t.uuid "professor_id", null: false
+    t.date "data_aula", null: false
+    t.text "conteudo_trabalhado"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "observacoes"
+    t.index ["professor_id"], name: "index_frequencias_on_professor_id"
+    t.index ["turma_id", "data_aula"], name: "index_frequencias_on_turma_id_and_data_aula", unique: true
+    t.index ["turma_id"], name: "index_frequencias_on_turma_id"
   end
 
   create_table "nota", force: :cascade do |t|
