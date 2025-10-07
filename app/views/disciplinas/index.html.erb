@@ -17,41 +17,72 @@
           <%= form.text_field :busca, placeholder: "Buscar por nome da disciplina...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
         </div>
 
-        <%# Define quais disciplinas mostrar %>
-        <% disciplinas = if current_professor
-                           current_professor.disciplinas.order(:nome)
-                         else
-                           Disciplina.all.order(:nome)
-                         end %>
+        <% disciplinas = current_professor ? current_professor.disciplinas.order(:nome) : Disciplina.all.order(:nome) %>
 
-        <div class="dropdown">
-          <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
-            <span id="filtro-label">
-              <%= params[:filtro_select].present? ? Disciplina.find_by(id: params[:filtro_select])&.nome || "Todas as disciplinas" : "Todas as disciplinas" %>
-            </span>
+        <% if disciplinas.count <= 5 %>
+          <!--Dropdown se <= 5 disciplinas -->
+          <div class="dropdown">
+            <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
+              <span id="filtro-label">
+                <%= params[:filtro_select].present? ? Disciplina.find_by(id: params[:filtro_select])&.nome || "Todas as disciplinas" : "Todas as disciplinas" %>
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </label>
+
+            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
+              <% [["Todas as disciplinas",""], *disciplinas.map { |d| [d.nome, d.id] }].each do |name, value| %>
+                <li>
+                  <a href="#"
+                     data-value="<%= value %>"
+                     data-name="<%= name %>"
+                     class="link-filtro block w-full <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value.to_s %>">
+                    <%= name %>
+                  </a>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% else %>
+          <!-- Modal se > 5 disciplinas -->
+          <label for="disciplinas-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-green-500 hover:text-white w-64 justify-between">
+            <span id="filtro-label"><%= params[:filtro_select].present? ? Disciplina.find_by(id: params[:filtro_select])&.nome || "Todas as disciplinas" : "Todas as disciplinas" %></span>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </label>
 
-          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
-            <% [["Todas as disciplinas",""], *disciplinas.map { |d| [d.nome, d.id] }].each do |name, value| %>
-              <li>
-                <a href="#"
-                   data-value="<%= value %>"
-                   data-name="<%= name %>"
-                   class="link-filtro block w-full <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value.to_s %>">
-                  <%= name %>
-                </a>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+          <input type="checkbox" id="disciplinas-modal" class="modal-toggle" />
+
+          <div class="modal">
+            <div class="modal-box w-full max-w-5xl bg-white border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Selecione as disciplinas</h3>
+              </div>
+
+              <div class="max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <% disciplinas.each do |disciplina| %>
+                    <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                      <%= check_box_tag "disciplinas_id[]", disciplina.id, (params[:disciplinas_id]&.map(&:to_i) || []).include?(disciplina.id), class: "checkbox checkbox-success mt-1", id: "disc-#{disciplina.id}" %>
+                      <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= disciplina.nome %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="modal-action mt-4">
+                <button type="submit" class="btn bg-green-500 text-white hover:bg-green-600 px-6">Aplicar</button>
+                <label for="disciplinas-modal" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 px-6">Cancelar</label>
+              </div>
+            </div>
+          </div>
+        <% end %>
 
         <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
         <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
         <%= link_to "Limpar", disciplinas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
-
       <% end %>
     </div>
 
@@ -77,20 +108,26 @@
                   <td><%= disciplina.professores.map { |p| p == current_professor ? "Você" : p.nome }.join(", ").presence || "-" %></td>
                   <td>
                     <div class="flex gap-2">
-                      <%= link_to disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver disciplina", data: { turbo_frame: "_top" } do %>                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <%= link_to disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-800", title: "Ver disciplina", data: { turbo_frame: "_top" } do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg><% end %>
-                      <%= link_to edit_disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800", title: "Editar disciplina", data: { turbo_frame: "_top" } do %> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        </svg>
+                      <% end %>
+                      <%= link_to edit_disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-yellow-600 hover:text-yellow-800", title: "Editar disciplina", data: { turbo_frame: "_top" } do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg><% end %>
+                        </svg>
+                      <% end %>
                       <%= button_to disciplina_path(disciplina), method: :delete,
                             data: { confirm: "Tem certeza que deseja excluir esta disciplina?" },
                             class: "btn btn-ghost btn-sm text-red-600 hover:text-red-800",
                             form: { data: { turbo_frame: "_top" } },
-                            title: "Excluir disciplina" do %><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            title: "Excluir disciplina" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg><% end %>
+                        </svg>
+                      <% end %>
                     </div>
                   </td>
                 </tr>
@@ -107,19 +144,18 @@
 
               <div class="relative z-10">
                 <!-- Header do Card -->
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900"><%= disciplina.nome %></h3>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
-                      <%=svgs(disciplina.area)%>
-                      <%= disciplina.area&.titleize || "Área não informada" %>
-                    </span>
-                  </div>
-                
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-xl font-bold text-gray-900"><%= disciplina.nome %></h3>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
+                    <%= svgs(disciplina.area) %>
+                    <%= disciplina.area&.titleize || "Área não informada" %>
+                  </span>
+                </div>
 
                 <!-- Informações do Card -->
                 <div class="grid grid-cols-2 gap-4 mb-4">
                   <div class="bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl p-4 text-center shadow-sm">
-                                        <div class = "flex items-center justify-center mb-2">
+                    <div class="flex items-center justify-center mb-2">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                       </svg>
@@ -127,14 +163,15 @@
                     <p class="text-xs font-medium text-gray-700 uppercase tracking-wide">Escola</p>
                     <p class="text-sm font-semibold text-gray-900 mt-1"><%= disciplina.escola&.nome || "Não informado" %></p>
                   </div>
+
                   <div class="bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-xl p-4 text-center shadow-sm">
-                    <div class = "flex items-center justify-center mb-2">
+                    <div class="flex items-center justify-center mb-2">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                       </svg>
                     </div>
                     <p class="text-xs font-medium text-gray-700 uppercase tracking-wide">Professores</p>
-                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= disciplina.professores.map(&:nome).join(", ").presence || "Nenhum" %></p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1"><%= disciplina.professores.map { |p| p == current_professor ? "Você" : p.nome }.join(", ").presence || "Nenhum" %></p>
                   </div>
                 </div>
 
@@ -147,14 +184,16 @@
                     </svg>
                     Ver
                   <% end %>
+
                   <%= link_to edit_disciplina_path(disciplina), class: "flex items-center px-4 py-2.5 text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105" do %>
                     <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                     Editar
                   <% end %>
+
                   <%= button_to disciplina_path(disciplina), method: :delete,
-                      data: { confirm: "Tem certeza que deseja excluir esta professor?" },
+                      data: { confirm: "Tem certeza que deseja excluir esta disciplina?" },
                       class: "flex items-center px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105" do %>
                     <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -166,46 +205,49 @@
             </div>
           <% end %>
         </div>
-
       <% end %>
     <% end %>
   </div>
 </div>
 
 <script>
-  // Filtro disciplinas
-  document.addEventListener("turbo:load", () => {
-    const hiddenInput = document.getElementById("filtro_select_hidden");
-    const labelSpan = document.getElementById("filtro-label");
-    const links = document.querySelectorAll(".link-filtro");
+document.addEventListener("turbo:load", () => {
+  // ---------- Filtro de links ----------
+  const hiddenInput = document.getElementById("filtro_select_hidden");
+  const labelSpan = document.getElementById("filtro-label");
+  const links = document.querySelectorAll(".link-filtro");
 
-    links.forEach(link => {
-      link.addEventListener("click", (event) => {
-        event.preventDefault();
-        const selectedLink = event.currentTarget;
-
-        const previousSelected = document.querySelector(".link-filtro.bg-green-600");
-        if (previousSelected) {
-          previousSelected.classList.remove("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
-        }
-
-        selectedLink.classList.add("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
-
-        hiddenInput.value = selectedLink.dataset.value;
-        labelSpan.textContent = selectedLink.dataset.name;
-      });
+  links.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const prev = document.querySelector(".link-filtro.bg-green-600");
+      prev?.classList.remove("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+      link.classList.add("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
+      if (hiddenInput) hiddenInput.value = link.dataset.value;
+      if (labelSpan) labelSpan.textContent = link.dataset.name;
     });
   });
 
-  // Busca automática
-  document.addEventListener("turbo:load", () => {
-    const input = document.querySelector('form input[name="busca"]');
+  // ---------- Busca automática ----------
+  const inputBusca = document.querySelector('form input[name="busca"]');
+  if (inputBusca) {
     let timeout;
-    input.addEventListener("input", () => {
+    inputBusca.addEventListener("input", () => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        input.form.requestSubmit();
-      }, 300);
+      timeout = setTimeout(() => inputBusca.form.requestSubmit(), 300);
     });
-  });
+  }
+
+  // ---------- Modal: selecionar todos / limpar ----------
+  const modalCheckboxes = () => Array.from(document.querySelectorAll('input[name="disciplinas_id[]"]'));
+  document.getElementById("btn-select-all")?.addEventListener("click", () => modalCheckboxes().forEach(cb => cb.checked = true));
+  document.getElementById("btn-clear-selection")?.addEventListener("click", () => modalCheckboxes().forEach(cb => cb.checked = false));
+
+  // ---------- Fechar modal ao submeter ----------
+  document.querySelectorAll('form[data-turbo-frame="disciplinas"], form')
+    .forEach(f => f.addEventListener("submit", () => {
+      const modalToggle = document.getElementById("disciplinas-modal");
+      if (modalToggle) modalToggle.checked = false;
+    }));
+});
 </script>

@@ -35,16 +35,20 @@ class EscolasController < ApplicationController
       @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
     end
 
-    # Apply dropdown filter
-    case params[:filtro_select]
-    when "most_students"   then @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) DESC')
-    when "least_students"  then @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) ASC')
-    when "most_classes"    then @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) DESC')
-    when "least_classes"   then @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) ASC')
-    when "with_cnpj"       then @escolas = @escolas.where.not(cnpj: [nil, ""])
-    when "without_cnpj"    then @escolas = @escolas.where(cnpj: [nil, ""])
-    when "publicas"         then @escolas = @escolas.where(tipo:"publica")
-    when "privadas"         then @escolas = @escolas.where(tipo:"privada")
+    # Apply modal filter
+    @escolas = @escolas.where(tipo: "publica") if params[:filtros]&.include?("publicas")
+    @escolas = @escolas.where(tipo: "privada") if params[:filtros]&.include?("privadas")
+    @escolas = @escolas.where.not(cnpj: [nil, ""]) if params[:filtros]&.include?("with_cnpj")
+    @escolas = @escolas.where(cnpj: [nil, ""]) if params[:filtros]&.include?("without_cnpj")
+
+    if params[:filtros]&.include?("most_students")
+      @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) DESC')
+    elsif params[:filtros]&.include?("least_students")
+      @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) ASC')
+    elsif params[:filtros]&.include?("most_classes")
+      @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) DESC')
+    elsif params[:filtros]&.include?("least_classes")
+      @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) ASC')
     end
   end
 

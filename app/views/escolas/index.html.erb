@@ -126,69 +126,80 @@
       </div>
     </div>
 
-    <!-- Filtros e Busca -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-      <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
-        
-        <div class="flex-1 min-w-64">
-          <%= form.text_field :busca, placeholder: "Buscar por nome da escola...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
-        </div> 
+    <% filtros_coluna1 = [["Todas","todos"],["Públicas","publicas"],["Privadas","privadas"],["Mais alunos","most_students"],["Menos alunos","least_students"]] %>
+    <% filtros_coluna2 = [["Mais turmas","most_classes"],["Menos turmas","least_classes"],["Com CNPJ","with_cnpj"],["Sem CNPJ","without_cnpj"]] %>
 
-        <!-- Dropdown DaisyUI -->
-        <div class="dropdown">
-          <!-- Botão que abre o menu -->
-          <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
-            <span id="filtro-label">
-            <%= params[:filtro_select].present? ? {
-              "most_students" => "Mais alunos",
-              "least_students" => "Menos alunos",
-              "most_classes" => "Mais turmas",
-              "least_classes" => "Menos turmas",
-              "with_cnpj" => "Com CNPJ",
-              "without_cnpj" => "Sem CNPJ"
-            }[params[:filtro_select]] || "Todas as escolas" : "Todas as escolas" %>
-            </span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </label>
+    <!-- Form de busca -->
+    <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas"}, html: { id: "filtro-form" }, class: "flex flex-wrap gap-4 items-end bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8" do |form| %>
+      <div class="flex-1 min-w-64">
+        <%= form.text_field :busca, placeholder: "Buscar por nome da escola...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
+      </div>
+
+      <% filtros_coluna1 = [
+  ["Todas", "todos"],
+  ["Públicas", "publicas"],
+  ["Privadas", "privadas"],
+  ["Mais alunos", "most_students"],
+  ["Menos alunos", "least_students"]
+] %>
+
+<% filtros_coluna2 = [
+  ["Mais turmas", "most_classes"],
+  ["Menos turmas", "least_classes"],
+  ["Com CNPJ", "with_cnpj"],
+  ["Sem CNPJ", "without_cnpj"]
+] %>
+
+
+
+<!-- Checkbox que controla o modal -->
+<input type="checkbox" id="filtro-modal" class="modal-toggle" />
+
+      <!-- Modal -->
+      <div class="modal">
+        <div class="modal-box w-full max-w-5xl bg-white border border-gray-200 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-xl text-gray-800">Filtrar escolas</h3>
+          </div>
       
-          <!-- Menu -->
-          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
-            <% [
-              ["Todas as escolas", ""],
-              ["Escolas Públicas", "publicas"],
-              ["Escolas Privadas", "privadas"],
-              ["Mais alunos", "most_students"],
-              ["Menos alunos", "least_students"],
-              ["Mais turmas", "most_classes"],
-              ["Menos turmas", "least_classes"],
-              ["Com CNPJ", "with_cnpj"],
-              ["Sem CNPJ", "without_cnpj"]
-            ].each do |name, value| %>
-
-              <li>
-                <a href=""
-                   data-value="<%= value %>"
-                   data-name="<%= name %>"
-                   class="link-filtro block w-full
-                   <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value %>">
-                  <%= name %>
-                </a>
-              </li>
-            <% end %>
-          </ul>
+          <div class="max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+              <% filtros_coluna1.each do |label, value| %>
+                <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                  <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success filtro-checkbox grupo-tipo mt-1" />
+                  <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                </label>
+              <% end %>
+      
+              <% filtros_coluna2.each do |label, value| %>
+                <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                  <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success filtro-checkbox grupo-cnpj mt-1" />
+                  <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+      
+          <div class="modal-action mt-4">
+            <button type="submit" form="filtro-form" class="btn bg-green-500 text-white hover:bg-green-600 px-6">Aplicar</button>
+            <label for="filtro-modal" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 px-6">Cancelar</label>
+          </div>
         </div>
+      </div>
 
-        <!-- Hidden input para guardar o valor -->
-        <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
-     
-        <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
-     
-        <%= link_to "Limpar", escolas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
-        
-      <% end %>
-    </div>
+
+      <!-- Botão que abre modal -->
+      <label for="filtro-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-green-500 hover:text-white w-48 justify-between">
+        Filtros
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </label>
+
+      <%= form.hidden_field :filtro, id: "filtro_select_hidden", value: params[:filtro] %>
+      <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
+      <%= link_to "Limpar", escolas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+    <% end %>
           
     <%= turbo_frame_tag "escolas" do %>
       <% if @escolas.any? %>
@@ -812,44 +823,72 @@
     }
   }
 
-  // Função para inicializar filtros
-  function initializeFilters() {
     // Manipulação do filtro dropdown
-    document.querySelectorAll('.link-filtro').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const value = this.getAttribute('data-value');
-        const name = this.getAttribute('data-name');
-        const label = document.getElementById('filtro-label');
-        const hiddenInput = document.getElementById('filtro_select_hidden');
-        
-        // CORREÇÃO: Encontra o formulário pai para submeter
-        const form = this.closest('form'); 
-
-        if (label) label.textContent = name;
-        if (hiddenInput) hiddenInput.value = value;
-        
-        // LINHA CRUCIAL ADICIONADA: Submete o formulário, acionando o Turbo Frame.
-        if (form) {
-          form.requestSubmit(); 
-        }
+    function initializeFiltrosModal() {
+      const checkboxes = document.querySelectorAll('.filtro-checkbox');
+    
+      const conflitos = {
+        "todos": ["publicas","privadas","most_students","least_students","most_classes","least_classes","with_cnpj","without_cnpj"],
+        "publicas": ["privadas","with_cnpj","without_cnpj"],
+        "privadas": ["publicas","with_cnpj","without_cnpj"],
+        "with_cnpj": ["without_cnpj","publicas","privadas"],
+        "without_cnpj": ["with_cnpj","publicas","privadas"],
+        "most_students": ["least_students"],
+        "least_students": ["most_students"],
+        "most_classes": ["least_classes"],
+        "least_classes": ["most_classes"]
+      };
+    
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+          if(this.checked){
+            const valor = this.value;
+            const conflitantes = conflitos[valor] || [];
+            checkboxes.forEach(other => {
+              if(conflitantes.includes(other.value)){
+                other.checked = false;
+              }
+            });
+          }
+        });
       });
-    });
-  }
+    
+      // Botão Aplicar do modal
+      const applyButton = document.querySelector('.modal .btn.bg-green-500');
+      if(applyButton){
+        applyButton.addEventListener('click', () => {
+          const form = document.getElementById('filtro-form');
+          if(form) form.requestSubmit();
+          const modalCheckbox = document.getElementById('filtro-modal');
+          if(modalCheckbox) modalCheckbox.checked = false;
+        });
+      }
+    }
+    // Função para grupos exclusivos
+    function checkboxExclusivo(grupoClass) {
+      document.querySelectorAll(`.${grupoClass}`).forEach(cb => {
+        cb.addEventListener('change', function() {
+          if (this.checked) {
+            document.querySelectorAll(`.${grupoClass}`).forEach(other => {
+              if (other !== this) other.checked = false;
+            });
+          }
+        });
+      });
+    }
 
   // Inicializar quando o DOM estiver pronto
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM carregado, inicializando charts...');
     initializeCharts();
-    initializeFilters();
+    initializeFiltrosModal()
   });
 
   // Reinicializar quando o Turbo carregar nova página (incluindo o recarregamento do frame)
   document.addEventListener('turbo:load', function() {
     console.log('Turbo carregado, reinicializando charts...');
     initializeCharts();
-    initializeFilters();
+    initializeFiltrosModal()
   });
 
   // Limpar gráficos antes da navegação para evitar conflitos
