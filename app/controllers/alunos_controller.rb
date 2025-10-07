@@ -25,6 +25,20 @@ class AlunosController < ApplicationController
     end
   end
 
+
+  def index_geral
+    # 1. Busca os IDs de todas as turmas que o professor leciona
+    turma_ids = current_user.turmas.pluck(:id)
+    
+    # 2. Busca todos os alunos nessas turmas
+    @alunos_gerais = Aluno.where(turma_id: turma_ids)
+                          .order(:nome)
+                          .includes(:turma) 
+                          
+    # Renderiza a nova view
+    render :index_geral
+  end
+
   # -------------------------------
   # SHOW
   # -------------------------------
@@ -129,11 +143,16 @@ class AlunosController < ApplicationController
     end
   end
 
+    # Versão mais simples e segura do set_escola para o Controller Antigo:
   def set_escola
-    if super_admin_signed_in?
-      @escola = Escola.find(params[:escola_id]) if params[:escola_id].present?
-    else
+    if params[:escola_id].present?
       @escola = Escola.find(params[:escola_id])
+    elsif super_admin_signed_in?
+      # Deixe o SuperAdmin acessar sem @escola se necessário
+      @escola = nil
+    else
+      # Redireciona todos os outros se não houver ID na URL
+      raise ActiveRecord::RecordNotFound, "Couldn't find Escola without an ID"
     end
   end
   

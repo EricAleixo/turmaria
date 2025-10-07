@@ -71,6 +71,10 @@ Rails.application.routes.draw do
       end
     end
     get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
+    namespace :professor do
+      get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais 
+      resources :alunos 
+    end
   end
 
   devise_scope :professor do
@@ -86,6 +90,8 @@ Rails.application.routes.draw do
      delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
 
   end
+
+ 
 
   root to: "home#index"
   get "up" => "rails/health#show", as: :rails_health_check
