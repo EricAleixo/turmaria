@@ -1,13 +1,25 @@
 class Turma < ApplicationRecord
   enum turno: {manha:0, tarde:1, noite:2, integral:3 }
 
+  # --- Associações Principais ---
   belongs_to :ano_letivo
   belongs_to :escola, counter_cache: true
   has_many :alunos
+  
+  # --- Associações com Professores (Para Turmas) ---
   has_many :professor_turmas
   has_many :professores, through: :professor_turmas
+  
+  # --- ASSOCIAÇÃO ADICIONADA PARA DISCIPLINAS (Resolve o erro) ---
+  has_many :turma_disciplinas
+  has_many :disciplinas, through: :turma_disciplinas
+  
+  # --- Associações de Frequência e Notas ---
   has_many :frequencias, dependent: :destroy
+  has_many :avaliacoes_configuracoes
+  has_many :avaliacoes_bimestrais
 
+  # --- Validações ---
   validates :nome, presence: true
   validates :serie, presence: true
   validate :ano_letivo_deve_pertencer_a_escola

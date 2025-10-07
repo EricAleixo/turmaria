@@ -1,3 +1,4 @@
+# config/routes.rb
 Rails.application.routes.draw do
 
   devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
@@ -62,36 +63,65 @@ Rails.application.routes.draw do
     end
   end
 
+  # =========================================================================
+  # BLOCO DE ROTAS DO PROFESSOR (Implementação do novo fluxo Turma -> Disciplina -> Notas)
+  # =========================================================================
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
+    
     get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
-    get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
-    resources :frequencias, controller: 'professor/frequencias' do
-      member do
-        patch :update_presencas
-      end
-    end
-    get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
+    
     namespace :professor do
+      
+      # ROTAS PRINCIPAIS ANINHADAS: Turmas -> Disciplinas -> Funcionalidades
+      resources :turmas, only: [:index] do
+        
+        member do
+          get :historico # Rota 'historico_turma'
+        end
+        
+        # O professor vê as disciplinas que leciona nessa turma (Passo 2)
+        resources :disciplinas, only: [:index] do 
+            
+          # 1. Visualização da Média Final/Resultados (Passo 3)
+          # resource singular para resultados, usa :turma_id e :disciplina_id
+          resource :resultados, controller: 'notas/resultados', only: [:show] # Usamos :show pois é uma visualização única
+          
+          # 2. Rotas de Frequência (Aninhadas corretamente)
+          resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
+            member do
+              patch :update_presencas
+            end
+          end
+          
+          # 3. Aninhamento para Configuração/Lançamento de Notas (Dentro da Disciplina)
+          namespace :notas do
+            resources :avaliacoes, controller: 'notas/avaliacoes' do
+              resources :registros, controller: 'notas/registros', only: [:new, :create] 
+            end
+          end
+        end
+      end
+      
+      # Rotas de Alunos
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais 
       resources :alunos 
     end
   end
+  # =========================================================================
 
   devise_scope :professor do
-    get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
-    post   "/login",  to: "devise/unified_sessions#create", as: :user_session
+    # ROTAS DE AUTENTICAÇÃO (MANTIDAS)
+    get "/login", to: "devise/unified_sessions#new", as: :new_user_session
+    post "/login", to: "devise/unified_sessions#create", as: :user_session
     
-    get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
-    post   "/password",    to: "devise/unified_passwords#create", as: :user_password
+    get "/password/new", to: "devise/unified_passwords#new", as: :new_user_password
+    post "/password", to: "devise/unified_passwords#create", as: :user_password
 
-    get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
-    post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
+    get "/password/new", to: "devise/unified_passwords#edit", as: :new_edit_user_password
+    post "/password", to: "devise/unified_passwords#update", as: :reset_user_password
 
-     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
-
+    delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
   end
-
- 
 
   root to: "home#index"
   get "up" => "rails/health#show", as: :rails_health_check

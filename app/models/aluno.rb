@@ -1,5 +1,8 @@
 class Aluno < ApplicationRecord
 
+  has_many :registros_de_notas
+  has_many :avaliacoes_bimestrais
+
   devise :database_authenticatable, :registerable,
        :recoverable, :rememberable,
        authentication_keys: [:matricula]

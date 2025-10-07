@@ -1,0 +1,46 @@
+<h1>Nova Coluna de Nota</h1>
+
+<h2><%= @turma.nome %> - <%= @disciplina.nome %></h2>
+
+<%= form_with(model: @avaliacao_configuracao, 
+              url: professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), 
+              local: true) do |form| %>
+
+  <% if @avaliacao_configuracao.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@avaliacao_configuracao.errors.count, "erro") %> impediu que esta avaliação fosse salva:</h2>
+      <ul>
+        <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group mb-3">
+    <%= form.label :nome, "Nome da Avaliação" %>
+    <%= form.text_field :nome, class: 'form-control' %>
+  </div>
+  
+  <div class="form-group mb-3">
+    <%= form.label :bimestre, "Bimestre" %>
+    <%# Assume que você pode ter uma lista de bimestres disponíveis (1, 2, 3, 4) %>
+    <%= form.select :bimestre, (1..4).to_a, { prompt: 'Selecione o Bimestre' }, class: 'form-control' %>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= form.label :ordem, "Ordem de Exibição" %>
+    <%= form.number_field :ordem, class: 'form-control' %>
+    <small class="form-text text-muted">A ordem define como as colunas aparecerão (ex: 1, 2, 3).</small>
+  </div>
+
+  <div class="form-check mb-3">
+    <%= form.check_box :is_recuperacao, class: 'form-check-input' %>
+    <%= form.label :is_recuperacao, "É uma avaliação de Recuperação?", class: 'form-check-label' %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'Salvar Configuração', class: 'btn btn-success' %>
+    <%= link_to 'Voltar', professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), class: 'btn btn-secondary' %>
+  </div>
+<% end %>
