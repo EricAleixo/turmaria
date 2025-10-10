@@ -4,13 +4,20 @@ class DisciplinasController < ApplicationController
 
   # GET /disciplinas
   def index
-    if params[:professor_id]
+    @disciplinas = if current_user.is_a?(SuperAdmin)
+                     Disciplina.all
+                   else
+                     Disciplina.where(escola: current_user.escolas)
+                   end
+                 
+    # Se houver professor, filtra ainda mais
+    if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])
-      puts "PROFESSOR ENCONTRADO: #{@professor.inspect}"
-      @disciplinas = @professor.disciplinas.includes(:escola)
-    else
-      @disciplinas = Disciplina.includes(:escola, :professores).all
+      @disciplinas = @disciplinas.joins(:professores).where(professores: { id: @professor.id })
     end
+    
+    # Inclui associações para evitar N+1
+    @disciplinas = @disciplinas.includes(:escola, :professores)
   end
 
   # GET /disciplinas/1
@@ -21,31 +28,30 @@ class DisciplinasController < ApplicationController
   def new
     @disciplina = Disciplina.new
 
-    # Filtro de escolas
-    escolas = if params[:escola_busca].present?
-                @escolas = Escola.where("nome ILIKE ?", "%#{params[:escola_busca]}%").limit(20)
-              else
-                @escolas = []
-              end
+    # Autocomplete ou listagem de escolas apenas para SuperAdmin
+    if current_user.is_a?(SuperAdmin)
+      @escolas = Escola.all
+    end
 
-    # Filtro de professores
-    professores = []
+    # Professores apenas para autocomplete
     if params[:professor_busca].present? && params[:escola_id].present?
-      professores = Professor.where(escola_id: params[:escola_id])
+      @professores = Professor.where(escola_id: params[:escola_id])
                               .where("nome ILIKE ?", "%#{params[:professor_busca]}%")
                               .order(:nome)
                               .limit(20)
     elsif params[:professor_busca].present?
-      professores = Professor.where("nome ILIKE ?", "%#{params[:professor_busca]}%")
+      @professores = Professor.where("nome ILIKE ?", "%#{params[:professor_busca]}%")
                               .order(:nome)
                               .limit(20)
+    else
+      @professores = []
     end
 
-    # Se for JSON, retorna só os dados para autocomplete e encerra
+    # JSON para autocomplete
     if request.format.json?
-      return render json: {
-        escolas: @escolas.as_json(only: [:id, :nome]),
-        professores: professores.as_json(only: [:id, :nome, :escola_id])
+      render json: {
+        escolas: (@escolas || []).as_json(only: [:id, :nome]),
+        professores: @professores.as_json(only: [:id, :nome, :escola_id])
       }
     end
   end
@@ -56,15 +62,34 @@ class DisciplinasController < ApplicationController
 
   # POST /disciplinas
   def create
-    @disciplina = Disciplina.new(disciplina_params.except(:professor_ids))
+    # Define a escola automaticamente
+    @escola = if current_user.is_a?(Admin)
+                current_user.escolas.first
+              elsif current_user.is_a?(SuperAdmin) && params[:disciplina][:escola_id].present?
+                Escola.find(params[:disciplina][:escola_id])
+              else
+                nil
+              end
 
-    # atribuindo professores many-to-many
+              raise "Escola inválida: #{@escola.inspect}" unless @escola.present?
+              raise "Classe do objeto: #{@escola.class}" unless @escola.is_a?(Escola)
+    unless @escola
+      flash.now[:alert] = "Escolha uma escola válida"
+      @disciplina = Disciplina.new(disciplina_params)
+      render :new and return
+    end
+
+    # Cria disciplina associada à escola
+    @disciplina = @escola.disciplinas.new(disciplina_params.except(:professor_ids))
+
+    # Associa professores se houver
     if disciplina_params[:professor_ids].present?
-      @disciplina.professores = Professor.where(id: disciplina_params[:professor_ids])
+      valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
+      @disciplina.professores = Professor.where(id: valid_ids)
     end
 
     if @disciplina.save
-      redirect_to disciplinas_path, notice: "Disciplina criada com sucesso!"
+      redirect_to escola_disciplinas_path(@escola), notice: "Disciplina criada com sucesso!"
     else
       render :new
     end

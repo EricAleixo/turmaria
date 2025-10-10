@@ -90,7 +90,7 @@ class EscolasController < ApplicationController
     respond_to do |format|
       if @escola.save
         # Se for um admin, associa também na direção inversa
-        if current_admin.present? && current_admin.escola.nil?
+        if current_admin.present? && current_admin.escolas.nil?
           current_admin.update(escola: @escola)
         end
         

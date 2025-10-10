@@ -126,9 +126,6 @@
       </div>
     </div>
 
-    <% filtros_coluna1 = [["Todas","todos"],["Públicas","publicas"],["Privadas","privadas"],["Mais alunos","most_students"],["Menos alunos","least_students"]] %>
-    <% filtros_coluna2 = [["Mais turmas","most_classes"],["Menos turmas","least_classes"],["Com CNPJ","with_cnpj"],["Sem CNPJ","without_cnpj"]] %>
-
     <!-- Form de busca -->
     <%= form_with url: escolas_path, method: :get, data: {turbo_frame: "escolas"}, html: { id: "filtro-form" }, class: "flex flex-wrap gap-4 items-end bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8" do |form| %>
       <div class="flex-1 min-w-64">
@@ -196,8 +193,6 @@
         </svg>
       </label>
 
-      <%= form.hidden_field :filtro, id: "filtro_select_hidden", value: params[:filtro] %>
-      <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
       <%= link_to "Limpar", escolas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
     <% end %>
           

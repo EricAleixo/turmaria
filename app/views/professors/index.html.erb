@@ -13,54 +13,80 @@
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
       <%= form_with url: professors_path, method: :get, data: {turbo_frame: "professors" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
         <div class="flex-1 min-w-64">
-          <%= form.text_field :busca, placeholder: "Buscar por nome da professor...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %>
-        </div>
 
-        <!-- Dropdown DaisyUI -->
-        <div class="dropdown">
-          <label tabindex="0" class="btn bg-gray-50 border-gray-300 w-48 justify-between">
-            <span id="filtro-label">
-              <%= params[:filtro_select].present? ? {
-                "mestres" => "Professores com mestrado",
-                "doutores" => "Professores com doutorado",
-                "pós-graduados" => "Professores com pós-graduação",
-                "graduados" => "Professores com graduação",
-                "concursados" => "Professores concursados",
-                "contratados" => "Professores contratados",
-              }[params[:filtro_select]] || "Todos os professores" : "Todos os professores" %>
-            </span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </label>
+          <div class="flex gap-3 w-full items-end">
+            <div class="flex-1"><%= form.text_field :busca, placeholder: "Buscar por nome do professor...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-500 focus:ring-green-500" %></div>
+            <!-- Botão que abre modal -->
+            <label for="filtro-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-green-500 hover:text-white w-48 justify-between">
+              Filtros
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </label>
 
-          <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box w-48 p-2 shadow">
-            <% [
-              ["Todos os professores", ""],
-              ["mestres" ,"Professores com mestrado"],
-              ["doutores","Professores com doutorado"],
-              ["pós-graduados","Professores com pós-graduação"],
-              ["graduados" ,"Professores com graduação"],
-              ["concursados","Professores concursados"],
-              ["contratados", "Professores contratados"],
-            ].each do |name, value| %>
-              <li>
-                <a href=""
-                   data-value="<%= value %>"
-                   data-name="<%= name %>"
-                   class="link-filtro block w-full
-                   <%= 'bg-green-600 text-white hover:bg-green-600 hover:text-white' if params[:filtro_select] == value %>">
-                  <%= name %>
-                </a>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+            <%= link_to "Limpar", professors_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+          </div>
 
-        <%= form.hidden_field :filtro_select, id: "filtro_select_hidden", value: params[:filtro_select] %>
-        <%= form.submit "Filtrar", class: "btn bg-green-500 hover:bg-green-600 text-white border-0 px-8" %>
-        <%= link_to "Limpar", professors_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
-      <% end %>
+          <% c1 = [
+            ["Concursado", "concursado"],
+            ["Contratado", "contratado"]
+          ]%>
+
+          <%c2 = [
+            ["Todos os professores", ""],
+            ["Mestres", "mestrado"],
+            ["Doutores", "doutorado"],
+            ["Pós-graduados", "pos_graduados"],
+            [ "Graduados", "graduados"],
+          ]%>
+
+          <!-- Modal de Filtros -->
+          <input type="checkbox" id="filtro-modal" class="modal-toggle">
+          <div class="modal">
+            <div class="modal-box w-full max-w-5xl bg-white border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Filtrar professores</h3>
+                <label for="filtro-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+              </div>
+
+              <%= form_with url: professors_path, method: :get, html: { id: "filtro-form" }, data: { turbo_frame: "professors" } do |form| %>
+
+                <!-- Tipos de professor (c1) -->
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Tipo</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                    <% c1.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success grupo-tipo mt-1">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Formações (c2) -->
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Formação</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                    <% c2.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success grupo-formacao mt-1">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="modal-action mt-4">
+                  <%= form.submit "Aplicar", class: "btn bg-green-500 text-white hover:bg-green-600 px-6" %>
+                  <label for="filtro-modal" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 px-6">Cancelar</label>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+      <%end%>
     </div>
 
     <%= turbo_frame_tag "professors" do %>
@@ -224,31 +250,7 @@
 
 <script>
       //Filtro
-    document.addEventListener("turbo:load", () => {
-    const hiddenInput = document.getElementById("filtro_select_hidden");
-    const labelSpan = document.getElementById("filtro-label");
-    const links = document.querySelectorAll(".link-filtro");
-
-    links.forEach(link => {
-      link.addEventListener("click", (event) => {
-        event.preventDefault();
-        const selectedLink = event.currentTarget;
-
-        // Remove o estilo anterior
-        const previousSelected = document.querySelector(".link-filtro.bg-green-600");
-        if (previousSelected) {
-          previousSelected.classList.remove("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
-        }
-
-        // Aplica novo estilo
-        selectedLink.classList.add("bg-green-600", "text-white", "hover:bg-green-600", "hover:text-white");
-
-        // Atualiza hidden e label (agora só aqui)
-        hiddenInput.value = selectedLink.dataset.value;
-        labelSpan.textContent = selectedLink.dataset.name;
-      });
-    });
-  });
+ 
 
   document.addEventListener("turbo:load", () => {
   const input = document.querySelector('form input[name="busca"]');
@@ -260,5 +262,18 @@
       input.form.requestSubmit();
     }, 300); // espera 300ms depois da última tecla
   });
+
+       const applyButton = document.querySelector('.modal .btn.bg-green-500');
+      if(applyButton){
+        applyButton.addEventListener('click', () => {
+          const form = document.getElementById('filtro-form');
+          if(form) form.requestSubmit();
+          const modalCheckbox = document.getElementById('filtro-modal');
+          if(modalCheckbox) modalCheckbox.checked = false;
+        });
+      }
   });
+
+
+
 </script>
