@@ -1,0 +1,43 @@
+<h1>Lançamento de Notas</h1>
+
+<h2><%= @turma.nome %> / <%= @disciplina.nome %></h2>
+<h3>Avaliação: <%= @avaliacao_configuracao.nome %> (Bimestre <%= @avaliacao_configuracao.bimestre %>)</h3>
+
+<%= form_with(model: @registros_form, 
+              url: professor_notas_turma_disciplina_avaliacao_registros_path(@turma, @disciplina, @avaliacao_configuracao), 
+              method: :post, 
+              local: true) do |form| %>
+
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Aluno</th>
+        <th>Nota (0.00 a 10.00)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @registros.each do |registro| %>
+        <tr>
+          <td><%= registro.aluno.nome %></td>
+          <td>
+            <%# Usa o helper fields_for para criar campos de nota aninhados %>
+            <%= form.fields_for "registros[#{registro.aluno_id}]", registro do |nota_fields| %>
+              <%= nota_fields.text_field :valor, 
+                                          class: 'form-control', 
+                                          step: 0.01, 
+                                          min: 0.00, 
+                                          max: 10.00,
+                                          value: ('%.2f' % registro.valor if registro.valor.present?) %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= form.submit 'Salvar Todas as Notas', class: 'btn btn-success' %>
+  
+  <%= link_to 'Voltar para Configurações', 
+              professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), 
+              class: 'btn btn-secondary' %>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_07_223450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -78,6 +78,44 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
     t.uuid "escola_id"
     t.integer "numero_bimestre"
     t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
+  end
+
+  create_table "avaliacao_bimestrals", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "avaliacao_configuracaos", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "avaliacoes_bimestrais", force: :cascade do |t|
+    t.bigint "aluno_id", null: false
+    t.bigint "turma_id", null: false
+    t.bigint "disciplina_id", null: false
+    t.integer "bimestre", null: false
+    t.decimal "nota_bimestre_final", precision: 4, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id", "turma_id", "disciplina_id", "bimestre"], name: "idx_unique_avaliacao_bimestral", unique: true
+    t.index ["aluno_id"], name: "index_avaliacoes_bimestrais_on_aluno_id"
+    t.index ["disciplina_id"], name: "index_avaliacoes_bimestrais_on_disciplina_id"
+    t.index ["turma_id"], name: "index_avaliacoes_bimestrais_on_turma_id"
+  end
+
+  create_table "avaliacoes_configuracoes", force: :cascade do |t|
+    t.bigint "turma_id", null: false
+    t.bigint "disciplina_id", null: false
+    t.integer "bimestre", null: false
+    t.string "nome", null: false
+    t.boolean "is_recuperacao", default: false, null: false
+    t.integer "ordem", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["disciplina_id"], name: "index_avaliacoes_configuracoes_on_disciplina_id"
+    t.index ["turma_id", "disciplina_id", "bimestre", "nome"], name: "idx_unique_avaliacao_config", unique: true
+    t.index ["turma_id"], name: "index_avaliacoes_configuracoes_on_turma_id"
   end
 
   create_table "cidades", force: :cascade do |t|
@@ -193,13 +231,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
     t.index ["turma_id"], name: "index_frequencias_on_turma_id"
   end
 
-  create_table "materia", force: :cascade do |t|
-    t.string "nome"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["nome"], name: "index_materia_on_nome", unique: true
-  end
-
   create_table "nota", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -252,6 +283,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
     t.index ["reset_password_token"], name: "index_professors_on_reset_password_token", unique: true
   end
 
+  create_table "registro_de_nota", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "registros_de_notas", force: :cascade do |t|
+    t.bigint "aluno_id", null: false
+    t.bigint "avaliacao_configuracao_id", null: false
+    t.decimal "valor", precision: 4, scale: 2, null: false
+    t.date "data_registro"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id", "avaliacao_configuracao_id"], name: "idx_unique_nota_registro_valor", unique: true
+    t.index ["aluno_id"], name: "index_registros_de_notas_on_aluno_id"
+  end
+
   create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -268,6 +315,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
     t.index ["confirmation_token"], name: "index_super_admins_on_confirmation_token", unique: true
     t.index ["email"], name: "index_super_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
+  end
+
+  create_table "turma_disciplinas", force: :cascade do |t|
+    t.bigint "turma_id", null: false
+    t.bigint "disciplina_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["disciplina_id"], name: "index_turma_disciplinas_on_disciplina_id"
+    t.index ["turma_id", "disciplina_id"], name: "index_turma_disciplinas_on_turma_id_and_disciplina_id", unique: true
+    t.index ["turma_id"], name: "index_turma_disciplinas_on_turma_id"
   end
 
   create_table "turmas", force: :cascade do |t|
@@ -293,6 +350,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
+  add_foreign_key "avaliacoes_bimestrais", "alunos"
+  add_foreign_key "avaliacoes_bimestrais", "disciplinas"
+  add_foreign_key "avaliacoes_bimestrais", "turmas"
+  add_foreign_key "avaliacoes_configuracoes", "disciplinas"
+  add_foreign_key "avaliacoes_configuracoes", "turmas"
   add_foreign_key "cidades", "estados"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
@@ -310,6 +372,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_06_005200) do
   add_foreign_key "professor_turmas", "turmas"
   add_foreign_key "professors", "escolas"
   add_foreign_key "professors", "professors", column: "coordenador_id"
+  add_foreign_key "registros_de_notas", "alunos"
+  add_foreign_key "registros_de_notas", "avaliacoes_configuracoes", column: "avaliacao_configuracao_id"
+  add_foreign_key "turma_disciplinas", "disciplinas"
+  add_foreign_key "turma_disciplinas", "turmas"
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

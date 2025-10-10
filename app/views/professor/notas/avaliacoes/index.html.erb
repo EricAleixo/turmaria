@@ -1,0 +1,39 @@
+<h1>Configurações de Avaliações</h1>
+
+<h2><%= @turma.nome %> - <%= @disciplina.nome %></h2>
+
+<%= link_to 'Criar Nova Coluna de Nota', 
+            new_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina), 
+            class: 'btn btn-primary mb-3' %>
+
+<% if @avaliacoes_configuracoes.any? %>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Bimestre</th>
+        <th>Ordem</th>
+        <th>Nome da Avaliação</th>
+        <th>Tipo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @avaliacoes_configuracoes.each do |config| %>
+        <tr>
+          <td><%= config.bimestre %>º</td>
+          <td><%= config.ordem %></td>
+          <td><%= config.nome %></td>
+          <td><%= config.recuperacao? ? 'Recuperação' : 'Padrão' %></td>
+          <td>
+            <%# Link para editar (futuramente) %>
+            <%= link_to 'Editar', edit_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina, config), class: 'btn btn-sm btn-secondary' %>
+            <%# Link para destruir (futuramente) %>
+            <%# link_to 'Excluir', [ :professor, :notas, @turma, @disciplina, config ], data: { turbo_method: :delete, turbo_confirm: 'Tem certeza?' }, class: 'btn btn-sm btn-danger' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Ainda não há configurações de avaliação para esta disciplina e turma.</p>
+<% end %>
