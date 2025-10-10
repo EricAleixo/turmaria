@@ -7,6 +7,7 @@ class Escola < ApplicationRecord
   has_many :admins, dependent: :nullify
   belongs_to :admin, optional: true
   has_many :materias
+  has_many :disciplinas
 
   accepts_nested_attributes_for :endereco, allow_destroy: true
 

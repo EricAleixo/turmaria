@@ -20,10 +20,21 @@ class Professor < ApplicationRecord
   accepts_nested_attributes_for :endereco
 
   enum tipo_professor: { concursado: "concursado", contratado: "contratado" }
-  enum formacao: { mestrado: "mestrado", doutorado: "doutorado", pos_graduado:"pos_graduado", graduatedo:"graduado" }
+  enum formacao: { mestrado: "mestrado", doutorado: "doutorado", pos_graduado:"pos_graduado", graduado:"graduado" }
 
   validates :nome, :cpf, presence: true
   validates :cpf, uniqueness: true
+
+  # Busca por nome
+  scope :por_nome, ->(busca) { where("nome ILIKE ?", "%#{busca}%") if busca.present? }
+
+  # Filtro por formação
+  scope :por_formacao, ->(formacao) { where(formacao: formacao) if formacao.present? }
+
+  # Filtro por tipo (concursado, contratado etc)
+  scope :por_tipo, ->(tipo) { where(tipo_professor: tipo) if tipo.present? }
+
+
 
   def endereco_completo
     return "Endereço não cadastrado" unless endereco.present?

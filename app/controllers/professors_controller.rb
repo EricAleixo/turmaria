@@ -3,8 +3,18 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-    
     @professores = Professor.all
+                            .por_nome(params[:busca])
+                            .por_formacao(params[:formacao])
+                            .por_tipo(params[:tipo])
+
+    if params[:filtros].present?
+      formacoes = %w[mestrado doutorado pos_graduados graduados] & params[:filtros]
+      tipos     = %w[concursado contratado] & params[:filtros]
+
+      @professores = @professores.por_formacao(formacoes) if formacoes.any?
+      @professores = @professores.por_tipo(tipos) if tipos.any?
+    end
   end
 
   def show

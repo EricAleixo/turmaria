@@ -19,7 +19,7 @@
     </div>
   <% end %>
 
-  <!-- Form Header -->
+  <!-- Header -->
   <div class="px-6 py-4 border-b border-gray-200">
     <h2 class="text-lg font-semibold text-gray-900">
       <%= @disciplina&.persisted? ? "Editar disciplina" : "Nova disciplina" %>
@@ -29,26 +29,30 @@
     </p>
   </div>
 
+  <!-- Form Body -->
   <div class="px-6 py-6">
-    <div class="mb-8">
-      <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- Nome da disciplina -->
-        <div>
-          <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.text_field :nome, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "Ex: Matemática", required: true %>
-        </div>
+      <!-- Nome -->
+      <div>
+        <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :nome, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "Ex: Matemática", required: true %>
+      </div>
 
-        <!-- Área -->
-        <div class="mb-4">
-          <%= form.label :area, "Área da Disciplina", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.select :area, 
-            Disciplina.areas.keys.map { |a| [a.titleize, a] }, 
-            { prompt: "Selecione a área" }, 
-            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" %>
-        </div>
+      <!-- Área -->
+      <div>
+        <%= form.label :area, "Área da Disciplina", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.select :area, 
+          Disciplina.areas.keys.map { |a| [a.titleize, a] }, 
+          { prompt: "Selecione a área" }, 
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" %>
+      </div>
+    </div>
 
+    <!-- Filtros Escola / Professor -->
+    <% if current_user.is_a?(SuperAdmin) %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <!-- Escola -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Escola *</label>
@@ -76,12 +80,29 @@
           <%= hidden_field_tag "disciplina[professor_ids][]", nil, id: "professor_id" %>
           <div id="professors_results" class="absolute rounded bg-white max-h-60 overflow-auto mt-1"></div>
         </div>
-
       </div>
-    </div>
+    <% else %>
+      <!-- Admin: apenas Professor -->
+      <div class="grid grid-cols-1 gap-6 mt-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Professores *</label>
+          <input 
+            type="text" 
+            id="professor_input" 
+            placeholder="Buscar professor para atribuir a disciplina" 
+            autocomplete="off"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          >
+          <%= hidden_field_tag "disciplina[professor_ids][]", nil, id: "professor_id" %>
+          <div id="professors_results" class="absolute rounded bg-white max-h-60 overflow-auto mt-1"></div>
+        </div>
+        <!-- Escola é fixo via hidden -->
+        <%= form.hidden_field :escola_id, value: current_user.escolas.first.id, id: "escola_id" %>
+      </div>
+    <% end %>
   </div>
 
-  <!-- Form Actions -->
+  <!-- Actions -->
   <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
     <div class="flex justify-between">
       <%= link_to "Cancelar", disciplinas_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
@@ -90,101 +111,115 @@
   </div>
 <% end %>
 
-<!-- JS para autocomplete de escolas e professores -->
+
 <script>
 document.addEventListener("turbo:load", function() {
-  // --- ESCOLAS ---
-  const escola_input = document.getElementById("escola_input")
-  const escola_hidden = document.getElementById("escola_id")
-  const escola_results = document.getElementById("escolas_results")
-  let timeout_escola = null
+  // --- ESCOLAS (apenas SuperAdmin) ---
+  const escolaInput = document.getElementById("escola_input");
+  const escolaHidden = document.getElementById("escola_id");
 
-  if (escola_input) {
-    escola_input.addEventListener("input", function() {
-      const query = escola_input.value.trim()
-      if (!query) { escola_results.innerHTML=""; escola_hidden.value=""; return }
+  if (escolaInput) {
+    const escolaResults = document.getElementById("escolas_results");
+    let timeoutEscola = null;
 
-      clearTimeout(timeout_escola)
-      timeout_escola = setTimeout(() => {
+    escolaInput.addEventListener("input", function() {
+      const query = escolaInput.value.trim();
+      if (!query) {
+        escolaResults.innerHTML = "";
+        escolaHidden.value = "";
+        return;
+      }
+
+      clearTimeout(timeoutEscola);
+      timeoutEscola = setTimeout(() => {
         fetch(`<%= new_disciplina_path %>?escola_busca=${encodeURIComponent(query)}`, { headers: { "Accept": "application/json" } })
           .then(res => res.json())
           .then(data => {
-            escola_results.innerHTML = ""
-            const escolas = data.escolas || []
+            escolaResults.innerHTML = "";
+            const escolas = data.escolas || [];
             if (escolas.length === 0) {
-              escola_results.innerHTML = "<p class='px-3 py-2 text-gray-500'>Nenhuma escola encontrada</p>"
-              return
+              escolaResults.innerHTML = "<p class='px-3 py-2 text-gray-500'>Nenhuma escola encontrada</p>";
+              return;
             }
+
             escolas.forEach(escola => {
-              const div = document.createElement("div")
-              div.textContent = escola.nome
-              div.classList.add("px-3","py-2","cursor-pointer","hover:bg-green-200")
+              const div = document.createElement("div");
+              div.textContent = escola.nome;
+              div.classList.add("px-3", "py-2", "cursor-pointer", "hover:bg-green-200");
+
               div.addEventListener("click", () => {
-                escola_input.value = escola.nome
-                escola_hidden.value = escola.id
-                escola_results.innerHTML = ""
+                escolaInput.value = escola.nome;
+                escolaHidden.value = escola.id;
+                escolaResults.innerHTML = "";
+
                 // Limpa professores ao mudar a escola
-                professor_input.value = ""
-                professor_hidden.value = ""
-                professor_results.innerHTML = ""
-              })
-              escola_results.appendChild(div)
-            })
-          })
-      }, 200)
-    })
+                const professorInput = document.getElementById("professor_input");
+                const professorHidden = document.getElementById("professor_id");
+                const professorResults = document.getElementById("professors_results");
+                if (professorInput && professorHidden && professorResults) {
+                  professorInput.value = "";
+                  professorHidden.value = "";
+                  professorResults.innerHTML = "";
+                }
+              });
+
+              escolaResults.appendChild(div);
+            });
+          });
+      }, 200);
+    });
   }
 
   // --- PROFESSORES ---
-// --- PROFESSORES ---
-  const professor_input = document.getElementById("professor_input")
-  const professor_hidden = document.getElementById("professor_id")
-  const professor_results = document.getElementById("professors_results")
-  let timeout_professor = null
+  const professorInput = document.getElementById("professor_input");
+  const professorHidden = document.getElementById("professor_id");
+  const professorResults = document.getElementById("professors_results");
 
-  if (professor_input) {
-    professor_input.addEventListener("input", function() {
-      const query = professor_input.value.trim()
-      const escolaId = document.getElementById("escola_id").value
-      if (!query) { 
-        professor_results.innerHTML = ""
-        professor_hidden.value = ""
-        return 
+  if (professorInput && professorHidden && professorResults) {
+    let timeoutProfessor = null;
+
+    professorInput.addEventListener("input", function() {
+      const query = professorInput.value.trim();
+      const escolaHidden = document.getElementById("escola_id");
+      const escolaId = escolaHidden ? escolaHidden.value : null;
+
+      // Exclusivo: só busca se escolaId estiver definido
+      if (!query || !escolaId) {
+        professorResults.innerHTML = "<p class='px-3 py-2 text-gray-500'>Selecione uma escola primeiro</p>";
+        professorHidden.value = "";
+        return;
       }
 
-      clearTimeout(timeout_professor)
-      timeout_professor = setTimeout(() => {
-        let url = `<%= new_disciplina_path %>?professor_busca=${encodeURIComponent(query)}`
-        if (escolaId) url += `&escola_id=${escolaId}`
-
+      clearTimeout(timeoutProfessor);
+      timeoutProfessor = setTimeout(() => {
+        const url = `<%= new_disciplina_path %>?professor_busca=${encodeURIComponent(query)}&escola_id=${escolaId}`;
         fetch(url, { headers: { "Accept": "application/json" } })
           .then(res => res.json())
           .then(data => {
-            professor_results.innerHTML = ""
-            const professores = data.professores || []
+            professorResults.innerHTML = "";
+            const professores = data.professores || [];
             if (professores.length === 0) {
-              professor_results.innerHTML = "<p class='px-3 py-2 text-gray-500'>Nenhum professor encontrado</p>"
-              return
+              professorResults.innerHTML = "<p class='px-3 py-2 text-gray-500'>Nenhum professor encontrado</p>";
+              return;
             }
 
             professores.forEach(professor => {
-              const div = document.createElement("div")
-              div.textContent = professor.nome
-              div.classList.add("px-3","py-2","cursor-pointer","hover:bg-green-200")
-              
-              div.addEventListener("click", () => {
-                // Atualiza o input e o hidden
-                professor_input.value = professor.nome
-                professor_hidden.value = professor.id
-                // Fecha o dropdown
-                professor_results.innerHTML = ""
-              })
+              const div = document.createElement("div");
+              div.textContent = professor.nome;
+              div.classList.add("px-3", "py-2", "cursor-pointer", "hover:bg-green-200");
 
-              professor_results.appendChild(div)
-            })
-          })
-      }, 200) // debounce 200ms
-    })
+              div.addEventListener("click", () => {
+                professorInput.value = professor.nome;
+                professorHidden.value = professor.id;
+                professorResults.innerHTML = "";
+              });
+
+              professorResults.appendChild(div);
+            });
+          });
+      }, 200);
+    });
   }
-})
+});
+
 </script>
