@@ -1,72 +1,146 @@
 <div class="bg-white rounded-lg overflow-hidden">
-  <div class="space-y-4 p-4">
-    <% @turma.alunos.order(:nome).each do |aluno| %>
-      <div class="bg-gray-50 rounded-lg aluno-row" data-aluno-id="<%= aluno.id %>">
-        <div class="flex items-center justify-between p-4">
-          <!-- Info do Aluno -->
-          <div class="flex items-center flex-1">
-            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-              <span class="text-sm font-bold text-white">
+  <!-- Versão Desktop - Tabela -->
+  <div class="hidden md:block p-4">
+    <div class="space-y-4">
+      <% @turma.alunos.order(:nome).each do |aluno| %>
+        <div class="bg-gray-50 rounded-lg aluno-row" data-aluno-id="<%= aluno.id %>">
+          <div class="flex items-center justify-between p-4">
+            <!-- Info do Aluno -->
+            <div class="flex items-center flex-1">
+              <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                <span class="text-sm font-bold text-white">
+                  <%= aluno.nome.split.map(&:first).join.upcase %>
+                </span>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900"><%= aluno.nome %></h3>
+                <p class="text-sm text-gray-500">Matrícula: <%= aluno.matricula %></p>
+              </div>
+            </div>
+
+            <!-- Botões de Status -->
+            <div class="flex items-center gap-3">
+              <!-- Presente -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="presente"
+                      onclick="setStatus(<%= aluno.id %>, 'presente')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Presente
+              </button>
+
+              <!-- Falta -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn falta-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="falta"
+                      onclick="setStatus(<%= aluno.id %>, 'falta')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Falta
+              </button>
+
+              <!-- Justificada -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn justificada-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="justificada"
+                      onclick="setStatus(<%= aluno.id %>, 'justificada')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Justificada
+              </button>
+            </div>
+
+            <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
+          </div>
+
+          <!-- Campo de Observações -->
+          <div class="px-4 pb-4">
+            <input type="text" 
+                   name="alunos[<%= aluno.id %>][observacoes]" 
+                   placeholder="Observações..." 
+                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Versão Mobile - Cards -->
+  <div class="block md:hidden p-3">
+    <div class="space-y-3">
+      <% @turma.alunos.order(:nome).each do |aluno| %>
+        <div class="bg-gray-50 rounded-lg shadow-sm aluno-row" data-aluno-id="<%= aluno.id %>">
+          <!-- Header do Card -->
+          <div class="flex items-center p-3 border-b border-gray-200">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+              <span class="text-xs font-bold text-white">
                 <%= aluno.nome.split.map(&:first).join.upcase %>
               </span>
             </div>
-            <div>
-              <h3 class="font-semibold text-gray-900"><%= aluno.nome %></h3>
-              <p class="text-sm text-gray-500">Matrícula: <%= aluno.matricula %></p>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-900 text-sm truncate"><%= aluno.nome %></h3>
+              <p class="text-xs text-gray-500">Mat: <%= aluno.matricula %></p>
             </div>
           </div>
 
-          <!-- Botões de Status -->
-          <div class="flex items-center gap-3">
-            <!-- Presente -->
-            <button type="button" 
-                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn active" 
-                    data-aluno-id="<%= aluno.id %>" 
-                    data-status="presente"
-                    onclick="setStatus(<%= aluno.id %>, 'presente')">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              Presente
-            </button>
+          <!-- Botões de Status em Grid -->
+          <div class="p-3">
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <!-- Presente -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn presente-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="presente"
+                      onclick="setStatus(<%= aluno.id %>, 'presente')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Presente</span>
+              </button>
 
-            <!-- Falta -->
-             <button type="button" 
-                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn falta-btn" 
-                    data-aluno-id="<%= aluno.id %>" 
-                    data-status="falta"
-                    onclick="setStatus(<%= aluno.id %>, 'falta')">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-              Falta
-            </button>
+              <!-- Falta -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn falta-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="falta"
+                      onclick="setStatus(<%= aluno.id %>, 'falta')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>Falta</span>
+              </button>
 
-            <!-- Justificada -->
-            <button type="button" 
-                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn justificada-btn" 
-                    data-aluno-id="<%= aluno.id %>" 
-                    data-status="justificada"
-                    onclick="setStatus(<%= aluno.id %>, 'justificada')">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-              </svg>
-              Justificada
-            </button>
+              <!-- Justificada -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn justificada-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="justificada"
+                      onclick="setStatus(<%= aluno.id %>, 'justificada')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Justificada</span>
+              </button>
+            </div>
+
+            <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
+
+            <!-- Campo de Observações -->
+            <input type="text" 
+                   name="alunos[<%= aluno.id %>][observacoes]" 
+                   placeholder="Observações..." 
+                   class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-
-          <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
         </div>
-
-        <!-- Campo de Observações -->
-        <div class="px-4 pb-4">
-          <input type="text" 
-                 name="alunos[<%= aluno.id %>][observacoes]" 
-                 placeholder="Observações..." 
-                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>
 

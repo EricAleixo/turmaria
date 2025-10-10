@@ -4,7 +4,13 @@ class DisciplinasController < ApplicationController
 
   # GET /disciplinas
   def index
-    @disciplinas = Disciplina.includes(:escola, :professores).all
+    if params[:professor_id]
+      @professor = Professor.find(params[:professor_id])
+      puts "PROFESSOR ENCONTRADO: #{@professor.inspect}"
+      @disciplinas = @professor.disciplinas.includes(:escola)
+    else
+      @disciplinas = Disciplina.includes(:escola, :professores).all
+    end
   end
 
   # GET /disciplinas/1

@@ -28,6 +28,9 @@ Rails.application.routes.draw do
     resources :disciplinas
     resources :professors do
       resources :alunos
+      member do 
+        patch :update_disciplinas
+      end
     end
     resources :escolas do
       resources :disciplinas
@@ -74,6 +77,9 @@ Rails.application.routes.draw do
     namespace :professor do
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais 
       resources :alunos 
+    end
+    resources :professor do
+      resources :disciplinas
     end
   end
 

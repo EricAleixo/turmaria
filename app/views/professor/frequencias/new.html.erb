@@ -144,220 +144,235 @@
 </div>
 
 <style>
-
-input[type="radio"].radio-presente {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #16a34a;
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: white;
+.status-btn {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
 }
 
-input[type="radio"].radio-presente:checked {
-  background-color: #16a34a;
+.status-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.presente-btn.active {
+  background-color: #dcfce7;
   border-color: #16a34a;
+  color: #15803d;
 }
 
-input[type="radio"].radio-presente:checked::before {
-  content: '';
-  display: block;
-  width: 0.375rem;
-  height: 0.375rem;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-input[type="radio"].radio-falta {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #dc2626;
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: white;
-}
-
-input[type="radio"].radio-falta:checked {
-  background-color: #dc2626;
+.falta-btn.active {
+  background-color: #fef2f2;
   border-color: #dc2626;
+  color: #dc2626;
 }
 
-input[type="radio"].radio-falta:checked::before {
-  content: '';
-  display: block;
-  width: 0.375rem;
-  height: 0.375rem;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-input[type="radio"].radio-justificada {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #ca8a04;
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: white;
-}
-
-input[type="radio"].radio-justificada:checked {
-  background-color: #ca8a04;
+.justificada-btn.active {
+  background-color: #fefce8;
   border-color: #ca8a04;
+  color: #a16207;
 }
 
-input[type="radio"].radio-justificada:checked::before {
-  content: '';
-  display: block;
-  width: 0.375rem;
-  height: 0.375rem;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.aluno-row {
+  transition: all 0.2s ease;
 }
 
-/* Efeito hover */
-input[type="radio"].radio-presente:hover {
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+.aluno-row.bg-green-50 {
+  background-color: #f0fdf4;
 }
 
-input[type="radio"].radio-falta:hover {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+.aluno-row.bg-red-50 {
+  background-color: #fef2f2;
 }
 
-input[type="radio"].radio-justificada:hover {
-  box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1);
+.aluno-row.bg-yellow-50 {
+  background-color: #fefce8;
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Inicializa todos como presentes
-  document.querySelectorAll('.aluno-card').forEach(card => {
-    updateCardColor(card.dataset.alunoId, 'presente');
-  });
-  
-  atualizarContadores();
-
-  // Toggle do menu dropdown
-  const btnAcoes = document.getElementById('btn-acoes-rapidas');
-  const menuAcoes = document.getElementById('menu-acoes');
-  
-  btnAcoes.addEventListener('click', function(e) {
-    e.stopPropagation();
-    menuAcoes.classList.toggle('hidden');
-  });
-
-  // Fecha o menu ao clicar fora
-  document.addEventListener('click', function(e) {
-    if (!menuAcoes.contains(e.target) && !btnAcoes.contains(e.target)) {
-      menuAcoes.classList.add('hidden');
+// Funções globais para serem acessadas de qualquer lugar
+window.FrequenciaManager = {
+  setStatus: function(alunoId, status) {
+    // Remover classe active de todos os botões do aluno
+    const buttons = document.querySelectorAll(`[data-aluno-id="${alunoId}"].status-btn`);
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Adicionar classe active ao botão clicado
+    const activeButton = document.querySelector(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active');
     }
-  });
+    
+    // Atualizar o campo hidden
+    const hiddenField = document.getElementById(`status_${alunoId}`);
+    if (hiddenField) {
+      hiddenField.value = status;
+    }
+    
+    // Atualizar cor da linha
+    this.updateRowColor(alunoId, status);
+    
+    // Atualizar contadores
+    this.atualizarContadores();
+  },
 
-  // Ações do menu
-  document.querySelectorAll('[data-acao]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const acao = this.dataset.acao;
-      
-      switch(acao) {
-        case 'presente':
-          marcarTodos('presente');
-          break;
-        case 'falta':
-          marcarTodos('falta');
-          break;
-        case 'justificada':
-          marcarTodos('justificada');
-          break;
-        case 'inverter':
-          inverterSelecao();
-          break;
-      }
-      
-      menuAcoes.classList.add('hidden');
-      atualizarContadores();
+  updateRowColor: function(alunoId, status) {
+    const row = document.querySelector(`div.aluno-row[data-aluno-id="${alunoId}"]`);
+    if (!row) return;
+
+    row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
+    
+    switch(status) {
+      case 'presente':
+        row.classList.add('bg-green-50');
+        break;
+      case 'falta':
+        row.classList.add('bg-red-50');
+        break;
+      case 'justificada':
+        row.classList.add('bg-yellow-50');
+        break;
+    }
+  },
+
+  marcarTodos: function(status) {
+    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
+    const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+    
+    alunoIds.forEach(alunoId => {
+      this.setStatus(parseInt(alunoId), status);
     });
-  });
+  },
 
-  // Atualiza contadores quando houver mudança
-  document.querySelectorAll('input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', atualizarContadores);
+  inverterSelecao: function() {
+    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
+    const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+    
+    alunoIds.forEach(alunoId => {
+      const hiddenField = document.getElementById(`status_${alunoId}`);
+      if (hiddenField) {
+        const currentStatus = hiddenField.value;
+        let newStatus;
+        
+        if (currentStatus === 'presente') {
+          newStatus = 'falta';
+        } else if (currentStatus === 'falta') {
+          newStatus = 'presente';
+        } else {
+          // Se for justificada, não inverte
+          return;
+        }
+        
+        this.setStatus(parseInt(alunoId), newStatus);
+      }
+    });
+  },
+
+  atualizarContadores: function() {
+    const presente = document.querySelectorAll('input[id^="status_"][value="presente"]').length;
+    const ausente = document.querySelectorAll('input[id^="status_"][value="falta"]').length;
+    const justificado = document.querySelectorAll('input[id^="status_"][value="justificada"]').length;
+    
+    const contadorPresente = document.getElementById('contador-presente');
+    const contadorAusente = document.getElementById('contador-ausente');
+    const contadorJustificado = document.getElementById('contador-justificado');
+    
+    if (contadorPresente) contadorPresente.textContent = presente;
+    if (contadorAusente) contadorAusente.textContent = ausente;
+    if (contadorJustificado) contadorJustificado.textContent = justificado;
+  },
+
+  init: function() {
+    
+    // Inicializa todos como presentes
+    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
+    
+    alunos.forEach(row => {
+      const alunoId = row.getAttribute('data-aluno-id');
+      this.setStatus(parseInt(alunoId), 'presente');
+    });
+
+    // Toggle do menu dropdown
+    const btnAcoes = document.getElementById('btn-acoes-rapidas');
+    const menuAcoes = document.getElementById('menu-acoes');
+    
+    
+    if (btnAcoes && menuAcoes) {
+      // Remove listeners antigos se existirem
+      const newBtnAcoes = btnAcoes.cloneNode(true);
+      btnAcoes.parentNode.replaceChild(newBtnAcoes, btnAcoes);
+      
+      newBtnAcoes.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        menuAcoes.classList.toggle('hidden');
+      });
+
+      // Fecha o menu ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!menuAcoes.contains(e.target) && !newBtnAcoes.contains(e.target)) {
+          menuAcoes.classList.add('hidden');
+        }
+      });
+    }
+
+    // Ações do menu
+    const botoesAcao = document.querySelectorAll('[data-acao]');
+    
+    botoesAcao.forEach(btn => {
+      // Remove listeners antigos
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      
+      newBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const acao = newBtn.dataset.acao;
+        
+        switch(acao) {
+          case 'presente':
+            this.marcarTodos('presente');
+            break;
+          case 'falta':
+            this.marcarTodos('falta');
+            break;
+          case 'justificada':
+            this.marcarTodos('justificada');
+            break;
+          case 'inverter':
+            this.inverterSelecao();
+            break;
+        }
+        
+        if (menuAcoes) {
+          menuAcoes.classList.add('hidden');
+        }
+      });
+    });
+  }
+};
+
+// Função global para compatibilidade com onclick
+function setStatus(alunoId, status) {
+  window.FrequenciaManager.setStatus(alunoId, status);
+}
+
+// Inicializar quando o DOM carregar
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    window.FrequenciaManager.init();
   });
+} else {
+  // DOM já está carregado
+  window.FrequenciaManager.init();
+}
+
+// Reinicializar em caso de Turbolinks/Turbo
+document.addEventListener('turbolinks:load', function() {
+  window.FrequenciaManager.init();
 });
 
-function marcarTodos(status) {
-  document.querySelectorAll(`input[value="${status}"]`).forEach(radio => {
-    radio.checked = true;
-    const alunoId = radio.name.match(/\[(\d+)\]/)[1];
-    updateCardColor(alunoId, status);
-  });
-}
-
-function inverterSelecao() {
-  document.querySelectorAll('.aluno-card').forEach(card => {
-    const alunoId = card.dataset.alunoId;
-    const radioPresente = document.querySelector(`input[name="alunos[${alunoId}][status]"][value="presente"]`);
-    const radioFalta = document.querySelector(`input[name="alunos[${alunoId}][status]"][value="falta"]`);
-    
-    if (radioPresente.checked) {
-      radioFalta.checked = true;
-      updateCardColor(alunoId, 'falta');
-    } else if (radioFalta.checked) {
-      radioPresente.checked = true;
-      updateCardColor(alunoId, 'presente');
-    }
-  });
-}
-
-function atualizarContadores() {
-  const presente = document.querySelectorAll('input[value="presente"]:checked').length;
-  const ausente = document.querySelectorAll('input[value="falta"]:checked').length;
-  const justificado = document.querySelectorAll('input[value="justificada"]:checked').length;
-  
-  document.getElementById('contador-presente').textContent = presente;
-  document.getElementById('contador-ausente').textContent = ausente;
-  document.getElementById('contador-justificado').textContent = justificado;
-}
-
-function updateCardColor(alunoId, status) {
-  const card = document.querySelector(`[data-aluno-id="${alunoId}"]`);
-  if (!card) return;
-
-  card.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50', 'border-yellow-500', 'bg-yellow-50', 'border-gray-200', 'bg-white');
-  
-  switch(status) {
-    case 'presente':
-      card.classList.add('border-green-500', 'bg-green-50');
-      break;
-    case 'falta':
-      card.classList.add('border-red-500', 'bg-red-50');
-      break;
-    case 'justificada':
-      card.classList.add('border-yellow-500', 'bg-yellow-50');
-      break;
-  }
-}
+document.addEventListener('turbo:load', function() {
+  window.FrequenciaManager.init();
+});
 </script>
