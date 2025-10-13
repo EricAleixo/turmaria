@@ -1,55 +1,84 @@
 <% # app/views/professor/notas/avaliacoes/_form.html.erb %>
 
 <%= form_with(model: @avaliacao_configuracao, 
-              url: professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina, @avaliacao_configuracao), # Funciona para create e update
+              url: professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina, @avaliacao_configuracao),
               data: { turbo: true }, 
-              class: 'space-y-6') do |form| %>
+              class: "bg-white p-8 rounded-lg shadow-md space-y-6") do |form| %>
 
   <% if @avaliacao_configuracao.errors.any? %>
-    <div id="error_explanation" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-      <p class="font-bold">Houve erros ao salvar esta avaliação:</p>
-      <ul class="list-disc ml-5 mt-2">
-        <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+    <div class="alert alert-error mb-6">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>
+          <h3 class="font-bold">Erro ao salvar as configurações da avaliação!</h3>
+          <ul class="list-disc list-inside mt-1">
+            <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </span>
+      </div>
     </div>
   <% end %>
 
+  <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">
+      <%= @avaliacao_configuracao.persisted? ? "Editar Avaliação" : "Nova Avaliação" %>
+    </h1>
+    <%# Link de Voltar removido conforme solicitado %>
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     
-    <div>
-      <%= form.label :nome, 'Nome da Avaliação', class: 'block text-sm font-medium text-gray-700' %>
+    <!-- Nome da Avaliação -->
+    <div class="form-control w-full">
+      <%= form.label :nome, 'Nome da Avaliação *', class: 'label label-text text-gray-600 font-semibold' %>
       <%= form.text_field :nome, 
-                          class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
-                          placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo' %>
+                          class: 'input input-bordered w-full',
+                          placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo',
+                          required: true %>
     </div>
 
-    <div>
-      <%= form.label :bimestre, 'Bimestre', class: 'block text-sm font-medium text-gray-700' %>
+    <!-- Bimestre -->
+    <div class="form-control w-full">
+      <%= form.label :bimestre, 'Bimestre *', class: 'label label-text text-gray-600 font-semibold' %>
       <%= form.number_field :bimestre, 
-                            class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
-                            min: 1, max: 4, placeholder: '1, 2, 3 ou 4' %>
+                            class: 'input input-bordered w-full',
+                            min: 1, max: 4, placeholder: '1, 2, 3 ou 4',
+                            required: true %>
     </div>
 
-    <div>
-      <%= form.label :ordem, 'Ordem de Cálculo', class: 'block text-sm font-medium text-gray-700' %>
-      <p class="text-xs text-gray-500 mb-1">Define a ordem de cálculo/exibição.</p>
+    <!-- Ordem de Cálculo -->
+    <div class="form-control w-full">
+      <%= form.label :ordem, 'Ordem de Cálculo *', class: 'label label-text text-gray-600 font-semibold' %>
+      <span class="label-text text-xs text-gray-500 mb-1">Define a ordem de cálculo/exibição.</span>
       <%= form.number_field :ordem, 
-                            class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
-                            min: 1, placeholder: 'Ex: 1 para a primeira nota' %>
+                            class: 'input input-bordered w-full',
+                            min: 1, placeholder: 'Ex: 1 para a primeira nota',
+                            required: true %>
     </div>
 
-    <div class="flex items-center mt-6">
-      <%= form.check_box :is_recuperacao, 
-                         class: 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500' %>
-      <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'ml-2 block text-sm font-medium text-gray-700' %>
-      <p class="text-xs text-gray-500 ml-2">(Notas de recuperação substituem a nota original, mas não entram no cálculo de média como um item separado.)</p>
+    <!-- É uma Recuperação? - Alinhamento Corrigido para Desktop -->
+    <div class="form-control w-full">
+      <div class="md:pt-10"> <%# pt-10 para alinhar com o campo de input de 'Ordem de Cálculo' no desktop %>
+        <div class="flex items-start">
+          <%= form.check_box :is_recuperacao, 
+                              class: 'checkbox checkbox-primary mr-3 mt-[2px]' %> <%# mt-[2px] para espaçamento superior solicitado %>
+          <div class="flex flex-col">
+            <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'label cursor-pointer p-0 text-gray-600 font-semibold' %>
+            <span class="label-text text-xs text-gray-500 mt-1">
+              Substitui a nota original, mas não entra no cálculo da média separadamente.
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
     
   </div>
 
-  <div class="pt-5">
-    <%= form.submit submit_text, class: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-md' %>
+  <!-- Botão de Envio: Apenas "Salvar" ou "Atualizar" -->
+  <div class="flex justify-end pt-8">
+    <%= form.submit @avaliacao_configuracao.persisted? ? "Atualizar" : "Salvar", 
+                    class: "btn bg-indigo-600 hover:bg-indigo-700 text-white" %>
   </div>
 <% end %>

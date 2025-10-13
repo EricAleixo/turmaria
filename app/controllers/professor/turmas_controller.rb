@@ -1,4 +1,7 @@
 class Professor::TurmasController < Professor::BaseController
+  layout 'dashboard'
+  before_action :authenticate_professor!
+
   # Assume que layout, autenticação e base estão em Professor::BaseController
 
   def index

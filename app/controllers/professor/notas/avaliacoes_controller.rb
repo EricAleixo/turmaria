@@ -1,5 +1,9 @@
 # app/controllers/professor/notas/avaliacoes_controller.rb
 class Professor::Notas::AvaliacoesController < Professor::BaseController
+  layout 'dashboard'
+  before_action :authenticate_professor!
+
+
   before_action :set_turma_disciplina
   before_action :set_avaliacao_configuracao, only: [:edit, :update, :destroy]
 

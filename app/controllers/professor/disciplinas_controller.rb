@@ -3,6 +3,8 @@
 class Professor::DisciplinasController < Professor::BaseController
   # Assumindo que Professor::BaseController herda de ApplicationController e inclui autenticação/layout
   before_action :set_turma
+  layout 'dashboard'
+  before_action :authenticate_professor!
   
   # GET /professor/turmas/:turma_id/disciplinas
   def index

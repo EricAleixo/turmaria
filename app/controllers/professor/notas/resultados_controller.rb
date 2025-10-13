@@ -3,6 +3,8 @@
 
 class Professor::Notas::ResultadosController < Professor::BaseController 
   before_action :set_turma_e_disciplina
+  layout 'dashboard'
+  before_action :authenticate_professor!
 
   # CORREÇÃO APLICADA: Renomear de 'def index' para 'def show'
   def show

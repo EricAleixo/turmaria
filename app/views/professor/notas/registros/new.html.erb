@@ -13,7 +13,8 @@
               class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
 
   <div class="bg-white p-8 shadow-md rounded-lg mt-4">
-    <% # Chama a partial do formulário de lançamento de notas, passando o objeto pai %>
-    <%= render 'form', url: professor_turma_disciplina_notas_avaliacao_registros_path(@turma, @disciplina, @avaliacao_configuracao) %>
+    <% # CORREÇÃO CRÍTICA: O helper gerado é 'avaliaco_registros_path' %>
+    <%= render 'form', 
+               url: professor_turma_disciplina_notas_avaliaco_registros_path(@turma, @disciplina, @avaliacao_configuracao) %>
   </div>
 </div>

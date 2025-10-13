@@ -13,8 +13,9 @@
               class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
 
   <div class="bg-white p-8 shadow-md rounded-lg mt-4">
-    <% # Chama a partial do formulário de lançamento de notas. 
-       # O link de update é o mesmo do create, pois usamos PUT/PATCH no Rails para o mesmo recurso aninhado %>
-    <%= render 'form', url: professor_turma_disciplina_notas_avaliacao_registros_path(@turma, @disciplina, @avaliacao_configuracao), method: :patch %>
+    <% # CORREÇÃO CRÍTICA: O helper gerado é 'avaliaco_registros_path' e o método deve ser :patch %>
+    <%= render 'form', 
+               url: professor_turma_disciplina_notas_avaliaco_registros_path(@turma, @disciplina, @avaliacao_configuracao), 
+               method: :patch %>
   </div>
 </div>
