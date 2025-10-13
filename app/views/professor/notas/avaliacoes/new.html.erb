@@ -1,46 +1,44 @@
-<h1>Nova Coluna de Nota</h1>
+<% content_for :title, "Nova Avaliação" %>
 
-<h2><%= @turma.nome %> - <%= @disciplina.nome %></h2>
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-<%= form_with(model: @avaliacao_configuracao, 
-              url: professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), 
-              local: true) do |form| %>
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Nova Avaliação</h1>
+      </div>
 
-  <% if @avaliacao_configuracao.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@avaliacao_configuracao.errors.count, "erro") %> impediu que esta avaliação fosse salva:</h2>
-      <ul>
-        <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+      <main class="w-full max-w-4xl mx-auto">
+        <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <!-- Breadcrumbs corrigidos para GREEN-600 -->
+            <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600">Nova Avaliação</li>
+          </ul>
+        </div>
+        
+        <!-- Detalhes no topo do formulário -->
+        <div class="mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">
+            Configuração de Avaliação
+          </h2>
+          <p class="text-gray-600">Disciplina: <%= @disciplina.nome %> | Turma: <%= @turma.nome %></p>
+        </div>
+
+        <%# 'submit_text' removido %>
+        <%= render 'form' %>
+      </main> 
     </div>
-  <% end %>
 
-  <div class="form-group mb-3">
-    <%= form.label :nome, "Nome da Avaliação" %>
-    <%= form.text_field :nome, class: 'form-control' %>
+    <div class="modal-container">
+      <turbo-frame id="modal"></turbo-frame>
+    </div>
   </div>
-  
-  <div class="form-group mb-3">
-    <%= form.label :bimestre, "Bimestre" %>
-    <%# Assume que você pode ter uma lista de bimestres disponíveis (1, 2, 3, 4) %>
-    <%= form.select :bimestre, (1..4).to_a, { prompt: 'Selecione o Bimestre' }, class: 'form-control' %>
-  </div>
-
-  <div class="form-group mb-3">
-    <%= form.label :ordem, "Ordem de Exibição" %>
-    <%= form.number_field :ordem, class: 'form-control' %>
-    <small class="form-text text-muted">A ordem define como as colunas aparecerão (ex: 1, 2, 3).</small>
-  </div>
-
-  <div class="form-check mb-3">
-    <%= form.check_box :is_recuperacao, class: 'form-check-input' %>
-    <%= form.label :is_recuperacao, "É uma avaliação de Recuperação?", class: 'form-check-label' %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit 'Salvar Configuração', class: 'btn btn-success' %>
-    <%= link_to 'Voltar', professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), class: 'btn btn-secondary' %>
-  </div>
-<% end %>
+</div>

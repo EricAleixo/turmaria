@@ -1,39 +1,78 @@
-<h1>Configurações de Avaliações</h1>
+<div class="p-6 bg-gray-100 min-h-screen">
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-1">Gerenciamento de Avaliações</h1>
+      <p class="text-gray-600">Turma: <%= @turma.nome %> | Disciplina: <%= @disciplina.nome %></p>
+    </div>
+    
+    <%# 1. LINK DE CRIAÇÃO %>
+    <%= link_to 'Nova Avaliação (Coluna de Nota)', 
+                # CORRIGIDO: Usa o helper EXATO revelado pelo rails routes
+                new_professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina), 
+                class: 'bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md' %>
+  </div>
 
-<h2><%= @turma.nome %> - <%= @disciplina.nome %></h2>
+  <%= link_to '← Voltar para Disciplinas', 
+              professor_turma_disciplinas_path(@turma), 
+              class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
 
-<%= link_to 'Criar Nova Coluna de Nota', 
-            new_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina), 
-            class: 'btn btn-primary mb-3' %>
-
-<% if @avaliacoes_configuracoes.any? %>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Bimestre</th>
-        <th>Ordem</th>
-        <th>Nome da Avaliação</th>
-        <th>Tipo</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @avaliacoes_configuracoes.each do |config| %>
-        <tr>
-          <td><%= config.bimestre %>º</td>
-          <td><%= config.ordem %></td>
-          <td><%= config.nome %></td>
-          <td><%= config.recuperacao? ? 'Recuperação' : 'Padrão' %></td>
-          <td>
-            <%# Link para editar (futuramente) %>
-            <%= link_to 'Editar', edit_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina, config), class: 'btn btn-sm btn-secondary' %>
-            <%# Link para destruir (futuramente) %>
-            <%# link_to 'Excluir', [ :professor, :notas, @turma, @disciplina, config ], data: { turbo_method: :delete, turbo_confirm: 'Tem certeza?' }, class: 'btn btn-sm btn-danger' %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>Ainda não há configurações de avaliação para esta disciplina e turma.</p>
-<% end %>
+  <% if @avaliacoes.any? %>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mt-4">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bim.</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome da Avaliação</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recuperação?</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @avaliacoes.each do |avaliacao| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <%= avaliacao.bimestre %> (<%= avaliacao.ordem %>)
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= avaliacao.nome %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <% if avaliacao.is_recuperacao? %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Sim</span>
+                <% else %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Não</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                
+                <% # BOTÃO LANÇAR NOTAS (RECURSO REGISTROS) %>
+                <%= link_to 'Lançar Notas', 
+                            # CORRIGIDO: Usa o helper EXATO revelado pelo rails routes (registros aninhado)
+                            new_professor_turma_disciplina_notas_avaliaco_registro_path(@turma, @disciplina, avaliacao), 
+                            class: 'text-indigo-600 hover:text-indigo-900 mr-4' %>
+                            
+                <%# LINK EDITAR %>
+                <%= link_to 'Editar', 
+                            # CORRIGIDO: Usa o helper EXATO revelado pelo rails routes
+                            edit_professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao), 
+                            class: 'text-gray-600 hover:text-gray-900 mr-4' %>
+                
+                <%# LINK EXCLUIR %>
+                <%= link_to 'Excluir', 
+                            # CORRIGIDO: Usa o helper EXATO revelado pelo rails routes
+                            professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao), 
+                            data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja excluir esta configuração? Todas as notas associadas serão permanentemente perdidas!" }, 
+                            class: 'text-red-600 hover:text-red-900' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12 border border-dashed rounded-lg bg-white mt-4">
+      <p class="text-lg font-medium text-gray-700">Ainda não há configurações de avaliação (colunas de nota).</p>
+      <p class="mt-1 text-sm text-gray-500">Clique em "Nova Avaliação" para começar a lançar notas.</p>
+    </div>
+  <% end %>
+</div>

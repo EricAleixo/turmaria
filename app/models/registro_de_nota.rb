@@ -1,7 +1,10 @@
 class RegistroDeNota < ApplicationRecord
+  require Rails.root.join('app', 'services', 'notas', 'calculadora_bimestral.rb')
   # Associações (como você já havia corrigido)
   belongs_to :aluno
   belongs_to :avaliacao_configuracao, class_name: 'AvaliacaoConfiguracao' 
+
+  self.table_name = 'registros_de_notas'
   
   # Associações adicionais para facilitar o acesso aos dados
   has_one :turma, through: :avaliacao_configuracao
@@ -21,6 +24,6 @@ class RegistroDeNota < ApplicationRecord
   
   # Chama o Objeto de Serviço para recalcular a média
   def recalcular_media_bimestral
-    Notas::CalculadoraBimestral.new(self).call
+    ::Notas::CalculadoraBimestral.new(self).call
   end
 end

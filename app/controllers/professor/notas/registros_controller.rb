@@ -1,6 +1,8 @@
 class Professor::Notas::RegistrosController < ApplicationController
   # before_action :authenticate_professor! 
   before_action :set_turma_disciplina_e_configuracao
+  layout 'dashboard'
+  before_action :authenticate_professor!
   
   # Ação NEW: Exibe o formulário de lançamento de notas para todos os alunos
   def new
@@ -54,7 +56,8 @@ class Professor::Notas::RegistrosController < ApplicationController
     end
 
     if success
-      redirect_to professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), 
+      # CORREÇÃO DE ROTA: Usando professor_turma_disciplina_notas_avaliacoes_path
+      redirect_to professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
                   notice: 'Notas salvas e/ou atualizadas com sucesso!'
     else
       # Se falhar, você precisa reconstruir a tela NEW com os erros
@@ -78,7 +81,8 @@ class Professor::Notas::RegistrosController < ApplicationController
   def set_turma_disciplina_e_configuracao
     @turma = Turma.find(params[:turma_id])
     @disciplina = Disciplina.find(params[:disciplina_id])
-    @avaliacao_configuracao = AvaliacaoConfiguracao.find(params[:avaliacao_id])
+    # CORREÇÃO DE ROTA: Usa params[:avaliaco_id] (sem o 'a' no final)
+    @avaliacao_configuracao = AvaliacaoConfiguracao.find(params[:avaliaco_id])
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: 'Recurso não encontrado.' 
   end
@@ -86,7 +90,15 @@ class Professor::Notas::RegistrosController < ApplicationController
   # Strong Parameters para lidar com múltiplos registros aninhados
   # Aceita um hash onde a chave é o aluno_id e o valor é um hash com a nota
   def registros_params
-    params.require(:open_struct).permit(registros: [:valor])
-    # Note: O nome `open_struct` é porque usamos `OpenStruct.new` na ação `new`
+  # Permite que 'registros' seja um Hash onde as chaves (aluno_id) são arbitrárias
+  # e o valor é um hash que contém o 'valor' da nota.
+  params.require(:open_struct).permit(registros: data_para_salvar) 
+  end
+
+  def data_para_salvar
+  # Permite todos os IDs de aluno que vierem no hash 'registros'
+  params.require(:open_struct).fetch(:registros, {}).keys.map do |aluno_id|
+    { aluno_id.to_sym => [:valor] }
+  end.reduce({}, :merge)
   end
 end

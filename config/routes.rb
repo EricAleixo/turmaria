@@ -78,15 +78,43 @@ Rails.application.routes.draw do
     get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
 
+    # Frequências gerais
     resources :frequencias, controller: 'professor/frequencias' do
       member do
         patch :update_presencas
       end
     end
 
-    get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
-
+    # Estrutura aninhada de turmas -> disciplinas -> funcionalidades
     namespace :professor do
+      # Turmas principais
+      resources :turmas, only: [:index] do
+        member do
+          get :historico # /professor/turmas/:id/historico
+        end
+
+        # Disciplinas dentro da turma
+        resources :disciplinas, only: [:index] do
+          # Visualização de resultados
+          resource :resultados, controller: 'notas/resultados', only: [:show]
+
+          # Frequências aninhadas
+          resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
+            member do
+              patch :update_presencas
+            end
+          end
+
+          # Lançamento de notas
+          namespace :notas do
+            resources :avaliacoes, controller: 'avaliacoes' do
+              resources :registros, controller: 'registros', only: [:new, :create]
+            end
+          end
+        end
+      end
+
+      # Outros recursos do namespace professor
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
       resources :disciplinas

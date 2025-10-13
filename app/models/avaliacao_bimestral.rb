@@ -1,4 +1,5 @@
 class AvaliacaoBimestral < ApplicationRecord
+  self.table_name = 'avaliacoes_bimestrais'
   # Associações
   belongs_to :aluno
   belongs_to :turma

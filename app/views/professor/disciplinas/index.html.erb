@@ -1,46 +1,46 @@
-<%# app/views/professor/disciplinas/index.html.erb %>
-
 <div class="p-6 bg-gray-100 min-h-screen">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            Disciplinas de Lançamento em: <%= @turma.nome %>
-        </h1>
-        <p class="text-gray-600">Selecione a disciplina para realizar o lançamento de notas ou frequência.</p>
-    </div>
+  <h1 class="text-3xl font-bold text-gray-900 mb-2">Disciplinas da Turma: <%= @turma.nome %></h1>
+  <p class="text-gray-600 mb-6">Selecione a disciplina para gerenciar notas ou frequência.</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% if @disciplinas.any? %>
-            <% @disciplinas.each do |disciplina| %>
-                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-900 mb-2"><%= disciplina.nome %></h3>
-                        
-                        <%# Exibe o professor (Útil para confirmar a associação) %>
-                        <p class="text-sm text-gray-600 mb-4">Professor(a): <%= disciplina.professor&.nome || 'Não atribuído' %></p>
+  <%= link_to '← Voltar para Minhas Turmas', minhas_turmas_path, class: 'mb-4 inline-flex items-center text-blue-600 hover:text-blue-800' %>
 
-                        <div class="flex space-x-3">
-                            
-                            <%# 1. LINK PARA NOTAS (RESULTADOS) - USANDO professor_turma_disciplina_resultados_path %>
-                            <%# Rota: professor/turmas/:turma_id/disciplinas/:disciplina_id/resultados (Controller: professor/notas/resultados) %>
-                            <%= link_to 'Lançar Notas', 
-                                professor_turma_disciplina_resultado_path(@turma, disciplina),
-                                class: "flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
-                            
-                            <%# 2. LINK PARA FREQUÊNCIA - USANDO new_professor_turma_disciplina_frequencia_path %>
-                            <%# Rota: new_professor/turmas/:turma_id/disciplinas/:disciplina_id/frequencias (Controller: professor/frequencias) %>
-                            <%= link_to 'Lançar Frequência', 
-                                new_professor_turma_disciplina_frequencia_path(@turma, disciplina),
-                                class: "flex-1 bg-gray-500 hover:bg-gray-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
-                        </div>
-                    </div>
-                </div>
-            <% end %>
-        <% else %>
-             <div class="col-span-full text-center py-12 border-2 border-dashed border-gray-300 rounded-lg mt-6">
-                <h3 class="mt-2 text-lg font-medium text-gray-900">Nenhuma disciplina sua nesta turma</h3>
-                <p class="mt-1 text-sm text-gray-500">Você não está lecionando em nenhuma disciplina nesta turma no momento. Verifique suas atribuições.</p>
-                <%= link_to 'Voltar para Turmas', minhas_turmas_path, class: "mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none" %>
-            </div>
-        <% end %>
-    </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+    <% if @disciplinas.any? %>
+      <% @disciplinas.each do |disciplina| %>
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+          <h3 class="text-xl font-semibold text-gray-900 mb-3"><%= disciplina.nome %></h3>
+          
+          <div class="space-y-2 mb-4 text-sm text-gray-600">
+            <p><span class="font-medium">Área:</span> <%= disciplina.area.humanize %></p>
+            <% # Contagem de avaliações configuradas %>
+            <p><span class="font-medium">Avaliações Ativas:</span> <%= disciplina.avaliacoes_configuracoes.where(turma: @turma).count %></p>
+          </div>
+
+          <div class="flex flex-col space-y-2 mt-4">
+            
+            <% # 1. LINK PARA CONFIGURAÇÃO E LANÇAMENTO DE NOTAS (FLUXO ATUAL) %>
+            <%= link_to 'Lançar/Gerenciar Notas', 
+                        professor_turma_disciplina_notas_avaliacoes_path(@turma, disciplina), 
+                        class: "w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+            
+            <% # 2. NOVO LINK: PARA VER O BOLETIM/MÉDIA FINAL DA DISCIPLINA/TURMA %>
+            <%= link_to 'Ver Resultados/Médias', 
+            professor_turma_disciplina_resultados_path(@turma, disciplina), # ERRO: plural 'resultados'
+            class: "w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+            
+            <% # 3. LINK PARA A FREQUÊNCIA %>
+            <%= link_to 'Lançar Frequência', 
+                        professor_turma_disciplina_frequencias_path(@turma, disciplina), 
+                        class: "w-full bg-gray-600 hover:bg-gray-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="md:col-span-3 text-center py-12 border border-dashed rounded-lg bg-white">
+        <p class="text-lg font-medium text-gray-700">Nenhuma disciplina encontrada nesta turma.</p>
+        <p class="mt-1 text-sm text-gray-500">Verifique sua associação de professor-disciplina-turma com a administração da escola.</p>
+      </div>
+    <% end %>
+  </div>
 </div>

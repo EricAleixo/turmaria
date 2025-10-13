@@ -1,43 +1,20 @@
-<h1>Lançamento de Notas</h1>
-
-<h2><%= @turma.nome %> / <%= @disciplina.nome %></h2>
-<h3>Avaliação: <%= @avaliacao_configuracao.nome %> (Bimestre <%= @avaliacao_configuracao.bimestre %>)</h3>
-
-<%= form_with(model: @registros_form, 
-              url: professor_notas_turma_disciplina_avaliacao_registros_path(@turma, @disciplina, @avaliacao_configuracao), 
-              method: :post, 
-              local: true) do |form| %>
-
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>Aluno</th>
-        <th>Nota (0.00 a 10.00)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @registros.each do |registro| %>
-        <tr>
-          <td><%= registro.aluno.nome %></td>
-          <td>
-            <%# Usa o helper fields_for para criar campos de nota aninhados %>
-            <%= form.fields_for "registros[#{registro.aluno_id}]", registro do |nota_fields| %>
-              <%= nota_fields.text_field :valor, 
-                                          class: 'form-control', 
-                                          step: 0.01, 
-                                          min: 0.00, 
-                                          max: 10.00,
-                                          value: ('%.2f' % registro.valor if registro.valor.present?) %>
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-  <%= form.submit 'Salvar Todas as Notas', class: 'btn btn-success' %>
+<div class="p-6 bg-gray-100 min-h-screen">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-1">Lançamento de Notas</h1>
+    <p class="text-gray-600">
+      <span class="font-bold">Turma:</span> <%= @turma.nome %> | 
+      <span class="font-bold">Disciplina:</span> <%= @disciplina.nome %> | 
+      <span class="font-bold">Avaliação:</span> <%= @avaliacao_configuracao.nome %> (Bimestre: <%= @avaliacao_configuracao.bimestre %>)
+    </p>
+  </div>
   
-  <%= link_to 'Voltar para Configurações', 
-              professor_notas_turma_disciplina_avaliacoes_path(@turma, @disciplina), 
-              class: 'btn btn-secondary' %>
-<% end %>
+  <%= link_to '← Voltar para Avaliações', 
+              professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+              class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
+
+  <div class="bg-white p-8 shadow-md rounded-lg mt-4">
+    <% # CORREÇÃO CRÍTICA: O helper gerado é 'avaliaco_registros_path' %>
+    <%= render 'form', 
+               url: professor_turma_disciplina_notas_avaliaco_registros_path(@turma, @disciplina, @avaliacao_configuracao) %>
+  </div>
+</div>
