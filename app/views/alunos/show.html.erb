@@ -15,7 +15,6 @@
               <li><%= link_to "Alunos", escola_turma_alunos_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
             <% else %>
               <li><%= link_to "Alunos", escola_alunos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-              <li><%= link_to @aluno.nome, escola_aluno_path(@escola, @aluno), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
             <% end %>
             <li class="text-gray-600"><%= @aluno.nome %></li>
           </ul>
@@ -470,16 +469,21 @@
             <h3 class="font-bold text-lg mb-4">Comprovante de Residência</h3>
             <p class="mb-4">Faça upload do comprovante de residência do aluno (formato PDF).</p>
             
-            <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
-              <div class="form-control w-full">
-                <%= f.file_field :comprovante_residencia, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
-              </div>
-              
-              <div class="modal-action">
-                <button type="button" class="btn" onclick="document_modal_comprovante.close()">Cancelar</button>
-                <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
-              </div>
+            <% if @aluno.turma.present? %>
+              <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
+                <div class="form-control w-full">
+                  <%= f.file_field :comprovante_residencia, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
+                </div>
+                
+                <div class="modal-action">
+                  <button type="button" class="btn" onclick="document_modal_comprovante.close()">Cancelar</button>
+                  <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            <% else %>
+              <p>Aluno ainda não está vinculado a nenhuma turma.</p>
             <% end %>
+
           </div>
           <form method="dialog" class="modal-backdrop">
             <button>Fechar</button>
@@ -491,16 +495,21 @@
             <h3 class="font-bold text-lg mb-4">Histórico Acadêmico</h3>
             <p class="mb-4">Faça upload do histórico acadêmico do aluno (formato PDF).</p>
             
-            <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
-              <div class="form-control w-full">
-                <%= f.file_field :historico, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
-              </div>
-              
-              <div class="modal-action">
-                <button type="button" class="btn" onclick="document_modal_historico.close()">Cancelar</button>
-                <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
-              </div>
+           <% if @aluno.turma.present? %>
+              <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
+                <div class="form-control w-full">
+                  <%= f.file_field :historico, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
+                </div>
+                
+                <div class="modal-action">
+                  <button type="button" class="btn" onclick="document_modal_historico.close()">Cancelar</button>
+                  <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            <% else %>
+              <p>Aluno ainda não está vinculado a nenhuma turma.</p>
             <% end %>
+
           </div>
           <form method="dialog" class="modal-backdrop">
             <button>Fechar</button>
