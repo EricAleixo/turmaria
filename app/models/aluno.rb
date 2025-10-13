@@ -14,7 +14,7 @@ class Aluno < ApplicationRecord
 
   belongs_to :escola, counter_cache: :alunos_count
   belongs_to :turma, optional: true
-  bbelongs_to :cidade, optional: true
+  belongs_to :cidade, optional: true
   has_one :user, as: :profile, dependent: :destroy
  
   # Validações:

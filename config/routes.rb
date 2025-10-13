@@ -1,23 +1,23 @@
 Rails.application.routes.draw do
-  # Devise para diferentes tipos de usuários com skips e controllers customizados
+  # Devise para diferentes tipos de usuários
   devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
-  devise_for :alunos, skip:[:registrations] , controllers: { sessions: 'alunos/sessions' }
+  devise_for :alunos, skip: [:registrations], controllers: { sessions: 'alunos/sessions' }
 
   # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
 
-  # Estados com rota customizada para confirmação de exclusão e cidades aninhadas, também com confirmação de exclusão
+  # Estados e cidades
   resources :estados do
     member do
-      get :confirm_delete  # /estados/:id/confirm_delete
+      get :confirm_delete
     end
 
     resources :cidades do
       member do
-        get :confirm_delete  # /estados/:estado_id/cidades/:id/confirm_delete
+        get :confirm_delete
       end
     end
   end
@@ -25,16 +25,15 @@ Rails.application.routes.draw do
   # CRUD completo para administradores
   resources :administradores
 
-<<<<<<< HEAD
-  # Professor-Turma associations - MANUAL ROUTES
+  # Professor-Turma associations
   get '/professors/:professor_id/turmas', to: 'professor_turmas#show', as: 'professor_professor_turmas'
   post '/professors/:professor_id/turmas', to: 'professor_turmas#create'
   delete '/professors/:professor_id/turmas/:id', to: 'professor_turmas#destroy', as: 'professor_professor_turma'
 
-  # Welcome route for escola onboarding
+  # Welcome route
   get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
   
-  # Authenticated routes for all user types (authorization handled by Pundit)
+  # Rotas autenticadas (admin ou super_admin)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
     resources :disciplinas
@@ -44,15 +43,7 @@ Rails.application.routes.draw do
         patch :update_disciplinas
       end
     end
-=======
-  # Rota de boas-vindas para escolas
-  get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
 
-  # Rotas autenticadas para admins e super_admins
-  constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
-    resources :alunos
-
->>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
     resources :escolas do
       resources :disciplinas
       resources :ano_letivos do
@@ -76,36 +67,33 @@ Rails.application.routes.draw do
         member do
           get :assign_students
           patch :assign_student
-          patch :assign_students
-          patch :remove_from_turma
           patch 'remove_from_turma/:aluno_id', to: 'turmas#remove_from_turma', as: :remove_from_turma_individual
         end
       end
     end
   end
 
-<<<<<<< HEAD
+  # Rotas autenticadas (professor)
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
     get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
+
     resources :frequencias, controller: 'professor/frequencias' do
       member do
         patch :update_presencas
       end
     end
+
     get 'turmas/:turma_id/frequencias/new', to: 'professor/frequencias#new', as: 'nova_frequencia_turma'
+
     namespace :professor do
-      get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais 
-      resources :alunos 
-    end
-    resources :professor do
+      get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
+      resources :alunos
       resources :disciplinas
     end
   end
 
-=======
-  # Devise scope para professor com rotas customizadas
->>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
+  # Rotas unificadas Devise
   devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
@@ -113,24 +101,10 @@ Rails.application.routes.draw do
     get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
     post   "/password",     to: "devise/unified_passwords#create", as: :user_password
 
-    get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
-<<<<<<< HEAD
-    post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
-
-     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
-=======
-    post   "/password",     to: "devise/unified_passwords#update", as: :reset_user_password
->>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
-
     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
   end
 
-<<<<<<< HEAD
- 
-
-=======
-  # Root da aplicação
->>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
+  # Página inicial
   root to: "home#index"
 
   # Health check
