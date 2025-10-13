@@ -52,13 +52,16 @@
           <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
             <div class="flex flex-col items-center text-center">
               <div class="avatar placeholder mb-4">
+              <% if @aluno.foto.attached? %>
+                <%= image_tag @aluno.foto, class: "rounded-full w-24 h-24 ring-4 ring-green-500/20 object-cover" %>
+              <% else %>
                 <div class="bg-green-500 text-white rounded-full w-24 h-24 relative ring-4 ring-green-500/20">
                   <span class="text-3xl font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <%= @aluno.nome.present? ? @aluno.nome.first.upcase : 'A' %>
                   </span>
                 </div>
-              </div>
-              
+              <% end %>
+            </div>
               <h2 class="text-2xl font-bold text-gray-900 mb-2">
                 <%= @aluno.nome.presence || 'Nome não informado' %>
               </h2>

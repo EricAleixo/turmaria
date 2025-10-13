@@ -3,7 +3,7 @@
   editing = local_assigns[:editing]
 %>
 
-<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", id: "student-form", data: { controller: "student-form" }) do |form| %>
+<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", html: {multipart: true} , id: "student-form", data: { controller: "student-form" }) do |form| %>
 
   <%= form.hidden_field :escola_id, value: @escola.id %>
   
@@ -64,12 +64,17 @@
 
     <div class="flex justify-between mt-6">
       <a href="#" class="btn btn-ghost">Voltar</a>
-      <button type="button" id="next-step-1" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
-        Próximo
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-        </svg>
-      </button>
+      <div class="flex gap-2">
+        <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white">
+          Salvar
+        </button>
+        <button type="button" id="next-step-1" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
+          Próximo
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -161,12 +166,17 @@
         </svg>
         Anterior
       </button>
-      <button type="button" id="next-step-2" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
-        Próximo
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-        </svg>
-      </button>
+      <div class="flex gap-2">
+        <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white">
+          Salvar
+        </button>
+        <button type="button" id="next-step-2" class="btn btn-primary text-white w-28 flex items-center justify-center gap-1">
+          Próximo
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -185,7 +195,7 @@
     <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Foto do Aluno</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('foto-modal').showModal()">
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openFotoModal()">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
@@ -193,14 +203,14 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie uma foto do aluno. (Máximo 1 arquivo)</p>
-      <%= form.file_field :foto, class: "hidden", id: "foto-upload" %>
+      <%= form.file_field :foto, class: "hidden", id: "foto-upload", accept: "image/*" %>
       <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de CPF</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('cpf-modal').showModal()">
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('cpf_documento')">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
@@ -208,14 +218,14 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= form.file_field "cpf[]", multiple: true, class: "hidden", id: "cpf-upload" %>
-      <div id="cpf-files-list" class="mt-4 border rounded-lg"></div>
+      <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "cpf_documento-upload", accept: "image/*,.pdf" %>
+      <div id="cpf_documento-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('comprovante-modal').showModal()">
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('comprovante')">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
@@ -223,14 +233,14 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= form.file_field "comprovante_residencia[]", multiple: true, class: "hidden", id: "comprovante-upload" %>
+      <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "comprovante-upload", accept: "image/*,.pdf" %>
       <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
     <div class="bg-gray-50 p-4 rounded-lg mb-4">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-700">Histórico Acadêmico</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="document.getElementById('historico-modal').showModal()">
+        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('historico')">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
@@ -238,60 +248,100 @@
         </button>
       </div>
       <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 1 arquivo)</p>
-      <%= form.file_field :historico_academico, class: "hidden", id: "historico-upload" %>
+      <%= form.file_field :historico_academico, class: "hidden", id: "historico-upload", accept: "image/*,.pdf" %>
       <div id="historico-files-list" class="mt-4 border rounded-lg"></div>
     </div>
 
+    <!-- Modal de Foto com Crop -->
     <dialog id="foto-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar Foto</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="foto-upload" data-list-id="foto-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="foto-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+      <div class="modal-box max-w-2xl">
+        <h3 class="font-bold text-lg mb-4">Anexar Foto do Aluno</h3>
+        
+        <div id="foto-upload-area" class="upload-area border-2 border-dashed rounded-lg p-6 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-gray-400">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+          <p class="text-gray-500 mb-2">Arraste e solte a foto aqui ou</p>
+          <label for="foto-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivo</label>
         </div>
+
+        <div id="foto-crop-area" class="hidden mt-4">
+          <div class="mb-4">
+            <p class="text-sm text-gray-600 mb-3 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+              </svg>
+              <strong>Ajuste a área circular para enquadrar o rosto do aluno</strong>
+            </p>
+            <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="max-height: 450px;">
+              <img id="foto-preview" src="" alt="Preview" class="max-w-full">
+            </div>
+            <div class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+              </svg>
+              Clique e arraste para mover a imagem • Use a roda do mouse para zoom
+            </div>
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button type="button" class="btn btn-ghost" onclick="resetFotoModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Trocar foto
+            </button>
+            <button type="button" class="btn btn-success text-white" onclick="confirmFotoCrop()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              Confirmar recorte
+            </button>
+          </div>
+        </div>
+
         <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('foto-modal').close()">Fechar</button>
+          <button type="button" class="btn" onclick="closeFotoModal()">Fechar</button>
         </div>
       </div>
+      <form method="dialog" class="modal-backdrop">
+        <button type="button" onclick="closeFotoModal()">close</button>
+      </form>
     </dialog>
 
-    <dialog id="cpf-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar CPF</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="cpf-upload" data-list-id="cpf-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="cpf-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+    <!-- Modal Genérico para Documentos -->
+    <dialog id="document-modal" class="modal">
+      <div class="modal-box max-w-xl">
+        <h3 class="font-bold text-lg mb-4" id="document-modal-title">Anexar Documento</h3>
+        
+        <div id="document-upload-area" class="upload-area border-2 border-dashed rounded-lg p-6 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-gray-400">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+          </svg>
+          <p class="text-gray-500 mb-2" id="document-modal-description">Arraste e solte seus arquivos aqui ou</p>
+          <label id="document-modal-label" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
         </div>
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('cpf-modal').close()">Fechar</button>
-        </div>
-      </div>
-    </dialog>
 
-    <dialog id="comprovante-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar Comprovante de Residência</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="comprovante-upload" data-list-id="comprovante-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="comprovante-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
+        <div id="document-preview-area" class="hidden mt-4">
+          <p class="text-sm font-semibold text-gray-700 mb-2">Arquivos selecionados:</p>
+          <div id="document-preview-list" class="space-y-2"></div>
+          <div class="flex gap-2 justify-end mt-4">
+            <button type="button" class="btn btn-ghost" onclick="resetDocumentModal()">Trocar arquivos</button>
+            <button type="button" class="btn btn-success text-white" onclick="confirmDocumentUpload()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              Confirmar
+            </button>
+          </div>
         </div>
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('comprovante-modal').close()">Fechar</button>
-        </div>
-      </div>
-    </dialog>
 
-    <dialog id="historico-modal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Anexar Histórico Acadêmico</h3>
-        <div class="upload-area border-2 border-dashed rounded-lg p-6 text-center" data-input-id="historico-upload" data-list-id="historico-files-list">
-          <p class="text-gray-500 mb-2">Arraste e solte seus arquivos aqui ou</p>
-          <label for="historico-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
-        </div>
         <div class="modal-action">
-          <button type="button" class="btn" onclick="document.getElementById('historico-modal').close()">Fechar</button>
+          <button type="button" class="btn" onclick="closeDocumentModal()">Fechar</button>
         </div>
       </div>
+      <form method="dialog" class="modal-backdrop">
+        <button onclick="closeDocumentModal()">close</button>
+      </form>
     </dialog>
 
     <div class="flex justify-between mt-6">
@@ -325,5 +375,509 @@
 <div class="toast toast-end z-[99]">
   <div id="alert-container"></div>
 </div>
+
+<!-- Adicionar Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<style>
+  /* Estilo customizado para crop circular */
+  .cropper-view-box,
+  .cropper-face {
+    border-radius: 50%;
+  }
+  
+  .cropper-view-box {
+    box-shadow: 0 0 0 1px #39f;
+    outline: 0;
+  }
+  
+  .cropper-face {
+    background-color: inherit !important;
+  }
+  
+  .cropper-dashed,
+  .cropper-line {
+    display: none !important;
+  }
+  
+  .cropper-point {
+    background-color: #39f;
+    opacity: 0.8;
+  }
+  
+  .cropper-point.point-se {
+    width: 12px !important;
+    height: 12px !important;
+    opacity: 1;
+  }
+</style>
+
+<script>
+let cropper = null;
+let currentDocumentType = null;
+let tempDocumentFiles = [];
+
+// Funções para Modal de Foto
+function openFotoModal() {
+  document.getElementById('foto-modal').showModal();
+}
+
+function closeFotoModal() {
+  // NÃO resetar o modal ao fechar, apenas esconder
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  // NÃO limpar o input aqui! document.getElementById('foto-upload').value = '';
+  document.getElementById('foto-modal').close();
+}
+
+function resetFotoModal() {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  document.getElementById('foto-upload').value = '';
+  document.getElementById('foto-files-list').innerHTML = '';
+}
+
+document.getElementById('foto-upload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  
+  if (!file) return;
+  
+  if (!file.type.startsWith('image/')) {
+    showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+    this.value = '';
+    return;
+  }
+  
+  // Validar tamanho (máximo 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('A imagem deve ter no máximo 5MB', 'error');
+    this.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = document.getElementById('foto-preview');
+    img.src = event.target.result;
+    
+    document.getElementById('foto-upload-area').classList.add('hidden');
+    document.getElementById('foto-crop-area').classList.remove('hidden');
+    
+    if (cropper) {
+      cropper.destroy();
+    }
+    
+    // Aguardar imagem carregar antes de inicializar o Cropper
+    img.onload = function() {
+      cropper = new Cropper(img, {
+        aspectRatio: 1, // Proporção quadrada/circular
+        viewMode: 2,
+        autoCropArea: 0.65,
+        responsive: true,
+        guides: false,
+        center: true,
+        highlight: true,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+        dragMode: 'move',
+        background: true,
+        modal: true,
+        minCropBoxWidth: 200,
+        minCropBoxHeight: 200,
+        ready: function() {
+          // Adicionar borda circular ao cropBox
+          const cropBox = document.querySelector('.cropper-crop-box');
+          const face = document.querySelector('.cropper-face');
+          if (cropBox && face) {
+            cropBox.style.borderRadius = '50%';
+            face.style.borderRadius = '50%';
+          }
+        },
+        crop: function() {
+          // Manter borda circular durante o crop
+          const face = document.querySelector('.cropper-face');
+          if (face) {
+            face.style.borderRadius = '50%';
+          }
+        }
+      });
+    };
+  };
+  reader.readAsDataURL(file);
+});
+
+function confirmFotoCrop() {
+  if (!cropper) return;
+  
+  console.log('🔍 Iniciando crop da foto...');
+  
+  const canvas = cropper.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  });
+  
+  // Criar canvas circular
+  const circularCanvas = document.createElement('canvas');
+  const ctx = circularCanvas.getContext('2d');
+  circularCanvas.width = 400;
+  circularCanvas.height = 400;
+  
+  // Desenhar círculo como máscara
+  ctx.beginPath();
+  ctx.arc(200, 200, 200, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+  
+  // Desenhar imagem recortada dentro do círculo
+  ctx.drawImage(canvas, 0, 0, 400, 400);
+  
+  circularCanvas.toBlob(function(blob) {
+    console.log('📸 Blob criado:', blob);
+    console.log('📦 Tamanho do blob:', blob.size, 'bytes');
+    
+    const file = new File([blob], 'foto_aluno.png', { type: 'image/png' });
+    console.log('📄 Arquivo criado:', file);
+    console.log('📏 Tamanho do arquivo:', file.size, 'bytes');
+    
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    
+    const fotoInput = document.getElementById('foto-upload');
+    fotoInput.files = dataTransfer.files;
+    
+    console.log('✅ Arquivo anexado ao input:', fotoInput.files[0]);
+    console.log('🎯 Total de arquivos no input:', fotoInput.files.length);
+    
+    updateFileList('foto-files-list', [file]);
+    closeFotoModal();
+    
+    showToast('Foto recortada e anexada com sucesso!', 'success');
+  }, 'image/png', 0.95);
+}
+
+// Funções para Modal de Documentos
+function openDocumentModal(type) {
+  currentDocumentType = type;
+  tempDocumentFiles = [];
+  
+  const modal = document.getElementById('document-modal');
+  const title = document.getElementById('document-modal-title');
+  const description = document.getElementById('document-modal-description');
+  const label = document.getElementById('document-modal-label');
+  
+  const configs = {
+    'cpf_documento': {
+      title: 'Anexar CPF (Documento)',
+      description: 'Arraste e solte os arquivos aqui (frente e verso) ou',
+      maxFiles: 2
+    },
+    'comprovante': {
+      title: 'Anexar Comprovante de Residência',
+      description: 'Arraste e solte os arquivos aqui (frente e verso) ou',
+      maxFiles: 2
+    },
+    'historico': {
+      title: 'Anexar Histórico Acadêmico',
+      description: 'Arraste e solte o arquivo aqui ou',
+      maxFiles: 1
+    }
+  };
+  
+  const config = configs[type];
+  title.textContent = config.title;
+  description.textContent = config.description;
+  label.setAttribute('for', `${type}-upload`);
+  label.onclick = () => document.getElementById(`${type}-upload`).click();
+  
+  setupDragAndDrop(type);
+  modal.showModal();
+}
+
+function closeDocumentModal() {
+  resetDocumentModal();
+  document.getElementById('document-modal').close();
+}
+
+function resetDocumentModal() {
+  tempDocumentFiles = [];
+  document.getElementById('document-upload-area').classList.remove('hidden');
+  document.getElementById('document-preview-area').classList.add('hidden');
+  document.getElementById('document-preview-list').innerHTML = '';
+  if (currentDocumentType) {
+    document.getElementById(`${currentDocumentType}-upload`).value = '';
+  }
+}
+
+function setupDragAndDrop(type) {
+  const uploadArea = document.getElementById('document-upload-area');
+  const fileInput = document.getElementById(`${type}-upload`);
+  
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, preventDefaults, false);
+  });
+  
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
+  
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
+  
+  uploadArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    handleDocumentFiles(files, type);
+  }, false);
+  
+  fileInput.addEventListener('change', (e) => {
+    handleDocumentFiles(e.target.files, type);
+  });
+}
+
+function handleDocumentFiles(files, type) {
+  const maxFiles = type === 'historico' ? 1 : 2;
+  
+  if (files.length > maxFiles) {
+    showToast(`Você pode enviar no máximo ${maxFiles} arquivo(s)`, 'error');
+    return;
+  }
+  
+  tempDocumentFiles = Array.from(files);
+  displayDocumentPreview(tempDocumentFiles);
+}
+
+function displayDocumentPreview(files) {
+  const previewList = document.getElementById('document-preview-list');
+  previewList.innerHTML = '';
+  
+  files.forEach((file, index) => {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'flex items-center justify-between p-3 bg-base-200 rounded-lg';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'flex items-center gap-3';
+    
+    const icon = document.createElement('svg');
+    icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('stroke-width', '1.5');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.className = 'w-6 h-6 text-primary';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />';
+    
+    const fileName = document.createElement('span');
+    fileName.className = 'text-sm font-medium';
+    fileName.textContent = file.name;
+    
+    const fileSize = document.createElement('span');
+    fileSize.className = 'text-xs text-gray-500';
+    fileSize.textContent = formatFileSize(file.size);
+    
+    const textContainer = document.createElement('div');
+    textContainer.appendChild(fileName);
+    textContainer.appendChild(document.createElement('br'));
+    textContainer.appendChild(fileSize);
+    
+    fileInfo.appendChild(icon);
+    fileInfo.appendChild(textContainer);
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-ghost btn-sm btn-circle';
+    removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>';
+    removeBtn.onclick = () => removeDocumentFile(index);
+    
+    fileItem.appendChild(fileInfo);
+    fileItem.appendChild(removeBtn);
+    previewList.appendChild(fileItem);
+  });
+  
+  document.getElementById('document-upload-area').classList.add('hidden');
+  document.getElementById('document-preview-area').classList.remove('hidden');
+}
+
+function removeDocumentFile(index) {
+  tempDocumentFiles.splice(index, 1);
+  if (tempDocumentFiles.length > 0) {
+    displayDocumentPreview(tempDocumentFiles);
+  } else {
+    resetDocumentModal();
+  }
+}
+
+function confirmDocumentUpload() {
+  if (tempDocumentFiles.length === 0) return;
+  
+  const input = document.getElementById(`${currentDocumentType}-upload`);
+  
+  // Criar novo DataTransfer e adicionar apenas arquivos válidos
+  const dataTransfer = new DataTransfer();
+  tempDocumentFiles.forEach(file => {
+    if (file && file.size > 0) {  // Verificar se o arquivo é válido
+      dataTransfer.items.add(file);
+    }
+  });
+  
+  // Só atribuir se houver arquivos válidos
+  if (dataTransfer.files.length > 0) {
+    input.files = dataTransfer.files;
+    updateFileList(`${currentDocumentType}-files-list`, Array.from(dataTransfer.files));
+    closeDocumentModal();
+    showToast('Arquivo(s) anexado(s) com sucesso!', 'success');
+  } else {
+    showToast('Nenhum arquivo válido selecionado', 'error');
+  }
+}
+
+// Função auxiliar para atualizar lista de arquivos
+function updateFileList(listId, files) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  
+  if (files.length === 0) return;
+  
+  files.forEach((file, index) => {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'flex items-center gap-3';
+    
+    const icon = document.createElement('svg');
+    icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('stroke-width', '1.5');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.className = 'w-5 h-5 text-success';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />';
+    
+    const fileName = document.createElement('span');
+    fileName.className = 'text-sm';
+    fileName.textContent = file.name;
+    
+    fileInfo.appendChild(icon);
+    fileInfo.appendChild(fileName);
+    fileItem.appendChild(fileInfo);
+    list.appendChild(fileItem);
+  });
+}
+
+// Função auxiliar para formatar tamanho de arquivo
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Função para mostrar toast
+function showToast(message, type = 'info') {
+  const container = document.getElementById('alert-container');
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type} shadow-lg mb-2`;
+  
+  const iconMap = {
+    success: '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />',
+    error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />',
+    info: '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />'
+  };
+  
+  alert.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      ${iconMap[type] || iconMap.info}
+    </svg>
+    <span>${message}</span>
+  `;
+  
+  container.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.style.transition = 'opacity 0.3s';
+    alert.style.opacity = '0';
+    setTimeout(() => alert.remove(), 300);
+  }, 3000);
+}
+
+// Drag and Drop para área de upload de foto
+const fotoUploadArea = document.getElementById('foto-upload-area');
+const fotoInput = document.getElementById('foto-upload');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, false);
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, () => {
+    fotoUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, () => {
+    fotoUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+  }, false);
+});
+
+fotoUploadArea.addEventListener('drop', (e) => {
+  const files = e.dataTransfer.files;
+  
+  if (files.length > 1) {
+    showToast('Selecione apenas 1 arquivo de foto', 'error');
+    return;
+  }
+  
+  if (files.length > 0) {
+    if (!files[0].type.startsWith('image/')) {
+      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+      return;
+    }
+    
+    fotoInput.files = files;
+    fotoInput.dispatchEvent(new Event('change'));
+  }
+}, false);
+
+// Debug: Verificar arquivos antes de enviar o formulário
+document.getElementById('student-form').addEventListener('submit', function(e) {
+  const fotoInput = document.getElementById('foto-upload');
+  console.log('=== 🚀 DEBUG FORM SUBMIT ===');
+  console.log('📸 Foto input files:', fotoInput.files);
+  console.log('📸 Quantidade de arquivos:', fotoInput.files.length);
+  if (fotoInput.files.length > 0) {
+    console.log('📸 Primeiro arquivo:', fotoInput.files[0]);
+    console.log('📸 Nome:', fotoInput.files[0].name);
+    console.log('📸 Tamanho:', fotoInput.files[0].size, 'bytes');
+    console.log('📸 Tipo:', fotoInput.files[0].type);
+  }
+  console.log('========================');
+});
+</script>
 
 <%= javascript_include_tag 'mascaras' %>

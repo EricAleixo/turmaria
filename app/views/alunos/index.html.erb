@@ -120,10 +120,16 @@
                       <tr class="hover:bg-blue-50 transition-all duration-300 border-b border-gray-200 group">
                         <td class="py-4">
                           <div class="flex items-center gap-3">
-                            <div class="avatar placeholder">
-                              <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
-                                <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
-                              </div>
+                            <div class="avatar">
+                              <% if aluno.foto.attached? %>
+                                <div class="w-10 h-10 rounded-full">
+                                  <%= image_tag aluno.foto.variant(resize_to_fill: [40, 40]), class: "rounded-full object-cover w-10 h-10" %>
+                                </div>
+                              <% else %>
+                                <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
+                                  <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
+                                </div>
+                              <% end %>
                             </div>
                             <span class="font-bold text-slate-700"><%= aluno.nome %></span>
                           </div>
@@ -171,10 +177,16 @@
                       <tr class="hover:bg-blue-50 transition-all duration-300 border-b border-gray-200 group">
                       <td class="py-4">
                           <div class="flex items-center gap-3">
-                              <div class="avatar placeholder">
+                              <div class="avatar">
+                                <% if aluno.foto.attached? %>
+                                  <div class="w-10 h-10 rounded-full">
+                                    <%= image_tag aluno.foto.variant(resize_to_fill: [40, 40]), class: "rounded-full object-cover w-10 h-10" %>
+                                  </div>
+                                <% else %>
                                   <div class="bg-gradient-to-br from-slate-400 to-gray-500 text-white rounded-full w-10 h-10 relative font-bold">
                                       <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"><%= aluno.nome.first.upcase %></span>
                                   </div>
+                                <% end %>
                               </div>
                               <span class="font-bold text-slate-700"><%= aluno.nome %></span>
                           </div>

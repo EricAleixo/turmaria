@@ -2,6 +2,11 @@ class Aluno < ApplicationRecord
 
   has_many :registros_de_notas
   has_many :avaliacoes_bimestrais
+  has_many :frequencia_alunos, dependent: :nullify
+  has_one_attached :foto
+  has_many_attached :cpf_documento
+  has_one_attached :comprovante_residencia
+  has_one_attached :historico_academico
 
   devise :database_authenticatable, :registerable,
        :recoverable, :rememberable,

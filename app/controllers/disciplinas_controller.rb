@@ -7,7 +7,7 @@ class DisciplinasController < ApplicationController
     @disciplinas = if current_user.is_a?(SuperAdmin)
                      Disciplina.all
                    else
-                     Disciplina.where(escola: current_user.escolas)
+                     Disciplina.where(escola: current_user.escola)
                    end
                  
     # Se houver professor, filtra ainda mais

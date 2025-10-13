@@ -59,11 +59,26 @@ class AlunosController < ApplicationController
     @aluno = @escola.alunos.build(aluno_params)
     @aluno.turma = @turma if @turma
 
+    # Debug: Verificar o que está sendo recebido
+    Rails.logger.info "========== DEBUG ALUNO =========="
+    Rails.logger.info "Foto attached: #{params[:aluno][:foto].present?}"
+    Rails.logger.info "CPF Documento attached: #{params[:aluno][:cpf_documento].present?}"
+    Rails.logger.info "Comprovante attached: #{params[:aluno][:comprovante_residencia].present?}"
+    Rails.logger.info "Historico attached: #{params[:aluno][:historico_academico].present?}"
+    Rails.logger.info "================================="
+
     respond_to do |format|
       if @aluno.save
+        # Verificar após salvar
+        Rails.logger.info "Após salvar - Foto: #{@aluno.foto.attached?}"
+        Rails.logger.info "Após salvar - CPF Doc: #{@aluno.cpf_documento.attached?}"
+        Rails.logger.info "Após salvar - Comprovante: #{@aluno.comprovante_residencia.attached?}"
+        Rails.logger.info "Após salvar - Historico: #{@aluno.historico_academico.attached?}"
+        
         format.html { redirect_to [@escola, @aluno], notice: "Aluno criado com sucesso." }
         format.json { render json: { success: true, message: "Aluno salvo com sucesso!" }, status: :created }
       else
+        Rails.logger.error "Erros: #{@aluno.errors.full_messages}"
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: { errors: @aluno.errors.messages }, status: :unprocessable_entity }
       end
@@ -191,12 +206,13 @@ class AlunosController < ApplicationController
       :cor, 
       :tipo_sanguinio, 
       :observacoes_pcd, 
+      :foto,
+      :historico_academico,
+      :comprovante_residencia,
       necessidades_especiais_tipo: [], 
-      cpf_url: [], 
-      comprovante_residencia_url: [], 
-      historico_academico_url: []
+      cpf_documento: []
     ).tap do |whitelisted_params|
-      # Converter string em array
+      # Converter string em array para necessidades especiais
       if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
         whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
       end
