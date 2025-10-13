@@ -1,19 +1,31 @@
 Rails.application.routes.draw do
-
+  # Devise para diferentes tipos de usuários com skips e controllers customizados
   devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :alunos, skip:[:registrations] , controllers: { sessions: 'alunos/sessions' }
 
-  # Dashboard route (will use DashboardController with Pundit authorization)
+  # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
 
-  resources :estados
+  # Estados com rota customizada para confirmação de exclusão e cidades aninhadas, também com confirmação de exclusão
+  resources :estados do
+    member do
+      get :confirm_delete  # /estados/:id/confirm_delete
+    end
 
-  # Complete CRUD for administradores
+    resources :cidades do
+      member do
+        get :confirm_delete  # /estados/:estado_id/cidades/:id/confirm_delete
+      end
+    end
+  end
+
+  # CRUD completo para administradores
   resources :administradores
 
+<<<<<<< HEAD
   # Professor-Turma associations - MANUAL ROUTES
   get '/professors/:professor_id/turmas', to: 'professor_turmas#show', as: 'professor_professor_turmas'
   post '/professors/:professor_id/turmas', to: 'professor_turmas#create'
@@ -32,28 +44,35 @@ Rails.application.routes.draw do
         patch :update_disciplinas
       end
     end
+=======
+  # Rota de boas-vindas para escolas
+  get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
+
+  # Rotas autenticadas para admins e super_admins
+  constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
+    resources :alunos
+
+>>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
     resources :escolas do
       resources :disciplinas
       resources :ano_letivos do
         resources :turmas
       end
-      # Alunos directly under escola (not allocated to any turma)
+
       resources :alunos do
         member do
           patch :assign_to_turma
           patch :remove_from_turma
         end
       end
-      
+
       resources :turmas do
-        # Alunos allocated to specific turma
         resources :alunos, except: [:new, :create] do
           member do
             patch :remove_from_turma
           end
         end
-        
-        # Action to assign existing students to this turma
+
         member do
           get :assign_students
           patch :assign_student
@@ -65,6 +84,7 @@ Rails.application.routes.draw do
     end
   end
 
+<<<<<<< HEAD
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
     get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
@@ -83,22 +103,36 @@ Rails.application.routes.draw do
     end
   end
 
+=======
+  # Devise scope para professor com rotas customizadas
+>>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
   devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
-    
+
     get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
-    post   "/password",    to: "devise/unified_passwords#create", as: :user_password
+    post   "/password",     to: "devise/unified_passwords#create", as: :user_password
 
     get    "/password/new", to: "devise/unified_passwords#edit",  as: :new_edit_user_password
+<<<<<<< HEAD
     post   "/password",    to: "devise/unified_passwords#update", as: :reset_user_password
 
      delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
+=======
+    post   "/password",     to: "devise/unified_passwords#update", as: :reset_user_password
+>>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
 
+    delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
   end
 
+<<<<<<< HEAD
  
 
+=======
+  # Root da aplicação
+>>>>>>> 14152cbbcdc7237e2d6d9556cdeb95f2eddea4b2
   root to: "home#index"
+
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end

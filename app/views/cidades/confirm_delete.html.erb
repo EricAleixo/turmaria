@@ -1,0 +1,19 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-8 rounded shadow max-w-md text-center">
+    <h2 class="text-2xl font-bold mb-4">Excluir Cidade</h2>
+    <p class="mb-6">
+      Tem certeza que deseja excluir a cidade
+      <strong><%= @cidade.nome %></strong> do estado
+      <strong><%= @estado.nome %></strong>?
+    </p>
+    
+    <%= button_to estado_cidade_path(@estado, @cidade),
+                  method: :delete,
+                  class: "btn btn-error px-6 py-2 rounded" do %>
+      Confirmar Exclusão
+    <% end %>
+
+    <%= link_to 'Cancelar', estado_cidades_path(@estado),
+                class: "ml-4 btn btn-outline" %>
+  </div>
+</div>

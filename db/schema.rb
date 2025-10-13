@@ -91,6 +91,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_13_103904) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.bigint "cidade_id", null: false
+    t.index ["cidade_id"], name: "index_alunos_on_cidade_id"
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["matricula"], name: "index_alunos_on_matricula", unique: true
@@ -200,9 +202,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_13_103904) do
     t.datetime "updated_at", null: false
     t.bigint "aluno_id"
     t.uuid "escola_id", null: false
-    t.string "complemento"
     t.bigint "cidade_id", null: false
-    t.uuid "professor_id"
+    t.string "complemento"
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
     t.index ["professor_id"], name: "index_enderecos_on_professor_id"
@@ -232,6 +233,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_13_103904) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sigla"
+    t.string "regiao"
   end
 
   create_table "frequencia_alunos", force: :cascade do |t|
@@ -377,6 +380,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_13_103904) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "alunos", "cidades"
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
