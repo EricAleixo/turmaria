@@ -1,42 +1,28 @@
-class Professor::Notas::ResultadosController < ApplicationController
-  # Se você tem um Professor::BaseController, use-o
-  # Se não, mantenha ApplicationController, mas inclua a autenticação
-  before_action :authenticate_professor! # Recomendo manter isso!
+# app/controllers/professor/notas/resultados_controller.rb
+# app/controllers/professor/notas/resultados_controller.rb
+
+class Professor::Notas::ResultadosController < Professor::BaseController 
   before_action :set_turma_e_disciplina
 
-  def index
-    # 1. Alunos da turma
+  # CORREÇÃO APLICADA: Renomear de 'def index' para 'def show'
+  def show
+    # 1. Alunos da turma, ordenados para exibição
     @alunos = @turma.alunos.order(:nome)
     
-    # 2. Médias Finais (AvaliacoesBimestrais) da disciplina/turma
+    # 2. Médias Finais (AvaliacoesBimestrais) da disciplina/turma.
     @medias_finais = AvaliacaoBimestral.where(
       turma: @turma, 
       disciplina: @disciplina
-    ).index_by { |a| [a.aluno_id, a.bimestre] }
+    ).index_by { |media| [media.aluno_id, media.bimestre] }
   end
   
   private
 
+  # ... (O restante do código private está correto) ...
   def set_turma_e_disciplina
-    # 1. Busca a turma que pertence ao professor logado
-    # Isso evita que um professor acesse turmas que ele não leciona
     @turma = current_professor.turmas.find(params[:turma_id])
-    
-    # 2. Verifica se a disciplina está associada a essa turma e ao professor
-    # Isso é feito indiretamente verificando a relação ProfessorDisciplina ou ProfessorTurmaDisciplina
-    
-    # Vamos buscar a disciplina, e a rota já garante o aninhamento,
-    # mas o Turma.find(params[:turma_id]) deve ser substituído por:
-    
-    @turma = current_professor.turmas.find(params[:turma_id])
-    
-    # Para garantir que ele leciona essa disciplina nessa turma, 
-    # você precisaria de um relacionamento mais forte, mas, por ora, 
-    # vamos apenas garantir que a disciplina existe e que o professor leciona a turma.
-    
     @disciplina = Disciplina.find(params[:disciplina_id])
-
-    # Melhoria de segurança: Verifique se o professor leciona a disciplina (ProfessorDisciplina)
+    
     unless current_professor.disciplinas.include?(@disciplina)
       redirect_to minhas_turmas_path, alert: 'Você não está autorizado a acessar esta disciplina.'
       return

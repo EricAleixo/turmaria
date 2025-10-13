@@ -95,7 +95,7 @@ Rails.application.routes.draw do
           
           # 3. Aninhamento para Configuração/Lançamento de Notas (Dentro da Disciplina)
           namespace :notas do
-            resources :avaliacoes, controller: 'notas/avaliacoes' do
+            resources :avaliacoes, controller: 'avaliacoes' do
               resources :registros, controller: 'notas/registros', only: [:new, :create] 
             end
           end

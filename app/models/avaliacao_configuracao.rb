@@ -1,4 +1,7 @@
 class AvaliacaoConfiguracao < ApplicationRecord
+  self.table_name = 'avaliacoes_configuracoes'
+
+
   # Associações
   belongs_to :turma
   belongs_to :disciplina

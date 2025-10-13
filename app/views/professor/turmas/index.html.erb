@@ -11,7 +11,7 @@
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
-          </div>
+        </div>
         <div class="ml-4">
           <p class="text-sm font-medium text-gray-600">Total de Turmas</p>
           <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:total_turmas] %></p>
@@ -110,14 +110,13 @@
           <div class="flex space-x-2">
             
             <% # 1. BOTÃO DE FREQUÊNCIA -> APONTA PARA LISTA DE DISCIPLINAS %>
-            <%# O professor escolhe a disciplina antes de lançar a frequência %>
-            <%= link_to 'Lançar Frequência', professor_turma_disciplinas_path(turma), class: "flex-1 bg-gray-400 hover:bg-gray-500 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+            <%= link_to 'Lançar Frequência', professor_turma_disciplinas_path(turma, target: :frequencia), class: "flex-1 bg-gray-400 hover:bg-gray-500 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
             
             <% # 2. BOTÃO DE NOTAS -> APONTA PARA LISTA DE DISCIPLINAS %>
-            <%= link_to 'Lançar Notas', professor_turma_disciplinas_path(turma), class: "flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+            <%= link_to 'Lançar Notas', professor_turma_disciplinas_path(turma, target: :nota), class: "flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
             
             <% # 3. BOTÃO HISTÓRICO (AGORA ESTÁ DISPONÍVEL VIA MEMBRO EM TURMAS CONTROLLER) %>
-            <%# link_to 'Histórico', historico_professor_turma_path(turma), class: "flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+            <%# Removido para manter 2 botões principais %>
           </div>
         </div>
       </div>

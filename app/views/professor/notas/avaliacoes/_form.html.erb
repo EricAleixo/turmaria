@@ -1,0 +1,55 @@
+<% # app/views/professor/notas/avaliacoes/_form.html.erb %>
+
+<%= form_with(model: @avaliacao_configuracao, 
+              url: professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina, @avaliacao_configuracao), # Funciona para create e update
+              data: { turbo: true }, 
+              class: 'space-y-6') do |form| %>
+
+  <% if @avaliacao_configuracao.errors.any? %>
+    <div id="error_explanation" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+      <p class="font-bold">Houve erros ao salvar esta avaliação:</p>
+      <ul class="list-disc ml-5 mt-2">
+        <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <div>
+      <%= form.label :nome, 'Nome da Avaliação', class: 'block text-sm font-medium text-gray-700' %>
+      <%= form.text_field :nome, 
+                          class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
+                          placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo' %>
+    </div>
+
+    <div>
+      <%= form.label :bimestre, 'Bimestre', class: 'block text-sm font-medium text-gray-700' %>
+      <%= form.number_field :bimestre, 
+                            class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
+                            min: 1, max: 4, placeholder: '1, 2, 3 ou 4' %>
+    </div>
+
+    <div>
+      <%= form.label :ordem, 'Ordem de Cálculo', class: 'block text-sm font-medium text-gray-700' %>
+      <p class="text-xs text-gray-500 mb-1">Define a ordem de cálculo/exibição.</p>
+      <%= form.number_field :ordem, 
+                            class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500',
+                            min: 1, placeholder: 'Ex: 1 para a primeira nota' %>
+    </div>
+
+    <div class="flex items-center mt-6">
+      <%= form.check_box :is_recuperacao, 
+                         class: 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500' %>
+      <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'ml-2 block text-sm font-medium text-gray-700' %>
+      <p class="text-xs text-gray-500 ml-2">(Notas de recuperação substituem a nota original, mas não entram no cálculo de média como um item separado.)</p>
+    </div>
+    
+  </div>
+
+  <div class="pt-5">
+    <%= form.submit submit_text, class: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-md' %>
+  </div>
+<% end %>

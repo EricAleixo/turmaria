@@ -86,7 +86,19 @@ class Professor::Notas::RegistrosController < ApplicationController
   # Strong Parameters para lidar com múltiplos registros aninhados
   # Aceita um hash onde a chave é o aluno_id e o valor é um hash com a nota
   def registros_params
-    params.require(:open_struct).permit(registros: [:valor])
-    # Note: O nome `open_struct` é porque usamos `OpenStruct.new` na ação `new`
+  # Permite que 'registros' seja um Hash onde as chaves (aluno_id) são arbitrárias
+  # e o valor é um hash que contém o 'valor' da nota.
+  params.require(:open_struct).permit(registros: data_para_salvar) 
+  end
+
+  def data_para_salvar
+  # Você pode usar a lista de IDs dos alunos da turma. 
+  # Se isso for muito custoso, ou se você confia no formulário, 
+  # a forma mais simples é permitir todos os IDs que vierem:
+  @turma.aluno_ids.index_with { |id| [:valor] }
+  # OU, para simplificar e garantir que todos os alunos são permitidos:
+  params.require(:open_struct).fetch(:registros, {}).keys.map do |aluno_id|
+    { aluno_id.to_sym => [:valor] }
+  end.reduce({}, :merge)
   end
 end

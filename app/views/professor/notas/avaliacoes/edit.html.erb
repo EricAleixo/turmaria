@@ -1,4 +1,14 @@
-<div>
-  <h1 class="font-bold text-4xl">Professor::Notas::Avaliacoes#edit</h1>
-  <p>Find me in app/views/professor/notas/avaliacoes/edit.html.erb</p>
+<div class="p-6 bg-gray-100 min-h-screen">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-1">Editar Avaliação: <%= @avaliacao_configuracao.nome %></h1>
+    <p class="text-gray-600">Turma: **<%= @turma.nome %>** | Disciplina: **<%= @disciplina.nome %>**</p>
+  </div>
+
+  <%= link_to '← Voltar para Configurações de Avaliação', 
+              professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+              class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
+
+  <div class="bg-white p-8 shadow-md rounded-lg mt-4">
+    <%= render 'form', submit_text: 'Atualizar Configuração' %>
+  </div>
 </div>

@@ -1,0 +1,66 @@
+<% # app/views/professor/notas/registros/_form.html.erb %>
+
+<% # A partial recebe a variável 'url' para definir a rota correta (create ou update) %>
+<%= form_with(model: @registros_form, 
+              url: url, 
+              method: :post, 
+              data: { turbo: true }) do |form| %>
+
+  <div class="mb-4">
+    <p class="text-sm text-gray-700">Preencha os campos com as notas (use ponto ou vírgula). Deixe em branco para ignorar ou remover uma nota existente.</p>
+  </div>
+
+  <table class="table-auto w-full divide-y divide-gray-200 bg-white shadow-sm rounded-lg">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nº</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aluno</th>
+        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nota (0.00 - 10.00)</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      
+      <% # Itera sobre a coleção de registros (@registros) dentro do objeto pai (@registros_form) %>
+      <%= form.fields_for :registros, @registros do |registro_fields| %>
+        
+        <% # O objeto atual é a instância de RegistroDeNota (ou o find_or_initialize) %>
+        <% registro = registro_fields.object %>
+        <% aluno = registro.aluno %>
+        
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <%= aluno.numero_chamada %>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <%= aluno.nome %>
+            <% # Exibição de Erros de Validação por aluno/registro %>
+            <% if registro_fields.object.errors[:valor].any? %>
+              <div class="text-danger small text-red-600 font-bold"><%= registro_fields.object.errors[:valor].join(', ') %></div>
+            <% end %>
+          </td>
+          
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <% # CRÍTICO: Usa fields_for com o ID do aluno como chave, para gerar: open_struct[registros][ALUNO_ID][valor] %>
+            <%= registro_fields.fields_for aluno.id.to_s, registro do |nota_field| %>
+              <%= nota_field.text_field :valor, 
+                                        step: '0.01', 
+                                        class: 'form-control text-center w-24 mx-auto border border-gray-300 rounded-md shadow-sm p-2', 
+                                        placeholder: 'Nota',
+                                        # Substitui o ponto pela vírgula na exibição (melhor UX no Brasil)
+                                        value: nota_field.object.valor.to_s.gsub('.', ',') 
+                                        %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="mt-8">
+    <%= form.submit 'Salvar e Recalcular Médias', class: 'btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-lg cursor-pointer transition-colors shadow-md' %>
+    
+    <%= link_to 'Cancelar', 
+                professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+                class: 'btn bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg ml-4 transition-colors' %>
+  </div>
+<% end %>
