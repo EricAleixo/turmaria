@@ -28,6 +28,11 @@ class Turma < ApplicationRecord
     "#{nome} - #{escola.nome} (#{serie}º #{turno.humanize})"
   end
 
+  def bimestres_disponiveis
+    # Se AnoLetivo tivesse um campo: (1..ano_letivo.num_bimestres).to_a
+    (1..4).to_a
+  end
+
   private
 
   def ano_letivo_deve_pertencer_a_escola

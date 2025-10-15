@@ -16,7 +16,6 @@
       <main class="w-full max-w-4xl mx-auto">
         <div class="text-sm breadcrumbs mb-4">
           <ul>
-            <!-- Breadcrumbs corrigidos para GREEN-600 -->
             <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
             <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
             <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
@@ -24,7 +23,6 @@
           </ul>
         </div>
         
-        <!-- Detalhes no topo do formulário -->
         <div class="mb-4">
           <h2 class="text-2xl font-semibold text-gray-800">
             Configuração de Avaliação
@@ -32,7 +30,7 @@
           <p class="text-gray-600">Disciplina: <%= @disciplina.nome %> | Turma: <%= @turma.nome %></p>
         </div>
 
-        <%# 'submit_text' removido %>
+        <%# Renderização do formulário, que agora tem toda a lógica dinâmica interna %>
         <%= render 'form' %>
       </main> 
     </div>

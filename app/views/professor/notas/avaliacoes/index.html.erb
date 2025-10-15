@@ -14,7 +14,7 @@
 
   <%= link_to '← Voltar para Disciplinas', 
               professor_turma_disciplinas_path(@turma), 
-              class: 'text-blue-600 hover:text-blue-800 mb-4 inline-block' %>
+              class: 'text-green-600 hover:text-green-800 mb-4 inline-block' %>
 
   <% if @avaliacoes.any? %>
     <div class="bg-white shadow-md rounded-lg overflow-hidden mt-4">
@@ -30,9 +30,10 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <% @avaliacoes.each do |avaliacao| %>
             <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= avaliacao.bimestre %> (<%= avaliacao.ordem %>)
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                <%= avaliacao.bimestre %>
               </td>
+              
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <%= avaliacao.nome %>
               </td>

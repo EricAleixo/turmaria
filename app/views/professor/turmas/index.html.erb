@@ -113,25 +113,16 @@
                 Ver Frequência
               <% end %>
             <% else %>
-              <%= link_to nova_frequencia_turma_path(turma), class: "flex-1 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
+              <%= link_to "#", class: "flex-1 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
                 Registrar Frequência
               <% end %>
             <% end %>
-            
-<<<<<<< HEAD
-            <%= link_to historico_turma_path(turma), class: "flex-1 flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
-              Histórico
-            <% end %>
-=======
-            <% # 1. BOTÃO DE FREQUÊNCIA -> APONTA PARA LISTA DE DISCIPLINAS %>
-            <%= link_to 'Lançar Frequência', professor_turma_disciplinas_path(turma, target: :frequencia), class: "flex-1 bg-gray-400 hover:bg-gray-500 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
             
             <% # 2. BOTÃO DE NOTAS -> APONTA PARA LISTA DE DISCIPLINAS %>
             <%= link_to 'Lançar Notas', professor_turma_disciplinas_path(turma, target: :nota), class: "flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
             
             <% # 3. BOTÃO HISTÓRICO (AGORA ESTÁ DISPONÍVEL VIA MEMBRO EM TURMAS CONTROLLER) %>
             <%# Removido para manter 2 botões principais %>
->>>>>>> 51a053705ae40377652c65b25d9f8307a2082801
           </div>
         </div>
       </div>

@@ -1,5 +1,7 @@
 <%# app/views/professor/notas/resultados/show.html.erb %>
 
+<%# app/views/professor/notas/resultados/show.html.erb %>
+
 <div class="p-6 bg-gray-100 min-h-screen">
   
   <%# TÍTULO E SUBTÍTULO %>
@@ -11,22 +13,19 @@
     </p>
   </header>
 
-  <%# LINK DE RETORNO %>
   <%= link_to '← Voltar para Disciplinas', 
               professor_turma_disciplinas_path(@turma), 
-              class: 'text-blue-600 hover:text-blue-800 mb-6 inline-block' %>
+              class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
 
   <% if @alunos.any? %>
     <div class="bg-white shadow-xl rounded-lg overflow-x-auto mt-4">
       <table class="min-w-full divide-y divide-gray-200">
         
-        <%# CABEÇALHO DA TABELA %>
         <thead class="bg-blue-50">
           <tr>
             <th class="sticky left-0 bg-blue-50 px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/3">
               Aluno
             </th>
-            <%# Colunas Dinâmicas para os Bimestres (Assumindo 4 Bimestres) %>
             <% 1.upto(4) do |bimestre| %>
               <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Média B<%= bimestre %>
@@ -38,17 +37,14 @@
           </tr>
         </thead>
         
-        <%# CORPO DA TABELA %>
         <tbody class="bg-white divide-y divide-gray-200">
           <% @alunos.each do |aluno| %>
             <tr class="hover:bg-gray-50">
               
-              <%# Coluna Aluno %>
               <td class="sticky left-0 bg-white px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
                 <%= aluno.nome %>
               </td>
               
-              <%# Colunas de Médias Bimestrais %>
               <% 
                 total_medias = 0
                 bimestres_com_nota = 0
@@ -56,17 +52,13 @@
               
               <% 1.upto(4) do |bimestre| %>
                 <% 
-                  # Tenta encontrar a média no hash indexado: [aluno_id, bimestre]
                   media_bimestral = @medias_finais[[aluno.id, bimestre]]
                   nota = media_bimestral ? media_bimestral.nota_bimestre_final : nil
                   
-                  # Formata a nota e calcula o total/contagem
                   if nota
                     total_medias += nota.to_f
                     bimestres_com_nota += 1
                     nota_formatada = number_to_currency(nota, unit: "", separator: ",", delimiter: ".", precision: 1)
-                    
-                    # Define a cor com base na aprovação (Assumindo que 6.0 é aprovação)
                     cor_nota = nota.to_f >= 6.0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold'
                   else
                     nota_formatada = '—'
@@ -74,8 +66,25 @@
                   end
                 %>
 
+                <%# NOVO: Célula com Link para a Modal %>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center <%= cor_nota %>">
-                  <%= nota_formatada %>
+                  <% if media_bimestral %>
+                    <%# Link que aponta para a nova rota de detalhes e força o carregamento no frame 'modal' %>
+                    <%= link_to nota_formatada, 
+                                 # Você precisará criar esta rota (veja seção 3)
+                                detalhes_professor_turma_disciplina_resultados_path(
+                                   @turma, 
+                                   @disciplina, 
+                                   media_bimestral: media_bimestral.id # Passamos o ID da AvaliacaoBimestral
+                                 ),
+                                 data: { 
+                                   turbo_frame: "modal", 
+                                   turbo_action: "replace" 
+                                 },
+                                 class: "hover:underline cursor-pointer" %>
+                  <% else %>
+                    <%= nota_formatada %>
+                  <% end %>
                 </td>
               <% end %>
               
@@ -83,8 +92,6 @@
               <% 
                 media_final = bimestres_com_nota > 0 ? (total_medias / bimestres_com_nota) : 0
                 media_formatada = number_to_currency(media_final, unit: "", separator: ",", delimiter: ".", precision: 1)
-                
-                # Define a cor da Média Final
                 cor_final = media_final >= 6.0 ? 'bg-green-100 text-green-800 font-extrabold' : 'bg-red-100 text-red-800 font-extrabold'
               %>
 
@@ -97,10 +104,12 @@
       </table>
     </div>
   <% else %>
-    <%# MENSAGEM DE AUSÊNCIA DE ALUNOS %>
     <div class="text-center py-12 border border-dashed rounded-lg bg-white mt-4">
       <p class="text-lg font-medium text-gray-700">Nenhum aluno encontrado nesta turma.</p>
       <p class="mt-1 text-sm text-gray-500">Verifique o cadastro de alunos na administração da escola.</p>
     </div>
   <% end %>
+
+  <%# NOVO: Turbo Frame para Modal (Coloque no final do arquivo) %>
+  <turbo-frame id="modal"></turbo-frame>
 </div>

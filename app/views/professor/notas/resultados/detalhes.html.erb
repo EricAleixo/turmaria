@@ -1,0 +1,88 @@
+<%# app/views/professor/notas/resultados/detalhes.html.erb %>
+
+<%# O layout: false do controller garante que apenas este HTML será renderizado %>
+<%# Use a classe 'modal' do Tailwind/DaisyUI (se estiver usando) %>
+<%# Este arquivo renderiza o conteúdo da modal via Turbo Frame %>
+
+<%# Este arquivo renderiza o conteúdo da modal via Turbo Frame %>
+
+<div class="fixed inset-0 z-50 overflow-y-auto" 
+     aria-labelledby="modal-title" role="dialog" aria-modal="true"
+     data-controller="modal" 
+     data-action="turbo:submit-end->modal#hide
+                 keydown.esc->modal#hide
+                 click@window->modal#hideOnOutsideClick">
+
+  <%# Fundo escuro (overlay) %>
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+  <%# Conteúdo da Modal %>
+  <div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+    <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
+      
+      <%# Cabeçalho %>
+      <div class="bg-blue-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse sm:justify-between items-center">
+        <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">
+          Detalhes do Bimestre <%= @media_bimestral.bimestre %>
+        </h3>
+        <p class="text-sm text-gray-600">
+          Aluno: **<%= @media_bimestral.aluno.nome %>**
+        </p>
+      </div>
+      
+      <%# Corpo %>
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        
+        <div class="divide-y divide-gray-200">
+          <% if @avaliacoes_configuracoes.any? %>
+            <% @avaliacoes_configuracoes.each do |config| %>
+              <%# 1. Busca o registro de nota individual no HASH (@registros_de_nota) fornecido pelo Controller %>
+              <% 
+                # Busca no hash indexado pelo ID da configuração
+                registro = @registros_de_nota[config.id] 
+                
+                # CORREÇÃO FINAL: Usa 'valor' em vez de 'nota'
+                nota_individual = registro ? registro.valor : nil
+                
+                nota_formatada = nota_individual ? number_to_currency(nota_individual, unit: "", separator: ",", delimiter: ".", precision: 1) : '—'
+                cor_nota = nota_individual.to_f >= 6.0 ? 'text-green-600' : 'text-red-600'
+              %>
+              
+              <div class="py-3 flex justify-between items-center">
+                <div>
+                  <p class="text-sm font-medium text-gray-700"><%= config.nome %></p>
+                  <%# Verifica se a configuração de avaliação é de recuperação %>
+                  <% if config.respond_to?(:is_recuperacao?) && config.is_recuperacao? %>
+                    <span class="text-xs text-yellow-600">Recuperação</span>
+                  <% end %>
+                </div>
+                <p class="text-lg font-extrabold <%= cor_nota %>"><%= nota_formatada %></p>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-gray-500 italic py-4">Nenhuma avaliação configurada para este bimestre.</p>
+          <% end %>
+        </div>
+        
+        <%# Média Final %>
+        <div class="pt-4 mt-4 border-t border-gray-300 flex justify-between items-center">
+          <p class="text-base font-bold text-gray-800">Média Final do Bimestre:</p>
+          <% 
+            cor_final = @media_bimestral.nota_bimestre_final.to_f >= 6.0 ? 'text-green-700' : 'text-red-700'
+            nota_final_formatada = number_to_currency(@media_bimestral.nota_bimestre_final, unit: "", separator: ",", delimiter: ".", precision: 1)
+          %>
+          <p class="text-xl font-extrabold <%= cor_final %>"><%= nota_final_formatada %></p>
+        </div>
+
+      </div>
+      
+      <%# Rodapé/Botão Fechar %>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <%# O link vazio fecha a modal. A ação do StimulusJS 'modal#hide' lida com isso. %>
+        <%= link_to "Fechar", "#", 
+                    data: { action: "click->modal#hide" },
+                    class: "mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" %>
+      </div>
+    </div>
+  </div>
+</div>
