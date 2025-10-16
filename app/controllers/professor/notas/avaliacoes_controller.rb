@@ -14,6 +14,21 @@ class Professor::Notas::AvaliacoesController < Professor::BaseController
                               .order(bimestre: :asc, created_at: :asc)
   end
 
+  def destroy
+    nome_avaliacao = @avaliacao_configuracao.nome # Captura o nome antes de destruir
+    
+    if @avaliacao_configuracao.destroy
+      # Redireciona para o index com mensagem de sucesso
+      redirect_to professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+                  notice: "Configuração de avaliação '#{nome_avaliacao}' excluída com sucesso."
+    else
+      # Se a exclusão falhar (ex: devido a callbacks como 'before_destroy'), 
+      # redireciona com um alerta de erro.
+      redirect_to professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+                  alert: "Não foi possível excluir a avaliação '#{nome_avaliacao}'. Verifique se há notas atreladas."
+    end
+  end
+
   # GET /professor/turmas/:turma_id/disciplinas/:disciplina_id/notas/avaliacoes/new
   def new
     @avaliacao_configuracao = AvaliacaoConfiguracao.new(

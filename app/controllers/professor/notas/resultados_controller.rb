@@ -1,7 +1,7 @@
 # app/controllers/professor/notas/resultados_controller.rb
 
 class Professor::Notas::ResultadosController < Professor::BaseController 
-  before_action :set_turma_e_disciplina
+  before_action :set_turma_e_disciplina, only: [:show, :index, :detalhes]
   layout 'dashboard'
   before_action :authenticate_professor!
 
@@ -24,25 +24,34 @@ class Professor::Notas::ResultadosController < Professor::BaseController
 
 
   def detalhes
-    # Usando o parâmetro de ID correto, assumindo que é o ID do AvaliacaoBimestral
-    @media_bimestral = AvaliacaoBimestral.find(params[:media_bimestral_id] || params[:id])
+    # 🚨 FIX TURBO CACHE: Garante que o Rails sempre envie o corpo da resposta (Status 200)
+    expires_now 
+
+    # 1. Encontra a Média Bimestral final que foi clicada (AvaliacaoBimestral)
+    @media_bimestral = AvaliacaoBimestral.find(params[:media_bimestral])
     
-    # 1. Carrega as configurações de avaliação (nomes), já filtradas por bimestre.
-    @avaliacoes_configuracoes = @disciplina.avaliacoes_configuracoes
-                                           .where(bimestre: @media_bimestral.bimestre)
-                                           # CORREÇÃO: Ordenação estável por ID, já que está filtrado por bimestre.
-                                           .order(id: :asc) 
+    # Variáveis de contexto
+    aluno = @media_bimestral.aluno
+    bimestre = @media_bimestral.bimestre
     
-    # Coleta os IDs das configurações que pertencem ao bimestre.
+    # 2. Busca TODAS as configurações de avaliação (colunas de nota) para o bimestre
+    @avaliacoes_configuracoes = AvaliacaoConfiguracao
+                                  .do_bimestre(bimestre)
+                                  .where(turma: @turma, disciplina: @disciplina)
+                                  .order(created_at: :asc)
+                                  
+    # 3. Busca os IDs das configurações
     config_ids = @avaliacoes_configuracoes.pluck(:id)
+    
+    # 4. Busca os Registros de Nota filtrando pelo aluno e pelas configurações
+    registros = RegistroDeNota.where(aluno: aluno, avaliacao_configuracao_id: config_ids)
 
-    # 2. Busca os registros de nota filtrando pelos IDs das configurações.
-    @registros_de_nota = RegistroDeNota.where(
-      aluno_id: @media_bimestral.aluno_id,
-      avaliacao_configuracao_id: config_ids # Filtra pelos IDs de configuração
-    ).index_by(&:avaliacao_configuracao_id) 
-
-    render layout: false
+    # 5. Constrói um Hash para acesso rápido na view
+    @registros_de_nota = registros.index_by(&:avaliacao_configuracao_id)
+    
+    # Renderiza o partial da modal
+    render partial: 'detalhes', layout: false
+    
   rescue ActiveRecord::RecordNotFound
     head :not_found
   end

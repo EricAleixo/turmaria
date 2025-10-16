@@ -4,7 +4,7 @@ class AvaliacaoConfiguracao < ApplicationRecord
   # Associações
   belongs_to :turma
   belongs_to :disciplina
-  has_many :registros_de_notas, dependent: :destroy
+  has_many :registros_de_notas, class_name: 'RegistroDeNota', dependent: :destroy
   
   # Nova Associação para Recuperação (esta avaliação é uma recuperação de qual prova?)
   belongs_to :avaliacao_original, class_name: 'AvaliacaoConfiguracao', 
@@ -14,7 +14,8 @@ class AvaliacaoConfiguracao < ApplicationRecord
   # Associações Inversas: Uma avaliação padrão pode ter várias recuperações
   has_many :avaliacoes_recuperacao, class_name: 'AvaliacaoConfiguracao', 
                                     foreign_key: 'avaliacao_original_id',
-                                    dependent: :nullify
+                                    # 🚨 ALTERAÇÃO CRÍTICA: Apaga a recuperação se a original for apagada
+                                    dependent: :destroy
   
   # Validações
   validates :bimestre, presence: true, numericality: { greater_than_or_equal_to: 1 }

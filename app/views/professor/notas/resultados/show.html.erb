@@ -69,22 +69,19 @@
                 <%# NOVO: Célula com Link para a Modal %>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center <%= cor_nota %>">
                   <% if media_bimestral %>
-                    <%# Link que aponta para a nova rota de detalhes e força o carregamento no frame 'modal' %>
                     <%= link_to nota_formatada, 
-                                 # Você precisará criar esta rota (veja seção 3)
                                 detalhes_professor_turma_disciplina_resultados_path(
                                    @turma, 
                                    @disciplina, 
-                                   media_bimestral: media_bimestral.id # Passamos o ID da AvaliacaoBimestral
-                                 ),
-                                 data: { 
-                                   turbo_frame: "modal", 
-                                   turbo_action: "replace" 
-                                 },
-                                 class: "hover:underline cursor-pointer" %>
-                  <% else %>
-                    <%= nota_formatada %>
-                  <% end %>
+                                   media_bimestral: media_bimestral.id
+                                ),
+                                data: { 
+                                   turbo_frame: "modal"
+                                },
+                                class: "hover:underline cursor-pointer" %>
+                    <% else %>
+                        <%= nota_formatada %>
+                    <% end %>
                 </td>
               <% end %>
               
