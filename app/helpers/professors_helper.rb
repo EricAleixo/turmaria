@@ -1,4 +1,5 @@
 module ProfessorsHelper
+  
   # Configuração das cores por formação
   def tipo_professor_config(formacao)
     {
@@ -7,6 +8,21 @@ module ProfessorsHelper
       'pos_graduado' => { cor: 'yellow',  bg: 'yellow-100', text: 'yellow-700' },
       'graduado'     => { cor: 'gray',    bg: 'gray-100',   text: 'gray-700' }
     }[formacao] || { cor: 'gray', bg: 'gray-100', text: 'gray-700' }
+  end
+
+  def gradient_mobile(formacao)
+    case formacao
+    when 'doutorado'
+      "bg-gradient-to-br from-white via-blue-50 to-blue-100 border border-blue-200"
+    when 'mestrado'
+      "bg-gradient-to-br from-white via-red-50 to-red-100 border border-red-200"
+    when 'pos_graduado'
+      "bg-gradient-to-br from-white via-yellow-50 to-yellow-100 border border-yellow-200"
+    when 'graduado'
+      "bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-200"
+    else
+      "bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-200"
+    end
   end
 
   # SVG do olho, único para todos
@@ -40,6 +56,7 @@ module ProfessorsHelper
       icon_text + badge
     end
   end
+  
 
   def contato_card(titulo:, valor:, cor:, icone_svg:)
     content_tag(:div, class: "bg-gradient-to-br from-#{cor}-50 to-#{cor}-100 rounded-lg p-4 border border-#{cor}-200") do
@@ -55,5 +72,22 @@ module ProfessorsHelper
         end
       )
     end
+  end
+  
+  def disciplinas_badges(professor, max_visible = 3)
+    disciplinas = professor.disciplinas.to_a
+    visible = disciplinas.first(max_visible)
+    hidden_count = disciplinas.size - max_visible
+
+    badges = visible.map do |disciplina|
+      cfg = area_cfg(disciplina.area)
+      content_tag(:span, disciplina.nome, class: "px-2 py-1 rounded-full text-sm font-medium bg-#{cfg[:bg]} text-#{cfg[:text]}")
+    end
+
+    if hidden_count.positive?
+      badges << content_tag(:span, "+#{hidden_count}", class: "px-2 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700")
+    end
+
+    safe_join(badges, " ")
   end
 end
