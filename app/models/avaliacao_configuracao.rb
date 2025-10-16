@@ -15,7 +15,7 @@ class AvaliacaoConfiguracao < ApplicationRecord
   has_many :avaliacoes_recuperacao, class_name: 'AvaliacaoConfiguracao', 
                                     foreign_key: 'avaliacao_original_id',
                                     # 🚨 ALTERAÇÃO CRÍTICA: Apaga a recuperação se a original for apagada
-                                    dependent: :destroy
+                                    dependent: :delete_all
   
   # Validações
   validates :bimestre, presence: true, numericality: { greater_than_or_equal_to: 1 }

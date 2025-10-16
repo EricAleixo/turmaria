@@ -1,13 +1,18 @@
 <%# app/views/professor/notas/avaliacoes/_form.html.erb %>
 
 <%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
+<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
+<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
+<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
 <% if @avaliacao_configuracao.persisted? %>
-  <% form_url = professor_turma_disciplina_notas_avaliacao_path(@turma, @disciplina, @avaliacao_configuracao) %>
+  <%# 🚨 CORREÇÃO FINAL: Usamos o helper singular EXATO que o rails routes mostrou. %>
+  <% form_url = professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, @avaliacao_configuracao) %>
 <% else %>
+  <%# Rota para NEW/CREATE: Mantemos o helper plural completo. %>
   <% form_url = professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
 <% end %>
 
-<%# 2. Rota AJAX para o Stimulus (Usada para buscar as avaliações de recuperação) %>
+<%# 2. Rota AJAX para o Stimulus %>
 <% ajax_url = filter_by_bimestre_professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
 
 <%# 🚨 ENVOLVIMENTO COM O STIMULUS CONTROLLER 🚨 %>
@@ -17,9 +22,9 @@
   data-avaliacao-form-current-avaliacao-id-value="<%= @avaliacao_configuracao.avaliacao_original_id %>"
 >
 
-  <%= form_with(model: @avaliacao_configuracao, 
-                url: form_url, 
-                scope: :avaliacao_configuracao, 
+  <%# 🚨 FORM_WITH: Usamos model singular e URL explícita 🚨 %>
+  <%= form_with(model: @avaliacao_configuracao, # Deixa o Rails inferir o nome do modelo (scope) e o método
+                url: form_url,                  # FORÇA a URL aninhada correta
                 data: { turbo: true }, 
                 class: "bg-white p-8 rounded-lg shadow-md space-y-6") do |form| %>
 
