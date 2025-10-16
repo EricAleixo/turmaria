@@ -7,6 +7,7 @@ class Aluno < ApplicationRecord
   has_many_attached :cpf_documento
   has_one_attached :comprovante_residencia
   has_one_attached :historico_academico
+  has_one :endereco, dependent: :destroy 
 
   devise :database_authenticatable, :registerable,
        :recoverable, :rememberable,

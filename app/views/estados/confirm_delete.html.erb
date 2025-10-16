@@ -1,9 +1,40 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="bg-white p-8 rounded shadow max-w-md text-center">
-    <h2 class="text-2xl font-bold mb-4">Excluir Estado</h2>
-    <p class="mb-6">Tem certeza que deseja excluir o estado <strong><%= @estado.nome %></strong>?</p>
+<style>
+    /* Estilos customizados para consistência (Redeclaração para segurança da view) */
+    :root { font-family: 'Inter', sans-serif; }
+    .text-error { color: #ef4444; }
+    .bg-error-button { background-color: #ef4444; }
+    /* Cor mais escura no hover (red-700 do Tailwind) */
+    .hover-bg-error:hover { background-color: #b91c1c; }
+    .text-primary { color: #3b82f6; }
+</style>
+
+<!-- O modal/card é centralizado na tela com um fundo cinza claro -->
+<div class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+  <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-100">
     
-    <%= button_to 'Confirmar Exclusão', estado_path(@estado), method: :delete, class: "btn btn-error px-6 py-2 rounded" %>
-    <%= link_to 'Cancelar', estados_path, class: "ml-4 btn btn-outline" %>
+    <div class="mb-4">
+        <!-- Ícone de Alerta (Triângulo de Perigo) -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ef4444" class="w-12 h-12 mx-auto mb-3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.857 3.377 2.77 3.377h13.713c1.913 0 3.636-1.877 2.769-3.377L13.5 3.513a1.125 1.125 0 0 0-1.94 0L2.986 16.035Z" />
+        </svg>
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Confirmar Exclusão</h2>
+    
+    <p class="mb-6 text-gray-600">
+      Tem certeza que deseja excluir o estado <strong><%= @estado.nome %></strong>? 
+      Esta ação é irreversível e afetará todas as cidades associadas.
+    </p>
+    
+    <div class="flex flex-col space-y-3 mt-6">
+        <!-- Botão Confirmar Exclusão (estilo sólido e perigoso) -->
+        <%= button_to 'Sim, Excluir Definitivamente', estado_path(@estado), 
+                      method: :delete, 
+                      class: "w-full text-white font-semibold py-3 rounded-lg shadow-md transition duration-150 bg-error-button hover-bg-error" %>
+                      
+        <!-- Botão Cancelar (estilo outline/secundário) -->
+        <%= link_to 'Cancelar', estados_path, 
+                      class: "w-full text-gray-700 border border-gray-300 py-3 rounded-lg shadow-sm transition duration-150 hover:bg-gray-100" %>
+    </div>
   </div>
 </div>

@@ -1,17 +1,66 @@
-<div class="min-h-screen flex bg-base-200">
-  <main class="flex-1 px-8 py-10 max-w-lg mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Cadastrar Nova Cidade para <%= @estado.nome %></h1>
+<style>
+    /* Estilos customizados para consistência (mantidos no arquivo para garantir cores) */
+    :root { font-family: 'Inter', sans-serif; }
+    .text-primary { color: #3b82f6; } /* Tailwind blue-500 */
+    .bg-success-button { background-color: #10b981; } /* Tailwind emerald-500 */
+    .hover-bg-success:hover { background-color: #059669; } /* Tailwind emerald-600 */
+    .text-gray-800 { color: #1f2937; }
+    .bg-gray-50 { background-color: #f9fafb; }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+</style>
 
-    <%= form_with(model: [@estado, @cidade], local: true) do |form| %>
-      <div class="mb-4">
-        <%= form.label :nome, "Nome da Cidade", class: "block mb-1 font-semibold" %>
-        <%= form.text_field :nome, class: "input input-bordered w-full" %>
-      </div>
+<!-- Container principal centralizado e responsivo -->
+<div class="min-h-screen flex bg-gray-50 p-4 sm:p-8">
+  <main class="flex-1 max-w-2xl w-full mx-auto">
 
-      <div class="flex justify-between">
-        <%= link_to '← Voltar para Cidades', estado_cidades_path(@estado), class: "text-blue-600 hover:underline" %>
-        <%= form.submit "Salvar Cidade", class: "btn btn-success" %>
-      </div>
-    <% end %>
+    <!-- Card de Conteúdo -->
+    <div class="bg-white shadow-xl rounded-xl p-6 sm:p-10 border border-gray-100">
+        
+        <!-- Cabeçalho -->
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">
+            Cadastrar Nova Cidade
+        </h1>
+        <p class="text-gray-500 mb-8 text-sm sm:text-base border-b pb-4">
+            Você está adicionando uma nova cidade ao estado 
+            <strong class="text-primary"><%= @estado.nome %> (<%= @estado.sigla %>)</strong>.
+        </p>
+
+        <!-- Formulário -->
+        <%# Assumindo que você inicializou @cidade com Cidade.new no controller %>
+        <%= form_with model: [@estado, @cidade], local: true, class: "space-y-6" do |form| %>
+            
+            <div class="form-control">
+                <!-- Rótulo com estilo aprimorado -->
+                <%= form.label :nome, "Nome da Cidade", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                
+                <!-- Campo de texto com foco e estilo de borda -->
+                <%= form.text_field :nome, 
+                    class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 shadow-sm", 
+                    autofocus: true %>
+                
+                <% if @cidade.errors[:nome].any? %>
+                    <span class="text-red-500 text-sm mt-1 block"><%= @cidade.errors[:nome].first %></span>
+                <% end %>
+            </div>
+
+            <!-- Área de Ações -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                
+                <!-- Botão Cancelar/Voltar -->
+                <%= link_to '← Voltar para Cidades', estado_cidades_path(@estado), 
+                    class: "px-4 py-2 text-gray-600 border border-transparent rounded-lg hover:bg-gray-100 transition duration-150" %>
+                
+                <!-- Botão Salvar (Destacado com ícone, usando cor success) -->
+                <%= form.button class: "flex items-center space-x-2 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition duration-150 bg-success-button hover-bg-success" do %>
+                    <!-- Ícone de Checkmark/Adicionar -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                      <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Salvar Cidade</span>
+                <% end %>
+            </div>
+        <% end %>
+    </div>
+
   </main>
 </div>
