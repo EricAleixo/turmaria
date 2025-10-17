@@ -2,19 +2,18 @@ class Aluno < ApplicationRecord
   # === Associações (Relacionamentos) ===
   # Relacionamentos essenciais
   belongs_to :escola
-  belongs_to :cidade
+  belongs_to :cidade, optional: true # Tornando cidade_id opcional
   belongs_to :turma, optional: true # Aluno pode estar sem turma alocada
 
   # === Validações ===
   # ESSENCIAL: Garante que os campos obrigatórios sejam preenchidos
-  validates :cidade_id, presence: { message: "deve ser preenchida." }
+  # APENAS NOME É OBRIGATÓRIO
   validates :nome, presence: { message: "não pode estar em branco." }, length: { minimum: 3 }
+  
+  # CPF continua com validação de unicidade, mas o campo pode ficar vazio
   validates :cpf, uniqueness: { allow_blank: true, message: "já está em uso." }
 
-  # Validação de data de nascimento para garantir que o aluno seja maior que X ou menor que Y
-  # Exemplo: Alunos com no máximo 100 anos e no mínimo 3 anos.
-  validates :data_nascimento, presence: true
-  validate :data_nascimento_valida
+  # data_nascimento não tem mais validação de presence: true
 
   # === Active Storage Anexos ===
   # Arquivos de upload conforme listado nos strong parameters do Controller
@@ -47,18 +46,5 @@ class Aluno < ApplicationRecord
     age = today.year - data_nascimento.year
     age -= 1 if today < data_nascimento + age.years
     age
-  end
-
-  private
-
-  # Método de validação customizado para data de nascimento
-  def data_nascimento_valida
-    if data_nascimento.present?
-      if data_nascimento > Date.current
-        errors.add(:data_nascimento, "não pode ser no futuro.")
-      elsif data_nascimento < 100.years.ago.to_date
-        errors.add(:data_nascimento, "parece muito antiga, verifique o ano.")
-      end
-    end
   end
 end
