@@ -96,7 +96,11 @@ Rails.application.routes.draw do
         # Disciplinas dentro da turma
         resources :disciplinas, only: [:index] do
           # Visualização de resultados
-          resource :resultados, controller: 'notas/resultados', only: [:show]
+          resource :resultados, controller: 'notas/resultados', only: [:show] do
+             member do
+               get :detalhes
+             end
+            end
 
           # Frequências aninhadas
           resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
@@ -108,6 +112,9 @@ Rails.application.routes.draw do
           # Lançamento de notas
           namespace :notas do
             resources :avaliacoes, controller: 'avaliacoes' do
+              collection do
+                get :filter_by_bimestre
+              end
               resources :registros, controller: 'registros', only: [:new, :create]
             end
           end

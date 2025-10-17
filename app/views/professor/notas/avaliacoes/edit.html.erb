@@ -1,44 +1,41 @@
 <% content_for :title, "Editar Avaliação" %>
 
-<div class="drawer lg:drawer-open bg-gray-100">
-  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+<%# 🚨 CORREÇÃO: Removido as tags de layout duplicadas (drawer, drawer-content, drawer-toggle) %>
+<%# Este conteúdo será injetado no 'yield' do layout principal, que já fornece o drawer/sidebar. %>
 
-  <div class="drawer-content flex flex-col items-center">
-    
-    <div class="w-full p-4">
-      <div class="flex items-center mb-6 lg:hidden">
-        <label for="my-drawer" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-        <h1 class="text-xl font-bold ml-2">Editar Avaliação</h1>
-      </div>
+<%# SUGESTÃO: Se a barra de navegação/header principal do site estiver faltando, ela deve ser incluída como um partial aqui, antes do 'w-full p-4'. Exemplo: <%= render "layouts/header_navbar" %>
 
-      <main class="w-full max-w-4xl mx-auto">
-        <div class="text-sm breadcrumbs mb-4">
-          <ul>
-            <!-- Breadcrumbs corrigidos para GREEN-600 -->
-            <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li class="text-gray-600">Editar Avaliação</li>
-          </ul>
-        </div>
-
-        <!-- Detalhes no topo do formulário -->
-        <div class="mb-4">
-          <h2 class="text-2xl font-semibold text-gray-800">
-            Editando: **<%= @avaliacao_configuracao.nome %>**
-          </h2>
-          <p class="text-gray-600">Disciplina: **<%= @disciplina.nome %>** | Turma: **<%= @turma.nome %>**</p>
-        </div>
-
-        <%# 'submit_text' removido %>
-        <%= render 'form' %>
-      </main>
-    </div>
-
-    <div class="modal-container">
-      <turbo-frame id="modal"></turbo-frame>
-    </div>
+<div class="w-full p-4">
+  <%# Botão de menu móvel: mantém-se, pois ele interage com o 'my-drawer' do layout principal %>
+  <div class="flex items-center mb-6 lg:hidden">
+    <label for="my-drawer" class="btn btn-square btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </label>
+    <h1 class="text-xl font-bold ml-2">Editar Avaliação</h1>
   </div>
+
+  <main class="w-full max-w-4xl mx-auto">
+    <div class="text-sm breadcrumbs mb-4">
+      <ul>
+        <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+        <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+        <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+        <li class="text-gray-600">Editar Avaliação</li>
+      </ul>
+    </div>
+
+    <div class="mb-4">
+      <h2 class="text-2xl font-semibold text-gray-800">
+        Editando: <%= @avaliacao_configuracao.nome %>
+      </h2>
+      <p class="text-gray-600">Disciplina: <%= @disciplina.nome %> | Turma: <%= @turma.nome %></p>
+    </div>
+
+    <%# Renderização do formulário %>
+    <%= render 'form' %>
+  </main>
+</div>
+
+<div class="modal-container">
+  <turbo-frame id="modal"></turbo-frame>
 </div>

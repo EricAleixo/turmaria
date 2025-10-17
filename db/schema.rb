@@ -140,9 +140,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_15_120650) do
     t.integer "bimestre", null: false
     t.string "nome", null: false
     t.boolean "is_recuperacao", default: false, null: false
-    t.integer "ordem", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "avaliacao_original_id"
+    t.index ["avaliacao_original_id"], name: "index_avaliacoes_configuracoes_on_avaliacao_original_id"
     t.index ["disciplina_id"], name: "index_avaliacoes_configuracoes_on_disciplina_id"
     t.index ["turma_id", "disciplina_id", "bimestre", "nome"], name: "idx_unique_avaliacao_config", unique: true
     t.index ["turma_id"], name: "index_avaliacoes_configuracoes_on_turma_id"
@@ -395,6 +396,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_15_120650) do
   add_foreign_key "avaliacoes_bimestrais", "alunos"
   add_foreign_key "avaliacoes_bimestrais", "disciplinas"
   add_foreign_key "avaliacoes_bimestrais", "turmas"
+  add_foreign_key "avaliacoes_configuracoes", "avaliacoes_configuracoes", column: "avaliacao_original_id"
   add_foreign_key "avaliacoes_configuracoes", "disciplinas"
   add_foreign_key "avaliacoes_configuracoes", "turmas"
   add_foreign_key "cidades", "estados"
