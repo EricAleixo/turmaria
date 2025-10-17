@@ -263,6 +263,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_15_120650) do
     t.index ["turma_id"], name: "index_frequencias_on_turma_id"
   end
 
+  create_table "materia", force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nome"], name: "index_materia_on_nome", unique: true
+  end
+
   create_table "nota", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

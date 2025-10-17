@@ -112,6 +112,7 @@ module DisciplinaHelper
 
     badge
   end
+  
 
   def badge_area(area)
     cfg = area_cfg(area)

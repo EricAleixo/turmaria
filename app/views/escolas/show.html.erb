@@ -7,28 +7,53 @@
           <h1 class="text-2xl font-bold text-gray-900">Dashboard - <%= @escola.nome %></h1>
           <div class="text-sm breadcrumbs mt-1">
             <ul>
-              <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li>
+                <%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              </li>
               <li class="text-gray-600"><%= @escola.nome %></li>
             </ul>
           </div>
         </div>
-        <div class="flex gap-3">
-          <%= link_to new_escola_turma_path(@escola), class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2 inline">
+
+        <!-- Botões para telas sm e maiores -->
+        <div class="hidden sm:flex gap-3">
+          <%= link_to new_escola_turma_path(@escola), class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
             Nova Turma
           <% end %>
-          <%= link_to edit_escola_path(@escola), class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2 inline">
+
+          <%= link_to edit_escola_path(@escola), class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
             Editar Escola
           <% end %>
         </div>
+
+        <!-- Dropdown para telas menores que sm -->
+        <div class="sm:hidden dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 mt-2 border border-gray-200">
+            <li>
+              <%= link_to "Nova Turma", new_escola_turma_path(@escola) %>
+            </li>
+            <li>
+              <%= link_to "Editar Escola", edit_escola_path(@escola) %>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </div>
   </div>
+
+
 
   <div class="px-6">
     <!-- School Info Header Personalizada -->
