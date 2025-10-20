@@ -1,3 +1,5 @@
+# app/models/aluno.rb
+
 class Aluno < ApplicationRecord
   # === Associações (Relacionamentos) ===
   # Relacionamentos essenciais
@@ -47,4 +49,19 @@ class Aluno < ApplicationRecord
     age -= 1 if today < data_nascimento + age.years
     age
   end
+  
+  # =========================================================================
+  # O MÉTODO QUE ESTAVA FALTANDO PARA RESOLVER O NoMethodError
+  # =========================================================================
+  # Este método é chamado na view (aluno.status_aluno) e no controller (para filtros).
+  def status_aluno
+    # A lógica mais simples é baseada na alocação de turma.
+    # O controller usa implicitamente esta lógica para o filtro "alocado" / "pendente de alocacao".
+    if turma_id.present?
+      "Alocado"
+    else
+      "Pendente de Alocação"
+    end
+  end
+  # =========================================================================
 end
