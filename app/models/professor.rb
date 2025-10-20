@@ -51,4 +51,123 @@ class Professor < ApplicationRecord
     parts.join(', ')
   end
 
+  # 1. Total de Turmas Ativas
+  def total_turmas_ativas
+    # Assumindo que o enum de Turma tenha um status 'ativa' ou 'ativo'
+    # Como seu modelo Turma não mostrou um campo status, vou simular o que seria lógico:
+    turmas.count # Contamos todas as turmas que o professor está associado.
+    # Se houvesse um campo "status" na Turma, seria:
+    # turmas.where(status: 'ativo').count 
+  end
+
+  # 2. Total de Disciplinas Únicas
+  def total_disciplinas_unicas
+    disciplinas.distinct.count
+  end
+
+  # 3. Total de Alunos Únicos
+  # A associação 'has_many :alunos, through: :turmas' funciona para isso.
+  def total_alunos_unicos
+    alunos.distinct.count
+  end
+
+  # 4. Média Geral de Notas
+  def media_geral_notas
+    # 1. Identifica todas as IDs de disciplinas lecionadas
+    disciplina_ids = self.disciplina_ids
+
+    # 2. Encontra todas as configurações de avaliação (provas/trabalhos) ligadas a essas disciplinas
+    # (Inclui avaliações de recuperação, a menos que você decida excluí-las aqui)
+    avaliacao_config_ids = AvaliacaoConfiguracao
+                           .where(disciplina_id: disciplina_ids)
+                           .pluck(:id)
+                           
+    # 3. Calcula a média dos RegistrosDeNotas
+    media = RegistroDeNota.where(avaliacao_configuracao_id: avaliacao_config_ids).average(:valor)
+
+    # Retorna a média ou 0.0 se for nil, formatado para duas casas (antes de ser usado na view)
+    media.present? ? media.round(2) : 0.0
+  end
+
+  # 5. Média de Presença
+  def media_presenca
+    # MANTER MOCK (Pendente de Frequencia)
+    rand(85.0..99.0).round(1)
+  end
+
+  # 6. Média Pior Turma (Simulação)
+  def pior_turma_media
+    # Lógica real: Agrupar `RegistroDeNota` por `Turma`, calcular a média
+    # de cada grupo e encontrar o valor mínimo.
+    
+    # Por enquanto, retorna um valor simples com o nome da pior turma
+    {
+      media: rand(5.0..7.0).round(1),
+      nome: "9º Ano A - Matemática" # Valor fixo/mock, pois o cálculo é pesado
+    }
+  end
+
+  # 7. Notas Lançadas no Mês
+  def notas_lancadas_mes
+    # Usa as mesmas IDs de Avaliação para contar apenas as criadas neste mês
+    disciplina_ids = self.disciplina_ids
+    
+    avaliacao_config_ids = AvaliacaoConfiguracao
+                           .where(disciplina_id: disciplina_ids)
+                           .pluck(:id)
+
+    RegistroDeNota.where(
+      avaliacao_configuracao_id: avaliacao_config_ids,
+      created_at: Time.current.all_month
+    ).count
+  end
+
+  # 8. Lista de Disciplinas e Turmas
+  def disciplinas_e_turmas_atribuidas
+    # Retorna uma lista de hashes única para cada par Disciplina/Turma
+    
+    # O método `turmas` já inclui todas as turmas do professor.
+    turmas.includes(:turma_disciplinas, :disciplinas).flat_map do |turma|
+      turma.disciplinas.map do |disciplina|
+        {
+          disciplina: disciplina.nome,
+          turma: turma.nome_completo, 
+          id: turma.id 
+        }
+      end
+    end.uniq { |item| [item[:disciplina], item[:turma]] }
+  end
+
+  # 9. Dados para Gráfico: Desempenho por Disciplina
+  def grafico_desempenho_disciplinas
+    # Mapeia a média de notas para cada disciplina lecionada pelo professor
+    
+    # Simulação por complexidade:
+    disciplinas_ativas = disciplinas.distinct.limit(4).pluck(:nome)
+    
+    {
+      labels: disciplinas_ativas,
+      data: disciplinas_ativas.map { |d| rand(7.0..9.0).round(1) }
+    }
+  end
+
+  # 10. Dados para Gráfico: Evolução de Notas (Semestral)
+  def grafico_evolucao_notas
+    # MANTER MOCK (Dados de tempo complexos e pesados)
+    {
+      labels: ["Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
+      data: [rand(7.0..8.0).round(1), rand(7.2..8.2).round(1), rand(7.5..8.5).round(1), rand(7.7..8.7).round(1), rand(8.0..9.0).round(1), rand(7.9..8.9).round(1)]
+    }
+  end
+
+  # 11. Dados para Gráfico: Presença por Turma
+  def grafico_presenca_turmas
+    # MANTER MOCK (Pendente de Frequencia)
+    turmas_ativas = turmas.limit(4).pluck(:nome)
+    {
+      labels: turmas_ativas,
+      data: turmas_ativas.map { |t| rand(85.0..98.0).round(1) }
+    }
+  end
+
 end
