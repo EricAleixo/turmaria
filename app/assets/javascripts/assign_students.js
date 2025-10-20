@@ -20,13 +20,18 @@ class StudentAssignment {
     window.openAllocateModal = (studentId, studentName) => {
       this.currentStudentId = studentId;
       this.currentStudentName = studentName;
-      document.getElementById('allocate-student-name').textContent = studentName;
-      document.getElementById('allocate-modal').showModal();
+      const nameElement = document.getElementById('allocate-student-name');
+      const modal = document.getElementById('allocate-modal');
+      if (nameElement && modal) {
+        nameElement.textContent = studentName;
+        modal.showModal();
+      }
       return false;
     };
 
     window.closeAllocateModal = () => {
-      document.getElementById('allocate-modal').close();
+      const modal = document.getElementById('allocate-modal');
+      if (modal) modal.close();
       this.currentStudentId = null;
       this.currentStudentName = null;
     };
@@ -41,13 +46,18 @@ class StudentAssignment {
     window.openRemoveModal = (studentId, studentName) => {
       this.currentStudentId = studentId;
       this.currentStudentName = studentName;
-      document.getElementById('remove-student-name').textContent = studentName;
-      document.getElementById('remove-modal').showModal();
+      const nameElement = document.getElementById('remove-student-name');
+      const modal = document.getElementById('remove-modal');
+      if (nameElement && modal) {
+        nameElement.textContent = studentName;
+        modal.showModal();
+      }
       return false;
     };
 
     window.closeRemoveModal = () => {
-      document.getElementById('remove-modal').close();
+      const modal = document.getElementById('remove-modal');
+      if (modal) modal.close();
       this.currentStudentId = null;
       this.currentStudentName = null;
     };
@@ -61,13 +71,18 @@ class StudentAssignment {
 
     window.openBulkAllocateModal = () => {
       const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-      document.getElementById('bulk-allocate-count').textContent = checkedBoxes.length;
-      document.getElementById('bulk-allocate-modal').showModal();
+      const countElement = document.getElementById('bulk-allocate-count');
+      const modal = document.getElementById('bulk-allocate-modal');
+      if (countElement && modal) {
+        countElement.textContent = checkedBoxes.length;
+        modal.showModal();
+      }
       return false;
     };
 
     window.closeBulkAllocateModal = () => {
-      document.getElementById('bulk-allocate-modal').close();
+      const modal = document.getElementById('bulk-allocate-modal');
+      if (modal) modal.close();
     };
 
     window.confirmBulkAllocate = () => {
@@ -80,13 +95,18 @@ class StudentAssignment {
 
     window.openBulkRemoveModal = () => {
       const checkedBoxes = document.querySelectorAll('.allocated-checkbox:checked');
-      document.getElementById('bulk-remove-count').textContent = checkedBoxes.length;
-      document.getElementById('bulk-remove-modal').showModal();
+      const countElement = document.getElementById('bulk-remove-count');
+      const modal = document.getElementById('bulk-remove-modal');
+      if (countElement && modal) {
+        countElement.textContent = checkedBoxes.length;
+        modal.showModal();
+      }
       return false;
     };
 
     window.closeBulkRemoveModal = () => {
-      document.getElementById('bulk-remove-modal').close();
+      const modal = document.getElementById('bulk-remove-modal');
+      if (modal) modal.close();
     };
 
     window.confirmBulkRemove = () => {
@@ -122,8 +142,12 @@ class StudentAssignment {
 
     studentCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
-        this.updateSelectAllState(selectAllAvailable, studentCheckboxes);
-        this.updateSelectAllState(selectAllAvailableMobile, studentCheckboxes);
+        if (selectAllAvailable) {
+          this.updateSelectAllState(selectAllAvailable, studentCheckboxes);
+        }
+        if (selectAllAvailableMobile) {
+          this.updateSelectAllState(selectAllAvailableMobile, studentCheckboxes);
+        }
         this.updateAvailableCount();
       });
     });
@@ -150,8 +174,12 @@ class StudentAssignment {
 
     allocatedCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
-        this.updateSelectAllState(selectAllAllocated, allocatedCheckboxes);
-        this.updateSelectAllState(selectAllAllocatedMobile, allocatedCheckboxes);
+        if (selectAllAllocated) {
+          this.updateSelectAllState(selectAllAllocated, allocatedCheckboxes);
+        }
+        if (selectAllAllocatedMobile) {
+          this.updateSelectAllState(selectAllAllocatedMobile, allocatedCheckboxes);
+        }
         this.updateAllocatedCount();
       });
     });
@@ -190,6 +218,8 @@ class StudentAssignment {
 
   // Helper Methods
   updateSelectAllState(selectAllCheckbox, checkboxes) {
+    if (!selectAllCheckbox) return;
+    
     const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
     
     if (checkedBoxes.length === 0) {
@@ -263,16 +293,22 @@ class StudentAssignment {
   }
 
   applyFilters(type) {
-    const searchQuery = document.getElementById(`search-${type}`).value;
-    const ageFilter = document.getElementById(`age-filter-${type}`).value;
-    const orderFilter = document.getElementById(`order-filter-${type}`).value;
+    const searchInput = document.getElementById(`search-${type}`);
+    const ageFilter = document.getElementById(`age-filter-${type}`);
+    const orderFilter = document.getElementById(`order-filter-${type}`);
+    
+    if (!searchInput || !ageFilter || !orderFilter) return;
+    
+    const searchQuery = searchInput.value;
+    const ageFilterValue = ageFilter.value;
+    const orderFilterValue = orderFilter.value;
     
     const params = new URLSearchParams(window.location.search);
     const prefix = type === 'allocated' ? 'allocated_' : 'available_';
     
     this.setOrDeleteParam(params, `${prefix}search`, searchQuery);
-    this.setOrDeleteParam(params, `${prefix}age_filter`, ageFilter);
-    this.setOrDeleteParam(params, `${prefix}order_filter`, orderFilter);
+    this.setOrDeleteParam(params, `${prefix}age_filter`, ageFilterValue);
+    this.setOrDeleteParam(params, `${prefix}order_filter`, orderFilterValue);
     
     document.body.style.cursor = 'wait';
     window.location.search = params.toString();
@@ -333,14 +369,38 @@ class StudentAssignment {
   }
 
   getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').content;
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.content : '';
   }
 }
 
 // Initialize when DOM is ready
 function initializeStudentAssignment() {
-  new StudentAssignment();
+  // Previne múltiplas inicializações
+  if (window.studentAssignmentInstance) {
+    return;
+  }
+  
+  // Verifica se estamos na página correta
+  const pageContainer = document.querySelector('[data-escola-id][data-turma-id]');
+  if (!pageContainer) {
+    return;
+  }
+  
+  window.studentAssignmentInstance = new StudentAssignment();
 }
 
-document.addEventListener('DOMContentLoaded', initializeStudentAssignment);
+// Limpa a instância antes do Turbo renderizar nova página
+document.addEventListener('turbo:before-render', () => {
+  window.studentAssignmentInstance = null;
+});
+
+// Inicializa em todas as situações possíveis
 document.addEventListener('turbo:load', initializeStudentAssignment);
+document.addEventListener('turbo:render', initializeStudentAssignment);
+document.addEventListener('DOMContentLoaded', initializeStudentAssignment);
+
+// Executa imediatamente se o DOM já estiver pronto
+if (document.readyState !== 'loading') {
+  initializeStudentAssignment();
+}

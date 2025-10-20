@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_17_140154) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_19_173918) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -259,6 +259,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_140154) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "observacoes"
+    t.bigint "disciplina_id", null: false
+    t.index ["disciplina_id"], name: "index_frequencias_on_disciplina_id"
     t.index ["professor_id"], name: "index_frequencias_on_professor_id"
     t.index ["turma_id", "data_aula"], name: "index_frequencias_on_turma_id_and_data_aula", unique: true
     t.index ["turma_id"], name: "index_frequencias_on_turma_id"
@@ -401,6 +403,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_140154) do
   add_foreign_key "escolas", "admins"
   add_foreign_key "frequencia_alunos", "alunos", on_delete: :nullify
   add_foreign_key "frequencia_alunos", "frequencias"
+  add_foreign_key "frequencias", "disciplinas"
   add_foreign_key "frequencias", "professors"
   add_foreign_key "frequencias", "turmas"
   add_foreign_key "professor_disciplinas", "disciplinas"

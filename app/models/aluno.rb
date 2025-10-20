@@ -1,45 +1,33 @@
 class Aluno < ApplicationRecord
-  # === Associações (Relacionamentos) ===
-  # Relacionamentos essenciais
+  # === Associações ===
   belongs_to :escola
-  belongs_to :cidade, optional: true # Tornando cidade_id opcional
-  belongs_to :turma, optional: true # Aluno pode estar sem turma alocada
+  belongs_to :turma, optional: true
+  belongs_to :cidade, optional: true
 
   # === Validações ===
-  # ESSENCIAL: Garante que os campos obrigatórios sejam preenchidos
-  # APENAS NOME É OBRIGATÓRIO
   validates :nome, presence: { message: "não pode estar em branco." }, length: { minimum: 3 }
-  
-  # CPF continua com validação de unicidade, mas o campo pode ficar vazio
   validates :cpf, uniqueness: { allow_blank: true, message: "já está em uso." }
 
-  # data_nascimento não tem mais validação de presence: true
+  # === Active Storage ===
+  has_one_attached :foto
+  has_one_attached :historico_academico
+  has_many_attached :cpf_documento
+  has_many_attached :comprovante_residencia
 
-  # === Active Storage Anexos ===
-  # Arquivos de upload conforme listado nos strong parameters do Controller
-  has_one_attached :foto # Foto de perfil
-  has_one_attached :historico_academico # Histórico (um arquivo)
-  has_many_attached :cpf_documento # Documentos de CPF (pode ser frente e verso)
-  has_many_attached :comprovante_residencia # Comprovantes (pode ser mais de um)
-
-  # === Callbacks e Lógica Personalizada ===
+  # === Callbacks ===
   before_create :generate_matricula
 
-  # Lógica de geração de matrícula única
+  # === Métodos ===
   def generate_matricula
     loop do
-      # Formato: ESC-ID_ESCOLA-ANO-SEQUENCIAL_UNICO
       year = Time.zone.now.year
-      # Gera um número aleatório único (ou use uma sequência incremental do banco)
-      random_sequence = SecureRandom.hex(4).upcase 
-      candidate_matricula = "ESC-#{escola_id}-#{year}-#{random_sequence}"
-      self.matricula = candidate_matricula
-      # Garante que a matrícula gerada é realmente única antes de sair do loop
-      break unless Aluno.exists?(matricula: candidate_matricula)
+      random_sequence = SecureRandom.hex(4).upcase
+      candidate = "ESC-#{escola_id}-#{year}-#{random_sequence}"
+      self.matricula = candidate
+      break unless Aluno.exists?(matricula: candidate)
     end
   end
 
-  # Calcula a idade do aluno
   def idade
     return nil unless data_nascimento
     today = Date.current
