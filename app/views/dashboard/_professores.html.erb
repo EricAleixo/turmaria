@@ -25,6 +25,7 @@
       </div>
       <div class="flex gap-3">
         <%# Botão principal agora é VERDE (green-600) %>
+        <%# Este link pode ser ajustado para a rota de criação de Nota/Falta %>
         <%= link_to "#", class: "btn bg-green-600 hover:bg-green-700 text-white" do %>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.932zm0 0L19.5 7.125M18 14.25v2.25M6 18h.75m1.5 0h.75" />
@@ -36,7 +37,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       
-      <%# Cartão 1: Turmas Ativas (Cor primária: GREEN) %>
+      <%# Cartão 1: Turmas Ativas (GREEN) %>
       <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
         <div class="text-center">
           <div class="text-3xl font-bold text-green-600 mb-2"><%= @turmas_ativas %></div>
@@ -44,7 +45,7 @@
         </div>
       </div>
       
-      <%# Cartão 2: Disciplinas Lecionadas (Cor secundária: GREEN) %>
+      <%# Cartão 2: Disciplinas Lecionadas (GREEN) %>
       <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
         <div class="text-center">
           <div class="text-3xl font-bold text-green-600 mb-2"><%= @disciplinas_contagem %></div>
@@ -52,7 +53,7 @@
         </div>
       </div>
       
-      <%# Cartão 3: Total de Alunos Únicos (Mantido Roxo) %>
+      <%# Cartão 3: Total de Alunos Únicos (Purple) %>
       <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-purple-600">
         <div class="text-center">
           <div class="text-3xl font-bold text-purple-600 mb-2"><%= @alunos_unicos %></div>
@@ -60,7 +61,7 @@
         </div>
       </div>
       
-      <%# Cartão 4: Média Geral de Notas (Mantido Laranja) %>
+      <%# Cartão 4: Média Geral de Notas (Orange) %>
       <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-orange-600">
         <div class="text-center">
           <div class="text-3xl font-bold text-orange-600 mb-2"><%= @media_geral_notas %></div>
@@ -71,7 +72,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       
-      <%# Média de Presença (Mantido Teal) %>
+      <%# Média de Presença (Teal - MOCKADO POR ENQUANTO) %>
       <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-teal-600">
         <div class="text-center">
           <div class="text-2xl font-bold text-teal-600 mb-2"><%= @media_presenca %></div>
@@ -79,7 +80,7 @@
         </div>
       </div>
       
-      <%# Pior Turma (Mantido Vermelho) %>
+      <%# Pior Turma (Red - MOCKADO POR ENQUANTO) %>
       <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-red-600">
         <div class="text-center">
           <div class="text-2xl font-bold text-red-600 mb-2"><%= @pior_turma_media %></div>
@@ -87,7 +88,7 @@
         </div>
       </div>
       
-      <%# Notas Lançadas (Mantido Indigo) %>
+      <%# Notas Lançadas (Indigo) %>
       <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-indigo-600">
         <div class="text-center">
           <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @notas_lancadas_mes %></div>
@@ -134,9 +135,9 @@
                     <div class="text-sm text-gray-500">Turma: <%= item[:turma] %></div>
                   </div>
                 </div>
-                <%# Botão 'Gerenciar' agora é VERDE (green-600) %>
+                
                 <div class="text-gray-400">
-                  <%= link_to 'Gerenciar', '#', class: "text-green-600 hover:text-green-800 text-sm" %>
+                  <%= link_to 'Gerenciar', "#", class: "text-green-600 hover:text-green-800 text-sm" %>
                 </div>
               </div>
             <% end %>
@@ -182,7 +183,7 @@ function initializeProfessorCharts() {
           label: 'Média de Notas',
           data: perfData.data,
           backgroundColor: [
-            'rgba(16, 185, 129, 0.8)', // green-500 (AGORA É A PRIMEIRA COR)
+            'rgba(16, 185, 129, 0.8)', // green-500
             'rgba(59, 130, 246, 0.8)', // blue-500
             'rgba(168, 85, 247, 0.8)', // purple-500
             'rgba(249, 115, 22, 0.8)', // orange-500

@@ -133,6 +133,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :profile, only: [:show, :edit, :update], controller: 'profiles'
+
   # Rotas unificadas Devise
   devise_scope :professor do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session

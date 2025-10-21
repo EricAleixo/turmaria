@@ -63,6 +63,8 @@ class EscolasController < ApplicationController
     
     # Carrega todos os alunos da escola com a mesma lógica do alunos controller
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
+
+    @professores = @escola.professors.includes(:disciplinas).order(:nome)
   end
 
   def new
