@@ -18,12 +18,45 @@
             </svg>
             Voltar para Turmas
           <% end %>
-          <%= link_to nova_frequencia_turma_path(@turma), class: "w-full sm:w-auto text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2" do %>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Nova Frequência
-          <% end %>
+          
+          <!-- Dropdown de Disciplinas -->
+          <div class="relative w-full sm:w-auto">
+            <button id="dropdownButton" type="button" 
+                    class="w-full sm:w-auto text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Nova Frequência
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div class="py-2">
+                <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                  Selecione a Disciplina
+                </div>
+                <% if current_professor.disciplinas.any? %>
+                  <% current_professor.disciplinas.each do |disciplina| %>
+                    <%= link_to new_professor_turma_disciplina_frequencia_path(@turma, disciplina), 
+                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" do %>
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span><%= disciplina.nome %></span>
+                      </div>
+                    <% end %>
+                  <% end %>
+                <% else %>
+                  <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                    Nenhuma disciplina disponível
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -182,12 +215,13 @@
                       </svg>
                     </button>
                   <% elsif eh_passado %>
-                    <%= link_to nova_frequencia_turma_path(@turma, data_aula: data), 
-                          class: "w-full h-full flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-300 #{eh_hoje ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600 hover:text-gray-800'}" do %>
+                    <button type="button"
+                            onclick="abrirDropdownData(event)"
+                            class="w-full h-full flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-300 <%= eh_hoje ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600 hover:text-gray-800' %>">
                       <span class="text-xs font-medium"><%= data.day %></span>
-                    <% end %>
+                    </button>
                   <% else %>
-                    <div class="w-full h-full flex items-center justify-center p-1 rounded-lg #{eh_hoje ? 'bg-blue-100 text-blue-600' : 'text-gray-400'}">
+                    <div class="w-full h-full flex items-center justify-center p-1 rounded-lg <%= eh_hoje ? 'bg-blue-100 text-blue-600' : 'text-gray-400' %>">
                       <span class="text-xs"><%= data.day %></span>
                     </div>
                   <% end %>
@@ -350,6 +384,23 @@
 
 <script>
 let frequenciaAtualId = null;
+
+// Toggle do dropdown principal
+document.getElementById('dropdownButton').addEventListener('click', function(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('dropdownMenu');
+  menu.classList.toggle('hidden');
+});
+
+// Fechar dropdown ao clicar fora
+document.addEventListener('click', function(e) {
+  const dropdown = document.getElementById('dropdownMenu');
+  const button = document.getElementById('dropdownButton');
+  
+  if (!dropdown.contains(e.target) && !button.contains(e.target)) {
+    dropdown.classList.add('hidden');
+  }
+});
 
 function mostrarDetalhes(frequenciaId) {
   const btn = document.querySelector(`[data-frequencia-id="${frequenciaId}"]`);

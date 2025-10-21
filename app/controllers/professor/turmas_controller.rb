@@ -2,33 +2,52 @@ class Professor::TurmasController < Professor::BaseController
   layout 'dashboard'
   before_action :authenticate_professor!
 
-  # Assume que layout, autenticação e base estão em Professor::BaseController
-
   def index
-    # 1. Carrega as turmas do professor
-    # Inclui :alunos e :frequencias (para a contagem no card individual na view)
     @turmas = current_professor.turmas.includes(:alunos, :frequencias)
-    
-    # 2. Define as estatísticas para os 4 cards de resumo
     @estatisticas = calcular_estatisticas(@turmas)
   end
 
-  # GET /professor/turmas/:id/historico - CONSOLIDADO DE NOTAS E FALTAS
   def historico
-    # 1. Encontra a turma garantindo que o professor a leciona.
+    # 1. Encontra a turma garantindo que o professor a leciona
     @turma = current_professor.turmas.find(params[:id])
     @alunos = @turma.alunos.order(:nome)
     
-    # 2. Busca resultados FINAIS de notas (do seu schema `AvaliacoesBimestrais`)
-    resultados_finais_turma = AvaliacoesBimestrais
+    # 2. Parâmetros de data para o calendário
+    @mes = params[:mes]&.to_i || Date.current.month
+    @ano = params[:ano]&.to_i || Date.current.year
+    
+    # 3. Datas do mês
+    @data_inicio = Date.new(@ano, @mes, 1)
+    @data_fim = @data_inicio.end_of_month
+    
+    # 4. Buscar frequências do mês (apenas das disciplinas do professor)
+    @frequencias = Frequencia
+      .joins(:disciplina)
       .where(turma: @turma)
-      .where.not(nota_bimestre_final: nil) 
-      .to_a 
+      .where(data_aula: @data_inicio..@data_fim)
+      .order(:data_aula)
+
+    
+    # 5. Datas que têm frequência registrada
+    @datas_com_frequencia = @frequencias.pluck(:data_aula)
+    
+    # 6. Calcular estatísticas do mês (para os cards)
+    @estatisticas_mes = {
+      total_aulas: @frequencias.count,
+      total_alunos: @turma.alunos.count,
+      media_presenca: calcular_media_presenca(@frequencias)
+    }
+    
+    # 7. Busca resultados FINAIS de notas (do schema AvaliacaoBimestral)
+    resultados_finais_turma = AvaliacaoBimestral
+      .where(turma: @turma)
+      .where.not(nota_bimestre_final: nil)
+      .to_a
       
-    # 3. Busca o total de aulas registradas (usado para cálculo de faltas)
+    # 8. Busca o total de aulas registradas (usado para cálculo de faltas)
     total_aulas_registradas = Frequencia.where(turma: @turma).count
     
-    # 4. Processa o desempenho individual dos alunos
+    # 9. Processa o desempenho individual dos alunos
     @alunos_com_resumo = @alunos.map do |aluno|
       # Média Anual Consolidada
       notas_do_aluno = resultados_finais_turma.select { |r| r.aluno_id == aluno.id }
@@ -45,11 +64,11 @@ class Professor::TurmasController < Professor::BaseController
       }
     end
 
-    # 5. Calcula a Média Geral da Turma (para o card de resumo)
+    # 10. Calcula a Média Geral da Turma (para o card de resumo)
     todas_as_notas = resultados_finais_turma.pluck(:nota_bimestre_final).compact
     @media_geral_turma = todas_as_notas.empty? ? nil : (todas_as_notas.sum / todas_as_notas.size.to_f)
     
-    # 6. Estatísticas Adicionais de Frequência
+    # 11. Estatísticas Adicionais de Frequência
     @estatisticas_frequencia = {
       total_aulas: total_aulas_registradas
     }
@@ -60,22 +79,13 @@ class Professor::TurmasController < Professor::BaseController
 
   private
 
-  # Método auxiliar para calcular todas as estatísticas para a view Index
   def calcular_estatisticas(turmas)
     turma_ids = turmas.pluck(:id)
     
-    # 1. Total de Turmas
     total_turmas = turmas.count
-    
-    # 2. Total de Alunos em TODAS as turmas do professor (sem duplicidade, se o aluno estivesse em N turmas, 
-    # mas o `current_professor.turmas` já deve garantir a singularidade da turma no seu escopo)
     total_alunos = Aluno.where(turma_id: turma_ids).count
-                        
-    # 3. Total de Frequências Registradas (em todas as turmas do professor)
     todas_frequencias = Frequencia.where(turma_id: turma_ids)
     frequencias_registradas = todas_frequencias.count
-    
-    # 4. Total de Turmas com Frequência Registrada Hoje
     turmas_com_frequencia_hoje = todas_frequencias.where(data_aula: Date.current).pluck(:turma_id).uniq.count
 
     {
@@ -84,5 +94,16 @@ class Professor::TurmasController < Professor::BaseController
       frequencias_registradas: frequencias_registradas,
       turmas_com_frequencia_hoje: turmas_com_frequencia_hoje
     }
+  end
+  
+  def calcular_media_presenca(frequencias)
+    return 0 if frequencias.empty?
+    
+    total_presencas = frequencias.sum(:total_presentes)
+    total_possivel = frequencias.sum(:total_alunos)
+    
+    return 0 if total_possivel.zero?
+    
+    ((total_presencas.to_f / total_possivel) * 100).round(1)
   end
 end
