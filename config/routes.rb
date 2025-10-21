@@ -22,8 +22,13 @@ Rails.application.routes.draw do
     end
   end
 
-  # CRUD completo para administradores
-  resources :administradores
+  # Complete CRUD for administradores
+  resources :administradores do
+    collection do
+      post :generate_presigned_url
+      post :confirm_upload
+    end
+  end
 
   # Professor-Turma associations
   get '/professors/:professor_id/turmas', to: 'professor_turmas#show', as: 'professor_professor_turmas'

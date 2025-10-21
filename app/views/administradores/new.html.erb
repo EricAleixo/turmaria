@@ -16,7 +16,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
   <!-- Form Card -->
-  <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+  <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg" data-controller="admin-photo">
     <div class="flex items-center gap-3 mb-6">
       <div class="bg-green-100 p-3 rounded-lg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,27 +30,10 @@
     </div>
     
     <%= form_with model: @admin, url: administradores_path, local: true, html: { class: "space-y-6", multipart: true } do |form| %>
+
+       <%= render 'foto_field' %>
+
       <div class="space-y-4">
-        <!-- Photo Upload -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text text-gray-900 font-medium">Foto do Perfil</span>
-          </label>
-          <div class="flex items-center gap-4">
-            <div class="avatar placeholder">
-              <div class="w-16 h-16 rounded-full bg-green-500 text-white relative" id="current-avatar">
-                <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="current-initial">A</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <%= form.file_field :foto, 
-                  class: "file-input file-input-bordered w-full bg-white border-gray-300 focus:border-green-500", 
-                  accept: "image/*",
-                  id: "foto-input" %>
-              <div class="text-xs text-gray-500 mt-1">JPG, PNG ou GIF (máx. 2MB)</div>
-            </div>
-          </div>
-        </div>
 
         <div class="form-control">
           <label class="label">
@@ -188,25 +171,3 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const nomeInput = document.getElementById('nome-input');
-  const emailInput = document.getElementById('email-input');
-  const previewName = document.getElementById('preview-name');
-  const previewEmail = document.getElementById('preview-email');
-  const previewInitial = document.getElementById('preview-initial');
-
-  function updatePreview() {
-    const nome = nomeInput.value || 'Nome do Administrador';
-    const email = emailInput.value || 'email@exemplo.com';
-    const initial = nome.charAt(0).toUpperCase() || 'A';
-    
-    previewName.textContent = nome;
-    previewEmail.textContent = email;
-    previewInitial.textContent = initial;
-  }
-
-  nomeInput.addEventListener('input', updatePreview);
-  emailInput.addEventListener('input', updatePreview);
-});
-</script>
