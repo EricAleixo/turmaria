@@ -1,5 +1,8 @@
 class Professor < ApplicationRecord
 
+  # === Active Storage ===
+  has_one_attached :foto
+
   include EmailCadastroUser
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable

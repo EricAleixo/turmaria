@@ -1,0 +1,122 @@
+<% content_for :title, "Editar Perfil de #{@user.nome}" %>
+
+<div class="drawer lg:drawer-open bg-gray-100">
+  <div class="drawer-content flex flex-col">
+    <div class="w-full p-6">
+      <main class="w-full max-w-4xl mx-auto">
+        
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Editar Meu Perfil</h1>
+          <p class="text-gray-600">Atualize suas informações pessoais e credenciais.</p>
+        </div>
+
+        <% # Removida a linha: <%= render 'shared/error_messages', resource: @user %>
+        <%= form_with(model: @user, url: profile_path, method: :patch, local: true, html: { class: "space-y-6", multipart: true }) do |f| %>
+          
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Informações Básicas</h2>
+            
+            <div class="flex flex-col items-center mb-6">
+              <div class="avatar placeholder mb-4 relative group">
+                <% if @user.respond_to?(:foto) && @user.foto.attached? %>
+                  <%= image_tag @user.foto.variant(resize_to_fill: [120, 120]), class: "rounded-full w-28 h-28 ring-4 ring-green-500/20 object-cover transition-opacity duration-300 group-hover:opacity-75" %>
+                <% else %>
+                  <div class="bg-green-500 text-white rounded-full w-28 h-28 relative ring-4 ring-green-500/20 transition-opacity duration-300 group-hover:opacity-75">
+                    <span class="text-4xl font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <%= @user.nome.present? ? @user.nome.first.upcase : 'U' %>
+                    </span>
+                  </div>
+                <% end %>
+
+                <% if @user.respond_to?(:foto) %>
+                  <label for="<%= f.object_name %>_foto" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.742 4h2.516a2 2 0 011.664.89l.812 1.22a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </label>
+                <% end %>
+              </div>
+              
+              <% if @user.respond_to?(:foto) %>
+                <%= f.file_field :foto, class: "hidden", accept: 'image/png,image/gif,image/jpeg' %>
+              
+                <% if @user.foto.attached? %>
+                  <div class="mt-2 text-center">
+                    <%= f.check_box :remove_foto, class: "checkbox checkbox-sm checkbox-error align-middle" %>
+                    <%= f.label :remove_foto, "Remover foto atual", class: "text-sm text-red-600 ml-1 cursor-pointer" %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div>
+                <%= f.label :nome, class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :nome, class: "input input-bordered w-full" %>
+              </div>
+              
+              <div>
+                <%= f.label :email, class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.email_field :email, class: "input input-bordered w-full" %>
+              </div>
+              
+              <div>
+                <%= f.label :telefone, class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :telefone, class: "input input-bordered w-full" %>
+              </div>
+              
+              <% if @user.is_a?(Aluno) %>
+                <div>
+                  <%= f.label :data_nascimento, "Data de Nascimento", class: "label block text-sm font-medium text-gray-700" %>
+                  <%= f.date_field :data_nascimento, class: "input input-bordered w-full" %>
+                </div>
+              <% end %>
+
+              <% if @user.is_a?(Professor) %>
+                <div>
+                  <%= f.label :formacao, "Formação", class: "label block text-sm font-medium text-gray-700" %>
+                  
+                  <% # Mapeia as chaves do ENUM para um array de [Nome Amigável, Valor do ENUM] %>
+                  <% formacao_opcoes = Professor.formacaos.keys.map { |key| [key.humanize.capitalize, key] } %>
+
+                  <%= f.select :formacao, 
+                               formacao_opcoes, 
+                               { prompt: "Selecione sua Formação" }, 
+                               { class: "select select-bordered w-full" } %>
+                </div>
+              <% end %>
+
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Segurança e Senha</h2>
+            
+            <p class="text-sm text-gray-500 mb-4">Deixe os campos de senha em branco se não quiser alterar.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div>
+                <%= f.label :password, "Nova Senha", class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.password_field :password, class: "input input-bordered w-full", autocomplete: "new-password" %>
+              </div>
+              
+              <div>
+                <%= f.label :password_confirmation, "Confirmação de Nova Senha", class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.password_field :password_confirmation, class: "input input-bordered w-full", autocomplete: "new-password" %>
+              </div>
+
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-end">
+            <%= f.submit "Salvar Alterações", class: "btn bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg transition-colors duration-200 cursor-pointer" %>
+          </div>
+        <% end %>
+
+      </main>
+    </div>
+  </div>
+</div>
