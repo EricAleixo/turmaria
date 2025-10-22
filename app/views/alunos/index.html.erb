@@ -9,7 +9,7 @@
             <% if @escola %>
               <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
             <% end %>
-            <li class="text-slate-500 font-medium">Professores</li>
+            <li class="text-slate-500 font-medium">Alunos</li>
           </ul>
         </div>
 
@@ -20,14 +20,14 @@
         <div class="flex justify-between items-center gap-4">
           <div class="flex flex-col items-start space-y-2">
             <h1 class="text-3xl font-bold">Todos os Alunos</h1>
-            
+             
             <%# Contador de Alunos - Fundo ajustado para AZUL CLARO TRANSPARENTE %>
             <div class="badge badge-lg bg-blue-400 text-white border-white/30 font-semibold">
               <%= @alunos&.count || 0 %> <%= (@alunos&.count || 0) == 1 ? 'aluno' : 'alunos' %>
             </div>
           </div>
-
           <div class="flex gap-3 flex-shrink-0">
+            
             <%# Botão + Novo Aluno (Verde) %>
             <%= link_to new_aluno_path, class: "btn btn-md bg-green-500 hover:bg-green-600 text-white border-0 shadow-lg hover:scale-105 transition-all duration-300 font-semibold" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
@@ -84,15 +84,21 @@
                             <span class="absolute top-1/2 left-1/2 -translate-1/2 text-lg"><%= aluno.nome.first.upcase %></span>
                           </div>
                         </div>
+
                         <div>
                           <div class="font-medium text-gray-800"><%= aluno.nome %></div>
                           <div class="text-xs text-gray-500 font-mono">Matrícula: <%= aluno.matricula.present? ? aluno.matricula.truncate(25) : "Não informada" %></div>
                         </div>
+                        
                       </div>
                     </td>
-                    <td class="text-sm text-gray-600">
+
+                    <td class="text-sm text-white">
+                      <div class="bg-gradient-to-r from-blue-500 to-green-500 px-3 py-2 rounded-full">
                       <%= aluno.escola&.nome || "---" %>
+                      </div>
                     </td>
+
                     <td class="text-sm text-gray-600 font-medium">
                       <%= aluno.turma&.nome || "---" %>
                     </td>
