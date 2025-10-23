@@ -180,27 +180,37 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-              <% @disciplinas.each do |disciplina| %>
-                <tr class="hover:bg-green-50 transition">
-                  <!-- Checkbox -->
-                  <td class="px-6 py-4 text-center">
-                    <%= check_box_tag "disciplina_ids[]", disciplina.id, @professor.disciplina_ids.include?(disciplina.id),
-                        class: "h-5 w-5 appearance-none rounded border border-green-400 cursor-pointer checked:bg-green-600 checked:border-green-600 relative checked:after:content-[''] checked:after:absolute checked:after:top-1 checked:after:left-2 checked:after:w-1 checked:after:h-2 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45" %>
-                  </td>
-    
-                  <!-- Nome -->
-                  <td class="px-6 py-4 text-sm font-medium text-gray-800">
-                    <%= disciplina.nome %>
-                  </td>
-    
-                  <!-- Área -->
-                  <td class="px-6 py-4 text-sm text-gray-600">
-                      <%= badge_direita (disciplina.area.presence) || "Não definida" %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
+<tbody class="divide-y divide-gray-100">
+  <% @disciplinas_por_area.each do |area, disciplinas| %>
+    <tbody class="group hover:bg-green-50 transition">
+      <% disciplinas.each do |disciplina| %>
+        <tr class="transition">
+          <!-- Checkbox -->
+          <td class="px-6 py-4 text-center">
+            <%= check_box_tag "disciplina_ids[]", disciplina.id, @professor.disciplina_ids.include?(disciplina.id),
+                class: "h-5 w-5 appearance-none rounded border border-green-400 cursor-pointer checked:bg-green-600 checked:border-green-600 relative checked:after:content-[''] checked:after:absolute checked:after:top-1 checked:after:left-2 checked:after:w-1 checked:after:h-2 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45" %>
+          </td>
+
+          <!-- Nome -->
+          <td class="px-6 py-4 text-sm font-medium transition-colors duration-300"
+              data-disciplina-id="<%= disciplina.id %>"
+              data-cor-nome="<%= disciplina.cor_nome || '#111' %>"
+              style="color: <%= @professor.disciplina_ids.include?(disciplina.id) ? (disciplina.cor_nome || '#111') : 'inherit' %>;">
+            <%= disciplina.nome %>
+          </td>
+          <!-- Área (unificada com rowspan) -->
+          <% if disciplina == disciplinas.first %>
+            <td class="px-6 py-4" rowspan="<%= disciplinas.size %>">
+              <%= badge_direita(disciplinas.first) || "Não definida" %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  <% end %>
+</tbody>
+
+
           </table>
         </div>
     
@@ -211,3 +221,18 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("turbo:load", () => {
+  document.querySelectorAll('input[type="checkbox"][name="disciplina_ids[]"]').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      const td = document.querySelector(`td[data-disciplina-id='${checkbox.value}']`);
+      if (!td) return;
+
+      const cor = checkbox.checked ? td.dataset.corNome || '#111' : 'inherit';
+      td.style.color = cor;
+    });
+  });
+});
+
+</script>

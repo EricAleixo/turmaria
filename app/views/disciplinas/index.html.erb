@@ -61,6 +61,7 @@
 
           <div class="modal">
             <div class="modal-box w-full max-w-5xl bg-white border border-gray-200 shadow-lg">
+
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-xl text-gray-800">Selecione as disciplinas</h3>
               </div>
@@ -143,8 +144,8 @@
         <!-- Cards mobile -->
         <div class="md:hidden space-y-4">
           <% @disciplinas.each do |disciplina| %>
-            <div class="relative overflow-hidden <%= card_classes(disciplina.area) %> rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <div class="absolute inset-0 <%= bg_pattern(disciplina.area) %> pointer-events-none"></div>
+            <div class="relative overflow-hidden rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(to bottom right, white, <%= disciplina.cor %>33); border: 1px solid <%= disciplina.cor %>40;">
+              <div class="absolute inset-0 pointer-events-none"></div>
 
               <div class="relative z-10">
                 <!-- Header do Card -->

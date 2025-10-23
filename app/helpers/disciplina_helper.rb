@@ -105,13 +105,18 @@ module DisciplinaHelper
     end
   end
 
-  def badge_direita(area)
-    cfg = area_cfg(area) 
+def badge_direita(disciplina)
+  cor = disciplina.cor.presence || "#E5E7EB"
+  text_color = contraste_texto(cor)
 
-    badge = content_tag(:span, area.to_s.titleize.upcase, class: "px-3 py-1 text-xs font-medium rounded-full bg-#{cfg[:bg]} text-#{cfg[:text]}")
+  content_tag(
+    :span,
+    disciplina.area.to_s.titleize.upcase,
+    class: "px-3 py-1 text-xs font-medium rounded-full",
+    style: "background-color: #{cor}; color: #{text_color};"
+  )
+end
 
-    badge
-  end
   
 
   def badge_area(area)
@@ -139,4 +144,18 @@ module DisciplinaHelper
       icon_text + badge
     end
   end
+
+def contraste_texto(cor_hex)
+  return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+
+  # Remove o "#" e converte os componentes
+  r, g, b = cor_hex.delete("#").scan(/../).map { |c| c.to_i(16) }
+
+  # Calcula a luminância relativa (fórmula do W3C)
+  luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+  # Se for claro, usa texto escuro; se for escuro, texto branco
+  luminancia > 0.6 ? "#000000" : "#FFFFFF"
+end
+
 end

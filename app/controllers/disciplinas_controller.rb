@@ -24,6 +24,16 @@ class DisciplinasController < ApplicationController
   def show
   end
 
+  def buscar_escolas
+    nome = params[:escola_busca].to_s.strip.downcase
+    tipo = params[:tipo].to_s.strip.downcase
+
+    escolas = Escola.all
+    escolas = escolas.where("LOWER(nome) LIKE ?", "%#{nome}%") if nome.present?
+    escolas = escolas.where(tipo: tipo) if tipo.present?
+
+    render json: { escolas: escolas.as_json(only: %i[id nome tipo]) }
+  end
   # GET /disciplinas/new
   def new
     @disciplina = Disciplina.new
@@ -120,7 +130,7 @@ class DisciplinasController < ApplicationController
   end
 
   def disciplina_params
-    params.require(:disciplina).permit(:nome, :area, :escola_id, professor_ids: [])
+    params.require(:disciplina).permit(:nome, :area, :escola_id, :cor, :cor_nome, professor_ids: [] )
   end
 
 end
