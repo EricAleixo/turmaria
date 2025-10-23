@@ -41,7 +41,11 @@ Rails.application.routes.draw do
   # Rotas autenticadas (admin ou super_admin)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     resources :alunos
-    resources :disciplinas
+    resources :disciplinas do
+      collection do
+        get :buscar_escolas
+  end
+    end
     resources :professors do
       resources :alunos
       member do 

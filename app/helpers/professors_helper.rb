@@ -74,20 +74,43 @@ module ProfessorsHelper
     end
   end
   
-  def disciplinas_badges(professor, max_visible = 3)
-    disciplinas = professor.disciplinas.to_a
-    visible = disciplinas.first(max_visible)
-    hidden_count = disciplinas.size - max_visible
+def disciplinas_badges(professor, max_visible = 3)
+  disciplinas = professor.disciplinas.to_a
+  visible = disciplinas.first(max_visible)
+  hidden_count = disciplinas.size - max_visible
 
-    badges = visible.map do |disciplina|
+  badges = visible.map do |disciplina|
+    if disciplina.cor.present?
+      cor = disciplina.cor
+      text_color = contraste_texto(cor) # 🔹 usa contraste automático
+      content_tag(:span, disciplina.nome,
+                  class: "px-2 py-1 rounded-full text-sm font-medium",
+                  style: "background-color: #{cor}; color: #{text_color};")
+    else
       cfg = area_cfg(disciplina.area)
-      content_tag(:span, disciplina.nome, class: "px-2 py-1 rounded-full text-sm font-medium bg-#{cfg[:bg]} text-#{cfg[:text]}")
+      content_tag(:span, disciplina.nome,
+                  class: "px-2 py-1 rounded-full text-sm font-medium bg-#{cfg[:bg]} text-#{cfg[:text]}")
     end
-
-    if hidden_count.positive?
-      badges << content_tag(:span, "+#{hidden_count}", class: "px-2 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700")
-    end
-
-    safe_join(badges, " ")
   end
+
+  if hidden_count.positive?
+    badges << content_tag(:span, "+#{hidden_count}",
+                          class: "px-2 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700")
+  end
+
+  safe_join(badges, " ")
+end
+
+def contraste_texto(cor_hex)
+  return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+
+  # Remove o "#" e converte os componentes
+  r, g, b = cor_hex.delete("#").scan(/../).map { |c| c.to_i(16) }
+
+  # Calcula a luminância relativa (fórmula do W3C)
+  luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+  # Se for claro, usa texto escuro; se for escuro, texto branco
+  luminancia > 0.6 ? "#000000" : "#FFFFFF"
+end
 end

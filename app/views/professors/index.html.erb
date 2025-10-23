@@ -35,12 +35,226 @@
               </svg>
               Novo Professor
             <% end %>
+<<<<<<< HEAD
           <% else %>
             <%= link_to new_professor_path, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               Novo Professor
+=======
+          </div>
+
+          <!-- Filters modal (keeps previous options) -->
+          <% c1 = [["Concursado", "concursado"], ["Contratado", "contratado"]] %>
+          <% c2 = [["Todos os professores", ""], ["Mestres", "mestrado"], ["Doutores", "doutorado"], ["Pós-graduados", "pos_graduados"], ["Graduados", "graduados"]] %>
+
+          <input type="checkbox" id="filtro-modal" class="modal-toggle">
+          <div class="modal">
+            <div class="modal-box w-full max-w-5xl bg-white border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Filtrar professores</h3>
+                <label for="filtro-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+              </div>
+
+              <%= form_with url: professors_path, method: :get, html: { id: "filtro-form" }, data: { turbo_frame: "professors" } do |form| %>
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Tipo</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <% c1.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success mt-1">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Formação</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <% c2.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success mt-1">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 w-full"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="modal-action mt-4">
+                  <%= form.submit "Aplicar", class: "btn bg-emerald-500 text-white hover:bg-emerald-600 px-6" %>
+                  <label for="filtro-modal" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 px-6">Cancelar</label>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Content: turbo frame -->
+          <%= turbo_frame_tag "professors" do %>
+            <% if @professores.blank? %>
+              <!-- Empty State -->
+              <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="max-w-md mx-auto">
+                  <div class="text-6xl mb-4">👨‍🏫</div>
+                  <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum professor encontrado</h3>
+                  <p class="text-slate-500 mb-6">Não existem professores cadastrados para esta escola ou filtros.</p>
+                  <% if @escola %>
+                    <%= link_to new_escola_professor_path(@escola), class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      Adicionar Professor
+                    <% end %>
+                  <% else %>
+                    <%= link_to new_professor_path, class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      Adicionar Professor
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <!-- Desktop Table -->
+              <div class="hidden md:block overflow-x-auto">
+                <table class="table w-full shadow-xl rounded-xl overflow-hidden">
+                  <thead>
+                    <tr class="bg-green-500 text-white">
+                      <th class="rounded-tl-xl">Nome</th>
+                      <th>Disciplinas</th>
+                      <th>Formação</th>
+                      <th>Tipo</th>
+                      <th class="rounded-tr-xl">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white">
+                    <% @professores.each do |professor| %>
+                      <tr class="hover:bg-blue-50 transition-all duration-300 border-b border-gray-200 group">
+                        <td class="py-4">
+                          <div class="flex items-center gap-3">
+                            <div class="avatar">
+                              <% if professor.foto&.attached? %>
+                                <div class="w-10 h-10 rounded-full">
+                                  <%= image_tag professor.foto.variant(resize_to_fill: [40, 40]), class: "rounded-full object-cover w-10 h-10" %>
+                                </div>
+                              <% else %>
+                                <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
+                                  <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                                </div>
+                              <% end %>
+                            </div>
+                            <span class="font-bold text-slate-700"><%= professor.nome %></span>
+                          </div>
+                        </td>
+
+                        <td><%= disciplinas_badges(professor) || "-" %></td>
+                        <td><%= professor.formacao&.humanize&.titleize || "-" %></td>
+                        <td><%= professor.tipo_professor&.titleize || "-" %></td>
+
+                        <td>
+                          <div class="flex gap-2 opacity-70 group-hover:opacity-100 transition-all duration-300">
+                            <%= link_to professor_path(professor), class: "btn btn-sm btn-circle bg-gradient-to-r from-blue-500 to-green-300 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg", title: "Ver professor", data: { turbo: false } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            <% end %>
+
+                            <%= link_to edit_professor_path(professor), class: "btn btn-sm btn-circle bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg", title: "Editar professor",data: { turbo: false } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+                            <% end %>
+
+                            <%= button_to professor_path(professor), method: :delete, data: { turbo_confirm: "Tem certeza que deseja excluir este professor?" }, class: "btn btn-sm btn-circle bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg", title: "Deletar professor" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                              </svg>
+                            <% end %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4 md:hidden">
+                <% @professores.each do |professor| %>
+                  <div class="<%= gradient_mobile(professor.formacao) %> shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg">
+                    <div class="card-body p-4">
+                      <!-- Header -->
+                      <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                          <div class="avatar placeholder">
+                            <% if professor.foto&.attached? %>
+                              <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <%= image_tag professor.foto.variant(resize_to_fill: [40,40]), class: "rounded-full object-cover w-10 h-10" %>
+                              </div>
+                            <% else %>
+                              <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
+                                <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                              </div>
+                            <% end %>
+                          </div>
+                          <div>
+                            <h2 class="card-title text-slate-700"><%= professor.nome %></h2>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                              <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-green-400 text-white border-0 font-bold">
+                                <%= professor.tipo_professor&.titleize || "Tipo não informado" %>
+                              </span>
+                                <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold">
+                                  <%= professor.formacao&.titleize || "Formação não informada" %>
+                                </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Dropdown ações -->
+                        <div class="dropdown dropdown-end">
+                          <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                            </svg>
+                          </label>
+                          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            <li>
+                            <%= link_to professor_path(professor),data: { turbo: false } do %>
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>Ver professor<% end %></li>
+                            <li><%= link_to edit_professor_path(professor),data: { turbo: false } do %>                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                            Editar professor<% end %></li>
+                            <li><%= button_to professor_path(professor), method: :delete, data: { confirm: "Deseja excluir este professor?" } do %>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>Excluir professor<% end %></li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="divider my-2"></div>
+
+                      <!-- Disciplinas -->
+                      <div class="flex flex-wrap gap-1">
+                        <% if professor.disciplinas.any? %>
+                          <%=disciplinas_badges(professor)%>
+                        <% else %>
+                          <span class="text-sm font-medium text-gray-500">Sem disciplinas</span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+
+>>>>>>> dffcd261b71180196676bb52d40885cd39e7a52c
             <% end %>
           <% end %>
 

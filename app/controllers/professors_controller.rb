@@ -20,6 +20,9 @@ class ProfessorsController < ApplicationController
   def show
     # Não precisa de código aqui, @professor é definido por set_professor
     @disciplinas = Disciplina.all
+
+    @disciplinas_por_area = @disciplinas.group_by { |d| d.area }
+
   end
 
   def new
