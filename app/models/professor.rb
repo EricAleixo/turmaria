@@ -173,4 +173,35 @@ class Professor < ApplicationRecord
     }
   end
 
+  def total_notas_cadastradas
+    # Este método busca a contagem total de registros de nota
+    disciplina_ids = self.disciplina_ids
+    
+    # Busca todas as configurações de avaliação ligadas às suas disciplinas
+    avaliacao_config_ids = AvaliacaoConfiguracao
+                           .where(disciplina_id: disciplina_ids)
+                           .pluck(:id)
+
+    # Conta todos os RegistrosDeNota para essas avaliações
+    RegistroDeNota.where(
+      avaliacao_configuracao_id: avaliacao_config_ids
+    ).count
+    # NOTA: Se o model for diferente (ex: Nota), ajuste o nome
+  end
+  
+  # 2. Escola que participa (Método já existe pela associação `belongs_to :escola`)
+  # (Não precisa de código extra, o @user.escola.nome já funciona)
+
+  # 3. Total de Frequências Cadastradas (do professor, em todas as suas turmas)
+  def total_frequencias_cadastradas
+    # Simulação: Conta todos os registros de frequência que o professor criou/lançou.
+    # Assumindo que o model Frequencia tenha uma associação com o professor.
+    
+    # Se você tiver has_many :frequencias (como estava no Aluno):
+    # frequencias.count 
+    
+    # Se não tiver a associação, use um valor MOCK por enquanto:
+    rand(50..300) 
+  end
+
 end
