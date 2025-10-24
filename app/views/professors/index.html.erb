@@ -101,23 +101,22 @@
                   </svg>
                 </label>
 
-            <%= link_to "Limpar", professors_path, class: "bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors" %>
+                <%= link_to "Limpar", professors_path, class: "bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors" %>
+              </div>
+            <% end %>
           </div>
-        </div>
-      <% end %>
-    </div>
 
           <!-- Filters modal (keeps previous options) -->
           <% c1 = [["Concursado", "concursado"], ["Contratado", "contratado"]] %>
           <% c2 = [["Todos os professores", ""], ["Mestres", "mestrado"], ["Doutores", "doutorado"], ["Pós-graduados", "pos_graduados"], ["Graduados", "graduados"]] %>
 
-    <input type="checkbox" id="filtro-modal" class="modal-toggle">
-    <div class="modal">
-      <div class="modal-box w-full max-w-2xl bg-white border border-gray-200 shadow-lg">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-bold text-xl text-gray-800">Filtrar professores</h3>
-          <label for="filtro-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-        </div>
+          <input type="checkbox" id="filtro-modal" class="modal-toggle">
+          <div class="modal">
+            <div class="modal-box w-full max-w-2xl bg-white border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Filtrar professores</h3>
+                <label for="filtro-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+              </div>
 
               <%= form_with url: professors_path, method: :get, html: { id: "filtro-form" }, data: { turbo_frame: "professors" } do |form| %>
                 <div class="mb-4">
@@ -350,7 +349,7 @@
     }
 
     // Modal apply button (submits filtro-form and closes modal)
-    const applySelector = '.modal .btn.bg-emerald-600';
+    const applySelector = '.modal .btn.bg-green-600';
     const applyButton = document.querySelector(applySelector);
     if (applyButton) {
       applyButton.addEventListener("click", (e) => {
