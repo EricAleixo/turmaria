@@ -2,21 +2,29 @@
 # app/controllers/professor/disciplinas_controller.rb
 class Professor::DisciplinasController < Professor::BaseController
   # Assumindo que Professor::BaseController herda de ApplicationController e inclui autenticação/layout
-  before_action :set_turma
   layout 'dashboard'
   before_action :authenticate_professor!
   
   # GET /professor/turmas/:turma_id/disciplinas
   def index
-    # CRÍTICO: Filtra as disciplinas da TURMA que o PROFESSOR logado está habilitado a lecionar.
-    
-    # 1. Encontra as IDs das disciplinas associadas ao professor LOGADO (professor_disciplinas)
-    disciplina_ids_do_professor = current_professor.disciplinas.pluck(:id)
-
-    # 2. Encontra a INTERSEÇÃO: Disciplinas da turma (@turma.disciplinas) que estão na lista do professor.
-    @disciplinas = @turma.disciplinas
-                         .where(id: disciplina_ids_do_professor)
-                         .order(:nome)
+    if params[:turma_id].present?
+      # 1. Tenta definir @turma. Se falhar, redireciona.
+      set_turma 
+      
+      # 2. Define @disciplinas como a INTERSEÇÃO (Turma + Professor)
+      disciplina_ids_do_professor = current_professor.disciplinas.pluck(:id)
+      @disciplinas = @turma.disciplinas
+                           .where(id: disciplina_ids_do_professor)
+                           .order(:nome)
+      
+      # Adicionei um indicador para a view saber que é um contexto de Turma
+      @contexto_turma = true 
+    else
+      # Contexto Geral: /professor/disciplinas (Sidebar)
+      @turma = nil # Garantimos que @turma é nil (opcional, mas bom para clareza)
+      @disciplinas = current_professor.disciplinas.order(:nome)
+      @contexto_turma = false
+    end
   end
 
   private

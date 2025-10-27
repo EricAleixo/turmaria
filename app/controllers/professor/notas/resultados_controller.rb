@@ -55,6 +55,38 @@ class Professor::Notas::ResultadosController < Professor::BaseController
   rescue ActiveRecord::RecordNotFound
     head :not_found
   end
+
+  def todos_alunos
+  # 1. Encontra a disciplina pelo ID (e verifica se o professor a leciona)
+  @disciplina = current_professor.disciplinas.find(params[:disciplina_id])
+  
+  # 2. Encontra TODAS as turmas que o professor leciona E que estão associadas a esta disciplina
+  #    COLETA APENAS OS IDs DISTINTOS PRIMEIRO para evitar o erro do PostgreSQL.
+  turma_ids_distintos = current_professor.turmas
+                                         .joins(:disciplinas)
+                                         .where(disciplinas: { id: @disciplina.id })
+                                         .distinct
+                                         .pluck(:id)
+                                         
+  # 3. Usa os IDs para buscar os objetos Turma e aplica a ordenação.
+  #    Isso evita o conflito do DISTINCT e ORDER BY no JOIN complexo.
+  @turmas_da_disciplina = Turma.where(id: turma_ids_distintos).order(:nome)
+  
+  # 4. Define a lista de IDs para buscar as médias em massa
+  #    Usamos a array que já coletamos no passo 2.
+  turma_ids = turma_ids_distintos 
+  
+  # 5. Busca as Médias Finais Bimestrais de todos os alunos nessas turmas
+  # Índexar as médias por [turma_id, aluno_id, bimestre] para fácil acesso na view
+  @medias_finais_por_turma = AvaliacaoBimestral.where(
+    turma_id: turma_ids, 
+    disciplina_id: @disciplina.id
+  ).index_by { |media| [media.turma_id, media.aluno_id, media.bimestre] }
+  
+  # A view (todosAlunos.html.erb) será renderizada automaticamente.
+rescue ActiveRecord::RecordNotFound
+  redirect_to minhas_turmas_path, alert: "Disciplina não encontrada ou você não está associado a ela."
+end
   
   private
 

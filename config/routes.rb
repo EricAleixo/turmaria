@@ -130,6 +130,10 @@ Rails.application.routes.draw do
         end
       end
 
+      get 'minhas_disciplinas/:disciplina_id/todos_alunos', 
+      to: 'notas/resultados#todos_alunos', 
+      as: :disciplina_todos_alunos
+
       # Outros recursos do namespace professor
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
