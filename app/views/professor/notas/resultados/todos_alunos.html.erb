@@ -1,4 +1,5 @@
 <%# app/views/professor/notas/resultados/todosAlunos.html.erb %>
+<%# app/views/professor/notas/resultados/todosAlunos.html.erb %>
 
 <div class="p-6 bg-gray-100 min-h-screen">
   
@@ -9,8 +10,8 @@
   </header>
 
   <%= link_to '← Voltar para Minhas Turmas', 
-              minhas_turmas_path, 
-              class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
+            minhas_turmas_path, 
+            class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
 
   <% if @turmas_da_disciplina.any? %>
     
@@ -24,7 +25,8 @@
             <thead class="bg-blue-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/3">Aluno</th>
-                <% 1.upto(4) do |bimestre| %>
+                <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+                <% turma.bimestres_disponiveis.each do |bimestre| %>
                   <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Média B<%= bimestre %></th>
                 <% end %>
                 <th class="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider bg-blue-100">MÉDIA FINAL</th>
@@ -40,7 +42,8 @@
                   <% total_medias = 0 %>
                   <% bimestres_com_nota = 0 %>
 
-                  <% 1.upto(4) do |bimestre| %>
+                  <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+                  <% turma.bimestres_disponiveis.each do |bimestre| %>
                     <% 
                       # Acessa o hash: [turma_id, aluno_id, bimestre]
                       media_bimestral = @medias_finais_por_turma[[turma.id, aluno.id, bimestre]]
@@ -60,13 +63,13 @@
                       <% if media_bimestral %>
                         <%# Link para a modal de detalhes (que usa a rota aninhada 'detalhes' do show) %>
                         <%= link_to nota_formatada, 
-                                    detalhes_professor_turma_disciplina_resultados_path(
-                                      turma, 
-                                      @disciplina, 
-                                      media_bimestral: media_bimestral.id
-                                    ),
-                                    data: { turbo_frame: "modal" },
-                                    class: "hover:underline cursor-pointer" %>
+                                     detalhes_professor_turma_disciplina_resultados_path(
+                                       turma, 
+                                       @disciplina, 
+                                       media_bimestral: media_bimestral.id
+                                     ),
+                                     data: { turbo_frame: "modal" },
+                                     class: "hover:underline cursor-pointer" %>
                       <% else %>
                         <%= nota_formatada %>
                       <% end %>

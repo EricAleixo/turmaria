@@ -14,8 +14,8 @@
   </header>
 
   <%= link_to '← Voltar para Disciplinas', 
-              professor_turma_disciplinas_path(@turma), 
-              class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
+            professor_turma_disciplinas_path(@turma), 
+            class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
 
   <% if @alunos.any? %>
     <div class="bg-white shadow-xl rounded-lg overflow-x-auto mt-4">
@@ -26,7 +26,8 @@
             <th class="sticky left-0 bg-blue-50 px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/3">
               Aluno
             </th>
-            <% 1.upto(4) do |bimestre| %>
+            <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+            <% @turma.bimestres_disponiveis.each do |bimestre| %>
               <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Média B<%= bimestre %>
               </th>
@@ -50,7 +51,8 @@
                 bimestres_com_nota = 0
               %>
               
-              <% 1.upto(4) do |bimestre| %>
+              <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+              <% @turma.bimestres_disponiveis.each do |bimestre| %>
                 <% 
                   media_bimestral = @medias_finais[[aluno.id, bimestre]]
                   nota = media_bimestral ? media_bimestral.nota_bimestre_final : nil
@@ -70,17 +72,17 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center <%= cor_nota %>">
                   <% if media_bimestral %>
                     <%= link_to nota_formatada, 
-                                detalhes_professor_turma_disciplina_resultados_path(
+                                 detalhes_professor_turma_disciplina_resultados_path(
                                    @turma, 
                                    @disciplina, 
                                    media_bimestral: media_bimestral.id
-                                ),
-                                data: { 
+                                 ),
+                                 data: { 
                                    turbo_frame: "modal"
-                                },
-                                class: "hover:underline cursor-pointer" %>
+                                 },
+                                 class: "hover:underline cursor-pointer" %>
                     <% else %>
-                        <%= nota_formatada %>
+                      <%= nota_formatada %>
                     <% end %>
                 </td>
               <% end %>

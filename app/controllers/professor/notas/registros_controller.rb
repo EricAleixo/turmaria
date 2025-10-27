@@ -5,22 +5,33 @@ class Professor::Notas::RegistrosController < ApplicationController
   before_action :authenticate_professor!
   
   # Ação NEW: Exibe o formulário de lançamento de notas para todos os alunos
-  def new
-    # Carrega todos os alunos da turma
-    @alunos = @turma.alunos.order(:nome)
-    
-    # Prepara os objetos RegistroDeNota para o formulário
-    # Itera sobre cada aluno e encontra ou constrói o RegistroDeNota
-    @registros = @alunos.map do |aluno|
-      RegistroDeNota.find_or_initialize_by(
-        aluno: aluno,
-        avaliacao_configuracao: @avaliacao_configuracao
-      )
+      def new
+      # Carrega todos os alunos da turma
+      @alunos = @turma.alunos.order(:nome)
+
+      # 🚨 NOVO BLOCO DE VERIFICAÇÃO DE ALUNOS 🚨
+      if @alunos.empty?
+        flash[:alert] = "Não é possível lançar notas: A turma '#{@turma.nome}' não possui alunos matriculados."
+        # Redireciona para a lista de Avaliações (de onde o professor veio)
+        redirect_to professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) and return
+      end
+      # 🚨 FIM DO BLOCO 🚨
+      
+      # Prepara os objetos RegistroDeNota para o formulário
+      # Itera sobre cada aluno e encontra ou constrói o RegistroDeNota
+      @registros = @alunos.map do |aluno|
+        RegistroDeNota.find_or_initialize_by(
+          aluno: aluno,
+          avaliacao_configuracao: @avaliacao_configuracao
+        )
+        # A lógica aqui funciona perfeitamente, pois agora sabemos que há alunos.
+      end
+      
+      # Cria um objeto pai artificial para o form_with usar (simples Hash ou Struct)
+      @registros_form = OpenStruct.new(registros: @registros)
     end
     
-    # Cria um objeto pai artificial para o form_with usar (simples Hash ou Struct)
-    @registros_form = OpenStruct.new(registros: @registros)
-  end
+    
 
   # Ação CREATE: Salva as notas submetidas
   def create
