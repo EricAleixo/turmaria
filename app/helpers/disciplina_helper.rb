@@ -1,45 +1,5 @@
 module DisciplinaHelper
-  def card_classes(area)
-    case area
-    when "exatas"
-      "bg-gradient-to-br from-blue-50/40 via-blue-100/40 to-blue-200/60 border border-blue-300/50"
-    when "humanas"
-      "bg-gradient-to-br from-yellow-50/40 via-yellow-100/40 to-yellow-200/60 border border-yellow-300/50"
-    when "linguagens"
-      "bg-gradient-to-br from-purple-50/40 via-purple-100/40 to-purple-200/60 border border-purple-300/50"
-    when "biologicas"
-      "bg-gradient-to-br from-green-50/40 via-green-100/40 to-green-200/60 border border-green-300/50"
-    when "tecnica"
-      "bg-gradient-to-br from-orange-50/40 via-orange-100/40 to-orange-200/60 border border-orange-300/50"
-    when "interdisciplinares"
-      "bg-gradient-to-br from-indigo-50/40 via-indigo-100/40 to-indigo-200/60 border border-indigo-300/50"
-    when "extras"
-      "bg-gradient-to-br from-pink-50/40 via-pink-100/40 to-pink-200/60 border border-pink-300/50"
-    else
-      "bg-gradient-to-br from-gray-50/40 via-gray-100/40 to-gray-200/60 border border-gray-300/50"
-    end
-  end
 
-  def bg_pattern(area)
-    case area
-    when "exatas"
-      "bg-gradient-to-br from-blue-50/20 via-transparent to-blue-100/30"
-    when "humanas"
-      "bg-gradient-to-br from-yellow-50/20 via-transparent to-yellow-100/30"
-    when "linguagens"
-      "bg-gradient-to-br from-purple-50/20 via-transparent to-purple-100/30"
-    when "biologicas"
-      "bg-gradient-to-br from-green-50/20 via-transparent to-green-100/30"
-    when "tecnica"
-      "bg-gradient-to-br from-teal-50/20 via-transparent to-teal-100/30"
-    when "interdisciplinares"
-      "bg-gradient-to-br from-indigo-50/20 via-transparent to-indigo-100/30"
-    when "extras"
-      "bg-gradient-to-br from-pink-50/20 via-transparent to-pink-100/30"
-    else
-      "bg-gradient-to-br from-gray-50/20 via-transparent to-gray-100/30"
-    end
-  end
 
   def area_cfg(area)
     {
@@ -52,6 +12,7 @@ module DisciplinaHelper
       'extras' => { cor: 'rose', bg: 'rose-100', text: 'rose-700' }
     }[area] || { cor: 'gray', bg: 'gray-100', text: 'gray-700' }
   end
+  
   def svgs(area ,classes: "w-5 h-5 text-current")
 
     case area
@@ -106,14 +67,14 @@ module DisciplinaHelper
   end
 
 def badge_direita(disciplina)
-  cor = disciplina.cor.presence || "#E5E7EB"
-  text_color = contraste_texto(cor)
+  cor_bg = disciplina.cor || "#3c3c3c" 
+  text_color = contraste_texto(cor_bg) 
 
   content_tag(
     :span,
     disciplina.area.to_s.titleize.upcase,
     class: "px-3 py-1 text-xs font-medium rounded-full",
-    style: "background-color: #{cor}; color: #{text_color};"
+    style: "background-color: #{cor_bg}; color: #{text_color};"
   )
 end
 

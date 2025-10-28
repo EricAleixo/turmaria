@@ -65,6 +65,8 @@ class EscolasController < ApplicationController
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
 
     @professores = @escola.professors.includes(:disciplinas).order(:nome)
+    @disciplinas = @escola.disciplinas
+    @disciplinas_por_area = @disciplinas.group(:area).count
   end
 
   def new
