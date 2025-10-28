@@ -63,6 +63,9 @@ class EscolasController < ApplicationController
     
     # Carrega todos os alunos da escola com a mesma lógica do alunos controller
     @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
+
+    @disciplinas = @escola.disciplinas
+    @disciplinas_por_area = @disciplinas.group(:area).count
   end
 
   def new

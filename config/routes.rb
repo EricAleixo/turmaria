@@ -43,6 +43,7 @@ Rails.application.routes.draw do
     end
     resources :escolas do
       resources :disciplinas
+      resources :professors
       resources :ano_letivos do
         resources :turmas
       end
