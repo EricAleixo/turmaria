@@ -12,14 +12,14 @@
           </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <%= link_to minhas_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2" do %>
+          <%= link_to professor_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2" do %>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Voltar para Turmas
           <% end %>
           
-          <!-- Dropdown de Disciplinas -->
+          <!-- Dropdown de Disciplinas para Nova Frequência -->
           <div class="relative w-full sm:w-auto">
             <button id="dropdownButton" type="button" 
                     class="w-full sm:w-auto text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2">
@@ -59,6 +59,55 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Filtro de Disciplina -->
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <label class="text-sm font-semibold text-gray-700">
+            Filtrar por Disciplina:
+          </label>
+        </div>
+        
+        <div class="flex-1">
+          <%= form_with url: historico_professor_turma_path(@turma), method: :get, class: "flex flex-col sm:flex-row gap-2", id: "filtro-disciplina-form" do %>
+            <select name="disciplina_id" id="disciplina-select" 
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+              <option value="">📚 Todas as Disciplinas</option>
+              <% current_professor.disciplinas.each do |disciplina| %>
+                <option value="<%= disciplina.id %>" <%= 'selected' if params[:disciplina_id].to_i == disciplina.id %>>
+                  <%= disciplina.nome %>
+                </option>
+              <% end %>
+            </select>
+            
+            <!-- Mantém os parâmetros de mês e ano -->
+            <%= hidden_field_tag :mes, @mes %>
+            <%= hidden_field_tag :ano, @ano %>
+          <% end %>
+        </div>
+      </div>
+      
+      <!-- Indicador de Filtro Ativo -->
+      <% if params[:disciplina_id].present? && @disciplina_filtrada %>
+        <div class="mt-3 flex items-center gap-2 text-sm">
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            Filtrando: <%= @disciplina_filtrada.nome %>
+            <%= link_to historico_professor_turma_path(@turma, mes: @mes, ano: @ano), class: "ml-1 hover:text-blue-900" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
     </div>
 
     <!-- Estatísticas do Mês -->
@@ -127,7 +176,7 @@
               <div class="flex items-center gap-2">
                 <% mes_anterior = @mes == 1 ? 12 : @mes - 1 %>
                 <% ano_anterior = @mes == 1 ? @ano - 1 : @ano %>
-                <%= link_to historico_turma_path(@turma, mes: mes_anterior, ano: ano_anterior), 
+                <%= link_to historico_professor_turma_path(@turma, mes: mes_anterior, ano: ano_anterior, disciplina_id: params[:disciplina_id]), 
                       class: "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" do %>
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -141,7 +190,7 @@
                 <% mes_proximo = @mes == 12 ? 1 : @mes + 1 %>
                 <% ano_proximo = @mes == 12 ? @ano + 1 : @ano %>
                 <% unless Date.new(ano_proximo, mes_proximo, 1) > Date.current %>
-                  <%= link_to historico_turma_path(@turma, mes: mes_proximo, ano: ano_proximo), 
+                  <%= link_to historico_professor_turma_path(@turma, mes: mes_proximo, ano: ano_proximo, disciplina_id: params[:disciplina_id]), 
                         class: "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" do %>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -199,9 +248,9 @@
                 <div class="relative aspect-square">
                   <% if tem_frequencia %>
                     <button type="button"
-                            onclick="mostrarDetalhes(<%= frequencia.id %>)"
                             data-frequencia-id="<%= frequencia.id %>"
                             data-data="<%= data.strftime('%d/%m/%Y') %>"
+                            data-disciplina="<%= frequencia.disciplina.nome %>"
                             data-presentes="<%= frequencia.total_presentes %>"
                             data-faltas="<%= frequencia.total_faltas %>"
                             data-justificadas="<%= frequencia.total_justificadas %>"
@@ -216,8 +265,7 @@
                     </button>
                   <% elsif eh_passado %>
                     <button type="button"
-                            onclick="abrirDropdownData(event)"
-                            class="w-full h-full flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-300 <%= eh_hoje ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600 hover:text-gray-800' %>">
+                            class="dia-sem-frequencia w-full h-full flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-300 <%= eh_hoje ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600 hover:text-gray-800' %>">
                       <span class="text-xs font-medium"><%= data.day %></span>
                     </button>
                   <% else %>
@@ -244,13 +292,14 @@
 
           <div id="painel-conteudo" class="hidden">
             <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
+              <div class="mb-4">
                 <h3 class="text-lg font-bold text-gray-900" id="detail-data"></h3>
-                <button onclick="fecharDetalhes()" class="lg:hidden text-gray-400 hover:text-gray-600">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <p class="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
-                </button>
+                  <span id="detail-disciplina"></span>
+                </p>
               </div>
 
               <!-- Estatísticas -->
@@ -312,8 +361,16 @@
         <div id="painel-mobile" class="lg:hidden mt-6 bg-white rounded-lg shadow-md hidden">
           <div class="p-4">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold text-gray-900" id="mobile-detail-data"></h3>
-              <button onclick="fecharDetalhesMobile()" class="text-gray-400 hover:text-gray-600">
+              <div>
+                <h3 class="text-lg font-bold text-gray-900" id="mobile-detail-data"></h3>
+                <p class="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span id="mobile-detail-disciplina"></span>
+                </p>
+              </div>
+              <button id="btn-fechar-mobile" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -376,118 +433,256 @@
 }
 
 .dia-com-frequencia.active {
-  ring: 2px;
-  ring-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
   transform: scale(1.05);
 }
 </style>
 
 <script>
-let frequenciaAtualId = null;
-
-// Toggle do dropdown principal
-document.getElementById('dropdownButton').addEventListener('click', function(e) {
-  e.stopPropagation();
-  const menu = document.getElementById('dropdownMenu');
-  menu.classList.toggle('hidden');
-});
-
-// Fechar dropdown ao clicar fora
-document.addEventListener('click', function(e) {
-  const dropdown = document.getElementById('dropdownMenu');
-  const button = document.getElementById('dropdownButton');
+(function() {
+  'use strict';
   
-  if (!dropdown.contains(e.target) && !button.contains(e.target)) {
-    dropdown.classList.add('hidden');
+  let frequenciaAtualId = null;
+
+  // Toggle do dropdown principal
+  function initDropdown() {
+    const dropdownButton = document.getElementById('dropdownButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    if (dropdownButton && dropdownMenu) {
+      dropdownButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      });
+
+      // Fechar dropdown ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!dropdownMenu.contains(e.target) && !dropdownButton.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    }
   }
-});
 
-function mostrarDetalhes(frequenciaId) {
-  const btn = document.querySelector(`[data-frequencia-id="${frequenciaId}"]`);
-  if (!btn) return;
+  // Auto-submit do filtro de disciplina ao mudar seleção
+  function initFiltroAutomatico() {
+    const selectDisciplina = document.getElementById('disciplina-select');
+    const formFiltro = document.getElementById('filtro-disciplina-form');
+    
+    if (selectDisciplina && formFiltro) {
+      selectDisciplina.addEventListener('change', function() {
+        formFiltro.submit();
+      });
+    }
+  }
 
-  // Remove active de todos os dias
-  document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
-  btn.classList.add('active');
+  function mostrarDetalhes(frequenciaId) {
+    console.log('Mostrando detalhes para frequência ID:', frequenciaId);
+    
+    const btn = document.querySelector(`[data-frequencia-id="${frequenciaId}"]`);
+    if (!btn) {
+      console.error('Botão não encontrado para frequência ID:', frequenciaId);
+      return;
+    }
 
-  const data = btn.dataset.data;
-  const presentes = btn.dataset.presentes;
-  const faltas = btn.dataset.faltas;
-  const justificadas = btn.dataset.justificadas;
-  const total = btn.dataset.total;
-  const conteudo = btn.dataset.conteudo;
-  const observacoes = btn.dataset.observacoes;
+    // Remove active de todos os dias
+    document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
+    btn.classList.add('active');
 
-  frequenciaAtualId = frequenciaId;
+    const data = btn.dataset.data || '';
+    const disciplina = btn.dataset.disciplina || '';
+    const presentes = btn.dataset.presentes || '0';
+    const faltas = btn.dataset.faltas || '0';
+    const justificadas = btn.dataset.justificadas || '0';
+    const total = btn.dataset.total || '0';
+    const conteudo = btn.dataset.conteudo || '';
+    const observacoes = btn.dataset.observacoes || '';
 
-  // Atualiza painel desktop
-  document.getElementById('painel-vazio').classList.add('hidden');
-  document.getElementById('painel-conteudo').classList.remove('hidden');
-  
-  document.getElementById('detail-data').textContent = data;
-  document.getElementById('detail-total').textContent = total;
-  document.getElementById('detail-presentes').textContent = presentes;
-  document.getElementById('detail-faltas').textContent = faltas;
-  document.getElementById('detail-justificadas').textContent = justificadas;
-  
-  if (conteudo && conteudo !== '') {
-    document.getElementById('detail-conteudo').textContent = conteudo;
-    document.getElementById('detail-conteudo-container').classList.remove('hidden');
+    frequenciaAtualId = frequenciaId;
+
+    // Atualiza painel desktop
+    const painelVazio = document.getElementById('painel-vazio');
+    const painelConteudo = document.getElementById('painel-conteudo');
+    
+    if (painelVazio && painelConteudo) {
+      painelVazio.classList.add('hidden');
+      painelConteudo.classList.remove('hidden');
+    }
+    
+    // Atualiza elementos desktop
+    const detailData = document.getElementById('detail-data');
+    const detailDisciplina = document.getElementById('detail-disciplina');
+    const detailTotal = document.getElementById('detail-total');
+    const detailPresentes = document.getElementById('detail-presentes');
+    const detailFaltas = document.getElementById('detail-faltas');
+    const detailJustificadas = document.getElementById('detail-justificadas');
+    const detailConteudo = document.getElementById('detail-conteudo');
+    const detailObservacoes = document.getElementById('detail-observacoes');
+    const detailLink = document.getElementById('detail-link');
+    const detailConteudoContainer = document.getElementById('detail-conteudo-container');
+    const detailObservacoesContainer = document.getElementById('detail-observacoes-container');
+    
+    if (detailData) detailData.textContent = data;
+    if (detailDisciplina) detailDisciplina.textContent = disciplina;
+    if (detailTotal) detailTotal.textContent = total;
+    if (detailPresentes) detailPresentes.textContent = presentes;
+    if (detailFaltas) detailFaltas.textContent = faltas;
+    if (detailJustificadas) detailJustificadas.textContent = justificadas;
+    
+    if (detailConteudo && detailConteudoContainer) {
+      if (conteudo && conteudo.trim() !== '') {
+        detailConteudo.textContent = conteudo;
+        detailConteudoContainer.classList.remove('hidden');
+      } else {
+        detailConteudoContainer.classList.add('hidden');
+      }
+    }
+    
+    if (detailObservacoes && detailObservacoesContainer) {
+      if (observacoes && observacoes.trim() !== '') {
+        detailObservacoes.textContent = observacoes;
+        detailObservacoesContainer.classList.remove('hidden');
+      } else {
+        detailObservacoesContainer.classList.add('hidden');
+      }
+    }
+    
+    if (detailLink) {
+      detailLink.href = `/professor/frequencias/${frequenciaId}`;
+    }
+
+    // Atualiza painel mobile
+    const painelMobile = document.getElementById('painel-mobile');
+    const mobileDetailData = document.getElementById('mobile-detail-data');
+    const mobileDetailDisciplina = document.getElementById('mobile-detail-disciplina');
+    const mobileDetailTotal = document.getElementById('mobile-detail-total');
+    const mobileDetailPresentes = document.getElementById('mobile-detail-presentes');
+    const mobileDetailFaltas = document.getElementById('mobile-detail-faltas');
+    const mobileDetailJustificadas = document.getElementById('mobile-detail-justificadas');
+    const mobileDetailConteudo = document.getElementById('mobile-detail-conteudo');
+    const mobileDetailObservacoes = document.getElementById('mobile-detail-observacoes');
+    const mobileDetailLink = document.getElementById('mobile-detail-link');
+    const mobileConteudoContainer = document.getElementById('mobile-conteudo-container');
+    const mobileObservacoesContainer = document.getElementById('mobile-observacoes-container');
+    
+    if (painelMobile) painelMobile.classList.remove('hidden');
+    if (mobileDetailData) mobileDetailData.textContent = data;
+    if (mobileDetailDisciplina) mobileDetailDisciplina.textContent = disciplina;
+    if (mobileDetailTotal) mobileDetailTotal.textContent = total;
+    if (mobileDetailPresentes) mobileDetailPresentes.textContent = presentes;
+    if (mobileDetailFaltas) mobileDetailFaltas.textContent = faltas;
+    if (mobileDetailJustificadas) mobileDetailJustificadas.textContent = justificadas;
+    
+    if (mobileDetailConteudo && mobileConteudoContainer) {
+      if (conteudo && conteudo.trim() !== '') {
+        mobileDetailConteudo.textContent = conteudo;
+        mobileConteudoContainer.classList.remove('hidden');
+      } else {
+        mobileConteudoContainer.classList.add('hidden');
+      }
+    }
+    
+    if (mobileDetailObservacoes && mobileObservacoesContainer) {
+      if (observacoes && observacoes.trim() !== '') {
+        mobileDetailObservacoes.textContent = observacoes;
+        mobileObservacoesContainer.classList.remove('hidden');
+      } else {
+        mobileObservacoesContainer.classList.add('hidden');
+      }
+    }
+    
+    if (mobileDetailLink) {
+      mobileDetailLink.href = `/professor/frequencias/${frequenciaId}`;
+    }
+
+    // Scroll suave para o painel no mobile
+    if (window.innerWidth < 1024 && painelMobile) {
+      setTimeout(() => {
+        painelMobile.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+    
+    console.log('Detalhes atualizados com sucesso');
+  }
+
+  function fecharDetalhes() {
+    const painelVazio = document.getElementById('painel-vazio');
+    const painelConteudo = document.getElementById('painel-conteudo');
+    
+    if (painelVazio) painelVazio.classList.remove('hidden');
+    if (painelConteudo) painelConteudo.classList.add('hidden');
+    
+    document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
+    frequenciaAtualId = null;
+  }
+
+  function fecharDetalhesMobile() {
+    const painelMobile = document.getElementById('painel-mobile');
+    if (painelMobile) painelMobile.classList.add('hidden');
+    
+    document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
+    frequenciaAtualId = null;
+  }
+
+  function abrirDropdownData(event) {
+    event.stopPropagation();
+    console.log('Clicou em dia sem frequência');
+  }
+
+  // Inicialização quando o DOM estiver pronto
+  function init() {
+    console.log('JavaScript do histórico de frequências carregado');
+    
+    // Inicializa dropdown
+    initDropdown();
+    
+    // Inicializa filtro automático
+    initFiltroAutomatico();
+    
+    // Adiciona listeners para todos os botões de frequência
+    // CORREÇÃO: getAttribute porque data-frequencia-id tem hífen
+    document.querySelectorAll('.dia-com-frequencia').forEach(btn => {
+      const frequenciaId = btn.getAttribute('data-frequencia-id');
+      console.log('Botão encontrado com ID:', frequenciaId);
+      if (frequenciaId) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Clicou na frequência:', frequenciaId);
+          mostrarDetalhes(frequenciaId);
+        });
+      }
+    });
+    
+    // Adiciona listeners para dias sem frequência
+    document.querySelectorAll('.dia-sem-frequencia').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        abrirDropdownData(e);
+      });
+    });
+    
+    // Adiciona listener para botão de fechar mobile
+    const btnFecharMobile = document.getElementById('btn-fechar-mobile');
+    if (btnFecharMobile) {
+      btnFecharMobile.addEventListener('click', function(e) {
+        e.preventDefault();
+        fecharDetalhesMobile();
+      });
+    }
+    
+    console.log('Listeners adicionados:', {
+      comFrequencia: document.querySelectorAll('.dia-com-frequencia').length,
+      semFrequencia: document.querySelectorAll('.dia-sem-frequencia').length
+    });
+  }
+
+  // Executa quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    document.getElementById('detail-conteudo-container').classList.add('hidden');
+    init();
   }
-  
-  if (observacoes && observacoes !== '') {
-    document.getElementById('detail-observacoes').textContent = observacoes;
-    document.getElementById('detail-observacoes-container').classList.remove('hidden');
-  } else {
-    document.getElementById('detail-observacoes-container').classList.add('hidden');
-  }
-  
-  document.getElementById('detail-link').href = `/frequencias/${frequenciaId}`;
-
-  // Atualiza painel mobile
-  document.getElementById('painel-mobile').classList.remove('hidden');
-  document.getElementById('mobile-detail-data').textContent = data;
-  document.getElementById('mobile-detail-total').textContent = total;
-  document.getElementById('mobile-detail-presentes').textContent = presentes;
-  document.getElementById('mobile-detail-faltas').textContent = faltas;
-  document.getElementById('mobile-detail-justificadas').textContent = justificadas;
-  
-  if (conteudo && conteudo !== '') {
-    document.getElementById('mobile-detail-conteudo').textContent = conteudo;
-    document.getElementById('mobile-conteudo-container').classList.remove('hidden');
-  } else {
-    document.getElementById('mobile-conteudo-container').classList.add('hidden');
-  }
-  
-  if (observacoes && observacoes !== '') {
-    document.getElementById('mobile-detail-observacoes').textContent = observacoes;
-    document.getElementById('mobile-observacoes-container').classList.remove('hidden');
-  } else {
-    document.getElementById('mobile-observacoes-container').classList.add('hidden');
-  }
-  
-  document.getElementById('mobile-detail-link').href = `/frequencias/${frequenciaId}`;
-
-  // Scroll suave para o painel no mobile
-  if (window.innerWidth < 1024) {
-    setTimeout(() => {
-      document.getElementById('painel-mobile').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
-  }
-}
-
-function fecharDetalhes() {
-  document.getElementById('painel-vazio').classList.remove('hidden');
-  document.getElementById('painel-conteudo').classList.add('hidden');
-  document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
-  frequenciaAtualId = null;
-}
-
-function fecharDetalhesMobile() {
-  document.getElementById('painel-mobile').classList.add('hidden');
-  document.querySelectorAll('.dia-com-frequencia').forEach(d => d.classList.remove('active'));
-  frequenciaAtualId = null;
-}
+})();
 </script>
