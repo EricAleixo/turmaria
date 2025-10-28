@@ -29,8 +29,10 @@ class Turma < ApplicationRecord
   end
 
   def bimestres_disponiveis
-    # Se AnoLetivo tivesse um campo: (1..ano_letivo.num_bimestres).to_a
-    (1..4).to_a
+    # Se o AnoLetivo estiver associado e tiver um numero_bimestre definido, 
+    # ele usa esse valor. Caso contrário, usa 4 como fallback.
+    num_max = ano_letivo&.numero_bimestre || 4 
+    (1..num_max).to_a
   end
 
   private

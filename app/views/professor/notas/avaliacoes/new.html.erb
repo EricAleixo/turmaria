@@ -1,11 +1,12 @@
 <% content_for :title, "Nova Avaliação" %>
 
-<div class="drawer lg:drawer-open bg-gray-100">
+<div class="drawer lg:drawer-open bg-gray-50 min-h-screen">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
   <div class="drawer-content flex flex-col items-center">
     
-    <div class="w-full p-4">
+    <div class="w-full p-4 sm:p-6 lg:p-8">
+      <%# Botão de menu móvel: mantém-se, pois ele interage com o 'my-drawer' do layout principal %>
       <div class="flex items-center mb-6 lg:hidden">
         <label for="my-drawer" class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -14,23 +15,26 @@
       </div>
 
       <main class="w-full max-w-4xl mx-auto">
-        <div class="text-sm breadcrumbs mb-4">
+        <%# 🍞 Breadcrumbs (Caminho de Navegação) - CORREÇÃO DE ESPECIFICIDADE %>
+        <div class="text-sm breadcrumbs mb-6">
           <ul>
-            <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-            <li class="text-gray-600">Nova Avaliação</li>
+            <%# Adicionando 'font-bold' e reforçando as cores %>
+            <li><%= link_to "Turmas", professor_turmas_path, class: "text-green-500 font-bold hover:text-green-700 transition-colors" %></li>
+            <li><%= link_to @turma.nome, professor_turma_disciplinas_path(@turma), class: "text-green-500 font-bold hover:text-green-700 transition-colors" %></li>
+            <li><%= link_to @disciplina.nome, professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), class: "text-green-500 font-bold hover:text-green-700 transition-colors" %></li>
+            <li class="font-semibold text-gray-700">Nova Avaliação</li>
           </ul>
         </div>
         
-        <div class="mb-4">
-          <h2 class="text-2xl font-semibold text-gray-800">
-            Configuração de Avaliação
+        <%# 📝 Título da Seção %>
+        <div class="mb-6 border-b pb-4">
+          <h2 class="text-3xl font-extrabold text-gray-800">
+            Criar Coluna de Avaliação
           </h2>
-          <p class="text-gray-600">Disciplina: <%= @disciplina.nome %> | Turma: <%= @turma.nome %></p>
+          <p class="text-gray-600 mt-1">Configurando nota para: <span class="font-semibold text-green-500"><%= @disciplina.nome %></span> (<%= @turma.nome %>)</p>
         </div>
 
-        <%# Renderização do formulário, que agora tem toda a lógica dinâmica interna %>
+        <%# Renderização do formulário %>
         <%= render 'form' %>
       </main> 
     </div>

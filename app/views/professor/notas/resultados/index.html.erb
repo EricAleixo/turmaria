@@ -22,8 +22,8 @@
         <tr>
           <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aluno</th>
           
-          <%# Itera sobre o número de bimestres (Assumindo que está em @turma.ano_letivo.numero_bimestre) %>
-          <% (1..@turma.ano_letivo.numero_bimestre).each do |bimestre| %>
+          <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+          <% @turma.bimestres_disponiveis.each do |bimestre| %>
             <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Bimestre <%= bimestre %></th>
           <% end %>
 
@@ -42,7 +42,8 @@
             <% total_media = 0.0 %>
             <% num_bimestres_calculados = 0 %>
 
-            <% (1..@turma.ano_letivo.numero_bimestre).each do |bimestre| %>
+            <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+            <% @turma.bimestres_disponiveis.each do |bimestre| %>
               <td class="text-center py-3 px-4">
                 <% avaliacao_bimestral = @medias_finais[[aluno.id, bimestre]] %>
                 

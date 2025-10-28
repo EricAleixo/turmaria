@@ -1,99 +1,95 @@
 <%# app/views/professor/notas/avaliacoes/_form.html.erb %>
+<%# app/views/professor/notas/avaliacoes/_form.html.erb %>
 
-<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
-<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
-<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
-<%# 1. Determina as URLs (Lógica de Rota para o form_with) %>
 <% if @avaliacao_configuracao.persisted? %>
-  <%# 🚨 CORREÇÃO FINAL: Usamos o helper singular EXATO que o rails routes mostrou. %>
   <% form_url = professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, @avaliacao_configuracao) %>
 <% else %>
-  <%# Rota para NEW/CREATE: Mantemos o helper plural completo. %>
   <% form_url = professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
 <% end %>
 
-<%# 2. Rota AJAX para o Stimulus %>
 <% ajax_url = filter_by_bimestre_professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
 
-<%# 🚨 ENVOLVIMENTO COM O STIMULUS CONTROLLER 🚨 %>
 <div 
   data-controller="avaliacao-form"
   data-avaliacao-form-url-value="<%= ajax_url %>"
   data-avaliacao-form-current-avaliacao-id-value="<%= @avaliacao_configuracao.avaliacao_original_id %>"
 >
-
-  <%# 🚨 FORM_WITH: Usamos model singular e URL explícita 🚨 %>
-  <%= form_with(model: @avaliacao_configuracao, # Deixa o Rails inferir o nome do modelo (scope) e o método
-                url: form_url,                  # FORÇA a URL aninhada correta
+  <%= form_with(model: @avaliacao_configuracao,
+                url: form_url, 
                 data: { turbo: true }, 
-                class: "bg-white p-8 rounded-lg shadow-md space-y-6") do |form| %>
+                class: "bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100 space-y-8") do |form| %>
 
     <% if @avaliacao_configuracao.errors.any? %>
-      <div class="alert alert-error mb-6">
-        <div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>
-            <h3 class="font-bold">Erro ao salvar as configurações da avaliação!</h3>
-            <ul class="list-disc list-inside mt-1">
+      <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" role="alert">
+        <div class="flex items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div>
+            <h3 class="font-bold text-lg">Houve um problema ao salvar!</h3>
+            <ul class="list-disc list-inside mt-2 text-sm">
               <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
             </ul>
-          </span>
+          </div>
         </div>
       </div>
     <% end %>
 
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">
-        <%= @avaliacao_configuracao.persisted? ? "Editar Avaliação" : "Nova Avaliação" %>
+    <div class="border-b-2 border-green-500 pb-4">
+      <h1 class="text-3xl font-extrabold text-gray-800 flex items-center">
+        <% if @avaliacao_configuracao.persisted? %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            Editar Avaliação
+        <% else %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Nova Avaliação
+        <% end %>
       </h1>
+      <p class="text-gray-500 mt-1 text-sm">Preencha os dados para configurar esta coluna de nota.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="form-control w-full">
-        <%= form.label :nome, 'Nome da Avaliação *', class: 'label label-text text-gray-600 font-semibold' %>
+        <label class="label">
+            <%= form.label :nome, 'Nome da Avaliação *', class: 'label-text text-gray-700 font-medium' %>
+        </label>
         <%= form.text_field :nome,
-                            class: 'input input-bordered w-full',
+                            class: 'input input-bordered w-full border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors',
                             placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo',
                             required: true %>
       </div>
 
-      <%# 🚨 CAMPO DO BIMESTRE ATUALIZADO: Agora é um SELECT 🚨 %>
       <div class="form-control w-full">
-        <%= form.label :bimestre, 'Bimestre *', class: 'label label-text text-gray-600 font-semibold' %>
+        <label class="label">
+            <%= form.label :bimestre, 'Bimestre *', class: 'label-text text-gray-700 font-medium' %>
+        </label>
         <%= form.select :bimestre,
-                        # Usa o método que criamos na Turma para listar os bimestres
                         options_for_select(@turma.bimestres_disponiveis.map { |b| ["#{b}º Bimestre", b] }, @avaliacao_configuracao.bimestre),
                         { include_blank: 'Selecione o Bimestre' },
                         { 
-                          class: 'select select-bordered w-full',
+                          class: 'select select-bordered w-full border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors',
                           required: true,
                           data: { 
-                            # Target para o Stimulus identificar o campo
                             'avaliacao-form-target': 'bimestreSelect',
-                            # Action: Quando mudar, chama a função do Stimulus que filtra
                             action: 'change->avaliacao-form#handleFormChange' 
                           } 
                         } %>
       </div>
 
       <div class="form-control w-full md:col-span-2">
-        <div class="pt-2">
-          <div class="flex items-start">
-            <%# 🚨 CHECKBOX DE RECUPERAÇÃO ATUALIZADO 🚨 %>
+        <%# 🚨 CAIXA DE RECUPERAÇÃO: AGORA TUDO EM green-500 E TONS PRÓXIMOS 🚨 %>
+        <div class="p-4 bg-green-50 border border-green-500 rounded-lg">
+          <div class="flex items-center">
             <%= form.check_box :is_recuperacao,
-                               class: 'checkbox checkbox-primary mr-3 mt-[2px]',
+                               class: 'checkbox checkbox-success mr-3 checkbox-lg', 
                                data: { 
                                  'avaliacao-form-target': 'isRecuperacaoCheckbox',
                                  action: 'change->avaliacao-form#handleFormChange' 
                                } %>
             <div class="flex flex-col">
-              <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'label cursor-pointer p-0 text-gray-600 font-semibold' %>
-              <span class="label-text text-xs text-gray-500 mt-1">
-                Marque se esta nota deve substituir uma nota padrão do bimestre.
+              <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'label cursor-pointer p-0 text-green-700 font-bold text-base' %>
+              <span class="label-text text-sm text-green-500 mt-1">
+                Marque se esta avaliação deve substituir uma nota padrão (Normal) do bimestre selecionado.
               </span>
             </div>
           </div>
@@ -101,30 +97,35 @@
       </div>
     </div>
 
-    <%# 🚨 CAMPO DE RECUPERAÇÃO DINÂMICO 🚨 %>
     <div 
       data-avaliacao-form-target="recuperacaoField"
-      class="form-control w-full transition-all duration-300 <%= @avaliacao_configuracao.recuperacao? ? '' : 'hidden' %>"
+      class="form-control w-full pt-4 transition-all duration-300 border-t border-gray-200 <%= @avaliacao_configuracao.recuperacao? ? '' : 'hidden' %>"
     >
-      <%= form.label :avaliacao_original_id, 'Avaliação Original Substituída *', class: 'label label-text text-gray-600 font-semibold' %>
-      <span class="label-text text-xs text-red-500 mb-1">
-        Obrigatório se for uma nota de recuperação.
-      </span>
+      <label class="label">
+        <%= form.label :avaliacao_original_id, 'Avaliação Original Substituída *', class: 'label-text text-gray-700 font-medium' %>
+      </label>
+      <p class="text-sm text-yellow-600 mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        Selecione a avaliação 'Normal' deste bimestre que será substituída por esta nota de Recuperação.
+      </p>
 
-      <%# O SELECT NÃO É MAIS POPULADO PELO CONTROLLER, O STIMULUS FARÁ ISSO %>
       <%= form.select :avaliacao_original_id,
-                      [], # Lista de opções VAZIA (o Stimulus irá preencher)
-                      { include_blank: 'Selecione a avaliação a ser substituída' },
+                      [], 
+                      { include_blank: 'Carregando avaliações normais...' },
                       { 
-                        class: 'select select-bordered w-full',
+                        class: 'select select-bordered w-full border-gray-300 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-colors',
                         data: { 'avaliacao-form-target': 'avaliacaoOriginalSelect' } 
                       } %>
     </div>
 
 
-    <div class="flex justify-end pt-8">
-      <%= form.submit @avaliacao_configuracao.persisted? ? "Atualizar" : "Salvar",
-                      class: "btn bg-indigo-600 hover:bg-indigo-700 text-white" %>
+    <div class="flex justify-between pt-8 border-t border-gray-100">
+      <%= link_to '← Voltar', 
+                  professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+                  class: 'btn btn-ghost text-gray-600 hover:bg-gray-100' %>
+
+      <%= form.submit @avaliacao_configuracao.persisted? ? "Atualizar Avaliação" : "Salvar Avaliação",
+                      class: "btn bg-green-500 hover:bg-green-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-200" %>
     </div>
 
   <% end %>
