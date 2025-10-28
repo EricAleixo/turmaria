@@ -1,64 +1,77 @@
-<div class="p-6 bg-gray-100 min-h-screen">
-  <% if @contexto_turma %>
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Disciplinas da Turma: <%= @turma.nome %></h1>
-    <p class="text-gray-600 mb-6">Selecione a disciplina para gerenciar notas ou frequência.</p>
-    <%= link_to '← Voltar para Minhas Turmas', minhas_turmas_path, class: 'mb-4 inline-flex items-center text-green-500 hover:text-green-800' %>
-  <% else %>
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Minhas Disciplinas (Geral)</h1>
-    <p class="text-gray-600 mb-6">Todas as disciplinas que você leciona. Clique em uma para ver detalhes.</p>
-    <%= link_to '← Voltar para Minhas Turmas', minhas_turmas_path, class: 'mb-4 inline-flex items-center text-green-500 hover:text-green-800' %>
-  <% end %>
+<div class="p-6 sm:p-8 lg:p-10 bg-gray-100 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    
+    <header class="mb-8 p-6 bg-white shadow-lg rounded-xl border-b-4 border-indigo-600">
+      <% if @contexto_turma %>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Disciplinas da Turma: <%= @turma.nome %></h1>
+        <p class="text-lg text-gray-600">Selecione a disciplina para gerenciar notas e frequência.</p>
+      <% else %>
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Minhas Disciplinas (Geral)</h1>
+        <p class="text-lg text-gray-600">Todas as disciplinas que você leciona. Clique em uma para ver detalhes.</p>
+      <% end %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-    <% if @disciplinas.any? %>
-      <% @disciplinas.each do |disciplina| %>
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-          <h3 class="text-xl font-semibold text-gray-900 mb-3"><%= disciplina.nome %></h3>
-          
-          <div class="space-y-2 mb-4 text-sm text-gray-600">
-            <p><span class="font-medium">Área:</span> <%= disciplina.area&.humanize || 'Não Definida' %></p>
-            <% # Condição para exibir dados específicos da Turma %>
-            <% if @contexto_turma %>
-              <p><span class="font-medium">Avaliações Ativas:</span> <%= disciplina.avaliacoes_configuracoes.where(turma: @turma).count %></p>
-            <% end %>
-          </div>
-
-          <div class="flex flex-col space-y-2 mt-4">
+      <%# 🔄 LINK VOLTAR MODIFICADO COM O SVG %>
+      <%= link_to minhas_turmas_path, 
+          class: 'mt-4 inline-flex items-center text-sm font-semibold text-green-600 hover:text-green-800 transition duration-150 ease-in-out py-1 px-3 bg-green-100 rounded-lg' do %>
+        
+        <%# ⬅️ SVG SUBSTITUINDO A SETA DE TEXTO %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 w-4 h-4 mr-1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Voltar para Minhas Turmas
+      <% end %>
+    </header>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      <% if @disciplinas.any? %>
+        <% @disciplinas.each do |disciplina| %>
+          <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <h3 class="text-xl font-semibold text-gray-900 mb-3"><%= disciplina.nome %></h3>
             
-            <% # Os links ANINHADOS só podem ser usados se @turma estiver definido %>
-            <% if @contexto_turma %>
-              <% # 1. LINK PARA NOTAS %>
-              <%= link_to 'Lançar/Gerenciar Notas', 
-                          professor_turma_disciplina_notas_avaliacoes_path(@turma, disciplina), 
-                          class: "w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
-              
-              <% # 2. LINK PARA RESULTADOS %>
-              <%= link_to 'Ver Resultados/Médias', 
-                          professor_turma_disciplina_resultados_path(@turma, disciplina), 
-                          class: "w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
-              
-              <% # 3. LINK PARA FREQUÊNCIA %>
-              <%= link_to 'Lançar Frequência', 
-                          professor_turma_disciplina_frequencias_path(@turma, disciplina), 
-                          class: "w-full bg-gray-600 hover:bg-gray-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
-            <% else %>
-              <p class="text-sm text-orange-500 mt-2">Selecione uma Turma para lançar Notas/Frequência.</p>
-            <% end %>
+            <div class="space-y-2 mb-4 text-sm text-gray-600">
+              <p><span class="font-medium">Área:</span> <%= disciplina.area&.humanize || 'Não Definida' %></p>
+              <% # Condição para exibir dados específicos da Turma %>
+              <% if @contexto_turma %>
+                <p><span class="font-medium">Avaliações Ativas:</span> <%= disciplina.avaliacoes_configuracoes.where(turma: @turma).count %></p>
+              <% end %>
+            </div>
 
+            <div class="flex flex-col space-y-2 mt-4">
+              
+              <% # Os links ANINHADOS só podem ser usados se @turma estiver definido %>
+              <% if @contexto_turma %>
+                <% # 1. LINK PARA NOTAS %>
+                <%= link_to 'Lançar/Gerenciar Notas', 
+                    professor_turma_disciplina_notas_avaliacoes_path(@turma, disciplina), 
+                    class: "w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+                
+                <% # 2. LINK PARA RESULTADOS %>
+                <%= link_to 'Ver Resultados/Médias', 
+                    professor_turma_disciplina_resultados_path(@turma, disciplina), 
+                    class: "w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+                
+                <% # 3. LINK PARA FREQUÊNCIA %>
+                <%= link_to 'Lançar Frequência', 
+                    professor_turma_disciplina_frequencias_path(@turma, disciplina), 
+                    class: "w-full bg-gray-600 hover:bg-gray-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" %>
+              <% else %>
+                <p class="text-sm text-orange-500 mt-2">Selecione uma Turma para lançar Notas/Frequência.</p>
+              <% end %>
+
+            </div>
           </div>
+        <% end %>
+      <% else %>
+        <div class="md:col-span-3 text-center py-12 border border-dashed rounded-lg bg-white">
+          <p class="text-lg font-medium text-gray-700">
+            <% if @contexto_turma %>
+              Nenhuma disciplina encontrada para você nesta turma.
+            <% else %>
+              Você não está associado a nenhuma disciplina.
+            <% end %>
+          </p>
+          <p class="mt-1 text-sm text-gray-500">Verifique sua associação de professor-disciplina-turma com a administração da escola.</p>
         </div>
       <% end %>
-    <% else %>
-      <div class="md:col-span-3 text-center py-12 border border-dashed rounded-lg bg-white">
-        <p class="text-lg font-medium text-gray-700">
-          <% if @contexto_turma %>
-            Nenhuma disciplina encontrada para você nesta turma.
-          <% else %>
-            Você não está associado a nenhuma disciplina.
-          <% end %>
-        </p>
-        <p class="mt-1 text-sm text-gray-500">Verifique sua associação de professor-disciplina-turma com a administração da escola.</p>
-      </div>
-    <% end %>
+    </div>
   </div>
 </div>
