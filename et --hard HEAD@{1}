@@ -1,0 +1,59 @@
+[33me786daf[m[33m ([m[1;36mHEAD -> [m[1;32mtask/BimestreFIX[m[33m, [m[1;31morigin/developer[m[33m)[m HEAD@{0}: reset: moving to origin/developer
+[33mb0dfe3c[m[33m ([m[1;31morigin/task/BimestreFIX[m[33m)[m HEAD@{1}: commit: mod UI de diversas paginas
+[33m22f55de[m HEAD@{2}: commit: FIX bimestres
+[33m11d90f9[m[33m ([m[1;31morigin/task/Perfil[m[33m, [m[1;32mtask/Perfil[m[33m)[m HEAD@{3}: checkout: moving from task/Perfil to task/BimestreFIX
+[33m11d90f9[m[33m ([m[1;31morigin/task/Perfil[m[33m, [m[1;32mtask/Perfil[m[33m)[m HEAD@{4}: commit: disciplinas
+[33m86b8da1[m HEAD@{5}: reset: moving to origin/developer
+[33m05891d8[m HEAD@{6}: commit: Meu perfil feito
+[33m6bd5d29[m[33m ([m[1;31morigin/task/EscolasShow[m[33m, [m[1;32mtask/EscolasShow[m[33m)[m HEAD@{7}: checkout: moving from task/EscolasShow to task/Perfil
+[33m6bd5d29[m[33m ([m[1;31morigin/task/EscolasShow[m[33m, [m[1;32mtask/EscolasShow[m[33m)[m HEAD@{8}: commit: alteraçoes em (meu perfil)
+[33m3008c57[m HEAD@{9}: commit: show atualizada, index de professores atualizada
+[33mff30f92[m HEAD@{10}: checkout: moving from ff30f92b3b93132ed09b96a67210ac3f3ebaa29f to task/EscolasShow
+[33mff30f92[m HEAD@{11}: pull --rebase origin developer (start): checkout ff30f92b3b93132ed09b96a67210ac3f3ebaa29f
+[33mc0a0eca[m[33m ([m[1;32mtask/NotasToFIX[m[33m)[m HEAD@{12}: commit: antes do rebase
+[33mfa0dd7f[m[33m ([m[1;31morigin/task/NotasToFIX[m[33m)[m HEAD@{13}: commit: missing content resolvido
+[33m997c9b5[m HEAD@{14}: commit: correçoes de bugs e de avaliaçoes
+[33mdd5d19a[m HEAD@{15}: commit: bugs e modal corrigida
+[33m1ac75ec[m HEAD@{16}: commit: falta alteraçoes
+[33m25a0713[m HEAD@{17}: rebase (finish): returning to refs/heads/task/NotasToFIX
+[33m25a0713[m HEAD@{18}: rebase (start): checkout origin/developer
+[33m51a0537[m HEAD@{19}: commit: correçoes de varios arquivos + implemantaçao semi completa de notas
+[33m824bf3c[m HEAD@{20}: commit: mais funçoes em notas, porém faltando uma correçao
+[33m2ae3620[m[33m ([m[1;31morigin/task/notas[m[33m, [m[1;32mtask/notas[m[33m)[m HEAD@{21}: checkout: moving from task/notas to task/NotasToFIX
+[33m2ae3620[m[33m ([m[1;31morigin/task/notas[m[33m, [m[1;32mtask/notas[m[33m)[m HEAD@{22}: commit: começando a fazer notas, tem varias alteraçoes no banco e nas views
+[33m69631eb[m[33m ([m[1;31morigin/show/alunosProf[m[33m, [m[1;32mshow/alunosProf[m[33m)[m HEAD@{23}: checkout: moving from show/alunosProf to task/notas
+[33m69631eb[m[33m ([m[1;31morigin/show/alunosProf[m[33m, [m[1;32mshow/alunosProf[m[33m)[m HEAD@{24}: commit: Alunos para professores
+[33m61f183b[m[33m ([m[1;32mtask/showAluno[m[33m)[m HEAD@{25}: checkout: moving from task/showAluno to show/alunosProf
+[33m61f183b[m[33m ([m[1;32mtask/showAluno[m[33m)[m HEAD@{26}: reset: moving to origin/developer
+[33m97ee024[m[33m ([m[1;31morigin/task/showAluno[m[33m)[m HEAD@{27}: commit: dashboard de professores
+[33m2792fc5[m HEAD@{28}: reset: moving to origin/developer
+[33m2792fc5[m HEAD@{29}: commit: correções em professores e login
+[33mfbb5c43[m HEAD@{30}: reset: moving to origin/developer
+[33m0f22fd9[m HEAD@{31}: commit: dropdown
+[33m3317a66[m HEAD@{32}: commit: alteraçao na show de escolas
+[33mffd6a50[m HEAD@{33}: commit: erro no index escola
+[33mb841800[m HEAD@{34}: reset: moving to origin/developer
+[33m63ea778[m HEAD@{35}: commit (merge): correçao de ano letivo
+[33mca792bf[m HEAD@{36}: commit: anoletivo alterado
+[33m01b1d81[m HEAD@{37}: commit: alteraçoes no form aluno
+[33m2f4d1c1[m HEAD@{38}: commit: show modificada
+[33ma5d0a83[m HEAD@{39}: commit (merge): erros de conflitos resolvidos
+[33m2d51881[m HEAD@{40}: reset: moving to origin/task/showAluno
+[33mbbc26e1[m HEAD@{41}: commit: Alterações locais no schema antes do merge
+[33m4cc7220[m HEAD@{42}: reset: moving to origin/developer
+[33m2d51881[m HEAD@{43}: commit: alteracoes na show e edit de alunos
+[33mbc470b1[m[33m ([m[1;31morigin/task/formAluno[m[33m, [m[1;32mtask/formAluno[m[33m)[m HEAD@{44}: checkout: moving from task/formAluno to task/showAluno
+[33mbc470b1[m[33m ([m[1;31morigin/task/formAluno[m[33m, [m[1;32mtask/formAluno[m[33m)[m HEAD@{45}: commit: show alunos atualizado
+[33mb1ca729[m HEAD@{46}: pull origin developer --rebase (finish): returning to refs/heads/task/formAluno
+[33mb1ca729[m HEAD@{47}: pull origin developer --rebase (pick): login melhorado | show de alunos
+[33mf97a5c4[m HEAD@{48}: pull origin developer --rebase (start): checkout f97a5c4a28d5bfafe396ad60b6efcea81f8a6a17
+[33m4164781[m HEAD@{49}: commit: login melhorado | show de alunos
+[33m2537917[m HEAD@{50}: commit: migalhas de pao
+[33m10f25c3[m HEAD@{51}: commit: form alunos so precisa de nome
+[33med50b97[m HEAD@{52}: pull origin developer: Fast-forward
+[33m4fa9e25[m HEAD@{53}: commit: resolvi o erro nao salvar aluno
+[33m31f10eb[m HEAD@{54}: merge origin/developer: Fast-forward
+[33mf10981f[m HEAD@{55}: commit: alteracoes form alunos
+[33mf361072[m[33m ([m[1;32mmain[m[33m)[m HEAD@{56}: checkout: moving from main to task/formAluno
+[33mf361072[m[33m ([m[1;32mmain[m[33m)[m HEAD@{57}: reset: moving to origin/developer
+[33m4a08e02[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{58}: clone: from https://github.com/EricAleixo/turmaria.git
