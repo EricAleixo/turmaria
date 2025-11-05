@@ -19,6 +19,7 @@
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
       <%= form_with model: @frequencia, url: frequencias_path, local: true, class: "p-4 sm:p-6" do |form| %>
         <%= hidden_field_tag :turma_id, @turma.id %>
+        <%= hidden_field_tag :disciplina_id, @disciplina.id %>
         
         <!-- Data e Turma -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
