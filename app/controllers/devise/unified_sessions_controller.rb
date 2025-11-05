@@ -52,6 +52,7 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
             when Professor then :professor
             when Coordenador then :coordenador
             when SuperAdmin then :super_admin
+            when Aluno then :aluno
             end
 
     sign_out(scope)

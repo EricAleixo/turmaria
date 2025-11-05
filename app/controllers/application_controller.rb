@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
   # Retorna o usuário logado (qualquer tipo)
   def current_any_user
-    @current_any_user ||= current_admin || current_professor || current_coordenador || current_super_admin
+    @current_any_user ||= current_admin || current_professor || current_coordenador || current_super_admin || current_aluno
   end
 
   # Alias para compatibilidade com Pundit

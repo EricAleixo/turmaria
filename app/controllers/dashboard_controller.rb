@@ -9,6 +9,8 @@ class DashboardController < ApplicationController
       load_super_admin_dashboard_data # Carrega seus dados reais
     elsif current_professor
       load_professor_dashboard_data   # Carrega dados mockados
+    elsif current_aluno
+      load_aluno_dashboard_data
     end
     
     # A view index.html.erb usará 'current_super_admin' ou 'current_professor'
@@ -17,9 +19,43 @@ class DashboardController < ApplicationController
 
   private
 
+
+  def load_aluno_dashboard_data
+    # Garante que temos o objeto do aluno logado
+    aluno = current_aluno
+    @aluno = current_aluno
+    
+    # Exemplo de dados da dashboard do aluno
+    @aluno_nome = aluno.nome rescue "Aluno Teste"
+    @escola_nome = aluno.escola.nome rescue "Não Informada"
+
+    # Dados principais para exibição
+    # *Os dados abaixo são mockados ou simplificados. Você deve ajustá-los
+    # para carregar informações reais do seu modelo `Aluno` e suas associações (Notas, Turmas, Presença, etc).*
+    
+    # Turma atual do aluno (se houver)
+    @turma_atual = aluno.turma.nome rescue "Turma não atribuída"
+    
+    # Últimas 5 notas (exemplo mockado)
+    @ultimas_notas = [
+      { disciplina: "Matemática", nota: 8.5 },
+      { disciplina: "Português", nota: 7.0 },
+      { disciplina: "História", nota: 9.2 },
+      { disciplina: "Ciências", nota: 6.8 },
+      { disciplina: "Inglês", nota: 8.0 }
+    ]
+    
+    # Média geral (exemplo mockado)
+    @media_geral = 7.9 
+    
+    # Total de faltas no mês (exemplo mockado)
+    @total_faltas = 3
+  end
+
+
   # Método para garantir que o acesso é liberado para SuperAdmin ou Professor
   def authenticate_any_user!
-    unless super_admin_signed_in? || professor_signed_in?
+    unless super_admin_signed_in? || professor_signed_in? || aluno_signed_in?
       # Pode ajustar o redirecionamento conforme sua rota de login/Devise
       redirect_to new_user_session_path, alert: 'Acesso negado. Faça login para acessar o painel.'
     end

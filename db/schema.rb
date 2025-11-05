@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_05_222230) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -61,7 +61,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "alunos", force: :cascade do |t|
+  create_table "alunos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "nome"
     t.date "data_nascimento"
     t.bigint "turma_id"
@@ -92,7 +92,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.bigint "cidade_id"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
     t.index ["cidade_id"], name: "index_alunos_on_cidade_id"
+    t.index ["confirmation_token"], name: "index_alunos_on_confirmation_token", unique: true
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["matricula"], name: "index_alunos_on_matricula", unique: true
@@ -121,7 +131,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
   end
 
   create_table "avaliacoes_bimestrais", force: :cascade do |t|
-    t.bigint "aluno_id", null: false
+    t.uuid "aluno_id", null: false
     t.bigint "turma_id", null: false
     t.bigint "disciplina_id", null: false
     t.integer "bimestre", null: false
@@ -203,7 +213,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
     t.string "cep"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "aluno_id"
+    t.uuid "aluno_id"
     t.uuid "escola_id"
     t.string "complemento"
     t.bigint "cidade_id"
@@ -243,7 +253,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
 
   create_table "frequencia_alunos", force: :cascade do |t|
     t.bigint "frequencia_id", null: false
-    t.bigint "aluno_id"
+    t.uuid "aluno_id"
     t.string "status", default: "presente", null: false
     t.text "observacoes"
     t.datetime "created_at", null: false
@@ -326,7 +336,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_23_113618) do
   end
 
   create_table "registros_de_notas", force: :cascade do |t|
-    t.bigint "aluno_id", null: false
+    t.uuid "aluno_id", null: false
     t.bigint "avaliacao_configuracao_id", null: false
     t.decimal "valor", precision: 4, scale: 2, null: false
     t.date "data_registro"

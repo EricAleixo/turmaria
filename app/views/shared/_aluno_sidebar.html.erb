@@ -1,8 +1,7 @@
-<!-- Aluno Sidebar -->
 <div class="drawer-side">
   <label for="my-drawer" class="drawer-overlay"></label>
+  
   <aside class="w-64 min-h-full bg-white shadow-lg">
-    <!-- Profile Section -->
     <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-orange-50">
       <div class="flex flex-col items-center text-center">
         <div class="avatar placeholder mb-3">
@@ -27,13 +26,11 @@
             <%= current_any_user&.email %>
           </p>
           
-          <!-- User Type Badge -->
           <div class="badge badge-sm bg-yellow-100 text-yellow-700 border-yellow-200 mb-3">
             Aluno
           </div>
           
-          <!-- Logout Button -->
-          <%= link_to destroy_user_session_path, method: :delete, 
+          <%= link_to "#", 
               class: "btn btn-xs btn-outline btn-error w-full",
               data: { confirm: "Tem certeza que deseja sair?" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +42,6 @@
       </div>
     </div>
 
-    <!-- System Title -->
     <div class="p-4 border-b border-gray-200">
       <h2 class="text-xl font-bold text-gray-800">Turmaria</h2>
       <p class="text-sm text-gray-600">Portal do Aluno</p>
@@ -53,9 +49,9 @@
     
     <nav class="p-4">
       <ul class="space-y-2">
-        <!-- Dashboard -->
         <li>
-          <%= link_to dashboard_path, class: "flex items-center p-3 rounded-lg #{current_page?(dashboard_path) ? 'bg-yellow-100 text-yellow-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%# Rota substituída por '#' e current_page? substituído por lógica falsa temporária %>
+          <%= link_to "#", class: "flex items-center p-3 rounded-lg #{false ? 'bg-yellow-100 text-yellow-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l-1-3m1 3l-1-3m-16.5-3h16.5" />
             </svg>
@@ -63,7 +59,6 @@
           <% end %>
         </li>
 
-        <!-- My Grades -->
         <li>
           <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
@@ -73,7 +68,6 @@
           </a>
         </li>
 
-        <!-- My Schedule -->
         <li>
           <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
@@ -83,7 +77,6 @@
           </a>
         </li>
 
-        <!-- My Attendance -->
         <li>
           <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
@@ -93,7 +86,6 @@
           </a>
         </li>
 
-        <!-- My Teachers -->
         <li>
           <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
@@ -103,7 +95,6 @@
           </a>
         </li>
 
-        <!-- Activities -->
         <li>
           <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">

@@ -1,6 +1,10 @@
 # app/models/aluno.rb
 
 class Aluno < ApplicationRecord
+
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :trackable, :confirmable
   # === Associações ===
   belongs_to :escola
   belongs_to :turma, optional: true

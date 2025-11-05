@@ -18,19 +18,28 @@
 
   <body>
     <%# 🛑 COMEÇO DO NOVO LAYOUT DO DRAWER 🛑 %>
-    <div class="drawer lg:drawer-open min-h-screen">
-      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-      
-      <%# SIDEBAR (aparece condicionalmente para Professor e se for tela grande) %>
-      <% if current_professor.present? %>
-        <div class="drawer-side z-20">
-          <label for="my-drawer" class="drawer-overlay"></label>
-          <%# Renderiza a partial AGORA SEM os wrappers drawer-side/label DENTRO dela %>
-          <%= render 'shared/professor_sidebar' %> 
-        </div>
-      <% end %>
+    <div class="drawer lg:drawer-open min-h-screen">
+      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+      
+      <%# === LÓGICA CONDICIONAL PARA RENDERIZAR A SIDEBAR CORRETA === %>
+      <% if current_any_user.present? %>
+        <div class="drawer-side z-20">
+          <label for="my-drawer" class="drawer-overlay"></label>
+          
+          <% if current_any_user.is_a?(SuperAdmin) %>
+            <%= render 'shared/super_admin_sidebar' %>
+          <% elsif current_any_user.is_a?(Aluno) %>
+            <%= render 'shared/aluno_sidebar' %>
+          <% elsif current_any_user.is_a?(Professor) %>
+            <%= render 'shared/professor_sidebar' %>
+          <% elsif current_any_user.is_a?(Admin) %>
+            <%= render 'shared/admin_sidebar' %>
+          <% end %>
 
-      <%# CONTEÚDO PRINCIPAL E CABEÇALHO %>
+        </div>
+      <% end %>
+      
+      <%# CONTEÚDO PRINCIPAL E CABEÇALHO %>
       <div class="drawer-content flex flex-col min-h-screen">
         
         <header class="bg-white text-black p-2 flex justify-between items-center h-18
