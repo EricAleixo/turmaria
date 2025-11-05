@@ -1,6 +1,5 @@
 <div class="p-6 bg-gray-100 min-h-screen">
   <% if current_professor.disciplinas.empty? %>
-    <!-- Mensagem quando não há disciplinas -->
     <div class="flex items-center justify-center min-h-[60vh]">
       <div class="text-center max-w-md">
         <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -12,13 +11,11 @@
       </div>
     </div>
   <% else %>
-    <!-- Conteúdo normal quando há disciplinas -->
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Minhas Turmas</h1>
       <p class="text-gray-600">Gerencie as turmas onde você leciona e registre frequências</p>
     </div>
 
-    <!-- Cards de Estatísticas -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
@@ -77,7 +74,6 @@
       </div>
     </div>
 
-    <!-- Grid de Turmas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @turmas.each do |turma| %>
         <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
@@ -124,20 +120,17 @@
             </div>
 
             <div class="flex flex-col space-y-2">
-              <!-- Botão/Dropdown de Frequência -->
               <% if frequencia_hoje %>
                 <%= link_to frequencia_path(frequencia_hoje), class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
                   Ver Frequência
                 <% end %>
               <% else %>
                 <% if current_professor.disciplinas.count == 1 %>
-                  <!-- Se há apenas 1 disciplina, link direto sem dropdown -->
                   <%= link_to new_professor_turma_disciplina_frequencia_path(turma, current_professor.disciplinas.first.id), 
-                      class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                    class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
                     Registrar Frequência
                   <% end %>
                 <% else %>
-                  <!-- Dropdown para múltiplas disciplinas -->
                   <div class="relative dropdown-frequencia">
                     <button type="button" class="dropdown-toggle w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
                       Registrar Frequência
@@ -148,7 +141,7 @@
                     <div class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200">
                       <% current_professor.disciplinas.each do |disciplina| %>
                         <%= link_to new_professor_turma_disciplina_frequencia_path(turma, disciplina.id), 
-                            class: "block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 first:rounded-t-lg last:rounded-b-lg transition-colors" do %>
+                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 first:rounded-t-lg last:rounded-b-lg transition-colors" do %>
                           <%= disciplina.nome %>
                         <% end %>
                       <% end %>
@@ -157,36 +150,16 @@
                 <% end %>
               <% end %>
               
-              <!-- Botão/Dropdown de Notas -->
-              <% if current_professor.disciplinas.count == 1 %>
-                <!-- Se há apenas 1 disciplina, link direto sem dropdown -->
+              <%# Verifica se há disciplinas antes de criar o link, evitando erros. %>
+              <% if current_professor.disciplinas.any? %>
                 <%= link_to professor_turma_disciplinas_path(turma, disciplina_id: current_professor.disciplinas.first.id, target: :nota), 
-                    class: "w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                  class: "w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
                   Lançar Notas
                 <% end %>
-              <% else %>
-                <!-- Dropdown para múltiplas disciplinas -->
-                <div class="relative dropdown-notas">
-                  <button type="button" class="dropdown-toggle w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
-                    Lançar Notas
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </button>
-                  <div class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200">
-                    <% current_professor.disciplinas.each do |disciplina| %>
-                      <%= link_to professor_turma_disciplinas_path(turma, disciplina_id: disciplina.id, target: :nota), 
-                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg transition-colors" do %>
-                        <%= disciplina.nome %>
-                      <% end %>
-                    <% end %>
-                  </div>
-                </div>
               <% end %>
 
-              <!-- Botão de Histórico -->
               <%= link_to historico_professor_turma_path(turma), 
-                  class: "w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                class: "w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
                 </svg>
@@ -211,53 +184,69 @@
 </div>
 
 <script>
-document.addEventListener('turbo:load', function() {
-  // Função para inicializar dropdowns
-  function initDropdowns() {
-    // Seleciona todos os dropdowns
-    const dropdowns = document.querySelectorAll('.dropdown-frequencia, .dropdown-notas');
+// A função JavaScript foi mantida e ajustada para remover o .dropdown-notas do seu escopo,
+// garantindo que não haja erros ao tentar inicializar elementos que não existem mais.
+
+function initDropdowns() {
+  // Seleciona APENAS o dropdown de Frequência, já que o de Notas foi removido
+  const dropdowns = document.querySelectorAll('.dropdown-frequencia');
+  
+  dropdowns.forEach(dropdown => {
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    const menu = dropdown.querySelector('.dropdown-menu');
     
-    dropdowns.forEach(dropdown => {
-      const toggle = dropdown.querySelector('.dropdown-toggle');
-      const menu = dropdown.querySelector('.dropdown-menu');
-      
-      if (!toggle || !menu) return;
-      
-      // Toggle ao clicar no botão
+    // Verifica se os elementos existem e se o event listener já foi anexado
+    if (toggle && menu && !toggle.hasAttribute('data-dropdown-initialized')) {
+      // Marca como inicializado para evitar anexar múltiplos listeners
+      toggle.setAttribute('data-dropdown-initialized', 'true');
+
+      // 1. Lógica de Toggle (Abrir/Fechar)
       toggle.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Fecha outros dropdowns abertos
+        // Fecha outros dropdowns abertos, exceto o menu atual
         document.querySelectorAll('.dropdown-menu').forEach(m => {
-          if (m !== menu) m.classList.add('hidden');
+          if (m !== menu) {
+            m.classList.add('hidden');
+          }
         });
         
-        // Toggle do menu atual
+        // Alterna o menu atual
         menu.classList.toggle('hidden');
       });
-    });
+    }
+  });
+
+  // 2. Lógica de Fechamento Global (Anexada apenas uma vez ao documento)
+  if (!document.body.hasAttribute('data-global-click-initialized')) {
+    document.body.setAttribute('data-global-click-initialized', 'true');
     
-    // Fecha dropdowns ao clicar fora
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('.dropdown-frequencia') && !e.target.closest('.dropdown-notas')) {
+      // Ajustado para checar APENAS o dropdown-frequencia
+      const isDropdownClick = e.target.closest('.dropdown-frequencia');
+      
+      // Se o clique não foi dentro do dropdown, feche todos os menus
+      if (!isDropdownClick) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+    });
+
+    // 3. Listener para o evento 'pageshow' para corrigir o BFCache (Mantido)
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
         document.querySelectorAll('.dropdown-menu').forEach(menu => {
           menu.classList.add('hidden');
         });
       }
     });
   }
-  
-  // Inicializa os dropdowns
-  initDropdowns();
-});
+}
 
-// Reinicializa após renderizações do Turbo
-document.addEventListener('turbo:render', function() {
-  // Pequeno delay para garantir que o DOM está pronto
-  setTimeout(function() {
-    const event = new Event('turbo:load');
-    document.dispatchEvent(event);
-  }, 100);
-});
+// Inicializa a função em todos os principais eventos de carregamento e navegação do Turbo
+document.addEventListener('DOMContentLoaded', initDropdowns);
+document.addEventListener('turbo:load', initDropdowns);
+document.addEventListener('turbo:frame-load', initDropdowns);
 </script>

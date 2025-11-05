@@ -25,7 +25,8 @@ class Professor::TurmasController < Professor::BaseController
       .joins(:disciplina)
       .where(turma: @turma)
       .where(data_aula: @data_inicio..@data_fim)
-      .order(:data_aula)
+      .includes(:disciplina) 
+      .order(data_aula: :desc, created_at: :desc) 
 
     
     # 5. Datas que têm frequência registrada
@@ -99,8 +100,21 @@ class Professor::TurmasController < Professor::BaseController
   def calcular_media_presenca(frequencias)
     return 0 if frequencias.empty?
     
-    total_presencas = frequencias.sum(:total_presentes)
-    total_possivel = frequencias.sum(:total_alunos)
+    # CORREÇÃO para total_presencas
+    total_presencas = FrequenciaAluno.joins(:frequencia)
+                                    .where(frequencia: frequencias)
+                                    .where(status: 'presente')
+                                    .count
+    
+    # total_alunos deve ser a soma do count de alunos para cada aula
+    # Se você não tem 'total_alunos' como coluna, precisamos do cálculo correto
+    # O seu erro original (UndefinedColumn) também se aplica aqui se você tiver:
+    # total_possivel = frequencias.sum(:total_alunos)
+    
+    # A maneira mais robusta de calcular o total de vagas é:
+    total_possivel = FrequenciaAluno.joins(:frequencia)
+                                    .where(frequencia: frequencias)
+                                    .count # Conta todos os registros FrequenciaAluno
     
     return 0 if total_possivel.zero?
     
