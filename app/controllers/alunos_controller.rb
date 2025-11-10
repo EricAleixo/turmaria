@@ -91,9 +91,7 @@ class AlunosController < ApplicationController
 
         respond_to do |format|
             if @aluno.save
-                # Verificar após salvar
                 Rails.logger.info "Após salvar - Foto: #{@aluno.foto.attached?}"
-                # ... (Mantido o código de debug) ...
                 
                 format.html { redirect_to [@escola, @aluno], notice: "Aluno criado com sucesso." }
                 format.json { render json: { success: true, message: "Aluno salvo com sucesso!" }, status: :created }
