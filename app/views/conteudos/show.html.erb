@@ -1,0 +1,364 @@
+<div class="min-h-screen bg-gray-100">
+
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">
+          Conteúdo - <%= @conteudo.titulo %>
+        </h1>
+        <div class="text-sm breadcrumbs mt-1">
+          <ul class="flex gap-2">
+            <li>
+              <%= link_to "Escolas", disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+            </li>
+            <li>
+              <% if @conteudo.escola.present? %>
+                <%= link_to @conteudo.escola.nome, escola_path(@conteudo.escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
+              <%end%>
+            </li>
+            <li class="text-gray-600"><%= @conteudo.titulo %></li>
+          </ul>
+        </div>
+      </div>
+
+      <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
+  <div class="flex gap-3">
+    <% if current_user.is_a?(Admin) && @conteudo.escola_id == current_user.escolas.pluck(:id).first %>
+      <%= link_to new_escola_conteudo_path(@conteudo.escola),
+                  class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Novo Conteúdo
+      <% end %>
+
+    <% elsif current_user.is_a?(SuperAdmin) %>
+      <% if @conteudo.escola.present? %>
+        <%= link_to new_escola_conteudo_path(@conteudo.escola),
+                    class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Novo Conteúdo
+        <% end %>
+      <% else %>
+        <%= link_to escolas_path,
+                    class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Novo Conteúdo
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%# botão de editar %>
+    <%= link_to edit_conteudo_path(@conteudo),
+                class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+      </svg>
+      Editar Conteúdo
+    <% end %>
+  </div>
+<% end %>
+    </div>
+  </div>
+
+  <!-- Card do Conteúdo -->
+  <div class="px-6">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+
+      <!-- Header do card -->
+      <div class="bg-gradient-to-r from-blue-500 to-green-300 px-6 py-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M4 4h12v12H4z"/>
+        </svg>
+        <h2 class="text-xl font-bold text-white">Informações do Conteúdo</h2>
+      </div>
+
+      <!-- Corpo do card -->
+      <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Resumo / Dados -->
+        <div class="bg-white rounded-lg shadow-lg p-6 space-y-4">
+          <div>
+            <% if @conteudo.disciplina.present? %>
+              <p class="text-lg font-bold text-indigo-600"><%= @conteudo.disciplina.nome %></p>
+            <% else %>
+              <p class="text-lg text-gray-400 italic">Sem disciplina</p>
+            <% end %>
+          </div>
+
+          <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Professor responsável</p>
+              <p class="text-lg font-bold text-indigo-600"><%= @conteudo.professor&.nome || "Não atribuído" %></p>
+            </div>
+          <% end %>
+
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide">Bimestre</p>
+            <p class="text-lg font-bold text-indigo-600"><%= @conteudo.bimestre || "N/A" %></p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wide">Descrição</p>
+            <div class="prose max-w-none text-gray-700">
+              <%= @conteudo.descricao || "Sem descrição disponível" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteúdo completo -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Conteúdo</h3>
+            <div class="prose max-w-none text-gray-700">
+<div id="conteudo-visualizado" class="prose-conteudo prose max-w-none prose-lg text-gray-800 leading-relaxed">
+  <%= markdown(@conteudo.markdown) %>
+</div>
+
+          </div>
+        </div>
+<!-- Tabela de Materiais Anexados -->
+<% if @conteudo.materiais.attached? %>
+  <div class="col-span-full mt-6 overflow-x-auto">
+    <table class="w-full ">
+      <thead class="border-b border-gray-200 bg-gradient-to-r from-blue-500 to-green-300">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white rounded-tl-xl ">Arquivo</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Tipo</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Tamanho</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white rounded-tr-xl">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-100 bg-white">
+        <% @conteudo.materiais.each do |arquivo| %>
+          <tr class="transition-colors hover:bg-emerald-50/50">
+            
+            <!-- Arquivo + Ícone -->
+            <td class="whitespace-nowrap px-6 py-4 flex items-center gap-3">
+<% case arquivo.content_type %>
+<% when /pdf/ %>
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+      <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+      </svg>
+    </div>
+  </div>
+
+<% when /word|docx|msword/ %>
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+      <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+      </svg>
+    </div>
+  </div>
+
+<% when /image/ %>
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+      <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </div>
+  </div>
+              <% end %>
+              <span class="text-gray-800 font-medium truncate max-w-[200px]"><%= arquivo.filename.to_s %></span>
+            </td>
+
+            <!-- Tipo -->
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700 capitalize">
+              <%= arquivo.filename.extension %>
+            </td>
+
+            <!-- Tamanho -->
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+              <%= number_to_human_size(arquivo.byte_size) %>
+            </td>
+
+            <!-- Ações -->
+            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium flex gap-3">
+              <%= link_to rails_blob_path(arquivo, disposition: "attachment"), class: "rounded-full p-1 text-teal-500 hover:bg-teal-100/50 hover:text-teal-700 transition-colors", title: "Baixar" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0 0l-4-4m4 4l4-4m-4-8V4" />
+                </svg>
+              <% end %>
+
+                <%= link_to remove_material_conteudo_path(@conteudo, arquivo_id: arquivo.id),
+                            data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
+                            class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
+                            title: "Remover" do %>
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+
+
+<style>
+/* ============================================
+   ESTILOS RICH TEXT PARA VISUALIZAÇÃO (TIPTAP)
+   ============================================ */
+
+.prose-conteudo {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #374151;
+  word-break: break-word;
+}
+
+.prose-conteudo h1,
+.prose-conteudo h2,
+.prose-conteudo h3,
+.prose-conteudo h4,
+.prose-conteudo h5,
+.prose-conteudo h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  color: #111827;
+  scroll-margin-top: 4rem;
+}
+
+.prose-conteudo h1 { font-size: 2rem; margin-top: 2rem; margin-bottom: 1rem; }
+.prose-conteudo h2 { font-size: 1.6rem; margin-top: 1.75rem; margin-bottom: 0.875rem; }
+.prose-conteudo h3 { font-size: 1.3rem; margin-top: 1.25rem; margin-bottom: 0.75rem; }
+.prose-conteudo h4 { font-size: 1.1rem; margin-top: 1rem; margin-bottom: 0.5rem; }
+
+.prose-conteudo p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+.prose-conteudo strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.prose-conteudo em {
+  font-style: italic;
+}
+
+.prose-conteudo s {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.prose-conteudo code {
+  background-color: #f3f4f6;
+  color: #e11d48;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.prose-conteudo pre {
+  background-color: #1e1e1e;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.prose-conteudo blockquote {
+  border-left: 4px solid #14b8a6;
+  padding-left: 1rem;
+  color: #4b5563;
+  font-style: italic;
+  margin: 1.5rem 0;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.prose-conteudo ul,
+.prose-conteudo ol {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.prose-conteudo ul li {
+  list-style-type: disc;
+  margin: 0.4rem 0;
+}
+
+.prose-conteudo ol li {
+  list-style-type: decimal;
+  margin: 0.4rem 0;
+}
+
+.prose-conteudo a {
+  color: #0d9488;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.prose-conteudo a:hover {
+  text-decoration: underline;
+}
+
+/* Imagens dentro do texto */
+.prose-conteudo img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+}
+
+/* Tabelas */
+.prose-conteudo table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+}
+
+.prose-conteudo th,
+.prose-conteudo td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.prose-conteudo th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* Citações de código */
+.prose-conteudo pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+
+/* Espaçamento final */
+.prose-conteudo > *:last-child {
+  margin-bottom: 0;
+}
+</style>
+

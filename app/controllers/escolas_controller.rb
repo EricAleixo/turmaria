@@ -2,6 +2,12 @@ class EscolasController < ApplicationController
   layout 'dashboard'
   before_action :set_escola, only: %i[show edit update destroy]
 
+  def search
+    query = params[:q]
+    @escolas = Escola.where("nome ILIKE ?", "%#{query}%").limit(10)
+
+    render json: @escolas
+  end
   def index
     # Tenta usar Pundit, com fallback para todos os registros
     begin

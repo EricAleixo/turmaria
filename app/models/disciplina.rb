@@ -8,6 +8,8 @@ class Disciplina < ApplicationRecord
 
   has_many :professor_disciplinas
   has_many :professores, through: :professor_disciplinas, source: :professor
+
   belongs_to :escola
+  has_many :conteudos, dependent: :destroy
 end
   

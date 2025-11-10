@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  titulo: MyString
+  materia: MyString
+  bimestre: MyString
+  descricao: MyText
+  professor: one
+  conteudo: MyText
+
+two:
+  titulo: MyString
+  materia: MyString
+  bimestre: MyString
+  descricao: MyText
+  professor: two
+  conteudo: MyText
