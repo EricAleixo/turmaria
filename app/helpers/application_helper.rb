@@ -66,6 +66,8 @@ module ApplicationHelper
       render 'shared/professor_sidebar'
     elsif current_coordenador.present? && current_admin.blank? && current_super_admin.blank?
       render 'shared/coordenador_sidebar'
+    elsif current_aluno.present?
+      render 'shared/aluno_sidebar'
     elsif current_super_admin.present? && current_admin.blank?
       render 'shared/super_admin_sidebar'
     else

@@ -1,0 +1,106 @@
+<%= content_for :page_title, @titulo_pagina %>
+
+<div class="bg-gradient-to-br from-green-50 via-gray-50 to-gray-100 min-h-screen p-4 sm:p-8">
+  <div class="w-full max-w-7xl mx-auto">
+    <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-green-100">
+      
+      <div class="mb-8 border-b-2 border-green-200 pb-4 flex justify-between items-center flex-wrap">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-green-700 flex items-center">
+          <%# Ícone principal no cabeçalho %>
+          <svg class="w-8 h-8 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          Minhas Notas
+        </h1>
+        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">Turma Atual: <%= @turma_atual&.nome || 'Nenhuma' %></span>
+      </div>
+
+      <%# --- Lógica para Ausência de Dados vs. Tabela --- %>
+      <% if @registros_notas.present? %>
+        
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Histórico Detalhado</h2>
+        
+        <div class="overflow-x-auto shadow-xl rounded-xl">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr class="bg-green-600 text-white text-left text-sm uppercase tracking-wider">
+                <%# Ordem mais limpa: Disciplina, Avaliação, Nota, Bimestre, Data %>
+                <th class="px-6 py-3 rounded-tl-xl">Disciplina</th>
+                <th class="px-6 py-3">Avaliação</th>
+                <th class="px-6 py-3 text-center">Bimestre</th>
+                <th class="px-6 py-3 text-center font-extrabold">Nota</th>
+                <th class="px-6 py-3 text-center rounded-tr-xl">Data Lançamento</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <% @registros_notas.each do |registro| %>
+                <tr class="hover:bg-green-50 transition duration-150 ease-in-out">
+                  <% disciplina = registro.avaliacao_configuracao&.disciplina %>
+                  <% config = registro.avaliacao_configuracao %>
+                  <% nota_valor = registro.valor.to_f %>
+
+                  <%# 1. DISCIPLINA (Texto normal, sem badge) %>
+                  <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-700">
+                    <%= disciplina&.nome || 'N/A' %>
+                  </td>
+                  
+                  <%# 2. AVALIAÇÃO (Badge intermediário, verde escuro) %>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-green-700 text-white">
+                      <%= config&.nome || 'Registro Avulso' %> 
+                    </span>
+                  </td>
+                  
+                  <%# 3. BIMESTRE (Badge intermediário, verde médio) %>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-teal-500 text-white">
+                      <%= config&.bimestre || 'Avulso' %>
+                    </span>
+                  </td>
+                  
+                  <%# 4. NOTA (Mantido INALTERADO com text-lg) %>
+                  <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-extrabold">
+                    <% nota_formatada = '%.1f' % nota_valor %>
+                    <% 
+                      cor_nota_classe = case nota_valor
+                      when 9.0..10.0 then 'text-green-700 bg-green-100 px-3 py-1 rounded-full' # Excelente
+                      when 7.0...9.0 then 'text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full' # Bom
+                      when 5.0...7.0 then 'text-orange-700 bg-orange-100 px-3 py-1 rounded-full' # Atenção
+                      else 'text-red-700 bg-red-100 px-3 py-1 rounded-full' # Crítico
+                      end
+                    %>
+                    <span class="<%= cor_nota_classe %>">
+                      <%= nota_formatada %>
+                    </span>
+                  </td>
+
+                  <%# 5. DATA (Badge intermediário, verde claro/ciano) %>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-500 text-white">
+                      <%= registro.created_at&.strftime('%d/%m/%Y') || '-' %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+      <% else %>
+        
+        <%# ESTADO VAZIO: Mensagem amigável quando NÃO HÁ NOTAS %>
+        <div class="text-center py-16 bg-green-50 rounded-xl border-2 border-dashed border-green-200">
+          <div class="max-w-md mx-auto">
+            <div class="text-6xl mb-4 text-green-400 flex justify-center">
+              <%# Ícone de notas, maior e centralizado %>
+              <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum registro de nota encontrado.</h3>
+            <p class="text-slate-500">Suas notas aparecerão aqui assim que forem lançadas pelos professores.</p>
+            <p class="text-sm text-gray-400 mt-4">Verifique se você está alocado(a) na turma correta.</p>
+          </div>
+        </div>
+
+      <% end %>
+
+    </div>
+  </div>
+</div>
