@@ -22,22 +22,28 @@
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       
       <%# === LÓGICA CONDICIONAL PARA RENDERIZAR A SIDEBAR CORRETA === %>
-      <% if current_any_user.present? %>
-        <div class="drawer-side z-20">
-          <label for="my-drawer" class="drawer-overlay"></label>
-          
-          <% if current_any_user.is_a?(SuperAdmin) %>
-            <%= render 'shared/super_admin_sidebar' %>
-          <% elsif current_any_user.is_a?(Aluno) %>
-            <%= render 'shared/aluno_sidebar' %>
-          <% elsif current_any_user.is_a?(Professor) %>
-            <%= render 'shared/professor_sidebar' %>
-          <% elsif current_any_user.is_a?(Admin) %>
-            <%= render 'shared/admin_sidebar' %>
-          <% end %>
+          <%# === LÓGICA CONDICIONAL PARA RENDERIZAR A SIDEBAR CORRETA (Versão 1 - Reordenação) === %>
+      <% if current_any_user.present? %>
+        <div class="drawer-side z-20">
+          <label for="my-drawer" class="drawer-overlay"></label>
+          
+          <% current_user_class = authenticated_user_type %>
 
-        </div>
-      <% end %>
+    <%# FORÇANDO a exibição correta com base na CLASSE. %>
+    <% if current_user_class == Aluno %>
+      <%= render 'shared/aluno_sidebar' %>
+    <% elsif current_user_class == Professor %>
+      <%= render 'shared/professor_sidebar' %>
+    <% elsif current_user_class == Coordenador %>
+      <%= render 'shared/coordenador_sidebar' %>
+    <% elsif current_user_class == Admin %>
+      <%= render 'shared/admin_sidebar' %>
+    <% elsif current_user_class == SuperAdmin %>
+      <%= render 'shared/super_admin_sidebar' %>
+    <% end %>
+
+        </div> <%# <-- FECHA drawer-side z-20 %>
+      <% end %> <%# <-- FECHA IF current_any_user.present? %>
       
       <%# CONTEÚDO PRINCIPAL E CABEÇALHO %>
       <div class="drawer-content flex flex-col min-h-screen">

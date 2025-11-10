@@ -4,10 +4,19 @@ Rails.application.routes.draw do
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
-  devise_for :alunos, skip: [:registrations], controllers: { sessions: 'alunos/sessions' }
+  devise_for :alunos, skip: [:registrations, :sessions], controllers: { confirmations: 'confirmations' }
 
   # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
+
+  constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
+    scope :aluno, as: :aluno do
+      # URL: /aluno/notas (Helper: aluno_minhas_notas_path)
+      get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
+      # URL: /aluno/frequencia (Helper: aluno_minha_frequencia_path)
+      get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
+    end
+  end
 
   # Estados e cidades
   resources :estados do
@@ -145,7 +154,7 @@ Rails.application.routes.draw do
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'
 
   # Rotas unificadas Devise
-  devise_scope :professor do
+  devise_scope :user do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
 
