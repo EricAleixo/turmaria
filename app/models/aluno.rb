@@ -1,10 +1,11 @@
 # app/models/aluno.rb
 
 class Aluno < ApplicationRecord
-
+  # === Devise ===
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
+         :recoverable, :rememberable,
          :trackable, :confirmable
+  
   # === Associações ===
   belongs_to :escola
   belongs_to :turma, optional: true
@@ -13,6 +14,8 @@ class Aluno < ApplicationRecord
   # === Validações ===
   validates :nome, presence: { message: "não pode estar em branco." }, length: { minimum: 3 }
   validates :cpf, uniqueness: { allow_blank: true, message: "já está em uso." }
+  validates :matricula, uniqueness: true, allow_nil: true
+  validates :email, allow_blank: true, uniqueness: { case_sensitive: false, allow_blank: true }
 
   # === Active Storage ===
   has_one_attached :foto
@@ -21,19 +24,12 @@ class Aluno < ApplicationRecord
   has_many_attached :comprovante_residencia
 
   # === Callbacks ===
+  before_validation :set_default_email, on: :create
+  before_validation :set_default_password, on: :create
   before_create :generate_matricula
 
-  # === Métodos ===
-  def generate_matricula
-    loop do
-      year = Time.zone.now.year
-      random_sequence = SecureRandom.hex(4).upcase
-      candidate = "ESC-#{escola_id}-#{year}-#{random_sequence}"
-      self.matricula = candidate
-      break unless Aluno.exists?(matricula: candidate)
-    end
-  end
-
+  # === Métodos Públicos ===
+  
   def idade
     return nil unless data_nascimento
     today = Date.current
@@ -42,18 +38,41 @@ class Aluno < ApplicationRecord
     age
   end
   
-  # =========================================================================
-  # O MÉTODO QUE ESTAVA FALTANDO PARA RESOLVER O NoMethodError
-  # =========================================================================
-  # Este método é chamado na view (aluno.status_aluno) e no controller (para filtros).
   def status_aluno
-    # A lógica mais simples é baseada na alocação de turma.
-    # O controller usa implicitamente esta lógica para o filtro "alocado" / "pendente de alocacao".
     if turma_id.present?
       "Alocado"
     else
       "Pendente de Alocação"
     end
   end
-  # =========================================================================
+  
+  def email_required?
+    false
+  end
+
+  def password_required?
+    false
+  end
+
+  private
+
+  def set_default_email
+    self.email = "aluno_#{SecureRandom.hex(4)}@temporario.com" if email.blank?
+  end
+
+  def set_default_password
+    if password.blank?
+      self.password = SecureRandom.hex(8)
+      self.password_confirmation = self.password
+    end
+  end
+
+  def generate_matricula
+    return if matricula.present?
+    
+    loop do
+      self.matricula = SecureRandom.alphanumeric(8).upcase
+      break unless Aluno.exists?(matricula: matricula)
+    end
+  end
 end

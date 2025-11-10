@@ -209,45 +209,56 @@ class AlunosController < ApplicationController
     end
 
     def aluno_params
-        params.require(:aluno).permit(
-            :escola_id, 
-            :turma_id, 
-            :data_nascimento, 
-            :nome, 
-            :email, 
-            :telefone, 
-            :responsavel_1, 
-            :telefone_responsavel_1, 
-            :responsavel_2, 
-            :telefone_responsavel_2, 
-            :idade, 
-            :cpf, 
-            :rg, 
-            :sexo, 
-            :cor, 
-            :tipo_sanguinio, 
-            :observacoes_pcd, 
-            :foto, 
-            :historico_academico, 
-            :comprovante_residencia, 
-            :cidade_id, # Permitindo o parâmetro
-            necessidades_especiais_tipo: [], 
-            cpf_documento: []
-        ).tap do |whitelisted_params|
-            # Tratamento de string vazia para cidade_id, se o campo for nulo, mas o front-end envia string vazia
-            if whitelisted_params[:cidade_id].blank?
-                whitelisted_params[:cidade_id] = nil
-            end
-
-            # Converter string em array para necessidades especiais
-            if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-                whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
-            end
-
-            # Se vazio, define como "Nenhuma"
-            if whitelisted_params[:necessidades_especiais_tipo].blank?
-                whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
-            end
-        end
+  params.require(:aluno).permit(
+    :escola_id, 
+    :turma_id, 
+    :data_nascimento, 
+    :nome, 
+    :email, 
+    :telefone, 
+    :responsavel_1, 
+    :telefone_responsavel_1, 
+    :responsavel_2, 
+    :telefone_responsavel_2, 
+    :idade, 
+    :cpf, 
+    :rg, 
+    :sexo, 
+    :cor, 
+    :tipo_sanguinio, 
+    :observacoes_pcd, 
+    :foto, 
+    :historico_academico, 
+    :cidade_id,
+    necessidades_especiais_tipo: [], 
+    cpf_documento: [],              # Array de arquivos
+    comprovante_residencia: []      # Array de arquivos
+  ).tap do |whitelisted_params|
+    # Tratamento de string vazia para cidade_id
+    if whitelisted_params[:cidade_id].blank?
+      whitelisted_params[:cidade_id] = nil
     end
+
+    # Converter string em array para necessidades especiais
+    if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
+      whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+    end
+
+    # Se vazio, define como "Nenhuma"
+    if whitelisted_params[:necessidades_especiais_tipo].blank?
+      whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
+    end
+    
+    # ⭐ NOVO: Remove arrays vazios de arquivos
+    if whitelisted_params[:cpf_documento].is_a?(Array)
+      whitelisted_params[:cpf_documento] = whitelisted_params[:cpf_documento].reject(&:blank?)
+      whitelisted_params.delete(:cpf_documento) if whitelisted_params[:cpf_documento].empty?
+    end
+    
+    if whitelisted_params[:comprovante_residencia].is_a?(Array)
+      whitelisted_params[:comprovante_residencia] = whitelisted_params[:comprovante_residencia].reject(&:blank?)
+      whitelisted_params.delete(:comprovante_residencia) if whitelisted_params[:comprovante_residencia].empty?
+    end
+  end
+end
 end

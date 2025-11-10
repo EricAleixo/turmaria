@@ -1,0 +1,3 @@
+class AreaDisciplinaController < ApplicationController
+
+end

@@ -11,44 +11,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <%# 🛑 COMEÇO DO NOVO LAYOUT DO DRAWER 🛑 %>
-    <div class="drawer lg:drawer-open min-h-screen">
-      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-      
-      <%# === LÓGICA CONDICIONAL PARA RENDERIZAR A SIDEBAR CORRETA === %>
-      <% if current_any_user.present? %>
-        <div class="drawer-side z-20">
-          <label for="my-drawer" class="drawer-overlay"></label>
-          
-          <% if current_any_user.is_a?(SuperAdmin) %>
-            <%= render 'shared/super_admin_sidebar' %>
-          <% elsif current_any_user.is_a?(Aluno) %>
-            <%= render 'shared/aluno_sidebar' %>
-          <% elsif current_any_user.is_a?(Professor) %>
-            <%= render 'shared/professor_sidebar' %>
-          <% elsif current_any_user.is_a?(Admin) %>
-            <%= render 'shared/admin_sidebar' %>
-          <% end %>
-
-        </div>
-      <% end %>
-      
-      <%# CONTEÚDO PRINCIPAL E CABEÇALHO %>
-      <div class="drawer-content flex flex-col min-h-screen">
-        
         <header class="bg-white text-black p-2 flex justify-between items-center h-18
                        sm:p-2
                        md:p-7 h-20 shadow-sm border-b border-gray-200">
           <div class="flex w-full items-center justify-between space-x-0
                       md:space-x-2">
             <div class="flex items-center space-x-3">
-              <%# Só mostra o botão hambúrguer se for Professor e em tela pequena %>
               <% if current_professor.present? %>
                 <div class="lg:hidden">
                   <label for="my-drawer" class="btn btn-square btn-ghost">
@@ -59,7 +32,7 @@
                 </div>
               <% end %>
               
-              <div class="flex items-center">
+              <div class="flex items-center hover:text-green-700 transition-colors duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="size-7
                       sm:size-11
@@ -69,7 +42,7 @@
                   <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
                 </svg>
                 <%= link_to root_path do%>
-                  <h1 class="text-xl font-bold md:text-4xl transition-colors duration-300 hover:text-primary
+                  <h1 class="text-xl font-bold md:text-4xl
                               sm:text-3xl
                               lg:text-4xl">Turmaria</h1>
                 <% end %>

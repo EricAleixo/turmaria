@@ -1,3 +1,4 @@
+# app/controllers/disciplinas_controller.rb
 class DisciplinasController < ApplicationController
   before_action :set_disciplina, only: %i[show edit update destroy]
   layout 'dashboard'
@@ -17,13 +18,14 @@ class DisciplinasController < ApplicationController
     end
     
     # Inclui associações para evitar N+1
-    @disciplinas = @disciplinas.includes(:escola, :professores)
+    @disciplinas = @disciplinas.includes(:escola, :professores, :area_disciplina)
   end
 
   # GET /disciplinas/1
   def show
   end
 
+  # GET /disciplinas/buscar_escolas
   def buscar_escolas
     nome = params[:escola_busca].to_s.strip.downcase
     tipo = params[:tipo].to_s.strip.downcase
@@ -34,8 +36,10 @@ class DisciplinasController < ApplicationController
 
     render json: { escolas: escolas.as_json(only: %i[id nome tipo]) }
   end
+
   # GET /disciplinas/new
   def new
+    @disciplinas_areas = AreaDisciplina.all.order(:nome)
     @disciplina = Disciplina.new
 
     # Autocomplete ou listagem de escolas apenas para SuperAdmin
@@ -68,6 +72,11 @@ class DisciplinasController < ApplicationController
 
   # GET /disciplinas/1/edit
   def edit
+    @disciplinas_areas = AreaDisciplina.all.order(:nome)
+    
+    if current_user.is_a?(SuperAdmin)
+      @escolas = Escola.all
+    end
   end
 
   # POST /disciplinas
@@ -81,10 +90,9 @@ class DisciplinasController < ApplicationController
                 nil
               end
 
-              raise "Escola inválida: #{@escola.inspect}" unless @escola.present?
-              raise "Classe do objeto: #{@escola.class}" unless @escola.is_a?(Escola)
-    unless @escola
+    unless @escola&.is_a?(Escola)
       flash.now[:alert] = "Escolha uma escola válida"
+      @disciplinas_areas = AreaDisciplina.all.order(:nome)
       @disciplina = Disciplina.new(disciplina_params)
       render :new and return
     end
@@ -95,32 +103,43 @@ class DisciplinasController < ApplicationController
     # Associa professores se houver
     if disciplina_params[:professor_ids].present?
       valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
-      @disciplina.professores = Professor.where(id: valid_ids)
+      @disciplina.professores = Professor.where(id: valid_ids, escola_id: @escola.id)
     end
 
     if @disciplina.save
       redirect_to escola_disciplinas_path(@escola), notice: "Disciplina criada com sucesso!"
     else
-      render :new
+      @disciplinas_areas = AreaDisciplina.all.order(:nome)
+      render :new, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /disciplinas/1
   def update
+    # Atualiza os parâmetros da disciplina
     if @disciplina.update(disciplina_params.except(:professor_ids))
+      # Atualiza professores se fornecido
       if disciplina_params[:professor_ids].present?
-        @disciplina.professores = Professor.where(id: disciplina_params[:professor_ids].reject(&:blank?))
+        valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
+        @disciplina.professores = Professor.where(
+          id: valid_ids, 
+          escola_id: @disciplina.escola_id
+        )
       end
     
       redirect_to @disciplina, notice: "Disciplina atualizada com sucesso."
     else
+      @disciplinas_areas = AreaDisciplina.all.order(:nome)
       render :edit, status: :unprocessable_entity
     end
   end
+
   # DELETE /disciplinas/1
   def destroy
+    escola = @disciplina.escola
     @disciplina.destroy
-    redirect_to disciplinas_url, notice: "Disciplina removida com sucesso."
+    
+    redirect_to escola_disciplinas_path(escola), notice: "Disciplina removida com sucesso."
   end
 
   private
@@ -130,7 +149,14 @@ class DisciplinasController < ApplicationController
   end
 
   def disciplina_params
-    params.require(:disciplina).permit(:nome, :area, :escola_id, :cor, :cor_nome, professor_ids: [] )
+    params.require(:disciplina).permit(
+      :nome, 
+      :area, 
+      :escola_id, 
+      :cor, 
+      :cor_nome,
+      :area_disciplina_id,
+      professor_ids: []
+    )
   end
-
 end

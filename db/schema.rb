@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_05_222230) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -120,6 +120,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_05_222230) do
     t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
   end
 
+  create_table "area_disciplinas", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "cor", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "avaliacao_bimestrals", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -193,6 +200,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_05_222230) do
     t.string "area"
     t.string "cor"
     t.string "cor_nome"
+    t.bigint "area_disciplina_id"
+    t.index ["area_disciplina_id"], name: "index_disciplinas_on_area_disciplina_id"
     t.index ["escola_id"], name: "index_disciplinas_on_escola_id"
   end
 
@@ -407,6 +416,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_05_222230) do
   add_foreign_key "avaliacoes_configuracoes", "disciplinas"
   add_foreign_key "avaliacoes_configuracoes", "turmas"
   add_foreign_key "cidades", "estados"
+  add_foreign_key "disciplinas", "area_disciplinas"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "cidades"

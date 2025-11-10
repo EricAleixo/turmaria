@@ -1,0 +1,2 @@
+class AreaDisciplina < ApplicationRecord
+end
