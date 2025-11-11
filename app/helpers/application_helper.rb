@@ -147,4 +147,32 @@ module ApplicationHelper
     end
   end
 
+  def markdown(text)
+    return "" if text.blank?
+  
+    renderer = Redcarpet::Render::HTML.new(
+      filter_html: true,
+      hard_wrap: true
+    )
+  
+    options = {
+      autolink: true,
+      tables: true,
+      fenced_code_blocks: true,
+      strikethrough: true,
+      underline: true,
+      highlight: true,
+      quote: true
+    }
+  
+    markdown = Redcarpet::Markdown.new(renderer, options)
+    html = markdown.render(text)
+  
+    sanitize(
+      html,
+      tags: %w[p br strong em del code pre h1 h2 h3 h4 h5 h6 blockquote ul ol li table thead tbody tr th td a],
+      attributes: %w[href class style]
+    ).html_safe
+  end
+
 end

@@ -15,6 +15,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
+  create_table "action_text_rich_texts", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "body"
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -174,6 +184,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
     t.index ["estado_id"], name: "index_cidades_on_estado_id"
   end
 
+  create_table "conteudos", force: :cascade do |t|
+    t.string "titulo"
+    t.string "bimestre"
+    t.text "descricao"
+    t.uuid "professor_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "disciplina_id"
+    t.uuid "escola_id"
+    t.text "markdown"
+    t.index ["bimestre"], name: "index_conteudos_on_bimestre"
+    t.index ["disciplina_id"], name: "index_conteudos_on_disciplina_id"
+    t.index ["escola_id", "disciplina_id", "professor_id"], name: "index_conteudos_on_escola_disciplina_professor"
+    t.index ["escola_id"], name: "index_conteudos_on_escola_id"
+    t.index ["professor_id"], name: "index_conteudos_on_professor_id"
+  end
+
   create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -244,6 +271,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
     t.string "email"
     t.string "site"
     t.string "tipo", default: "publica", null: false
+    t.index "lower((nome)::text)", name: "index_escolas_on_lower_nome"
     t.index ["admin_id"], name: "index_escolas_on_admin_id"
     t.index ["alunos_count"], name: "index_escolas_on_alunos_count"
     t.index ["cnpj"], name: "index_escolas_on_cnpj", unique: true
@@ -417,6 +445,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
   add_foreign_key "avaliacoes_configuracoes", "turmas"
   add_foreign_key "cidades", "estados"
   add_foreign_key "disciplinas", "area_disciplinas"
+  add_foreign_key "conteudos", "disciplinas"
+  add_foreign_key "conteudos", "escolas"
+  add_foreign_key "conteudos", "professors"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "cidades"

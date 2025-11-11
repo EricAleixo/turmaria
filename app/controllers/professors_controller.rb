@@ -23,7 +23,16 @@ class ProfessorsController < ApplicationController
 
     @disciplinas_por_area = @disciplinas.group_by { |d| d.area }
 
+    @conteudos_por_disciplina = Conteudo.includes(:disciplina).group_by(&:disciplina)
+
   end
+
+  def update_conteudos
+  @professor = Professor.find(params[:id])
+  @professor.conteudo_ids = params[:conteudo_ids] || []
+  redirect_to @professor, notice: "Conteúdos atualizados com sucesso!"
+  end
+
 
   def new
     @professor = Professor.new

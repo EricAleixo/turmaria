@@ -3,3 +3,6 @@ import "@hotwired/turbo-rails"
 import "./activestorage";
 import "controllers"
 
+
+import "trix"
+import "@rails/actiontext"

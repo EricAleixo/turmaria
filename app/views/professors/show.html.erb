@@ -227,20 +227,87 @@
         </div>
       <% end %>
     </div>
+    <!-- Tabela de Conteúdos -->
+<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 mt-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h3 class="text-xl font-semibold text-gray-800">Conteúdos do Professor</h3>
+      <p class="text-sm text-gray-500">Selecione os conteúdos que <%= @professor.nome %> leciona.</p>
+    </div>
   </div>
+
+  <%= form_with url: update_conteudos_professor_path(@professor), method: :patch, class: "space-y-6" do %>
+    <div class="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Selecionar</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título do Conteúdo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disciplina</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+          <% @conteudos_por_disciplina.each do |disciplina, conteudos| %>
+            <tbody class="group hover:bg-green-50 transition">
+              <% conteudos.each do |conteudo| %>
+                <tr class="transition">
+                  <!-- Checkbox -->
+                  <td class="px-6 py-4 text-center">
+                    <%= check_box_tag "conteudo_ids[]", conteudo.id, @professor.conteudo_ids.include?(conteudo.id),
+                        class: "h-5 w-5 appearance-none rounded border border-green-400 cursor-pointer checked:bg-green-600 checked:border-green-600 relative checked:after:content-[''] checked:after:absolute checked:after:top-1 checked:after:left-2 checked:after:w-1 checked:after:h-2 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45" %>
+                  </td>
+
+                  <!-- Nome -->
+                  <td class="px-6 py-4 text-sm font-medium transition-colors duration-300"
+                      data-conteudo-id="<%= conteudo.id %>"
+                      data-cor-nome="<%= conteudo.disciplina&.cor_nome || '#111' %>"
+                      style="color: <%= @professor.conteudo_ids.include?(conteudo.id) ? (conteudo.disciplina&.cor_nome || '#111') : 'inherit' %>;">
+                    <%= conteudo.titulo %>
+                  </td>
+                  
+                  <!-- Disciplina -->
+                  <% if conteudo == conteudos.first %>
+                    <td class="px-6 py-4" rowspan="<%= conteudos.size %>">
+                      <% if disciplina.present? %>
+                        <%= badge_conteudo(conteudo) %>
+                      <% else %>
+                        
+                          Sem disciplina
+
+                      <% end %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-end">
+      <%= submit_tag "Salvar alterações", class: "inline-flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all duration-200" %>
+    </div>
+  <% end %>
 </div>
+  </div>
+
+  
+</div>
+
+
 
 <script>
   document.addEventListener("turbo:load", () => {
-  document.querySelectorAll('input[type="checkbox"][name="disciplina_ids[]"]').forEach(checkbox => {
-    checkbox.addEventListener('change', (e) => {
-      const td = document.querySelector(`td[data-disciplina-id='${checkbox.value}']`);
-      if (!td) return;
+    document.querySelectorAll('input[type="checkbox"][name="conteudo_ids[]"]').forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const td = document.querySelector(`td[data-conteudo-id='${checkbox.value}']`);
+        if (!td) return;
 
-      const cor = checkbox.checked ? td.dataset.corNome || '#111' : 'inherit';
-      td.style.color = cor;
+        const cor = checkbox.checked ? td.dataset.corNome || '#111' : 'inherit';
+        td.style.color = cor;
+      });
     });
   });
-});
-
 </script>

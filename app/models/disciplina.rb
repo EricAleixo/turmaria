@@ -14,6 +14,7 @@ class Disciplina < ApplicationRecord
   
   belongs_to :escola
   belongs_to :area_disciplina, optional: true
+  has_many :conteudos, dependent: :destroy
 
   # Validações
   validates :nome, presence: true
