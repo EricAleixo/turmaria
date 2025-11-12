@@ -24,21 +24,21 @@
 
     <%= form.label :ano, "Ano *", class: "label label-text text-gray-600 font-semibold" %>
     <%= form.number_field :ano, class: "input input-bordered w-full", placeholder: "Ex: 2025", required: true %>
-    
+
     <%= form.label :data_inicio, "Data de Início *", class: "label label-text text-gray-600 font-semibold" %>
-    <%= form.date_field :data_inicio, class: "input input-bordered w-full", required: true %>
-    
+    <%= form.text_field :data_inicio, class: "input input-bordered w-full datepicker", placeholder: "Selecione a data", required: true, autocomplete: "off" %>
+
     <%= form.label :data_fim, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
-    <%= form.date_field :data_fim, class: "input input-bordered w-full", required: true %>
-    
+    <%= form.text_field :data_fim, class: "input input-bordered w-full datepicker", placeholder: "Selecione a data", required: true, autocomplete: "off" %>
+
     <%= form.label :numero_bimestre, "Quantidade de Bimestres *", class: "label label-text text-gray-600 font-semibold" %>
     <%= form.number_field :numero_bimestre, class: "input input-bordered w-full", required: true %>
-    
+
     <div class="flex justify-between mt-10">
       <%= link_to "Voltar", request.referer.present? ? request.referer : [@escola, @ano_letivo], class: "btn btn-ghost" %>
       <%= form.submit @ano_letivo.persisted? ? "Atualizar" : "Criar Ano Letivo", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
     </div>
-  <% end %> 
+  <% end %>
 <% else %>
   <%= form_with(model: [@escola, @ano_letivo], class: "bg-white p-8 rounded-lg shadow-md", data: { turbo: false }) do |form| %>
     <% if @ano_letivo.errors.any? %>
@@ -58,26 +58,172 @@
         </div>
       </div>
     <% end %>
-    
+
     <div class="flex justify-between items-center mb-8 border-b pb-4">
       <h1 class="text-2xl font-bold text-gray-700"><%= @ano_letivo.persisted? ? "Editar Ano Letivo" : "Novo Ano Letivo" %></h1>
     </div>
 
     <%= form.label :ano, "Ano *", class: "label label-text text-gray-600 font-semibold" %>
     <%= form.number_field :ano, class: "input input-bordered w-full", placeholder: "Ex: 2025", required: true %>
-    
+
     <%= form.label :data_inicio, "Data de Início *", class: "label label-text text-gray-600 font-semibold" %>
-    <%= form.date_field :data_inicio, class: "input input-bordered w-full", required: true %>
-    
+    <%= form.text_field :data_inicio, class: "input input-bordered w-full datepicker", placeholder: "Selecione a data", required: true, autocomplete: "off" %>
+
     <%= form.label :data_fim, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
-    <%= form.date_field :data_fim, class: "input input-bordered w-full", required: true %>
-    
+    <%= form.text_field :data_fim, class: "input input-bordered w-full datepicker", placeholder: "Selecione a data", required: true, autocomplete: "off" %>
+
     <%= form.label :numero_bimestre, "Quantidade de Bimestres *", class: "label label-text text-gray-600 font-semibold" %>
     <%= form.number_field :numero_bimestre, class: "input input-bordered w-full", required: true %>
-    
+
     <div class="flex justify-between mt-10">
       <%= link_to "Voltar", request.referer.present? ? request.referer : [@escola, @ano_letivo], class: "btn btn-ghost" %>
       <%= form.submit @ano_letivo.persisted? ? "Atualizar" : "Criar Ano Letivo", class: "btn bg-green-500 hover:bg-green-600 text-white" %>
     </div>
   <% end %>
 <% end %>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+
+<script>
+document.addEventListener("turbo:load", () => {
+  flatpickr(".datepicker", {
+    locale: "pt",
+    dateFormat: "d/m/Y",
+    allowInput: true,
+    monthSelectorType: "static", // desativa dropdown
+    onReady: function(selectedDates, dateStr, instance) {
+      // Tornar ano digitável
+      const yearContainer = instance.calendarContainer.querySelector(".flatpickr-current-month");
+      if (!yearContainer) return;
+
+      if (yearContainer.querySelector("input")) return;
+
+      const yearSpan = yearContainer.querySelector(".cur-year");
+      const yearValue = yearSpan.textContent;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.value = yearValue;
+      input.style.width = "4rem";
+      input.style.textAlign = "center";
+      input.className = "flatpickr-year-input";
+
+      yearSpan.textContent = "";
+      yearSpan.appendChild(input);
+
+      const applyYearChange = () => {
+        const newYear = parseInt(input.value, 10);
+        if (!isNaN(newYear)) {
+          instance.currentYear = newYear;
+          instance.redraw();
+        }
+      };
+
+      input.addEventListener("change", applyYearChange);
+      input.addEventListener("blur", applyYearChange);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          applyYearChange();
+          input.blur();
+        }
+      });
+    }
+  });
+});
+</script>
+
+<style>
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  background-color: transparent !important;
+  color: #22c55e !important;
+  border: none;
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: #16a34a !important;
+}
+
+/* Input de ano no header */
+.flatpickr-year-input {
+  border: 1px solid #22c55e;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  width: 4rem;
+  text-align: center;
+}
+
+.flatpickr-year-input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.3);
+}
+
+/* Dias circulares */
+.flatpickr-day {
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.flatpickr-day:hover {
+  background-color: rgba(34,197,94,0.2);
+  color: #14532d;
+}
+
+/* Dia selecionado */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background-color: #22c55e !important;
+  color: #fff !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 2px 8px rgba(34,197,94,0.4);
+}
+
+/* Hoje */
+.flatpickr-day.today {
+  border: 2px solid #22c55e;
+  color: #16a34a;
+}
+
+/* Container / popup */
+.flatpickr-calendar {
+  border-radius: 1rem;
+  box-shadow: 0 12px 30px rgba(34,197,94,0.15);
+
+}
+
+/* Força o SVG a ficar verde */
+.flatpickr-prev-month svg path,
+.flatpickr-next-month svg path {
+  stroke: #22c55e !important;
+  fill: none !important;
+  transition: stroke 0.2s ease;
+}
+
+/* Hover mais escuro */
+.flatpickr-prev-month:hover svg path,
+.flatpickr-next-month:hover svg path {
+  stroke: #16a34a !important;
+}
+
+
+</style>
