@@ -15,6 +15,8 @@ Rails.application.routes.draw do
       get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
       # URL: /aluno/frequencia (Helper: aluno_minha_frequencia_path)
       get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
+      # 🆕 NOVA ROTA: URL: /aluno/professores (Helper: aluno_meus_professores_path)
+      get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
     end
   end
 
