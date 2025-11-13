@@ -57,14 +57,24 @@ Rails.application.routes.draw do
         get :buscar_escolas
   end
     end
+    resources :conteudos do
+      member do
+        delete :remove_material
+      end
+    end
     resources :professors do
       resources :alunos
       member do 
         patch :update_disciplinas
+        patch :update_conteudos
       end
     end
 
     resources :escolas do
+      collection do
+        get :search
+      end
+      resources :conteudos
       resources :disciplinas
       resources :professors
       resources :ano_letivos do
@@ -150,6 +160,7 @@ Rails.application.routes.draw do
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
       resources :disciplinas
+      resources :conteudos
     end
   end
 

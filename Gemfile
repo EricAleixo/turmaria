@@ -3,6 +3,18 @@ source "https://rubygems.org"
 ruby "3.2.3"
 
 # Framework principal
+gem "dotenv-rails"
+
+# Markdown
+gem "redcarpet"
+
+gem 'combine_pdf'
+
+gem 'docx'
+
+
+
+# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.3"
 
 # Banco de dados
@@ -35,6 +47,9 @@ gem "rails-ujs", "~> 0.1.0"
 gem "dotenv-rails"
 gem "rack-cors"
 gem "bootsnap", require: false
+
+# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
+gem "image_processing", "~> 1.2"
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows]

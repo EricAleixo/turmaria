@@ -5,12 +5,19 @@ class DisciplinasController < ApplicationController
 
   # GET /disciplinas
   def index
-    @disciplinas = if current_user.is_a?(SuperAdmin)
-                     Disciplina.all
-                   else
-                     Disciplina.where(escola: current_user.escola)
-                   end
-                 
+@disciplinas = if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
+                 # Admin e SuperAdmin veem todas as disciplinas
+                 Disciplina.all
+               elsif current_user.is_a?(Escola)
+                 # Escola vê apenas suas disciplinas
+                 current_user.disciplinas
+               elsif current_user.is_a?(Professor)
+                 # Professor vê apenas suas disciplinas
+                 current_user.disciplinas
+               else
+                 # Qualquer outro usuário não vê nada
+                 Disciplina.none
+               end
     # Se houver professor, filtra ainda mais
     if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])

@@ -258,5 +258,5 @@ class AlunosController < ApplicationController
       whitelisted_params.delete(:comprovante_residencia) if whitelisted_params[:comprovante_residencia].empty?
     end
   end
-end
+    end
 end

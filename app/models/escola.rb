@@ -9,6 +9,7 @@ class Escola < ApplicationRecord
   has_many :materias
   has_many :disciplinas
   has_many :professors
+  has_many :conteudos
 
   accepts_nested_attributes_for :endereco, allow_destroy: true
 
