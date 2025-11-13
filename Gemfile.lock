@@ -378,11 +378,8 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.1.3)
   rails-ujs (~> 0.1.0)
-<<<<<<< HEAD
   rails_12factor
-=======
   redcarpet
->>>>>>> 7dbb1bb55ce36489168835ed391b090223965908
   selenium-webdriver
   sprockets-rails
   stimulus-rails
