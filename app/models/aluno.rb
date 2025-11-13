@@ -4,7 +4,7 @@ class Aluno < ApplicationRecord
   # === Devise ===
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable,
-         :trackable, :confirmable
+         :trackable
   
   # === Associações ===
   belongs_to :escola
