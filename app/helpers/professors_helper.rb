@@ -79,27 +79,32 @@ def disciplinas_badges(professor, max_visible = 3)
   visible = disciplinas.first(max_visible)
   hidden_count = disciplinas.size - max_visible
 
+  base_classes = "inline-flex items-center justify-center px-3 py-1.5 rounded-full font-medium " \
+                 "whitespace-nowrap truncate max-w-[9rem] text-xs sm:text-[0.8rem] md:text-sm " \
+                 "transition-all duration-200 leading-tight mr-1 mb-1"
+
   badges = visible.map do |disciplina|
     if disciplina.cor.present?
       cor = disciplina.cor
-      text_color = contraste_texto(cor) # 🔹 usa contraste automático
+      text_color = contraste_texto(cor)
       content_tag(:span, disciplina.nome,
-                  class: "px-2 py-1 rounded-full text-sm font-medium",
+                  class: base_classes,
                   style: "background-color: #{cor}; color: #{text_color};")
     else
       cfg = area_cfg(disciplina.area)
       content_tag(:span, disciplina.nome,
-                  class: "px-2 py-1 rounded-full text-sm font-medium bg-#{cfg[:bg]} text-#{cfg[:text]}")
+                  class: "#{base_classes} bg-#{cfg[:bg]} text-#{cfg[:text]}")
     end
   end
 
   if hidden_count.positive?
     badges << content_tag(:span, "+#{hidden_count}",
-                          class: "px-2 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700")
+                          class: "#{base_classes} bg-gray-200 text-gray-700")
   end
 
-  safe_join(badges, " ")
+  safe_join(badges)
 end
+
 
 def contraste_texto(cor_hex)
   return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
