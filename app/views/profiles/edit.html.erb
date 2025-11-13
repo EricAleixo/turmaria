@@ -1,0 +1,185 @@
+<% content_for :title, "Editar Perfil de #{@user.nome}" %>
+
+<div class="bg-gray-100 min-h-screen font-sans">
+  <div class="max-w-4xl mx-auto">
+    
+    <%# --- FORMULÁRIO: Abertura Única (AQUI COMEÇA A TAG <FORM>) --- %>
+    <%= form_with(model: @user, 
+                  scope: @user.model_name.singular.to_sym,
+                  url: profile_path, 
+                  method: :patch, 
+                  html: { class: "w-full", multipart: true, id: "profile-form" }, 
+                  data: { turbo: false, controller: '' }, 
+                  novalidate: true) do |f| %>
+      
+      <%# --- Seção do Cabeçalho --- %>
+      <div class="bg-white shadow-lg rounded-b-xl pb-4">
+        
+        <%# Cabeçalho verde ... %>
+        <div class="h-36 bg-green-500 relative rounded-b-[2rem]">
+          <%# Botão Voltar/Cancelar (COM CLASSE md:hidden PARA MOSTRAR SÓ NO MOBILE) %>
+          <div class="absolute top-4 right-4 z-20 md:hidden">
+            <%= link_to profile_path, class: "btn btn-sm btn-circle bg-white text-green-500 border-0 hover:bg-gray-100 transition shadow-lg tooltip tooltip-bottom" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="px-4 md:px-8 -mt-20 relative z-10 flex flex-col items-start"> 
+          
+          <%# Seção da Foto de Perfil %>
+          <div class="avatar relative mr-4 mb-4">
+            <div class="w-24 h-24 md:w-28 md:h-28 rounded-full ring-4 ring-white shadow-2xl bg-gray-300 relative group cursor-pointer">
+              
+              <% if @user.respond_to?(:foto) && @user.foto.attached? %>
+                <%= image_tag @user.foto.variant(resize_to_fill: [112, 112]), class: "object-cover h-full w-full rounded-full transition-opacity duration-300 group-hover:opacity-75" %>
+              <% else %>
+                <div class="bg-gray-300 h-full w-full rounded-full transition-opacity duration-300 group-hover:opacity-75">
+                  <span class="text-4xl md:text-5xl font-bold text-gray-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <%= @user.nome.present? ? @user.nome.first.upcase : 'U' %>
+                  </span>
+                </div>
+              <% end %>
+              
+              <label for="<%= f.object_name %>_foto" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300" title="Clique para trocar a foto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.742 4h2.516a2 2 0 011.664.89l.812 1.22a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </label>
+              
+              <%= f.file_field :foto, class: "hidden", accept: 'image/png,image/gif,image/jpeg' %>
+            </div>
+            
+            <% if @user.respond_to?(:foto) && @user.foto.attached? %>
+              <div class="absolute -bottom-1 right-0 bg-white p-1 rounded-full shadow-md tooltip tooltip-left" data-tip="Marque para remover a foto">
+                <%= f.check_box :remove_foto, class: "checkbox checkbox-error checkbox-sm align-middle", id: "remove_foto_checkbox" %>
+                <label for="remove_foto_checkbox" class="sr-only">Remover foto</label>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex-grow"> 
+            <h1 class="text-2xl font-bold text-gray-800 leading-tight">Editar Perfil</h1>
+            <p class="text-sm text-gray-500 mb-2">Atualize suas informações pessoais e credenciais abaixo.</p>
+          </div>
+        
+        </div>
+        
+      </div>
+      <%# --- FIM Seção do Cabeçalho --- %>
+      
+      <%# --- Seção do Formulário (INÍCIO DO CONTEÚDO) --- %>
+      <div class="pt-4"> 
+        
+        <%# Mensagens de erro ... %>
+        <% if @user.errors.any? %>
+          <div class="alert alert-error shadow-lg mb-6">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Por favor, corrija os seguintes <%= @user.errors.count %> erros:</span>
+            </div>
+            <ul class="list-disc list-inside mt-2">
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <div class="space-y-6">
+          
+          <%# CARTÃO: Informações Básicas ... %>
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Informações Pessoais</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div>
+                <%= f.label :nome, class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :nome, class: "input input-bordered w-full" %>
+              </div>
+              
+              <div>
+                <%= f.label :email, class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.email_field :email, class: "input input-bordered w-full bg-gray-100 cursor-not-allowed", readonly: true %>
+                <p class="text-xs text-gray-500 mt-1">O email é sua credencial de login e não pode ser alterado por aqui.</p>
+              </div>
+              
+              <%# Telefone (CAMPO RECEBE O ID CORRETO PARA MÁSCARA) %>
+              <% if @user.is_a?(Aluno) || @user.is_a?(Professor) %>
+                <div>
+                  <%= f.label :telefone, class: "label block text-sm font-medium text-gray-700" %>
+                  <%# O f.text_field com o ID correto garante que a máscara funcione %>
+                  <%= f.text_field :telefone, class: "input input-bordered w-full", id: "#{f.object_name}_telefone" %>
+                </div>
+              <% end %>
+              
+              <% if @user.is_a?(Aluno) %>
+                <div>
+                  <%= f.label :data_nascimento, "Data de Nascimento", class: "label block text-sm font-medium text-gray-700" %>
+                  <%= f.date_field :data_nascimento, class: "input input-bordered w-full" %>
+                </div>
+              <% end %>
+
+              <%# Formação ... %>
+              <% if @user.is_a?(Professor) %>
+                <div>
+                  <%= f.label :formacao, "Formação", class: "label block text-sm font-medium text-gray-700" %>
+                  
+                  <% formacao_opcoes = Professor.formacaos.keys.map { |key| [key.humanize.capitalize, key] } %>
+
+                  <%= f.select :formacao, 
+                               formacao_opcoes, 
+                               { prompt: "Selecione sua Formação" }, 
+                               { class: "select select-bordered w-full" } %>
+                </div>
+              <% end %>
+
+            </div>
+          </div>
+
+          <%# CARTÃO: Segurança e Senha ... %>
+          <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Segurança e Senha</h2>
+            
+            <p class="text-sm text-gray-500 mb-4">Deixe os campos de senha em branco se não quiser alterar.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div>
+                <%= f.label :password, "Nova Senha", class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.password_field :password, class: "input input-bordered w-full", autocomplete: "new-password" %>
+              </div>
+              
+              <div>
+                <%= f.label :password_confirmation, "Confirmação de Nova Senha", class: "label block text-sm font-medium text-gray-700" %>
+                <%= f.password_field :password_confirmation, class: "input input-bordered w-full", autocomplete: "new-password" %>
+              </div>
+
+            </div>
+          </div>
+          
+          <%# Botões Salvar e Cancelar (FORÇA BRUTA JS) ... %>
+          <div class="mt-6 flex justify-end space-x-4 pb-8">
+            <%= link_to "Cancelar", profile_path, class: "btn btn-ghost font-semibold transition-colors duration-200" %>
+            
+            <button type="button" 
+                    onclick="document.getElementById('profile-form').submit();"
+                    class="btn bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg transition-colors duration-200 cursor-pointer">
+              Salvar Alterações
+            </button>
+          </div>
+          
+        </div> 
+        
+      </div>
+      <%# --- FIM Seção do Formulário --- %>
+
+    <% end %> <%# <<<<<<<<<< FECHAMENTO FINAL DA TAG <FORM> >>>>>>>>>> %>
+
+  </div>
+</div>
+
+<%= javascript_include_tag "imask", "data-turbo-track": "reload" %>
+<%= javascript_include_tag "mascaras", "data-turbo-track": "reload" %>

@@ -1,0 +1,108 @@
+<style>
+    /* Definindo a fonte Inter como padrão e cores base */
+    :root { font-family: 'Inter', sans-serif; }
+    /* Ajustes de cores e estilos mantidos na view para simular o tema */
+    .bg-base-100 { background-color: #ffffff; }
+    .text-primary { color: #3b82f6; } 
+    .text-success { color: #10b981; }
+    .bg-success { background-color: #10b981; }
+    .text-info { color: #06b6d4; }
+    .text-error { color: #ef4444; }
+    .border-info { border-color: #06b6d4; }
+    .border-error { border-color: #ef4444; }
+    .rounded-lg { border-radius: 0.5rem; }
+</style>
+
+<!-- Container principal com a cor de fundo e layout flex. -->
+<div class="min-h-screen flex bg-gray-50">
+    <!-- Ajuste de Padding para Responsividade: p-4 em mobile, p-8 em telas maiores -->
+    <main class="flex-1 p-4 sm:p-8">
+        
+        <!-- Título Responsivo -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-2">
+            Cidades de <%= @estado.nome %>
+        </h1>
+        <p class="text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
+            Gerencie as cidades do estado de <%= @estado.nome %>
+        </p>
+
+        <!-- Cards de resumo -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+            
+            <!-- Total de cidades -->
+            <div class="bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                <div class="items-center text-center p-4">
+                    <h2 class="text-sm font-semibold text-gray-400">Total de Cidades</h2>
+                    <p class="text-2xl sm:text-3xl font-bold text-success mt-1"><%= @cidades.count %></p>
+                </div>
+            </div>
+
+            <!-- Nome do estado -->
+            <div class="bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                <div class="items-center text-center p-4">
+                    <h2 class="text-sm font-semibold text-gray-400">Estado</h2>
+                    <p class="text-xl sm:text-2xl font-bold text-primary mt-1"><%= @estado.nome %></p>
+                </div>
+            </div>
+
+            <!-- Sigla do estado -->
+            <div class="bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                <div class="items-center text-center p-4">
+                    <h2 class="text-sm font-semibold text-gray-400">UF</h2>
+                    <p class="text-xl sm:text-2xl font-bold text-info mt-1"><%= @estado.sigla %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex justify-between items-center mb-4">
+            <%# Botão Voltar %>
+            <%= link_to 'Voltar aos Estados', estados_path, class: 'px-4 py-2 text-primary border border-primary rounded-lg shadow-sm hover:bg-gray-100 transition duration-150' %>
+            
+            <%# Botão para adicionar nova cidade %>
+            <%= link_to 'Adicionar Cidade', new_estado_cidade_path(@estado), class: 'px-4 py-2 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-150 bg-success' %>
+        </div>
+
+        <!-- Tabela com as cidades -->
+        <div class="overflow-x-auto bg-base-100 shadow-xl rounded-lg">
+            <table class="w-full text-center min-w-[400px]">
+                <thead>
+                    <tr class="text-xs sm:text-sm text-gray-600 uppercase bg-gray-50 border-b">
+                        <th class="py-3 px-2 sm:px-4">#</th>
+                        <th class="py-3 px-2 sm:px-4 text-left">Nome da Cidade</th>
+                        <th class="py-3 px-2 sm:px-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @cidades.each_with_index do |cidade, index| %>
+                        <tr class="hover:bg-gray-50 transition duration-100 text-sm">
+                            <td class="py-3 px-2 sm:px-4 text-center"><%= index + 1 %></td>
+                            <td class="py-3 px-2 sm:px-4 text-left font-medium text-gray-700"><%= cidade.nome %></td>
+                            <td class="py-3 px-2 sm:px-4 flex justify-center items-center space-x-1 sm:space-x-2">
+                                
+                                <!-- Botão editar (ícone consistente) -->
+                                <%= link_to edit_estado_cidade_path(@estado, cidade), 
+                                    class: "btn btn-sm btn-circle  text-amber-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg",
+                                    title: "Editar" do %>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                    </svg>
+                                <% end %>
+
+                                <!-- Botão excluir (ícone consistente) -->
+                                <%= link_to confirm_delete_estado_cidade_path(@estado, cidade),
+                                    class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg",
+                                    title: 'Excluir' do %>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                <% end %>
+
+                            </td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>

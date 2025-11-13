@@ -1,5 +1,7 @@
 class AddAreaToDisciplina < ActiveRecord::Migration[7.1]
   def change
-    add_column :disciplinas, :area, :string
+
+    add_reference :disciplinas, :area_disciplina, foreign_key: true
+
   end
 end

@@ -1,39 +1,196 @@
-<h1>Configurações de Avaliações</h1>
+<div class="p-6 sm:p-8 lg:p-10 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
 
-<h2><%= @turma.nome %> - <%= @disciplina.nome %></h2>
-
-<%= link_to 'Criar Nova Coluna de Nota', 
-            new_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina), 
-            class: 'btn btn-primary mb-3' %>
-
-<% if @avaliacoes_configuracoes.any? %>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Bimestre</th>
-        <th>Ordem</th>
-        <th>Nome da Avaliação</th>
-        <th>Tipo</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @avaliacoes_configuracoes.each do |config| %>
-        <tr>
-          <td><%= config.bimestre %>º</td>
-          <td><%= config.ordem %></td>
-          <td><%= config.nome %></td>
-          <td><%= config.recuperacao? ? 'Recuperação' : 'Padrão' %></td>
-          <td>
-            <%# Link para editar (futuramente) %>
-            <%= link_to 'Editar', edit_professor_notas_turma_disciplina_avaliacao_path(@turma, @disciplina, config), class: 'btn btn-sm btn-secondary' %>
-            <%# Link para destruir (futuramente) %>
-            <%# link_to 'Excluir', [ :professor, :notas, @turma, @disciplina, config ], data: { turbo_method: :delete, turbo_confirm: 'Tem certeza?' }, class: 'btn btn-sm btn-danger' %>
-          </td>
-        </tr>
+    <header class="mb-8 p-6 bg-white shadow-lg rounded-xl border-b-4 border-green-600">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900 mb-1">
+            <span class="text-green-600 mr-2">📝</span> Gerenciamento de Avaliações
+          </h1>
+          <p class="text-lg text-gray-600 mt-2">
+            <span class="font-semibold">Turma:</span> <%= @turma.nome %> | 
+            <span class="font-semibold">Disciplina:</span> <%= @disciplina.nome %>
+          </p>
+        </div>
+        
+        <%# 1. LINK DE CRIAÇÃO (Botão primário com ícone) %>
+        <%= link_to new_professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina), 
+            class: 'mt-4 sm:mt-0 inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-5 rounded-xl transition-colors shadow-lg hover:shadow-xl transform hover:scale-[1.01] text-sm whitespace-nowrap' do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Nova Avaliação (Coluna de Nota)
+        <% end %>
+      </div>
+      
+      <%= link_to professor_turma_disciplinas_path(@turma), 
+          class: 'mt-4 inline-flex items-center text-sm font-semibold text-green-600 hover:text-green-800 transition duration-150 ease-in-out py-1 px-3 bg-green-100 rounded-lg' do %>
+          <%# ÍCONE SVG DE VOLTAR %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 w-4 h-4 mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Voltar para Disciplinas
       <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>Ainda não há configurações de avaliação para esta disciplina e turma.</p>
-<% end %>
+    </header>
+
+    <% if @avaliacoes.any? %>
+      <div class="hidden md:block bg-white shadow-xl rounded-xl overflow-hidden mt-4 border border-gray-200">
+        <div class="overflow-x-auto"> 
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-16">BIM.</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[200px]">Nome da Avaliação</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-40">Tipo</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-[240px]">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+                <% @avaliacoes.each do |avaliacao| %>
+                  <tr class="hover:bg-green-50 transition duration-150 ease-in-out">
+                    
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-extrabold text-green-600">
+                      <%= avaliacao.bimestre %>
+                    </td>
+                    
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900 flex items-center">
+                        <% if avaliacao.is_recuperacao? %>
+                            <%# ÍCONE DE RECUPERAÇÃO - Amarelo/Laranja %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <% else %>
+                            <%# ÍCONE DE AVALIAÇÃO NORMAL - Verde %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <% end %>
+                        <%= avaliacao.nome %>
+                    </td>
+                    
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <% if avaliacao.is_recuperacao? %>
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Recuperação
+                        </span>
+                      <% else %>
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            Normal
+                        </span>
+                      <% end %>
+                    </td>
+                    
+                    <%# Coluna AÇÕES (Links) %>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                      
+                      <%= link_to new_professor_turma_disciplina_notas_avaliaco_registro_path(@turma, @disciplina, avaliacao), 
+                            class: 'inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-lg text-xs transition-colors shadow-md' do %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Lançar Notas
+                      <% end %>
+                      
+                      <%= link_to edit_professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao), 
+                        class: 'inline-flex items-center text-gray-500 hover:text-gray-800 p-2 rounded-lg text-xs transition-colors hover:bg-gray-100' do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                      <% end %>
+
+                      <%= link_to professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao), 
+                        data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja excluir esta configuração? Todas as notas associadas serão permanentemente perdidas!" }, 
+                        class: 'inline-flex items-center text-red-600 hover:text-red-800 p-2 rounded-lg text-xs transition-colors hover:bg-red-50' do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 gap-4 md:hidden mt-4">
+        <% @avaliacoes.each do |avaliacao| %>
+          <div class="bg-white shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden rounded-xl border border-gray-100">
+            <div class="p-4">
+              
+              <div class="flex justify-between items-start gap-2">
+                <div class="flex items-start gap-3 min-w-0 flex-1">
+                  
+                  <div class="bg-green-600 text-white rounded-lg w-10 h-10 relative font-bold text-lg flex-shrink-0 flex items-center justify-center shadow-md">
+                    <%= avaliacao.bimestre %>
+                  </div>
+                  
+                  <div class="min-w-0 flex-1">
+                    <h2 class="font-bold text-slate-700 text-base break-words flex items-center">
+                        <% if avaliacao.is_recuperacao? %>
+                            <%# ÍCONE DE RECUPERAÇÃO - Amarelo/Laranja %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <% else %>
+                            <%# ÍCONE DE AVALIAÇÃO NORMAL - Verde %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <% end %>
+                      <%= avaliacao.nome %>
+                    </h2>
+                    
+                    <div class="mt-1">
+                        <% if avaliacao.is_recuperacao? %>
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-300">
+                                Recuperação
+                            </span>
+                        <% else %>
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-300">
+                                Normal
+                            </span>
+                        <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dropdown dropdown-end flex-shrink-0">
+                  <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                    </svg>
+                  </label>
+                  <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li>
+                      <%= link_to new_professor_turma_disciplina_notas_avaliaco_registro_path(@turma, @disciplina, avaliacao) do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        Lançar Notas
+                      <% end %>
+                    </li>
+                    <li>
+                      <%= link_to edit_professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao) do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        Editar Coluna
+                      <% end %>
+                    </li>
+                    <li>
+                      <%= button_to professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, avaliacao), 
+                        method: :delete, 
+                        data: { turbo_confirm: "Tem certeza que deseja excluir esta coluna? Todas as notas serão perdidas!" }, 
+                        class: "text-red-600 hover:bg-red-50" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Excluir Coluna
+                      <% end %>
+                    </li>
+                  </ul>
+                </div>
+                
+              </div>
+              
+              <div class="mt-4">
+                  <%= link_to 'Lançar Notas', 
+                      new_professor_turma_disciplina_notas_avaliaco_registro_path(@turma, @disciplina, avaliacao), 
+                      class: 'w-full text-center btn btn-sm bg-green-600 hover:bg-green-700 text-white border-0 shadow-md' %>
+              </div>
+              
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    <% else %>
+      <div class="text-center py-16 border-2 border-dashed border-gray-300 rounded-xl bg-white mt-4 shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p class="text-xl font-semibold text-gray-700 mt-3">Nenhuma avaliação configurada.</p>
+        <p class="mt-1 text-md text-gray-500">Comece clicando em "Nova Avaliação" para criar a primeira coluna de nota.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,42 +1,99 @@
-class Professor::Notas::ResultadosController < ApplicationController
-  # Se você tem um Professor::BaseController, use-o
-  # Se não, mantenha ApplicationController, mas inclua a autenticação
-  before_action :authenticate_professor! # Recomendo manter isso!
-  before_action :set_turma_e_disciplina
+# app/controllers/professor/notas/resultados_controller.rb
 
-  def index
-    # 1. Alunos da turma
+class Professor::Notas::ResultadosController < Professor::BaseController 
+  before_action :set_turma_e_disciplina, only: [:show, :index, :detalhes]
+  layout 'dashboard'
+  before_action :authenticate_professor!
+
+
+  def show
+    # 1. Alunos da turma, ordenados para exibição
     @alunos = @turma.alunos.order(:nome)
     
-    # 2. Médias Finais (AvaliacoesBimestrais) da disciplina/turma
+    # 2. Médias Finais (AvaliacoesBimestrais) da disciplina/turma.
     @medias_finais = AvaliacaoBimestral.where(
-      turma: @turma, 
-      disciplina: @disciplina
-    ).index_by { |a| [a.aluno_id, a.bimestre] }
+      turma_id: @turma.id, 
+      disciplina_id: @disciplina.id
+    ).index_by { |media| [media.aluno_id, media.bimestre] }
+    
+    # CORREÇÃO: Usando ordenação estável (bimestre e id) em vez de uma coluna 'ordem' inexistente.
+    @avaliacoes_por_bimestre = @disciplina.avaliacoes_configuracoes
+                                           .order(bimestre: :asc, id: :asc)
+                                           .group_by(&:bimestre)
   end
+
+
+  def detalhes
+    # 🚨 FIX TURBO CACHE: Garante que o Rails sempre envie o corpo da resposta (Status 200)
+    expires_now 
+
+    # 1. Encontra a Média Bimestral final que foi clicada (AvaliacaoBimestral)
+    @media_bimestral = AvaliacaoBimestral.find(params[:media_bimestral])
+    
+    # Variáveis de contexto
+    aluno = @media_bimestral.aluno
+    bimestre = @media_bimestral.bimestre
+    
+    # 2. Busca TODAS as configurações de avaliação (colunas de nota) para o bimestre
+    @avaliacoes_configuracoes = AvaliacaoConfiguracao
+                                  .do_bimestre(bimestre)
+                                  .where(turma: @turma, disciplina: @disciplina)
+                                  .order(created_at: :asc)
+                                  
+    # 3. Busca os IDs das configurações
+    config_ids = @avaliacoes_configuracoes.pluck(:id)
+    
+    # 4. Busca os Registros de Nota filtrando pelo aluno e pelas configurações
+    registros = RegistroDeNota.where(aluno: aluno, avaliacao_configuracao_id: config_ids)
+
+    # 5. Constrói um Hash para acesso rápido na view
+    @registros_de_nota = registros.index_by(&:avaliacao_configuracao_id)
+    
+    # Renderiza o partial da modal
+    render partial: 'detalhes', layout: false
+    
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
+  end
+
+  def todos_alunos
+  # 1. Encontra a disciplina pelo ID (e verifica se o professor a leciona)
+  @disciplina = current_professor.disciplinas.find(params[:disciplina_id])
+  
+  # 2. Encontra TODAS as turmas que o professor leciona E que estão associadas a esta disciplina
+  #    COLETA APENAS OS IDs DISTINTOS PRIMEIRO para evitar o erro do PostgreSQL.
+  turma_ids_distintos = current_professor.turmas
+                                         .joins(:disciplinas)
+                                         .where(disciplinas: { id: @disciplina.id })
+                                         .distinct
+                                         .pluck(:id)
+                                         
+  # 3. Usa os IDs para buscar os objetos Turma e aplica a ordenação.
+  #    Isso evita o conflito do DISTINCT e ORDER BY no JOIN complexo.
+  @turmas_da_disciplina = Turma.where(id: turma_ids_distintos).order(:nome)
+  
+  # 4. Define a lista de IDs para buscar as médias em massa
+  #    Usamos a array que já coletamos no passo 2.
+  turma_ids = turma_ids_distintos 
+  
+  # 5. Busca as Médias Finais Bimestrais de todos os alunos nessas turmas
+  # Índexar as médias por [turma_id, aluno_id, bimestre] para fácil acesso na view
+  @medias_finais_por_turma = AvaliacaoBimestral.where(
+    turma_id: turma_ids, 
+    disciplina_id: @disciplina.id
+  ).index_by { |media| [media.turma_id, media.aluno_id, media.bimestre] }
+  
+  # A view (todosAlunos.html.erb) será renderizada automaticamente.
+rescue ActiveRecord::RecordNotFound
+  redirect_to minhas_turmas_path, alert: "Disciplina não encontrada ou você não está associado a ela."
+end
   
   private
 
   def set_turma_e_disciplina
-    # 1. Busca a turma que pertence ao professor logado
-    # Isso evita que um professor acesse turmas que ele não leciona
     @turma = current_professor.turmas.find(params[:turma_id])
-    
-    # 2. Verifica se a disciplina está associada a essa turma e ao professor
-    # Isso é feito indiretamente verificando a relação ProfessorDisciplina ou ProfessorTurmaDisciplina
-    
-    # Vamos buscar a disciplina, e a rota já garante o aninhamento,
-    # mas o Turma.find(params[:turma_id]) deve ser substituído por:
-    
-    @turma = current_professor.turmas.find(params[:turma_id])
-    
-    # Para garantir que ele leciona essa disciplina nessa turma, 
-    # você precisaria de um relacionamento mais forte, mas, por ora, 
-    # vamos apenas garantir que a disciplina existe e que o professor leciona a turma.
-    
     @disciplina = Disciplina.find(params[:disciplina_id])
-
-    # Melhoria de segurança: Verifique se o professor leciona a disciplina (ProfessorDisciplina)
+    
     unless current_professor.disciplinas.include?(@disciplina)
       redirect_to minhas_turmas_path, alert: 'Você não está autorizado a acessar esta disciplina.'
       return

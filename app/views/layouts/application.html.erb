@@ -11,39 +11,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <header class="bg-white text-black p-2 flex justify-between items-center h-18
-                        sm:p-2
-                        md:p-7 h-20 shadow-sm border-b border-gray-200">
+        <header class="bg-white text-black p-2 flex justify-between items-center h-18
+                       sm:p-2
+                       md:p-7 h-20 shadow-sm border-b border-gray-200">
           <div class="flex w-full items-center justify-between space-x-0
-                        md:space-x-2">
-            <!-- Mobile Menu Button for Sidebar -->
+                      md:space-x-2">
             <div class="flex items-center space-x-3">
-              <div class="lg:hidden">
-                <label for="my-drawer" class="btn btn-square btn-ghost">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                  </svg>
-                </label>
-              </div>
+              <% if current_professor.present? %>
+                <div class="lg:hidden">
+                  <label for="my-drawer" class="btn btn-square btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                  </label>
+                </div>
+              <% end %>
               
-              <!-- Logo and Brand -->
-              <div class="flex items-center">
+              <div class="flex items-center hover:text-green-700 transition-colors duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="size-7
-                        sm:size-11
-                        md:size-13">
+                      sm:size-11
+                      md:size-13">
                   <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
                   <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
                   <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
                 </svg>
                 <%= link_to root_path do%>
-                  <h1 class="text-xl font-bold md:text-4xl transition-colors duration-300 hover:text-primary
+                  <h1 class="text-xl font-bold md:text-4xl
                               sm:text-3xl
                               lg:text-4xl">Turmaria</h1>
                 <% end %>
@@ -62,16 +61,13 @@
                   Dashboard
                 <% end %>
                 <div class="flex-none">
-                <!-- Enhanced User info in top bar -->
                 <div class="flex items-center space-x-4">
-                  <!-- User Info -->
                   <div class="text-right hidden sm:block">
                     <p class="text-sm font-medium text-gray-900">
                       <%= current_any_user&.nome.present? ? current_any_user.nome : current_user_type %>
                     </p>
                     <div class="flex items-center justify-end space-x-2">
                       <p class="text-xs text-gray-500"><%= current_user_type %></p>
-                      <!-- School Badge for Admin -->
                       <% if current_admin&.escolas&.first.present? %>
                         <div class="badge badge-xs bg-green-100 text-green-700 border-green-200">
                           <%= current_admin.escolas.first.nome %>
@@ -80,10 +76,9 @@
                     </div>
                   </div>
                   
-                  <!-- Avatar -->
                   <div class="avatar placeholder">
                     <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
-                      <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-1/2">
+                      <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                         <% if current_any_user&.nome.present? %>
                           <%= current_any_user.nome.first.upcase %>
                         <% elsif current_any_user&.email.present? %>
@@ -127,7 +122,7 @@
                       </div>
 
                       <!-- Link: Meu Perfil -->
-                      <%= link_to "profile_path", class: "w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-green-50 text-gray-700 hover:text-green-700 focus:bg-green-50 active:bg-green-100 transition-colors duration-150" do %>
+                      <%= link_to profile_path, class: "w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-green-50 text-gray-700 hover:text-green-700 focus:bg-green-50 active:bg-green-100 transition-colors duration-150" do %>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
@@ -156,7 +151,7 @@
                   </div>
 
                 </div>
-              </div>
+                </div>
                 
               <% else %>
                 <%= link_to new_user_session_path, class: "btn text-white bg-green-500 shadow-none d-flex align-items-center gap-2" do %>
@@ -170,42 +165,46 @@
           </div>
         </header>
 
-    <main>
-      <% if notice.present? %>
-        <div role="alert" class="alert alert-success alert-soft w-[80%] text-lg mx-auto">
-          <span><%= notice %></span>
-        </div>
-      <% end %>
-      <% if alert.present? %>
-        <div role="alert" class="alert alert-warning alert-soft w-[80%] text-lg mx-auto">
-          <span><%= alert %></span>
-        </div>
-      <% end %>
-      <%= yield %>
-    </main>
-    <footer class="w-full bg-gray-900 text-white flex flex-col items-center justify-center p-5 ">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" 
-           class="size-8 text-white 
-                    md: size-10
-                      lg:size-12">
-        <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
-        <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
-        <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
-      </svg>
-      <p class="text-sm text-white font-semibold mt-2
-                  sm:text-base
-                    lg:text-lg">© 2025 Turmaria. Todos os direitos reservados.</p>
-      <div class="mt-2
-                    md:mt-4">
-        <nav class="space-x-2
-                      md:space-x-5">
-          <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
-                              md:text-base">Serviços</a>
-          <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
-                              md:text-base">Sobre Nós</a>
-          <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
-                              md:text-base">Contatos</a>
-        </nav>
-    </footer>
+        <main class="flex-grow p-0">
+          <% if notice.present? %>
+            <div role="alert" class="alert alert-success alert-soft w-[80%] text-lg mx-auto mb-4">
+              <span><%= notice %></span>
+            </div>
+          <% end %>
+          <% if alert.present? %>
+            <div role="alert" class="alert alert-warning alert-soft w-[80%] text-lg mx-auto mb-4">
+              <span><%= alert %></span>
+            </div>
+          <% end %>
+          <%= yield %>
+        </main>
+        
+        <footer class="w-full bg-gray-900 text-white flex flex-col items-center justify-center p-5 ">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" 
+                class="size-8 text-white 
+                       md: size-10
+                       lg:size-12">
+            <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+            <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+            <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
+          </svg>
+          <p class="text-sm text-white font-semibold mt-2
+                     sm:text-base
+                       lg:text-lg">© 2025 Turmaria. Todos os direitos reservados.</p>
+          <div class="mt-2
+                       md:mt-4">
+            <nav class="space-x-2
+                          md:space-x-5">
+              <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
+                                  md:text-base">Serviços</a>
+              <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
+                                  md:text-base">Sobre Nós</a>
+              <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
+                                  md:text-base">Contatos</a>
+            </nav>
+        </footer>
+      </div>
+    </div>
+    <%# 🛑 FIM DO NOVO LAYOUT DO DRAWER 🛑 %>
   </body>
 </html>

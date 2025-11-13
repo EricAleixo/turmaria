@@ -1,88 +1,154 @@
-<!-- app/views/estados/index.html.erb -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estados Brasileiros - Dashboard</title>
+    <!-- Carrega o Tailwind CSS CDN (necessário para as classes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração de tema básico para Tailwind, se necessário -->
+    <style>
+        /* Definindo a fonte Inter como padrão */
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Definindo classes de cores base (simulando um tema como 'daisyui' base/primary/success/info) */
+        .bg-base-200 { background-color: #f3f4f6; } /* cinza claro */
+        .bg-base-100 { background-color: #ffffff; } /* branco */
+        .text-primary { color: #3b82f6; } /* azul */
+        .text-success { color: #10b981; } /* verde */
+        .text-info { color: #06b6d4; } /* ciano */
+        .card { border-radius: 0.5rem; } /* bordas arredondadas */
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- O contêiner principal agora usa classes otimizadas para mobile -->
+    <div class="min-h-screen flex">
+        <!-- Ajuste de padding: p-4 em mobile, escalando para p-8 em telas maiores (sm) -->
+        <main class="flex-1 p-4 sm:p-8">
 
-<%= render 'shared/super_admin_sidebar' %>
+            <!-- Ajuste de tamanho da fonte: text-3xl em mobile, escalando para text-4xl em telas maiores (sm) -->
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-2">
+                Estados Brasileiros
+            </h1>
+            <p class="text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
+                Gerencie informações sobre os estados e suas cidades
+            </p>
 
-<div class="min-h-screen flex flex-col bg-base-200">
-  <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-10">
-    <h1 class="text-4xl font-bold mb-2">Estados Brasileiros</h1>
-    <p class="text-gray-600 mb-8">Gerencie informações sobre os estados e suas cidades</p>
+            <!-- Grid de Cards: Usa gap-4 em mobile, gap-6 em telas maiores. Mantém grid-cols-1, vai para grid-cols-3 em telas médias (md) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                
+                <div class="card bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                    <div class="card-body items-center text-center p-4">
+                        <h2 class="text-sm font-semibold text-gray-400">Total de Estados</h2>
+                        <!-- Usando mt-1 para um espaçamento menor em mobile -->
+                        <p class="text-2xl sm:text-3xl font-bold text-primary mt-1">
+                            <%= Estado.count %>
+                        </p>
+                    </div>
+                </div>
 
-    <!-- Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- Total de Estados -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body items-center text-center">
-          <h2 class="card-title text-gray-500">Total de Estados</h2>
-          <p class="text-3xl font-bold text-primary"><%= Estado.count %></p>
-        </div>
-      </div>
+                <div class="card bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                    <div class="card-body items-center text-center p-4">
+                        <h2 class="text-sm font-semibold text-gray-400">Total de Cidades</h2>
+                        <p class="text-2xl sm:text-3xl font-bold text-success mt-1">
+                            <%= Cidade.count %>
+                        </p>
+                    </div>
+                </div>
 
-      <!-- Total de Cidades -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body items-center text-center">
-          <h2 class="card-title text-gray-500">Total de Cidades</h2>
-          <p class="text-3xl font-bold text-success"><%= Cidade.count %></p>
-        </div>
-      </div>
+                <div class="card bg-base-100 shadow-xl rounded-lg border border-gray-100">
+                    <div class="card-body items-center text-center p-4">
+                        <h2 class="text-sm font-semibold text-gray-400">Maior Estado</h2>
+                        <p class="text-xl sm:text-2xl font-bold text-info mt-1 truncate">
+                            <%= Estado.all.max_by { |e| e.cidades.size }&.nome || "N/A" %>
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Maior Estado -->
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body items-center text-center">
-          <h2 class="card-title text-gray-500">Maior Estado</h2>
-          <p class="text-2xl font-bold text-info">
-            <%= Estado.all.max_by { |e| e.cidades.size }&.nome || "N/A" %>
-          </p>
-        </div>
-      </div>
+            <!-- Botão de Ação: Centraliza em mobile (justify-center), alinha à direita em telas maiores (sm:justify-end) -->
+            <div class="flex justify-center sm:justify-end mb-4">
+                <%= link_to 'Adicionar Estado', new_estado_path, class: 'btn btn-success px-4 py-2 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-150 bg-success' %>
+            </div>
+
+            <!-- Tabela: Mantém o overflow-x-auto, essencial para visualização em 360px -->
+            <div class="overflow-x-auto bg-base-100 shadow-xl rounded-lg">
+                <table class="table w-full text-center">
+                    <thead>
+                        <!-- text-xs em mobile para economizar espaço -->
+                        <tr class="text-xs sm:text-sm text-gray-600 uppercase bg-gray-50 border-b">
+                            <th class="py-3 px-2 sm:px-4">#</th>
+                            <th class="py-3 px-2 sm:px-4 text-left">Nome</th>
+                            <th class="py-3 px-2 sm:px-4">UF</th>
+                            <th class="py-3 px-2 sm:px-4 hidden sm:table-cell">Região</th>
+                            <th class="py-3 px-2 sm:px-4 hidden md:table-cell">Cidades</th>
+                            <th class="py-3 px-2 sm:px-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% @estados.each_with_index do |estado, index| %>
+                            
+                            <tr class="hover:bg-gray-50 transition duration-100 text-sm">
+                                
+                                <!-- Células Clicáveis (ajuste de padding para mobile) -->
+                                <td class="p-0 text-center">
+                                    <%= link_to estado_cidades_path(estado), class: "w-full h-full block py-3 px-2 hover:bg-transparent text-current no-underline" do %>
+                                        <%= index + 1 %>
+                                    <% end %>
+                                </td>
+                                
+                                <td class="p-0 text-left">
+                                    <%= link_to estado_cidades_path(estado), class: "w-full h-full block py-3 px-2 hover:bg-transparent text-current no-underline font-medium text-gray-700" do %>
+                                        <%= estado.nome %>
+                                    <% end %>
+                                </td>
+                                
+                                <td class="p-0 text-center">
+                                    <%= link_to estado_cidades_path(estado), class: "w-full h-full block py-3 px-2 hover:bg-transparent text-current no-underline font-semibold" do %>
+                                        <%= estado.sigla %>
+                                    <% end %>
+                                </td>
+                                
+                                <!-- Oculta a coluna 'Região' em mobile -->
+                                <td class="p-0 hidden sm:table-cell text-center">
+                                    <%= link_to estado_cidades_path(estado), class: "w-full h-full block py-3 px-2 hover:bg-transparent text-current no-underline" do %>
+                                        <%= estado.regiao.presence || "Indefinida" %>
+                                    <% end %>
+                                </td>
+                                
+                                <!-- Oculta a coluna 'Cidades' em mobile e tablet -->
+                                <td class="p-0 hidden md:table-cell text-center">
+                                    <%= link_to estado_cidades_path(estado), class: "w-full h-full block py-3 px-2 hover:bg-transparent text-current no-underline" do %>
+                                        <%= (estado.cidades.count.to_s + " <small class='text-xs text-gray-500'>municípios</small>").html_safe %>
+                                    <% end %>
+                                </td>
+                                
+                                <!-- Célula de Ações: Usando flex e space-x-1 para botões menores -->
+                                <td class="py-3 px-2 flex justify-center items-center space-x-1 sm:space-x-2">
+                                    
+                                    <!-- Botão Editar -->
+                                    <%= link_to edit_estado_path(estado), class: "btn btn-sm btn-circle  text-amber-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg", title: "Editar" do %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                        </svg>
+                                    <% end %>
+
+
+                                    <!-- Botão Excluir -->
+                                    <%= link_to confirm_delete_estado_path(estado), class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg", title: "Deletar aluno" do %>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    <% end %>
+                                
+                                </td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
-
-    <!-- Botão de adicionar -->
-    <div class="flex justify-end mb-4">
-      <%= link_to '➕ Adicionar Estado', new_estado_path, class: 'btn btn-success' %>
-    </div>
-
-    <!-- Tabela -->
-    <div class="overflow-x-auto bg-base-100 shadow rounded-lg">
-      <table class="table table-zebra w-full text-center">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nome</th>
-            <th>UF</th>
-            <th>Região</th>
-            <th>Cidades</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @estados.each_with_index do |estado, index| %>
-            <tr>
-              <td><%= index + 1 %></td>
-              <td><%= estado.nome %></td>
-              <td><span class="badge badge-neutral"><%= estado.uf %></span></td>
-              <td>
-                <% cor_regiao = case estado.regiao
-                  when "Sul" then "success"
-                  when "Sudeste" then "primary"
-                  when "Nordeste" then "warning"
-                  else "neutral"
-                end %>
-                <span class="badge badge-<%= cor_regiao %>"><%= estado.regiao %></span>
-              </td>
-              <td><%= estado.cidades.count %> <small class="text-xs">municípios</small></td>
-              <td class="space-x-2">
-                <%= link_to '👁️', estado_path(estado), class: 'btn btn-xs btn-outline' %>
-                <%= link_to '✏️', edit_estado_path(estado), class: 'btn btn-xs btn-outline btn-info' %>
-                <%= link_to '🗑️', estado_path(estado), method: :delete, data: { confirm: 'Tem certeza?' }, class: 'btn btn-xs btn-outline btn-error' %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </main>
-
-  <!-- Footer fixado no final -->
-  <footer class="footer footer-center p-4 bg-base-300 text-base-content mt-auto">
-
-</div>
+</body>
+</html>

@@ -1,139 +1,252 @@
 <div class="p-6 bg-gray-100 min-h-screen">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Minhas Turmas</h1>
-    <p class="text-gray-600">Gerencie as turmas onde você leciona e registre frequências</p>
-  </div>
+  <% if current_professor.disciplinas.empty? %>
+    <div class="flex items-center justify-center min-h-[60vh]">
+      <div class="text-center max-w-md">
+        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Nenhuma Disciplina Cadastrada</h2>
+        <p class="text-gray-600 mb-6">Você precisa ter pelo menos uma disciplina cadastrada para gerenciar turmas, registrar frequências e lançar notas.</p>
+        <p class="text-sm text-gray-500">Entre em contato com a coordenação para associar disciplinas ao seu perfil.</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Minhas Turmas</h1>
+      <p class="text-gray-600">Gerencie as turmas onde você leciona e registre frequências</p>
+    </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center">
-        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-          </svg>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+            </svg>
           </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-600">Total de Turmas</p>
-          <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:total_turmas] %></p>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total de Turmas</p>
+            <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:total_turmas] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total de Alunos</p>
+            <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:total_alunos] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Frequências Registradas</p>
+            <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:frequencias_registradas] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Frequências Hoje</p>
+            <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:turmas_com_frequencia_hoje] %></p>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center">
-        <div class="p-3 rounded-full bg-green-100 text-green-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-          </svg>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-600">Total de Alunos</p>
-          <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:total_alunos] %></p>
-        </div>
-      </div>
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @turmas.each do |turma| %>
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-900"><%= turma.nome %></h3>
+              <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                <%= turma.turno.humanize %>
+              </span>
+            </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center">
-        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-          </svg>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-600">Frequências Registradas</p>
-          <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:frequencias_registradas] %></p>
-        </div>
-      </div>
-    </div>
+            <div class="space-y-2 mb-4">
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Escola:</span> <%= turma.escola.nome %>
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Série:</span> <%= turma.serie %>º ano
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Alunos:</span> <%= turma.alunos.count %>
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium">Frequências:</span> <%= turma.frequencias.count %>
+              </p>
+            </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center">
-        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-          </svg>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-600">Frequências Hoje</p>
-          <p class="text-2xl font-bold text-gray-900"><%= @estatisticas[:turmas_com_frequencia_hoje] %></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% @turmas.each do |turma| %>
-      <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900"><%= turma.nome %></h3>
-            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-              <%= turma.turno.humanize %>
-            </span>
-          </div>
-
-          <div class="space-y-2 mb-4">
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Escola:</span> <%= turma.escola.nome %>
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Série:</span> <%= turma.serie %>º ano
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Alunos:</span> <%= turma.alunos.count %>
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Frequências:</span> <%= turma.frequencias.count %>
-            </p>
-          </div>
-
-          <% frequencia_hoje = turma.frequencias.where(data_aula: Date.current).first %>
-          <div class="mb-4">
-            <% if frequencia_hoje %>
-              <div class="flex items-center text-green-600">
-                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="text-sm font-medium">Frequência registrada hoje</span>
-              </div>
-            <% else %>
-              <div class="flex items-center text-orange-600">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2">
-                  <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-sm font-medium">Frequência não registrada hoje</span>
-              </div>
-            <% end %>
-          </div>
-
-          <div class="flex space-x-2">
-            <% if frequencia_hoje %>
-              <%= link_to frequencia_path(frequencia_hoje), class: "flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
-                Ver Frequência
+            <% frequencia_hoje = turma.frequencias.where(data_aula: Date.current).first %>
+            <div class="mb-4">
+              <% if frequencia_hoje %>
+                <div class="flex items-center text-green-600">
+                  <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="text-sm font-medium">Frequência registrada hoje</span>
+                </div>
+              <% else %>
+                <div class="flex items-center text-orange-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2">
+                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-sm font-medium">Frequência não registrada hoje</span>
+                </div>
               <% end %>
-            <% else %>
-              <%= link_to nova_frequencia_turma_path(turma), class: "flex-1 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
-                Registrar Frequência
+            </div>
+
+            <div class="flex flex-col space-y-2">
+              <% if frequencia_hoje %>
+                <%= link_to frequencia_path(frequencia_hoje), class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
+                  Ver Frequência
+                <% end %>
+              <% else %>
+                <% if current_professor.disciplinas.count == 1 %>
+                  <%= link_to new_professor_turma_disciplina_frequencia_path(turma, current_professor.disciplinas.first.id), 
+                    class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                    Registrar Frequência
+                  <% end %>
+                <% else %>
+                  <div class="relative dropdown-frequencia">
+                    <button type="button" class="dropdown-toggle w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
+                      Registrar Frequência
+                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </button>
+                    <div class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200">
+                      <% current_professor.disciplinas.each do |disciplina| %>
+                        <%= link_to new_professor_turma_disciplina_frequencia_path(turma, disciplina.id), 
+                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 first:rounded-t-lg last:rounded-b-lg transition-colors" do %>
+                          <%= disciplina.nome %>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
               <% end %>
-            <% end %>
-            
-            <%= link_to historico_turma_path(turma), class: "flex-1 flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
-              Histórico
-            <% end %>
+              
+              <%# Verifica se há disciplinas antes de criar o link, evitando erros. %>
+              <% if current_professor.disciplinas.any? %>
+                <%= link_to professor_turma_disciplinas_path(turma, disciplina_id: current_professor.disciplinas.first.id, target: :nota), 
+                  class: "w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                  Lançar Notas
+                <% end %>
+              <% end %>
+
+              <%= link_to historico_professor_turma_path(turma), 
+                class: "w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                </svg>
+                Ver Histórico
+              <% end %>
+            </div>
           </div>
         </div>
+      <% end %>
+    </div>
+
+    <% if @turmas.empty? %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma turma encontrada</h3>
+        <p class="mt-1 text-sm text-gray-500">Você ainda não foi associado a nenhuma turma.</p>
       </div>
     <% end %>
-  </div>
-
-  <% if @turmas.empty? %>
-    <div class="text-center py-12">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma turma encontrada</h3>
-      <p class="mt-1 text-sm text-gray-500">Você ainda não foi associado a nenhuma turma.</p>
-    </div>
   <% end %>
 </div>
+
+<script>
+// A função JavaScript foi mantida e ajustada para remover o .dropdown-notas do seu escopo,
+// garantindo que não haja erros ao tentar inicializar elementos que não existem mais.
+
+function initDropdowns() {
+  // Seleciona APENAS o dropdown de Frequência, já que o de Notas foi removido
+  const dropdowns = document.querySelectorAll('.dropdown-frequencia');
+  
+  dropdowns.forEach(dropdown => {
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    
+    // Verifica se os elementos existem e se o event listener já foi anexado
+    if (toggle && menu && !toggle.hasAttribute('data-dropdown-initialized')) {
+      // Marca como inicializado para evitar anexar múltiplos listeners
+      toggle.setAttribute('data-dropdown-initialized', 'true');
+
+      // 1. Lógica de Toggle (Abrir/Fechar)
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Fecha outros dropdowns abertos, exceto o menu atual
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+          if (m !== menu) {
+            m.classList.add('hidden');
+          }
+        });
+        
+        // Alterna o menu atual
+        menu.classList.toggle('hidden');
+      });
+    }
+  });
+
+  // 2. Lógica de Fechamento Global (Anexada apenas uma vez ao documento)
+  if (!document.body.hasAttribute('data-global-click-initialized')) {
+    document.body.setAttribute('data-global-click-initialized', 'true');
+    
+    document.addEventListener('click', function(e) {
+      // Ajustado para checar APENAS o dropdown-frequencia
+      const isDropdownClick = e.target.closest('.dropdown-frequencia');
+      
+      // Se o clique não foi dentro do dropdown, feche todos os menus
+      if (!isDropdownClick) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+    });
+
+    // 3. Listener para o evento 'pageshow' para corrigir o BFCache (Mantido)
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+    });
+  }
+}
+
+// Inicializa a função em todos os principais eventos de carregamento e navegação do Turbo
+document.addEventListener('DOMContentLoaded', initDropdowns);
+document.addEventListener('turbo:load', initDropdowns);
+document.addEventListener('turbo:frame-load', initDropdowns);
+</script>

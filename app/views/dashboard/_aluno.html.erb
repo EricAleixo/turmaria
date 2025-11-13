@@ -1,0 +1,168 @@
+<%= content_for :page_title, "Dashboard | #{@aluno&.nome&.split&.first || 'Aluno'}" %>
+
+<%# 1. Fundo da Página CLARO %>
+<div class="bg-gradient-to-br from-slate-50 via-gray-100 to-gray-200 min-h-screen p-4 sm:p-8">
+  <div class="w-full max-w-7xl mx-auto">
+    
+    <%# Container principal claro e destacado %>
+    <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-gray-100">
+      
+      <div class="mb-8 border-b-2 border-purple-100 pb-4">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-green-600 mb-2 flex items-center">
+          <%# Ícone de Livro Substituindo a Mão %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 text-green-700 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+          </svg>
+          Bem-vindo(a), <%= @aluno&.nome&.split&.first || 'Aluno' %>!
+        </h1>
+        <p class="text-gray-500">Seu resumo de desempenho, notas e frequência.</p>
+      </div>
+
+      <%# --- ALERTA DE STATUS DE TURMA: SOMENTE APARECE SE NÃO HOUVER TURMA ATIVA --- %>
+      <% if @turma_atual.blank? || !@turma_atual.respond_to?(:nome) %>
+        <div class="alert shadow-lg mb-6 bg-yellow-50 text-yellow-800 border-l-4 border-yellow-500">
+          <%# Ícone de Exclamação em Círculo %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+          </svg>
+          <span>**Atenção:** Você ainda não foi associado a uma turma ativa.</span>
+        </div>
+      <% end %>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 flex items-center mt-8">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
+        </svg> Seu Desempenho
+      </h2>
+      
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+        
+        <%# Card 1: Média Geral de Notas (Verde Escuro) %>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-5 border-l-4 border-green-700 flex justify-between items-center transition-all hover:shadow-xl">
+          <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Média Geral de Notas</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900"><%= '%.1f' % @media_geral_notas %></p>
+            <span class="text-xs font-medium text-gray-500">Até o momento</span>
+          </div>
+          <div class="p-3 rounded-full bg-green-100 text-green-700 flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        </div>
+
+        <%# Card 2: Frequência Geral (Verde Médio) %>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-5 border-l-4 border-green-500 flex justify-between items-center transition-all hover:shadow-xl">
+          <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Frequência Geral</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900"><%= @frequencia_percentual %></p>
+            <span class="text-xs font-medium text-gray-500">Total de aulas</span>
+          </div>
+          <div class="p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+          </div>
+        </div>
+
+        <%# Card 3: Total de Faltas (Vermelho) %>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-5 border-l-4 border-red-500 flex justify-between items-center transition-all hover:shadow-xl">
+          <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Total de Faltas (Ano)</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900"><%= @total_faltas %></p>
+            <span class="text-xs font-medium text-gray-500">Inclui faltas não justificadas</span>
+          </div>
+          <div class="p-3 rounded-full bg-red-100 text-red-600 flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+        </div>
+
+        <%# Card 4: Minha Turma Atual (Novo Verde - Emerald) %>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-5 border-l-4 border-emerald-500 flex justify-between items-center transition-all hover:shadow-xl">
+          <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Turma Atual</p>
+            <% if @turma_atual.present? %>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900"><%= @turma_atual.nome %></p>
+              <span class="text-xs font-medium text-emerald-600">Ano: <%= @turma_atual.ano_letivo&.ano || 'N/A' %></span> <%# O ano é exibido aqui %>
+            <% else %>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900">N/A</p>
+              <span class="text-xs font-medium text-red-600">Não Associado</span>
+            <% end %>
+          </div>
+          <div class="p-3 rounded-full bg-emerald-100 text-emerald-600 flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <hr class="border-gray-200 mt-4 mb-8"/>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
+        </svg> Últimos Registros de Faltas
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <% if @ultimas_faltas.present? %>
+          <table class="table w-full shadow-xl rounded-xl overflow-hidden">
+            <thead>
+              <tr class="bg-red-600 text-white">
+                <th class="rounded-tl-xl">Matéria</th>
+                <th>Status</th>
+                <th>Data da Aula</th>
+                <th>Turma</th>
+                <th class="rounded-tr-xl">Observações</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <% @ultimas_faltas.each do |frequencia_aluno| %>
+                <% frequencia = frequencia_aluno.frequencia %>
+                <tr class="hover:bg-red-50 transition-all duration-300 border-b border-gray-200">
+                  <td class="py-4 font-semibold text-slate-700">
+                    <%= frequencia.disciplina&.nome || 'Sem Informação' %>
+                  </td>
+                  <td class="text-slate-600">
+                    <span class="badge badge-lg <%= frequencia_aluno.status_cor %> border-0 font-medium">
+                      <%= frequencia_aluno.status_humanizado %>
+                    </span>
+                  </td>
+                  <td class="text-slate-600">
+                    <%= frequencia.data_aula&.strftime('%d/%m/%Y') || 'N/A' %>
+                  </td>
+                  <td class="text-slate-600">
+                    <span class="badge badge-lg bg-purple-200 text-purple-800 border-0 font-medium">
+                      <%= frequencia.turma&.nome || 'N/A' %>
+                    </span>
+                  </td>
+                  <td class="text-slate-600 italic">
+                    <%= frequencia_aluno.observacoes.present? ? frequencia_aluno.observacoes : 'Nenhuma observação.' %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <div class="text-right pt-4">
+            <%# Link para # %>
+            <%= link_to 'Ver Histórico Completo de Frequência', '#', class: 'text-sm text-red-600 hover:underline' %>
+          </div>
+        <% else %>
+          <div class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-slate-200">
+            <div class="max-w-md mx-auto">
+              <%# Ícone de Gráfico Substituindo o Confete %>
+              <div class="text-6xl mb-4 mx-auto w-16 h-16 text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum registro de falta.</h3>
+              <p class="text-slate-500">Seu histórico de frequência está limpo!</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

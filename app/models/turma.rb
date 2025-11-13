@@ -16,7 +16,7 @@ class Turma < ApplicationRecord
   
   # --- Associações de Frequência e Notas ---
   has_many :frequencias, dependent: :destroy
-  has_many :avaliacoes_configuracoes
+  has_many :avaliacoes_configuracoes, class_name: 'AvaliacaoConfiguracao'
   has_many :avaliacoes_bimestrais
 
   # --- Validações ---
@@ -26,6 +26,13 @@ class Turma < ApplicationRecord
 
   def nome_completo
     "#{nome} - #{escola.nome} (#{serie}º #{turno.humanize})"
+  end
+
+  def bimestres_disponiveis
+    # Se o AnoLetivo estiver associado e tiver um numero_bimestre definido, 
+    # ele usa esse valor. Caso contrário, usa 4 como fallback.
+    num_max = ano_letivo&.numero_bimestre || 4 
+    (1..num_max).to_a
   end
 
   private

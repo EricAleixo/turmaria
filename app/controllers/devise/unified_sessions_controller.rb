@@ -46,16 +46,20 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
   end
  
 
-  def destroy
-    scope = case current_any_user
-            when Admin then :admin
-            when Professor then :professor
-            when Coordenador then :coordenador
-            when SuperAdmin then :super_admin
-            end
+  # Devise::UnifiedSessionsController#destroy
 
-    sign_out(scope)
-    flash[:notice] = "Deslogado com sucesso!"
+  def destroy
+    # 1. Obtém o nome do escopo atual para o flash message
+    current_scope = current_any_user.class.to_s.underscore.to_sym if current_any_user.present?
+
+    # 2. Força o sign out de TODOS os escopos conhecidos, independentemente de quem está "current"
+    sign_out(:aluno)
+    sign_out(:professor)
+    sign_out(:admin)
+    sign_out(:super_admin)
+    # Inclua qualquer outro escopo (ex: :coordenador)
+
+    flash[:notice] = "#{current_scope.to_s.capitalize} deslogado com sucesso!" if current_scope
     redirect_to root_path
   end
 

@@ -1,8 +1,8 @@
 class Escola < ApplicationRecord
   # Relacionamentos
-  has_many :turmas
+  has_many :alunos, dependent: :nullify
+  has_many :turmas, dependent: :destroy
   has_many :ano_letivos, dependent: :destroy
-  has_many :alunos, through: :turmas
   has_one  :endereco, dependent: :destroy
   has_many :admins, dependent: :nullify
   belongs_to :admin, optional: true
@@ -32,24 +32,18 @@ class Escola < ApplicationRecord
 
   # Métodos
   def tipo_humanizado
-    case tipo
-    when 'publica'
-      'Pública'
-    when 'privada'
-      'Privada'
-    end
+    tipo == 'publica' ? 'Pública' : 'Privada'
   end
 
   def endereco_completo
     return "Endereço não cadastrado" unless endereco.present?
-    
+
     partes = []
     partes << "#{endereco.logradouro}, #{endereco.numero}" if endereco.logradouro.present? && endereco.numero.present?
     partes << endereco.complemento if endereco.complemento.present?
     partes << endereco.bairro if endereco.bairro.present?
     partes << "#{endereco.cidade.nome} - #{endereco.cidade.estado.nome}" if endereco.cidade.present?
     partes << "CEP: #{endereco.cep}" if endereco.cep.present?
-    
     partes.join(', ')
   end
 end

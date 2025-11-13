@@ -1,0 +1,107 @@
+<%# app/views/professor/notas/resultados/todosAlunos.html.erb %>
+<%# app/views/professor/notas/resultados/todosAlunos.html.erb %>
+
+<div class="p-6 bg-gray-100 min-h-screen">
+  
+  <header class="mb-8 pb-4 border-b-4 border-blue-500">
+    <h1 class="text-4xl font-extrabold text-gray-900 mb-1">Notas de Todos os Alunos</h1>
+    <p class="text-xl text-gray-700">Disciplina: <span class="font-bold text-blue-600"><%= @disciplina.nome %></span></p>
+    <p class="text-sm text-gray-500 mt-2">Médias finais bimestrais em todas as turmas que você leciona.</p>
+  </header>
+
+  <%= link_to '← Voltar para Minhas Turmas', 
+            minhas_turmas_path, 
+            class: 'text-green-600 hover:text-green-800 mb-6 inline-block' %>
+
+  <% if @turmas_da_disciplina.any? %>
+    
+    <% @turmas_da_disciplina.each do |turma| %>
+      <div class="bg-white shadow-xl rounded-lg p-6 mb-8 border-l-4 border-blue-400">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Turma: <%= turma.nome %></h2>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            
+            <thead class="bg-blue-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/3">Aluno</th>
+                <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+                <% turma.bimestres_disponiveis.each do |bimestre| %>
+                  <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Média B<%= bimestre %></th>
+                <% end %>
+                <th class="px-6 py-3 text-center text-xs font-bold text-gray-800 uppercase tracking-wider bg-blue-100">MÉDIA FINAL</th>
+                
+              </tr>
+            </thead>
+            
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% turma.alunos.order(:nome).each do |aluno| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= aluno.nome %></td>
+                  
+                  <% total_medias = 0 %>
+                  <% bimestres_com_nota = 0 %>
+
+                  <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+                  <% turma.bimestres_disponiveis.each do |bimestre| %>
+                    <% 
+                      # Acessa o hash: [turma_id, aluno_id, bimestre]
+                      media_bimestral = @medias_finais_por_turma[[turma.id, aluno.id, bimestre]]
+                      nota = media_bimestral ? media_bimestral.nota_bimestre_final : nil
+                      
+                      if nota
+                        total_medias += nota.to_f
+                        bimestres_com_nota += 1
+                        nota_formatada = number_to_currency(nota, unit: "", separator: ",", delimiter: ".", precision: 1)
+                        cor_nota = nota.to_f >= 6.0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold'
+                      else
+                        nota_formatada = '—'
+                        cor_nota = 'text-gray-400'
+                      end
+                    %>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center <%= cor_nota %>">
+                      <% if media_bimestral %>
+                        <%# Link para a modal de detalhes (que usa a rota aninhada 'detalhes' do show) %>
+                        <%= link_to nota_formatada, 
+                                     detalhes_professor_turma_disciplina_resultados_path(
+                                       turma, 
+                                       @disciplina, 
+                                       media_bimestral: media_bimestral.id
+                                     ),
+                                     data: { turbo_frame: "modal" },
+                                     class: "hover:underline cursor-pointer" %>
+                      <% else %>
+                        <%= nota_formatada %>
+                      <% end %>
+                    </td>
+                  <% end %>
+                  
+                  <%# Coluna Média Final (Calculada Anualmente) %>
+                  <% 
+                    media_final = bimestres_com_nota > 0 ? (total_medias / bimestres_com_nota) : 0
+                    media_formatada = number_to_currency(media_final, unit: "", separator: ",", delimiter: ".", precision: 1)
+                    cor_final = media_final >= 6.0 ? 'bg-green-100 text-green-800 font-extrabold' : 'bg-red-100 text-red-800 font-extrabold'
+                  %>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-center <%= cor_final %> bg-blue-100 border-l border-gray-300">
+                    <%= media_formatada %>
+                  </td>
+                  
+                  <%# Coluna Ações: Link para o Boletim Detalhado (View Show) %>
+                  
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <div class="text-center py-12 border border-dashed rounded-lg bg-white mt-4">
+      <p class="text-lg font-medium text-gray-700">Nenhuma turma encontrada para a disciplina <%= @disciplina.nome %>.</p>
+    </div>
+  <% end %>
+
+  <%# O turbo-frame para a modal de detalhes da nota individual %>
+  <turbo-frame id="modal"></turbo-frame>
+</div>

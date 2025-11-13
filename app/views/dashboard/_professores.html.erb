@@ -1,155 +1,267 @@
-<%# 
-# Partial: professors/dashboard/_main_content.html.erb
-# 
-# Dependências esperadas (mockadas no controller):
-# @professor_nome: String
-# @turmas_ativas: Integer
-# @disciplinas_contagem: Integer
-# @alunos_unicos: Integer
-# @media_presenca: String (ex: "92.5%")
-# @media_geral_notas: String (ex: "7.8")
-# @pior_turma_media: String (ex: "6.5")
-# @notas_lancadas_mes: Integer
-# @disciplinas_e_turmas: Array (ex: [{nome: 'Matemática', turma: '9º A'}, ...])
-# @grafico_desempenho_disciplinas: Hash (para Chart.js)
-# @grafico_evolucao_notas: Hash (para Chart.js)
-# @grafico_presenca_turmas: Hash (para Chart.js)
-%>
-
-<div class="w-full p-4">
-  <main class="w-full max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800">Painel do Professor</h1>
-        <p class="text-gray-600 mt-1">Bem-vindo(a), <%= @professor_nome || 'Professor(a) Mock' %> - Visão Geral</p>
-      </div>
-      <div class="flex gap-3">
-        <%# Botão principal agora é VERDE (green-600) %>
-        <%= link_to "#", class: "btn bg-green-600 hover:bg-green-700 text-white" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.932zm0 0L19.5 7.125M18 14.25v2.25M6 18h.75m1.5 0h.75" />
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+  <main class="w-[1220px]">
+    
+    <%# Header %>
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            Olá, <%= @professor_nome || 'Professor(a)' %>! 👋
+          </h1>
+        </div>
+        <%= link_to "#", class: "bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
           </svg>
+
           Lançar Notas/Faltas
         <% end %>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <%# Quick Stats %>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-green-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-green-600">Total</span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @alunos_unicos %></h3>
+        <p class="text-gray-600 text-sm">Alunos Totais</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-blue-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-blue-600"><%= (@media_geral_notas.to_f >= 7.0 ? '↑' : '↓') %></span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @media_geral_notas %></h3>
+        <p class="text-gray-600 text-sm">Média Geral</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-teal-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-teal-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-teal-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-teal-600"><%= @media_presenca %></span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @media_presenca %></h3>
+        <p class="text-gray-600 text-sm">Taxa de Presença</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-green-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-green-600"><%= @turmas_ativas %> turmas</span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @disciplinas_contagem %></h3>
+        <p class="text-gray-600 text-sm">Disciplinas Únicas</p>
+      </div>
+    </div>
+
+    <%# Main Content Grid %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       
-      <%# Cartão 1: Turmas Ativas (Cor primária: GREEN) %>
-      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-green-600 mb-2"><%= @turmas_ativas %></div>
-          <div class="text-gray-600 font-medium">Turmas Ativas</div>
+      <%# Calendar - Attendance %>
+      <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="bg-green-100 p-3 rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Frequência - <%= Date.today.strftime('%B') %></h2>
+              <p class="text-gray-600 text-sm">Acompanhe a presença dos alunos</p>
+            </div>
+          </div>
+          
+          <% if @disciplinas_e_turmas.any? %>
+            <select class="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none font-medium">
+              <% @disciplinas_e_turmas.each do |item| %>
+                <option><%= "#{item[:turma]} - #{item[:disciplina]}" %></option>
+              <% end %>
+            </select>
+          <% end %>
+        </div>
+
+        <%# Calendar Grid %>
+        <div class="mb-4">
+          <div class="grid grid-cols-7 gap-2 mb-4">
+            <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each do |day| %>
+              <div class="text-center font-semibold text-gray-600 text-sm py-2"><%= day %></div>
+            <% end %>
+          </div>
+          
+          <div class="grid grid-cols-7 gap-2">
+            <%# Empty cells for month start %>
+            <% start_day = Date.today.beginning_of_month.wday %>
+            <% start_day.times do %>
+              <div class="aspect-square"></div>
+            <% end %>
+            
+            <%# Days of month %>
+            <% (1..Date.today.end_of_month.day).each do |day| %>
+              <%
+                # Simular dados de presença (em produção, viria do backend)
+                rand_val = rand(100)
+                attendance_class = if rand_val > 90
+                  'bg-green-100 text-green-700 hover:bg-green-200'
+                elsif rand_val > 70
+                  'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                else
+                  'bg-red-100 text-red-700 hover:bg-red-200'
+                end
+                
+                is_today = day == Date.today.day
+                today_ring = is_today ? 'ring-2 ring-green-500 ring-offset-2' : ''
+              %>
+              <div class="aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all <%= attendance_class %> <%= today_ring %>">
+                <%= day %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Legend %>
+        <div class="flex items-center gap-6 pt-4 border-t border-gray-200 flex-wrap">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded bg-green-200"></div>
+            <span class="text-sm text-gray-600">Presença Alta (90%+)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded bg-yellow-200"></div>
+            <span class="text-sm text-gray-600">Presença Média (70-89%)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded bg-red-200"></div>
+            <span class="text-sm text-gray-600">Presença Baixa (&lt;70%)</span>
+          </div>
         </div>
       </div>
-      
-      <%# Cartão 2: Disciplinas Lecionadas (Cor secundária: GREEN) %>
-      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-green-600">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-green-600 mb-2"><%= @disciplinas_contagem %></div>
-          <div class="text-gray-600 font-medium">Disciplinas Únicas</div>
+
+      <%# Weekly Attendance Stats %>
+      <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="bg-teal-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-teal-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Esta Semana</h2>
+            <p class="text-gray-600 text-sm">Visão semanal</p>
+          </div>
         </div>
-      </div>
-      
-      <%# Cartão 3: Total de Alunos Únicos (Mantido Roxo) %>
-      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-purple-600">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-purple-600 mb-2"><%= @alunos_unicos %></div>
-          <div class="text-gray-600 font-medium">Alunos Únicos (Total)</div>
+
+        <div class="space-y-4">
+          <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].each_with_index do |day, idx| %>
+            <%
+              present = [28, 30, 29, 31, 27][idx]
+              absent = [4, 2, 3, 1, 5][idx]
+              total = present + absent
+              present_percent = (present.to_f / total * 100).round
+            %>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold text-gray-700"><%= day %></span>
+                <span class="text-sm text-gray-600"><%= present %>/<%= total %></span>
+              </div>
+              <div class="flex gap-2 h-8">
+                <div class="bg-green-500 rounded-lg transition-all hover:bg-green-600" style="width: <%= present_percent %>%"></div>
+                <div class="bg-red-300 rounded-lg transition-all hover:bg-red-400" style="width: <%= 100 - present_percent %>%"></div>
+              </div>
+            </div>
+          <% end %>
         </div>
-      </div>
-      
-      <%# Cartão 4: Média Geral de Notas (Mantido Laranja) %>
-      <div class="bg-white rounded-lg p-6 shadow-md border-t-4 border-orange-600">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-orange-600 mb-2"><%= @media_geral_notas %></div>
-          <div class="text-gray-600 font-medium">Média Geral de Notas</div>
+
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Taxa Média</span>
+            <span class="text-2xl font-bold text-green-600"><%= @media_presenca %></span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <%# Bottom Section %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <%# Média de Presença (Mantido Teal) %>
-      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-teal-600">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-teal-600 mb-2"><%= @media_presenca %></div>
-          <div class="text-gray-600 font-medium">Média de Presença</div>
-        </div>
-      </div>
-      
-      <%# Pior Turma (Mantido Vermelho) %>
-      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-red-600">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-red-600 mb-2"><%= @pior_turma_media %></div>
-          <div class="text-gray-600 font-medium">Média Pior Turma</div>
-        </div>
-      </div>
-      
-      <%# Notas Lançadas (Mantido Indigo) %>
-      <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-indigo-600">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @notas_lancadas_mes %></div>
-          <div class="text-gray-600 font-medium">Notas Lançadas (Mês)</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div class="bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Desempenho Médio por Disciplina</h3>
-        <div class="h-64">
-          <canvas id="disciplinesPerformanceChart"></canvas>
-        </div>
-      </div>
-      
-      <div class="bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Evolução da Média de Notas (Semestral)</h3>
-        <div class="h-64">
-          <canvas id="gradesEvolutionChart"></canvas>
-        </div>
-      </div>
-    </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      
-      <div class="bg-white rounded-lg shadow-md">
+      <%# My Classes %>
+      <div class="bg-white rounded-2xl shadow-xl">
         <div class="p-6 border-b border-gray-200">
-          <h3 class="text-xl font-semibold text-gray-800">Minhas Disciplinas e Turmas</h3>
-          <p class="text-gray-600 text-sm">O que você está lecionando este ano.</p>
+          <div class="flex items-center gap-3">
+            <div class="bg-indigo-100 p-3 rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-indigo-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800">Minhas Turmas</h3>
+              <p class="text-gray-600 text-sm">O que você está lecionando</p>
+            </div>
+          </div>
         </div>
+        
         <div class="p-6 max-h-96 overflow-y-auto">
           <% if @disciplinas_e_turmas.any? %>
             <% @disciplinas_e_turmas.each_with_index do |item, index| %>
-              <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @disciplinas_e_turmas.length - 1 %>">
-                <div class="flex items-center">
-                  <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold text-sm mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                    </svg>
+              <div class="flex items-center justify-between p-4 rounded-xl hover:bg-green-50 transition-colors <%= 'mb-3' unless index == @disciplinas_e_turmas.length - 1 %>">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <%= item[:turma][0] rescue 'T' %>
                   </div>
                   <div>
-                    <div class="font-medium text-gray-800"><%= item[:disciplina] %></div>
+                    <div class="font-semibold text-gray-800 text-lg"><%= item[:disciplina] %></div>
                     <div class="text-sm text-gray-500">Turma: <%= item[:turma] %></div>
                   </div>
                 </div>
-                <%# Botão 'Gerenciar' agora é VERDE (green-600) %>
-                <div class="text-gray-400">
-                  <%= link_to 'Gerenciar', '#', class: "text-green-600 hover:text-green-800 text-sm" %>
-                </div>
+                
+                <%= link_to 'Gerenciar →', "#", class: "text-green-600 hover:text-green-800 font-semibold text-sm transition-colors" %>
               </div>
             <% end %>
           <% else %>
-            <p class="text-gray-500 text-center py-4">Nenhuma disciplina ou turma atribuída.</p>
+            <div class="text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+              <p class="text-gray-500">Nenhuma disciplina ou turma atribuída.</p>
+            </div>
           <% end %>
         </div>
       </div>
-      
-      <div class="bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Presença por Turma (Geral)</h3>
-        <div class="h-64">
-          <canvas id="attendanceByClassChart"></canvas>
+
+      <%# Performance Chart %>
+      <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="bg-blue-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-800">Desempenho por Disciplina</h3>
+            <p class="text-gray-600 text-sm">Média de notas</p>
+          </div>
+        </div>
+        <div class="h-80">
+          <canvas id="disciplinesPerformanceChart"></canvas>
         </div>
       </div>
     </div>
@@ -160,16 +272,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let disciplinesPerformanceChart, gradesEvolutionChart, attendanceByClassChart;
+let disciplinesPerformanceChart;
 
 function initializeProfessorCharts() {
-  
-  // Destruir instâncias antigas para evitar duplicidade em Turbo/Turbolinks
   if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
-  if (gradesEvolutionChart) gradesEvolutionChart.destroy();
-  if (attendanceByClassChart) attendanceByClassChart.destroy();
 
-  // --- Gráfico 1: Desempenho por Disciplina (Barra) ---
   const perfCtx = document.getElementById('disciplinesPerformanceChart');
   const perfData = <%= raw (@grafico_desempenho_disciplinas || {}).to_json %>;
 
@@ -182,10 +289,10 @@ function initializeProfessorCharts() {
           label: 'Média de Notas',
           data: perfData.data,
           backgroundColor: [
-            'rgba(16, 185, 129, 0.8)', // green-500 (AGORA É A PRIMEIRA COR)
-            'rgba(59, 130, 246, 0.8)', // blue-500
-            'rgba(168, 85, 247, 0.8)', // purple-500
-            'rgba(249, 115, 22, 0.8)', // orange-500
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(168, 85, 247, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
           ],
           borderColor: [
             'rgb(16, 185, 129)',
@@ -193,89 +300,58 @@ function initializeProfessorCharts() {
             'rgb(168, 85, 247)',
             'rgb(249, 115, 22)',
           ],
-          borderWidth: 1
+          borderWidth: 2,
+          borderRadius: 8
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleFont: { size: 14 },
+            bodyFont: { size: 13 },
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1
+          }
+        },
         scales: {
-          y: { beginAtZero: true, max: 10, title: { display: true, text: 'Média de Nota (0-10)' } }
-        }
-      }
-    });
-  }
-
-  // --- Gráfico 2: Evolução de Notas (Linha) ---
-  const evoCtx = document.getElementById('gradesEvolutionChart');
-  const evoData = <%= raw (@grafico_evolucao_notas || {}).to_json %>;
-
-  if (evoCtx && evoData.labels && evoData.data) {
-    gradesEvolutionChart = new Chart(evoCtx.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: evoData.labels,
-        datasets: [{
-          label: 'Média Geral',
-          data: evoData.data,
-          borderColor: '#10B981', // green-500
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, max: 10, title: { display: true, text: 'Média de Nota (0-10)' } }
-        }
-      }
-    });
-  }
-
-  // --- Gráfico 3: Presença por Turma (Doughnut) ---
-  const attCtx = document.getElementById('attendanceByClassChart');
-  const attData = <%= raw (@grafico_presenca_turmas || {}).to_json %>;
-
-  if (attCtx && attData.labels && attData.data) {
-    attendanceByClassChart = new Chart(attCtx.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: attData.labels,
-        datasets: [{
-          data: attData.data,
-          backgroundColor: [
-            '#06B6D4', // cyan-500
-            '#F97316', // orange-500
-            '#A855F7', // purple-500
-            '#EF4444' // red-500
-          ],
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right' }
+          y: { 
+            beginAtZero: true, 
+            max: 10,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              font: { size: 12 }
+            },
+            title: { 
+              display: true, 
+              text: 'Média de Nota (0-10)',
+              font: { size: 13, weight: 'bold' }
+            } 
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: { size: 12 }
+            }
+          }
         }
       }
     });
   }
 }
 
-// Inicializar gráficos em carregamento de página e Turbo/Turbolinks
 document.addEventListener('DOMContentLoaded', initializeProfessorCharts);
 document.addEventListener('turbo:load', initializeProfessorCharts);
 
-// Limpeza de gráficos antes do cache do Turbo
 document.addEventListener('turbo:before-cache', function() {
   if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
-  if (gradesEvolutionChart) gradesEvolutionChart = null;
-  if (attendanceByClassChart) attendanceByClassChart.destroy();
 });
 </script>

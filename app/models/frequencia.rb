@@ -3,6 +3,7 @@ class Frequencia < ApplicationRecord
   
   belongs_to :turma
   belongs_to :professor
+  belongs_to :disciplina
   has_many :frequencia_alunos, dependent: :destroy
   has_many :alunos, through: :frequencia_alunos
 

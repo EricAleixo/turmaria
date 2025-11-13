@@ -8,8 +8,25 @@ class ApplicationController < ActionController::Base
 
   # Retorna o usuário logado (qualquer tipo)
   def current_any_user
-    @current_any_user ||= current_admin || current_professor || current_coordenador || current_super_admin
+    current_aluno || current_professor || current_coordenador || current_admin || current_super_admin
   end
+
+
+
+  def authenticated_user_type
+  # A ordem é: Quem tem o helper Devise presente?
+  return Aluno if current_aluno.present?
+  return Professor if current_professor.present?
+  return Coordenador if current_coordenador.present?
+  return Admin if current_admin.present?
+  return SuperAdmin if current_super_admin.present?
+  nil # Ninguém logado
+end
+
+# Torna os métodos disponíveis para todas as Views
+helper_method :current_any_user, :authenticated_user_type
+
+
 
   # Alias para compatibilidade com Pundit
   def current_user

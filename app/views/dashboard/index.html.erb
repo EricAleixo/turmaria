@@ -13,6 +13,9 @@
       
     <% elsif current_professor %>
       <%= render 'dashboard/professores' %>
+
+    <% elsif current_aluno %>
+      <%= render 'dashboard/aluno' %>
       
     <% else %>
       <div class="w-full p-8 max-w-7xl mx-auto">

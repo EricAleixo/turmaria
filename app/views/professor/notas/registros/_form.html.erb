@@ -1,0 +1,91 @@
+<% # app/views/professor/notas/registros/_form.html.erb %>
+
+<% # app/views/professor/notas/registros/_form.html.erb %>
+
+<% # A partial recebe as variáveis 'url' e 'method' (para create ou update) %>
+<%= form_with(scope: :open_struct, # <--- CORRIGIDO: Define o nome do parâmetro raiz no hash params
+               url: url, 
+               # Se 'method' não for passado, Rails usa POST (para new/create)
+               method: local_assigns[:method] || :post, 
+               data: { turbo: true }) do |form| %>
+
+  <div class="mb-6">
+    <!-- Mensagem de Instrução com Iconografia -->
+    <div class="flex items-center p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-sm">
+        <!-- Ícone de Informação (Inline SVG - Lucide) -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 flex-shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <p class="text-sm font-medium">Preencha os campos com as notas (use ponto ou vírgula). Deixe em branco para ignorar ou remover uma nota existente.</p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+    <table class="min-w-full divide-y divide-gray-200">
+      
+      <!-- Cabeçalho da Tabela Adicionado -->
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+            Matrícula
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/3">
+            Nome do Aluno
+          </th>
+          <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+            Nota
+          </th>
+        </tr>
+      </thead>
+      
+      <tbody class="divide-y divide-gray-200">
+        
+        <% # Itera sobre a coleção de registros (AGORA, usando o objeto diretamente, sem depender do form.object) %>
+        <%= form.fields_for :registros, @registros do |registro_fields| %>
+          
+          <% registro = registro_fields.object %>
+          <% aluno = registro.aluno %>
+          
+          <!-- Linha com efeito hover e zebra stripe para melhor legibilidade -->
+          <tr class="odd:bg-white even:bg-gray-50 hover:bg-indigo-50 transition duration-150">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= aluno.id %> <%# OU USE aluno.matricula %>
+              </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+              <%= aluno.nome %>
+              <% if registro_fields.object.errors[:valor].any? %>
+                <!-- Estilo de Erro Aprimorado -->
+                <div class="mt-1 text-xs text-red-600 font-bold bg-red-50 p-1 rounded-md inline-block">
+                  <%= registro_fields.object.errors[:valor].join(', ') %>
+                </div>
+              <% end %>
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <%= registro_fields.fields_for aluno.id.to_s, registro do |nota_field| %>
+                <%= nota_field.text_field :valor, 
+                                          step: '0.01', 
+                                          # Estilos de Input Aprimorados (transição, foco azul)
+                                          class: 'form-control text-center w-24 mx-auto border border-gray-300 rounded-lg shadow-sm p-2 transition duration-150 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500', 
+                                          placeholder: 'Nota',
+                                          value: nota_field.object.valor.to_s.gsub('.', ',') 
+                                          %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Seção de Ações (Botões) -->
+  <div class="mt-10 flex justify-start space-x-4">
+    
+    <!-- Botão Primário (Ação principal, mais destaque) -->
+    <%= form.submit 'Salvar e Recalcular Médias', 
+        class: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl text-lg cursor-pointer transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300' %>
+    
+    <!-- Botão Secundário (Cancelar) -->
+    <%= link_to 'Cancelar', 
+        professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+        class: 'bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transition duration-300 ease-in-out shadow-md' %>
+  </div>
+<% end %>

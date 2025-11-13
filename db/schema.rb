@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_08_165512) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -71,7 +71,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "alunos", force: :cascade do |t|
+  create_table "alunos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "nome"
     t.date "data_nascimento"
     t.bigint "turma_id"
@@ -101,6 +101,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.bigint "cidade_id"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.index ["cidade_id"], name: "index_alunos_on_cidade_id"
+    t.index ["confirmation_token"], name: "index_alunos_on_confirmation_token", unique: true
     t.index ["escola_id", "turma_id"], name: "index_alunos_on_escola_id_and_turma_id"
     t.index ["escola_id"], name: "index_alunos_on_escola_id"
     t.index ["matricula"], name: "index_alunos_on_matricula", unique: true
@@ -118,6 +130,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.index ["escola_id"], name: "index_ano_letivos_on_escola_id"
   end
 
+  create_table "area_disciplinas", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "cor", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "avaliacao_bimestrals", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -129,7 +148,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
   end
 
   create_table "avaliacoes_bimestrais", force: :cascade do |t|
-    t.bigint "aluno_id", null: false
+    t.uuid "aluno_id", null: false
     t.bigint "turma_id", null: false
     t.bigint "disciplina_id", null: false
     t.integer "bimestre", null: false
@@ -148,9 +167,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.integer "bimestre", null: false
     t.string "nome", null: false
     t.boolean "is_recuperacao", default: false, null: false
-    t.integer "ordem", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "avaliacao_original_id"
+    t.index ["avaliacao_original_id"], name: "index_avaliacoes_configuracoes_on_avaliacao_original_id"
     t.index ["disciplina_id"], name: "index_avaliacoes_configuracoes_on_disciplina_id"
     t.index ["turma_id", "disciplina_id", "bimestre", "nome"], name: "idx_unique_avaliacao_config", unique: true
     t.index ["turma_id"], name: "index_avaliacoes_configuracoes_on_turma_id"
@@ -207,6 +227,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.string "area"
     t.string "cor"
     t.string "cor_nome"
+    t.bigint "area_disciplina_id"
+    t.index ["area_disciplina_id"], name: "index_disciplinas_on_area_disciplina_id"
     t.index ["escola_id"], name: "index_disciplinas_on_escola_id"
   end
 
@@ -227,10 +249,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.string "cep"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "aluno_id"
-    t.uuid "escola_id", null: false
+    t.uuid "aluno_id"
+    t.uuid "escola_id"
     t.string "complemento"
-    t.bigint "cidade_id", null: false
+    t.bigint "cidade_id"
     t.uuid "professor_id"
     t.index ["cidade_id"], name: "index_enderecos_on_cidade_id"
     t.index ["escola_id"], name: "index_enderecos_on_escola_id"
@@ -262,11 +284,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sigla"
+    t.string "regiao"
   end
 
   create_table "frequencia_alunos", force: :cascade do |t|
     t.bigint "frequencia_id", null: false
-    t.bigint "aluno_id"
+    t.uuid "aluno_id"
     t.string "status", default: "presente", null: false
     t.text "observacoes"
     t.datetime "created_at", null: false
@@ -284,16 +308,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "observacoes"
+    t.bigint "disciplina_id", null: false
+    t.index ["disciplina_id"], name: "index_frequencias_on_disciplina_id"
     t.index ["professor_id"], name: "index_frequencias_on_professor_id"
     t.index ["turma_id", "data_aula"], name: "index_frequencias_on_turma_id_and_data_aula", unique: true
     t.index ["turma_id"], name: "index_frequencias_on_turma_id"
-  end
-
-  create_table "materia", force: :cascade do |t|
-    t.string "nome"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["nome"], name: "index_materia_on_nome", unique: true
   end
 
   create_table "nota", force: :cascade do |t|
@@ -354,7 +373,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
   end
 
   create_table "registros_de_notas", force: :cascade do |t|
-    t.bigint "aluno_id", null: false
+    t.uuid "aluno_id", null: false
     t.bigint "avaliacao_configuracao_id", null: false
     t.decimal "valor", precision: 4, scale: 2, null: false
     t.date "data_registro"
@@ -414,18 +433,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "alunos", "cidades"
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "avaliacoes_bimestrais", "alunos"
   add_foreign_key "avaliacoes_bimestrais", "disciplinas"
   add_foreign_key "avaliacoes_bimestrais", "turmas"
+  add_foreign_key "avaliacoes_configuracoes", "avaliacoes_configuracoes", column: "avaliacao_original_id"
   add_foreign_key "avaliacoes_configuracoes", "disciplinas"
   add_foreign_key "avaliacoes_configuracoes", "turmas"
   add_foreign_key "cidades", "estados"
   add_foreign_key "conteudos", "disciplinas"
   add_foreign_key "conteudos", "escolas"
   add_foreign_key "conteudos", "professors"
+  add_foreign_key "disciplinas", "area_disciplinas"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
   add_foreign_key "enderecos", "cidades"
@@ -434,6 +456,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_06_114343) do
   add_foreign_key "escolas", "admins"
   add_foreign_key "frequencia_alunos", "alunos", on_delete: :nullify
   add_foreign_key "frequencia_alunos", "frequencias"
+  add_foreign_key "frequencias", "disciplinas"
   add_foreign_key "frequencias", "professors"
   add_foreign_key "frequencias", "turmas"
   add_foreign_key "professor_disciplinas", "disciplinas"
