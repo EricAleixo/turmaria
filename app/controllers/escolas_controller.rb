@@ -72,7 +72,7 @@ class EscolasController < ApplicationController
 
     @professores = @escola.professors.includes(:disciplinas).order(:nome)
     @disciplinas = @escola.disciplinas
-    @disciplinas_por_area = @disciplinas.group(:area).count
+    #@disciplinas_por_area = @disciplinas.group(:area).count
   end
 
   def new

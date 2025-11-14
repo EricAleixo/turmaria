@@ -1,5 +1,7 @@
 class RemoveNullableFromAreaDisciplina < ActiveRecord::Migration[7.1]
   def change
-    remove_column :area_disciplinas, :nullable, :string
+    if column_exists?(:area_disciplinas, :nullable)
+      remove_column :area_disciplinas, :nullable, :string
+    end
   end
 end
