@@ -52,12 +52,19 @@
     </div>
 
     <%# Conteúdo da Tabela e Paginação (dentro do Turbo Frame) %>
-    <%= turbo_frame_tag "alunos" do %>
+<%= turbo_frame_tag "alunos" do %>
       <% if @alunos.blank? %>
         <%# CÓDIGO DO EMPTY STATE %>
         <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
           <div class="max-w-md mx-auto">
-            <div class="text-6xl mb-4">🧑‍🎓</div>
+            
+            <%# 🛑 NOVO ÍCONE SVG APLICADO AQUI 🛑 %>
+            <div class="text-6xl mb-4 text-blue-500 mx-auto w-16 h-16">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
+                <path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z" />
+              </svg>
+            </div>
+            
             <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum aluno encontrado</h3>
             <p class="text-slate-500 mb-6">Não há alunos cadastrados. Adicione um novo aluno.</p>
             <%= link_to new_aluno_path, class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>

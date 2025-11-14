@@ -27,7 +27,7 @@ class AlunosController < ApplicationController
                     .includes(:escola, :turma, cidade: :estado) # Adicionado :estado para evitar N+1 na listagem/filtro
                     .order(nome: :asc)
                     .page(params[:page])
-                    .per(20) # Paginação de 20 alunos por página
+                    .per(15) # Paginação de 20 alunos por página
     end
 
     # =====================================================================
