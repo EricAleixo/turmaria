@@ -1,0 +1,129 @@
+<%# app/views/alunos/_filtro_modal.html.erb - Modal DaisyUI/Tailwind CSS %>
+
+<%# O input invisível controla o estado do modal (aberto/fechado) %>
+<input type="checkbox" id="filtro_modal" class="modal-toggle" />
+
+<%# Conteúdo do Modal %>
+<div class="modal" role="dialog">
+  <div class="modal-box w-11/12 max-w-4xl p-0">
+
+    <%# Usa a rota base de alunos, mas passa os IDs de escola/turma se estiverem definidos %>
+    <%= form_tag(alunos_path(escola_id: @escola&.id, turma_id: @turma&.id), method: :get, class: 'bg-white p-6 md:p-8 space-y-6') do %>
+
+      <div class="flex justify-between items-center border-b pb-3 mb-4">
+        <h3 class="text-2xl font-bold text-gray-800">
+          <i class="fas fa-filter text-indigo-500 mr-2"></i> Filtro de Alunos
+        </h3>
+        <%# Botão para fechar o modal no canto superior direito %>
+        <label for="filtro_modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
+      </div>
+
+      <%# ==================================================================== %>
+      <%# 1 & 2. BUSCA TEXTUAL GERAL (GRID DE 2 COLUNAS NO DESKTOP) %>
+      <%# ==================================================================== %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <%# 1. Nome ou Matrícula %>
+        <div>
+          <%= label_tag :busca_texto, 'Nome ou Matrícula', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= text_field_tag :busca_texto, params[:busca_texto], class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500', placeholder: 'Buscar aluno...' %>
+        </div>
+
+        <%# 2. Busca por Nome da Turma (Apenas se não estiver no escopo da turma) %>
+        <% if !@turma %>
+          <div>
+            <%= label_tag :busca_turma, 'Nome da Turma', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= text_field_tag :busca_turma, params[:busca_turma], class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500', placeholder: 'Buscar por nome da turma...' %>
+          </div>
+        <% end %>
+      </div>
+      
+      <hr class="border-gray-200">
+
+      <%# ==================================================================== %>
+      <%# 3, 4, 5. FILTROS DE ASSOCIAÇÃO (GRID DE 3 COLUNAS NO DESKTOP) %>
+      <%# ==================================================================== %>
+      <h4 class="text-lg font-semibold text-gray-700 mb-4">Associação e Localização</h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <%# 3. FILTRO POR ESTADO (Sigla) %>
+        <div>
+          <%= label_tag :estado_uf, 'Estado (Sigla)', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= select_tag :estado_uf, options_for_select(Estado.order(:nome).pluck(:sigla), params[:estado_uf]), 
+              { include_blank: 'Todos os Estados', class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500' } %>
+        </div>
+
+        <%# 4. FILTRO POR CIDADE (Dinâmico via AJAX) %>
+        <div>
+          <%= label_tag :cidade_id, 'Cidade', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= select_tag :cidade_id, options_for_select(['Todas as Cidades']), 
+              { include_blank: true, disabled: true, class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500 select2-cidade' } %>
+          <p class="mt-1 text-xs text-gray-500">Selecione um Estado para carregar as cidades.</p>
+        </div>
+
+        <%# 5. FILTRO POR ESCOLA (Apenas se o escopo base não for uma escola) %>
+        <% if !@escola %>
+          <div>
+            <%= label_tag :escola_id, 'Escola', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+            <%= select_tag :escola_id, options_from_collection_for_select(Escola.all.order(:nome), :id, :nome, params[:escola_id]), 
+                { include_blank: 'Todas as Escolas', class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500' } %>
+          </div>
+        <% end %>
+      </div>
+
+      <hr class="border-gray-200">
+      
+      <%# ==================================================================== %>
+      <%# 6 & 7. STATUS E IDADE (GRID DE 2 COLUNAS NO DESKTOP) %>
+      <%# ==================================================================== %>
+      <h4 class="text-lg font-semibold text-gray-700 mb-4">Status e Condições</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <%# 6. FILTRO DE STATUS (Radio-Group com melhor estilo visual) %>
+        <fieldset class="p-4 border border-gray-200 rounded-lg">
+          <legend class="text-sm font-medium text-gray-700 px-2 -ml-2">Status de Alocação</legend>
+          <div class="mt-2 space-y-2">
+            <div class="flex items-center">
+              <%= radio_button_tag :status_alocacao, 'alocado', params[:status_alocacao] == 'alocado', class: 'h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500' %>
+              <%= label_tag :status_alocacao_alocado, 'Alocado em Turma', class: 'ml-3 text-sm text-gray-600' %>
+            </div>
+            <div class="flex items-center">
+              <%= radio_button_tag :status_alocacao, 'nao_alocado', params[:status_alocacao] == 'nao_alocado', class: 'h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500' %>
+              <%= label_tag :status_alocacao_nao_alocado, 'Pendente de Alocação', class: 'ml-3 text-sm text-gray-600' %>
+            </div>
+          </div>
+        </fieldset>
+
+        <%# 7. FILTRO DE IDADE (Checkboxes) %>
+        <fieldset class="p-4 border border-gray-200 rounded-lg">
+          <legend class="text-sm font-medium text-gray-700 px-2 -ml-2">Filtro por Idade (18+)</legend>
+          <div class="mt-2 space-y-2">
+            <div class="flex items-center">
+              <%= check_box_tag :idade_maior, '1', params[:idade_maior] == '1', class: 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500' %>
+              <%= label_tag :idade_maior, 'Maiores de 18 anos', class: 'ml-3 text-sm text-gray-600' %>
+            </div>
+            <div class="flex items-center">
+              <%= check_box_tag :idade_menor, '1', params[:idade_menor] == '1', class: 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500' %>
+              <%= label_tag :idade_menor, 'Menores de 18 anos', class: 'ml-3 text-sm text-gray-600' %>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <%# ==================================================================== %>
+      <%# BOTÕES DE AÇÃO (Colocados no rodapé do modal) %>
+      <%# ==================================================================== %>
+      <div class="modal-action p-0 pt-4 border-t mt-6 flex justify-end space-x-3">
+        
+        <%# Botão Aplicar Filtros %>
+        <%= button_tag 'Aplicar Filtros', type: :submit, class: 'px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out' %>
+        
+        <%# Botão Limpar Filtros %>
+        <%= link_to 'Limpar', url_for(params.to_unsafe_h.except(:busca_texto, :busca_turma, :escola_id, :estado_uf, :cidade_id, :status_alocacao, :idade_maior, :idade_menor, :commit, :controller, :action, :page)), class: 'px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out' %>
+      </div>
+    <% end %>
+
+  </div>
+  <%# Fecha o modal ao clicar fora (overlay) %>
+  <label class="modal-backdrop" for="filtro_modal">Close</label>
+</div>
