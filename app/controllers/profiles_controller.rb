@@ -39,7 +39,7 @@ class ProfilesController < ApplicationController
     # Tenta atualizar com os parâmetros limpos (pode ser um hash vazio)
     if @user.update(permitted_params)
       # Se a atualização de perfil (incluindo senha, se fornecida) foi bem-sucedida
-      redirect_to profile_path, notice: 'Seu perfil foi atualizado com sucesso. ✨'
+      redirect_to profile_path, notice: 'Seu perfil foi atualizado com sucesso.'
     else
       # Se a validação do Devise ou ActiveRecord falhar
       render :edit, status: :unprocessable_entity
