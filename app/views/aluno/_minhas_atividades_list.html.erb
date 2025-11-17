@@ -1,0 +1,13 @@
+<% # locals: { atividades: @atividades } %>
+
+<% if atividades.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% atividades.each do |atividade| %>
+      <%= render partial: 'aluno/atividade_card', locals: { atividade: atividade } %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="p-10 text-center bg-white rounded-xl shadow-lg border border-dashed border-gray-200">
+    <p class="text-gray-500">Nenhuma atividade encontrada com o filtro atual.</p>
+  </div>
+<% end %>

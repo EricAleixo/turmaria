@@ -1,0 +1,61 @@
+<%# Recebe 'atividade' como local: { atividade: OpenStruct ou Conteudo } %>
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-[1.01] transition-all duration-300 border border-gray-200/50">
+
+  <%# Header Colorido com Ícone e Disciplina %>
+  <div class="<%= atividade.id % 2 == 0 ? "bg-red-500" : "bg-green-600" %> h-24 flex items-center p-4">
+    <%# Ícone da Atividade - substitua este SVG por um que represente melhor 'Atividade' ou use um ícone da disciplina %>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-white mr-4 flex-shrink-0">
+      <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.47l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z" clip-rule="evenodd" />
+    </svg>
+
+    <div>
+        <p class="text-xs font-medium text-white/80 uppercase tracking-widest mb-0.5">
+          Disciplina
+        </p>
+        <p class="text-lg font-semibold text-white">
+          <%= atividade.disciplina.nome %>
+        </p>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <h3 class="text-2xl font-extrabold text-gray-900 mb-2 leading-snug">
+      <%= atividade.titulo %>
+    </h3>
+    <p class="text-sm text-gray-600 mb-5 line-clamp-3">
+      <%= atividade.descricao %>
+    </p>
+
+    <div class="border-t border-gray-100 pt-4 space-y-2">
+      <div class="flex justify-between items-center text-sm">
+        <span class="font-medium text-gray-500 flex items-center">
+          <%# Ícone de status %>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-1.5 <%= atividade.id % 2 == 0 ? "text-red-500" : "text-green-600" %>">
+            <% if atividade.id % 2 == 0 %>
+              <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
+            <% else %>
+              <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0 1 12 5.25v1.25H8.603a.75.75 0 0 0-.616.326L5.3 10.511l-1.574-1.573a.75.75 0 0 0-1.06 1.06l2.1 2.1a.75.75 0 0 0 1.06 0l3.87-3.87a.75.75 0 0 0 0-1.06Z" clip-rule="evenodd" />
+            <% end %>
+          </svg>
+          Status
+        </span>
+        <span class="font-bold <%= atividade.id % 2 == 0 ? "text-red-500" : "text-green-600" %>">
+          <%= atividade.id % 2 == 0 ? 'Pendente' : 'Completa' %>
+        </span>
+      </div>
+
+      <div class="flex justify-between items-center text-sm">
+        <span class="font-medium text-gray-500 flex items-center">
+          <%# Ícone de Calendário %>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-1.5 text-blue-500">
+            <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75v1.5c0 .414.336.75.75.75h6c.414 0 .75-.336.75-.75v-1.5a.75.75 0 0 1 1.5 0v1.5A2.25 2.25 0 0 1 15.75 6h-.124c.732 0 1.341.583 1.365 1.314L17.25 14.25A2.25 2.25 0 0 1 15 16.5H5c-1.243 0-2.25-1.007-2.25-2.25V7.314c.024-.731.633-1.314 1.365-1.314H4.25a.75.75 0 0 1 0-1.5V2.75a.75.75 0 0 1 .75-.75Zm0 4.5h9.5c.348 0 .647.234.733.568L16.5 14.25a.75.75 0 0 1-.75.75H5a.75.75 0 0 1-.75-.75L4.517 7.068c.086-.334.385-.568.733-.568Z" clip-rule="evenodd" />
+          </svg>
+          Prazo
+        </span>
+        <span class="text-gray-900 font-semibold">
+          15/12
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

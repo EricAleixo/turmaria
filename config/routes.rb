@@ -17,6 +17,8 @@ Rails.application.routes.draw do
       get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
       # 🆕 NOVA ROTA: URL: /aluno/professores (Helper: aluno_meus_professores_path)
       get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
+      # URL: /aluno/atividades (Helper: aluno_minhas_atividades_path)
+      get 'atividades', to: 'dashboard#minhas_atividades', as: :minhas_atividades
     end
   end
 
@@ -160,8 +162,9 @@ Rails.application.routes.draw do
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
       resources :disciplinas
-      resources :conteudos
+      resources :conteudos 
     end
+    
   end
 
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'

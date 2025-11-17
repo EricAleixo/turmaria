@@ -48,6 +48,30 @@ class DashboardController < ApplicationController
     render 'aluno/minha_frequencia' # Renderiza a view na pasta aluno/
   end
 
+  def minhas_atividades
+    load_aluno_data_for_pages
+    return if performed?
+    
+    # ----------------------------------------------------------------------
+    # 💡 Lógica para carregar os Conteúdos (Atividades) para o Aluno
+    # ----------------------------------------------------------------------
+    
+    if @turma_atual.present?
+      # 1. Encontra todas as disciplinas associadas à turma do aluno.
+      disciplina_ids = @turma_atual.disciplinas.pluck(:id)
+      
+      # 2. Carrega todos os Conteúdos (Atividades) que pertencem a essas disciplinas.
+      @atividades = Conteudo.includes(:disciplina)
+                            .where(disciplina_id: disciplina_ids)
+                            .order(created_at: :desc)
+    else
+      @atividades = []
+    end
+    
+    @titulo_pagina = "Minhas Atividades | #{@aluno.nome}"
+    render 'aluno/minhas_atividades' # Renderiza a view na pasta aluno/
+  end
+
   private
 
   def load_professores_da_turma_data

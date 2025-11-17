@@ -1,0 +1,24 @@
+<%= content_for :title, @titulo_pagina %>
+
+<h1 class="text-2xl font-bold mb-6">Minhas Atividades (Conteúdos)</h1>
+
+<div class="mb-6">
+  <div class="flex space-x-4 p-2 bg-gray-100 rounded-lg max-w-lg mx-auto">
+    <%= link_to "Todos os Conteúdos", aluno_minhas_atividades_path(filter: 'all'), 
+        class: "px-4 py-2 text-sm font-medium rounded-md transition-colors #{params[:filter].blank? || params[:filter] == 'all' ? 'bg-white text-green-600 shadow' : 'text-gray-600 hover:bg-white'}", 
+        data: { turbo_frame: "atividades_list" } %>
+
+    <%= link_to "Pendentes (A Fazer)", aluno_minhas_atividades_path(filter: 'pending'), 
+        class: "px-4 py-2 text-sm font-medium rounded-md transition-colors #{params[:filter] == 'pending' ? 'bg-white text-green-600 shadow' : 'text-gray-600 hover:bg-white'}", 
+        data: { turbo_frame: "atividades_list" } %>
+
+    <%= link_to "Entregues", aluno_minhas_atividades_path(filter: 'completed'), 
+        class: "px-4 py-2 text-sm font-medium rounded-md transition-colors #{params[:filter] == 'completed' ? 'bg-white text-green-600 shadow' : 'text-gray-600 hover:bg-white'}", 
+        data: { turbo_frame: "atividades_list" } %>
+  </div>
+</div>
+
+<%= turbo_frame_tag "atividades_list" do %>
+  <% # O conteúdo inicial será carregado aqui, chamando o partial que lista os cards %>
+  <%= render partial: 'aluno/minhas_atividades_list', locals: { atividades: @atividades } %>
+<% end %>
