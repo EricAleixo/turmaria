@@ -1,0 +1,24 @@
+<%# locals: { contents: @contents } %>
+
+<% if contents.any? %>
+  <%# Agrupa os conteúdos por bimestre para exibição %>
+  <%# Usa sort_by para garantir que a ordenação do hash seja numérica correta %>
+  <% contents.group_by(&:bimestre).sort_by(&:first).reverse.each do |bimestre, contents_do_bimestre| %>
+    <div class="mb-10">
+      <h2 class="text-2xl font-extrabold text-gray-800 mb-5 pb-1 inline-block border-b-4 border-green-500/70">
+         Bimestre <%= bimestre %>
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <% contents_do_bimestre.each do |content| %>
+          <%# Renderiza o novo card %>
+          <%= render partial: 'aluno/contents/content_card', locals: { content: content } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="p-12 text-center bg-white rounded-2xl shadow-lg border-2 border-dashed border-green-200">
+    <p class="text-xl text-gray-500 font-medium"> Nenhum <%= @type_label %> encontrado para a sua turma.</p>
+  </div>
+<% end %>

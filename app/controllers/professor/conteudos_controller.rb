@@ -38,40 +38,38 @@ class Professor::ConteudosController < ApplicationController
 
   # POST /conteudos
   def create
-  if @professor
-    @conteudo = @professor.conteudos.new(conteudo_params)
-    @conteudo.escola_id = @professor.escola_id
-  elsif @escola
-    @conteudo = @escola.conteudos.new(conteudo_params)
-  else # SuperAdmin sem restrição
-    @conteudo = Conteudo.new(conteudo_params)
+  @conteudo = (@professor || @escola).conteudos.new(conteudo_params)
+  
+  # 2. ASSOCIAÇÃO DA ESCOLA (CORREÇÃO)
+  # Se o Conteúdo ainda não tem um escola_id, use o da @escola do escopo.
+  # A @escola deve ter sido definida no set_scope_objects.
+  unless @conteudo.escola_id.present?
+    @conteudo.escola = @escola if @escola.present?
+  end
+  
+  # Caso o professor esteja logado, e o conteúdo não tenha escola,
+  # usa a primeira escola do professor.
+  unless @conteudo.escola_id.present?
+     @conteudo.escola = @professor.escolas.first if @professor.present? && @professor.escolas.present?
   end
 
-  # ✅ Estrutura de controle de fluxo CORRIGIDA
   if @conteudo.save
-    
-    redirect_path =
-      if @professor
-        [@professor, @conteudo] 
-      elsif @escola
-        [@escola, @conteudo]
-      else
-        @conteudo
-      end
-
     respond_to do |format|
-      # 1. Resposta de SUCESSO
-      format.html { redirect_to redirect_path, notice: "Conteúdo criado com sucesso." }
+      # Resposta HTML padrão (garante a compatibilidade)
+      format.html { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." } 
+      
+      # CORREÇÃO CHAVE: Redireciona o cliente Turbo Stream para a index
+      format.turbo_stream { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." }
+      
       format.json { render :show, status: :created, location: @conteudo }
-      # Se usar Turbo: format.turbo_stream
     end
   else
-    # 2. Resposta de FALHA
+    # Opcional: Se a validação falhar, você deve saber como responder.
     respond_to do |format|
       format.html { render :new, status: :unprocessable_entity }
       format.json { render json: @conteudo.errors, status: :unprocessable_entity }
-      # Se usar Turbo: format.turbo_stream
-      puts @conteudo.errors.full_messages
+      # Se usar Turbo, inclua o turbo_stream aqui também para renderizar erros
+      format.turbo_stream { render turbo_stream: turbo_stream.replace('conteudo_form', partial: 'form', locals: { conteudo: @conteudo }), status: :unprocessable_entity }
     end
   end
 end
@@ -92,9 +90,18 @@ def update
 
       processar_materiais(@conteudo)
 
-      format.html { redirect_to @conteudo, notice: "Conteúdo atualizado com sucesso." }
+      # 1. Resposta HTML (para requisições que não são Turbo/AJAX)
+      format.html { redirect_to professor_conteudos_path, notice: "Conteúdo atualizado com sucesso." }
+      
+      # 🚨 2. CORREÇÃO: Resposta TURBO STREAMS
+      # Quando o formulário envia via Turbo (padrão), ele recebe este comando
+      # para redirecionar o navegador de volta para a Index.
+      format.turbo_stream { redirect_to professor_conteudos_path, notice: "Conteúdo atualizado com sucesso." }
+      
+      # 3. Resposta JSON
       format.json { render :show, status: :ok, location: @conteudo }
     else
+      # 4. Respostas em caso de erro (aqui o Turbo renderizaria a view edit)
       format.html { render :edit, status: :unprocessable_entity }
       format.json { render json: @conteudo.errors, status: :unprocessable_entity }
     end
@@ -175,20 +182,33 @@ def processar_pdf(arquivo)
   puts pdf.pages.count # Exemplo de leitura
 end
 
-  def set_conteudo
-    if @professor
-      @conteudo = @professor.conteudos.find(params[:id])
-    elsif @escola
-      @conteudo = @escola.conteudos.find(params[:id])
-    else
-      @conteudo = Conteudo.find(params[:id])
-    end
+  # Professor::ConteudosController (Deve estar assim)
+private
+def set_conteudo
+  # 1. Prioriza o Professor logado (checa apenas os conteúdos dele)
+  if current_user.is_a?(Professor) 
+    @conteudo = current_user.conteudos.find(params[:id])
+  # 2. Se for Admin/SuperAdmin, verifica se há um escopo de professor na URL
+  elsif @professor
+    @conteudo = @professor.conteudos.find(params[:id])
+  # 3. Se for Admin/SuperAdmin, verifica se há um escopo de escola na URL
+  elsif @escola
+    @conteudo = @escola.conteudos.find(params[:id])
+  # 4. Busca global (para SuperAdmin sem escopo)
+  else
+    @conteudo = Conteudo.find(params[:id])
   end
+  
+rescue ActiveRecord::RecordNotFound
+  # Ação de resgate se o conteúdo não for encontrado no escopo
+  redirect_to professor_conteudos_path, alert: "Conteúdo não encontrado ou você não tem permissão para acessá-lo."
+end
 
 
   # Permitir professor_id para Admins/SuperAdmins
   def conteudo_params
-    permitted = [:titulo, :bimestre, :descricao, :markdown, :disciplina_id, :escola_id,{ materiais:[] }]
+    # ⚠️ Inclua :tipo e :bimestre na lista de parâmetros permitidos
+    permitted = [:titulo, :bimestre, :descricao, :markdown, :disciplina_id, :escola_id, :tipo, { materiais:[] }]
     permitted << :professor_id if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
     params.require(:conteudo).permit(permitted)
   end

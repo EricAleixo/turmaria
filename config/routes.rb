@@ -17,8 +17,12 @@ Rails.application.routes.draw do
       get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
       # 🆕 NOVA ROTA: URL: /aluno/professores (Helper: aluno_meus_professores_path)
       get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
-      # URL: /aluno/atividades (Helper: aluno_minhas_atividades_path)
-      get 'atividades', to: 'dashboard#minhas_atividades', as: :minhas_atividades
+
+      get 'atividades', to: 'aluno/contents#atividades', as: :minhas_atividades_e 
+      get 'materiais', to: 'aluno/contents#materiais', as: :meus_materiais
+
+      # Rota para ver o detalhe de um conteúdo
+      resources :conteudos, only: [:show], controller: 'aluno/contents'
     end
   end
 

@@ -69,7 +69,7 @@ class DashboardController < ApplicationController
     end
     
     @titulo_pagina = "Minhas Atividades | #{@aluno.nome}"
-    render 'aluno/minhas_atividades' # Renderiza a view na pasta aluno/
+    redirect_to aluno_minhas_atividades_e_path # Renderiza a view na pasta aluno/
   end
 
   private

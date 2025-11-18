@@ -7,6 +7,12 @@ class Conteudo < ApplicationRecord
   
   validate :materiais_tipo_valido
 
+
+  enum tipo: { material: 0, atividade: 1 }
+
+  validates :bimestre, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :tipo, presence: true
+
   private
   
   def materiais_tipo_valido

@@ -202,7 +202,7 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo.professor, conteudo)
+                                  professor_conteudo_path(conteudo)
                                 end
                               ),
                               class: "btn btn-sm btn-circle bg-gradient-to-r from-blue-500 to-green-300 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg",
@@ -221,7 +221,7 @@
                                 elsif current_user.is_a?(Admin)
                                   edit_escola_conteudo_path(@escola, conteudo)
                                 else
-                                  edit_professor_conteudo_path(conteudo.professor, conteudo)
+                                  edit_professor_conteudo_path(conteudo)
                                 end
                               ),
                               class: "btn btn-sm btn-circle bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg",
@@ -239,7 +239,7 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo.professor, conteudo)
+                                  professor_conteudo_path(conteudo)
                                 end
                               ),
                               method: :delete,
@@ -294,7 +294,7 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo.professor, conteudo)
+                                  professor_conteudo_path(conteudo)
                                 end
                               ),
                               data: { turbo: false } do %>
@@ -315,7 +315,7 @@
                                 elsif current_user.is_a?(Admin)
                                   edit_escola_conteudo_path(@escola, conteudo)
                                 else
-                                  edit_professor_conteudo_path(conteudo.professor, conteudo)
+                                  edit_professor_conteudo_path(conteudo)
                                 end
                               ),
                               data: { turbo: false } do %>
@@ -334,7 +334,7 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo.professor, conteudo)
+                                  professor_conteudo_path(conteudo)
                                 end
                               ),
                               method: :delete,
