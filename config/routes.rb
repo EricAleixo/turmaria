@@ -63,15 +63,11 @@ Rails.application.routes.draw do
         get :buscar_escolas
       end
     end
-<<<<<<< HEAD
     resources :conteudos do
       member do
         delete :remove_material
       end
     end
-=======
-    
->>>>>>> 8d0b818b746b9baeed85075a6009ba9f832b742a
     resources :professors do
       resources :alunos
       member do 
