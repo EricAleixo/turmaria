@@ -1,0 +1,11 @@
+<%# app/views/kaminari/_page.html.erb %>
+
+<% if page.current? %>
+  <span class="join-item btn btn-primary text-white pointer-events-none shadow-md">
+    <%= page %>
+  </span>
+<% else %>
+  <a href="<%= url %>" class="join-item btn hover:bg-base-200 transition-colors duration-200" rel="<%= page.rel %>">
+    <%= page %>
+  </a>
+<% end %>

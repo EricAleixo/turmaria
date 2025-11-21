@@ -2,6 +2,9 @@ source "https://rubygems.org"
 
 ruby "3.2.3"
 
+# Para paginação (Recomendado Kaminari)
+gem 'kaminari'
+
 # Framework principal
 gem "dotenv-rails"
 

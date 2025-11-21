@@ -49,17 +49,29 @@ Rails.application.routes.draw do
   
   # Rotas autenticadas (admin ou super_admin)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
-    resources :alunos
+    
+    # ROTAS DE ALUNOS - CORREÇÃO CRÍTICA AQUI!
+    resources :alunos do
+      # Adiciona o endpoint AJAX para ser acessível via /alunos/cidades_por_estado
+      collection do
+        get :cidades_por_estado
+      end
+    end
+
     resources :disciplinas do
       collection do
         get :buscar_escolas
-  end
+      end
     end
+<<<<<<< HEAD
     resources :conteudos do
       member do
         delete :remove_material
       end
     end
+=======
+    
+>>>>>>> 8d0b818b746b9baeed85075a6009ba9f832b742a
     resources :professors do
       resources :alunos
       member do 
@@ -127,9 +139,9 @@ Rails.application.routes.draw do
           # Visualização de resultados
           resource :resultados, controller: 'notas/resultados', only: [:show] do
              member do
-               get :detalhes
+              get :detalhes
              end
-            end
+           end
 
           # Frequências aninhadas
           resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
@@ -169,7 +181,7 @@ Rails.application.routes.draw do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
     post   "/login",  to: "devise/unified_sessions#create", as: :user_session
 
-    get    "/password/new", to: "devise/unified_passwords#new",  as: :new_user_password
+    get    "/password/new", to: "devise/unified_passwords#new",   as: :new_user_password
     post   "/password",     to: "devise/unified_passwords#create", as: :user_password
 
     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session

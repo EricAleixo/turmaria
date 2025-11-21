@@ -1,0 +1,135 @@
+<%# 🎯 Chamada para o Modal do Filtro (DAISYUI) %>
+<input type="checkbox" id="filtro_modal" class="modal-toggle" />
+<div class="modal" role="dialog">
+  
+  <%# 💡 Conecta o Controller Stimulus ao Modal Box %>
+  <div class="modal-box max-w-2xl p-6" data-controller="alunos-filter"> 
+    <label for="filtro_modal" class="btn btn-sm btn-circle absolute right-4 top-4">✕</label>
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">Filtro de Alunos</h3>
+
+    <%# Formuário que envia o filtro, com a ação para fechar o modal após a atualização do Turbo Frame %>
+    <%= form_with url: alunos_path, method: :get, data: { 
+        turbo_frame: "alunos", 
+        turbo_stream: true, 
+        action: "turbo:submit-end->alunos-filter#closeModal" 
+    } do |f| %>
+
+      <div class="space-y-6">
+        
+        <h4 class="text-lg font-semibold text-gray-700 border-b pb-2">Busca Textual</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <%# Nome ou Matrícula %>
+          <div>
+            <%= label_tag :busca_texto, "Nome ou Matrícula", class: "block text-sm font-medium text-gray-700" %>
+            <%= text_field_tag :busca_texto, params[:busca_texto], 
+                placeholder: "Buscar aluno...", 
+                class: "w-full input input-bordered" 
+            %>
+          </div>
+
+          <%# Nome da Turma %>
+          <div>
+            <%= label_tag :busca_turma, "Nome da Turma", class: "block text-sm font-medium text-gray-700" %>
+            <%= text_field_tag :busca_turma, params[:busca_turma], 
+                placeholder: "Buscar por nome da turma...", 
+                class: "w-full input input-bordered" 
+            %>
+          </div>
+        </div>
+
+        <h4 class="text-lg font-semibold text-gray-700 border-b pb-2">Associação e Localização</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <%# 🎯 ESTADO (SIGLA) - STIMULUS CONNECTION %>
+          <div>
+            <%= label_tag :estado_uf, "Estado (Sigla)", class: "block text-sm font-medium text-gray-700" %>
+            <%= select_tag :estado_uf, 
+                options_from_collection_for_select(Estado.all.order(:sigla), 
+                  :id, # ID do Estado é o valor enviado
+                  :sigla, 
+                  params[:estado_uf]
+                ), 
+                { 
+                  prompt: "Selecione a UF...", 
+                  # CONEXÃO STIMULUS: Define o target e a action AJAX
+                  data: {
+                    alunos_filter_target: "estado", 
+                    action: "change->alunos-filter#fetchCidades" 
+                  },
+                  class: "w-full select select-bordered" 
+                } 
+            %>
+          </div>
+
+          <%# 🎯 CIDADE (POPULADO VIA AJAX) - STIMULUS TARGET %>
+          <div>
+            <%= label_tag :cidade_id, "Cidade", class: "block text-sm font-medium text-gray-700" %>
+            <select name="cidade_id" 
+                    data-alunos-filter-target="cidade"
+                    class="w-full select select-bordered"
+                    <%= @cidades_filtradas.blank? && params[:estado_uf].blank? ? 'disabled' : '' %>
+            >
+              <% if @cidades_filtradas.present? %>
+                <%= options_from_collection_for_select(@cidades_filtradas, :id, :nome, params[:cidade_id]) %>
+              <% else %>
+                <option value=""><%= params[:estado_uf].present? ? 'Carregando Cidades...' : 'Selecione primeiro o Estado' %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <%# Escola %>
+          <div>
+            <%= label_tag :escola_id, "Escola", class: "block text-sm font-medium text-gray-700" %>
+            <%= select_tag :escola_id, 
+                options_from_collection_for_select(Escola.all.order(:nome), :id, :nome, params[:escola_id]),
+                { 
+                  prompt: "Todas as Escolas", 
+                  class: "w-full select select-bordered" 
+                }
+            %>
+          </div>
+        </div>
+
+        <h4 class="text-lg font-semibold text-gray-700 border-b pb-2">Status e Condições</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <%# Status de Alocação %>
+          <div>
+            <%= label_tag :status_alocacao, "Status de Alocação", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <div class="space-y-1">
+              <div class="form-control">
+                <%= radio_button_tag :status_alocacao, 'alocado', params[:status_alocacao] == 'alocado', class: "radio radio-primary" %>
+                <%= label_tag :status_alocacao_alocado, "Alocado em Turma", class: "label cursor-pointer ml-2" %>
+              </div>
+              <div class="form-control">
+                <%= radio_button_tag :status_alocacao, 'pendente', params[:status_alocacao] == 'pendente', class: "radio radio-primary" %>
+                <%= label_tag :status_alocacao_pendente, "Pendente de Alocação", class: "label cursor-pointer ml-2" %>
+              </div>
+            </div>
+          </div>
+
+          <%# Filtro por Idade %>
+          <div>
+            <%= label_tag :idade_filtro, "Filtro por Idade (18+)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <div class="space-y-1">
+              <div class="form-control">
+                <%= check_box_tag :idade_maior, '1', params[:idade_maior] == '1', class: "checkbox checkbox-primary" %>
+                <%= label_tag :idade_maior, "Maiores de 18 anos", { class: "label cursor-pointer ml-2" } %>
+              </div>
+              <div class="form-control">
+                <%= check_box_tag :idade_menor, '1', params[:idade_menor] == '1', class: "checkbox checkbox-primary" %>
+                <%= label_tag :idade_menor, "Menores de 18 anos", { class: "label cursor-pointer ml-2" } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-action mt-8 border-t pt-6">
+        <button type="submit" class="btn btn-primary font-bold">Aplicar Filtros</button>
+        <%= link_to 'Limpar', alunos_path(escola_id: @escola&.id, turma_id: @turma&.id), class: 'btn btn-ghost' %>
+      </div>
+    <% end %> 
+  </div> 
+</div>
