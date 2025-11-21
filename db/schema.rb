@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_15_235847) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_17_130105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -186,7 +186,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_15_235847) do
 
   create_table "conteudos", force: :cascade do |t|
     t.string "titulo"
-    t.string "bimestre"
+    t.integer "bimestre", default: 1
     t.text "descricao"
     t.uuid "professor_id"
     t.datetime "created_at", null: false
@@ -194,6 +194,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_15_235847) do
     t.bigint "disciplina_id"
     t.uuid "escola_id"
     t.text "markdown"
+    t.integer "tipo", default: 0, null: false
     t.index ["bimestre"], name: "index_conteudos_on_bimestre"
     t.index ["disciplina_id"], name: "index_conteudos_on_disciplina_id"
     t.index ["escola_id", "disciplina_id", "professor_id"], name: "index_conteudos_on_escola_disciplina_professor"

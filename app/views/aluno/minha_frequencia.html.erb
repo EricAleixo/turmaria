@@ -10,7 +10,15 @@
           <svg class="w-8 h-8 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           Minha Frequência
         </h1>
-        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">Turma Atual: <%= @turma_atual&.nome || 'Nenhuma' %></span>
+        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
+  Turma Atual: 
+  <%= if @turma_atual
+        "#{@turma_atual.serie} ° #{@turma_atual.nome}"
+      else
+        'Nenhuma'
+      end
+  %>
+</span>
       </div>
 
       <%# --- Lógica para Ausência de Dados vs. Tabela --- %>
@@ -33,11 +41,14 @@
               <% @registros_frequencia.each do |registro| %>
                 <tr class="hover:bg-indigo-50 transition duration-150 ease-in-out">
                   <% freq = registro.frequencia %>
-                  <% disciplina = freq&.disciplina %> 
-
-                  <%# 1. DISCIPLINA (Texto normal, sem badge) %>
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-700">
-                    <%= disciplina&.nome || 'N/A' %>
+                  <% disciplina = freq&.disciplina %>
+                  
+                  <%# 1. DISCIPLINA (Texto com a cor da disciplina) %>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#10B981' %>
+                    <span class="font-semibold" style="color: <%= cor_disciplina %>;">
+                      <%= disciplina&.nome || 'N/A' %>
+                    </span>
                   </td>
                   
                   <%# 2. TURMA (Com badge intermediário) %>

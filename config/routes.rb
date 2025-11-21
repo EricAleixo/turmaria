@@ -15,6 +15,14 @@ Rails.application.routes.draw do
       get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
       # URL: /aluno/frequencia (Helper: aluno_minha_frequencia_path)
       get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
+      # 🆕 NOVA ROTA: URL: /aluno/professores (Helper: aluno_meus_professores_path)
+      get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
+
+      get 'atividades', to: 'aluno/contents#atividades', as: :minhas_atividades_e 
+      get 'materiais', to: 'aluno/contents#materiais', as: :meus_materiais
+
+      # Rota para ver o detalhe de um conteúdo
+      resources :conteudos, only: [:show], controller: 'aluno/contents'
     end
   end
 
@@ -166,8 +174,9 @@ Rails.application.routes.draw do
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
       resources :disciplinas
-      resources :conteudos
+      resources :conteudos 
     end
+    
   end
 
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'

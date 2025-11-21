@@ -10,7 +10,15 @@
           <svg class="w-8 h-8 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Minhas Notas
         </h1>
-        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">Turma Atual: <%= @turma_atual&.nome || 'Nenhuma' %></span>
+        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
+          Turma Atual: 
+          <%= if @turma_atual
+                "#{@turma_atual.serie} ° #{@turma_atual.nome}"
+              else
+                'Nenhuma'
+              end
+          %>
+        </span>
       </div>
 
       <%# --- Lógica para Ausência de Dados vs. Tabela --- %>
@@ -36,16 +44,19 @@
                   <% disciplina = registro.avaliacao_configuracao&.disciplina %>
                   <% config = registro.avaliacao_configuracao %>
                   <% nota_valor = registro.valor.to_f %>
-
-                  <%# 1. DISCIPLINA (Texto normal, sem badge) %>
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-700">
-                    <%= disciplina&.nome || 'N/A' %>
+                  
+                  <%# 1. DISCIPLINA (Texto com a cor da disciplina) %>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#10B981' %>
+                    <span class="font-semibold" style="color: <%= cor_disciplina %>;">
+                      <%= disciplina&.nome || 'N/A' %>
+                    </span>
                   </td>
                   
-                  <%# 2. AVALIAÇÃO (Badge intermediário, verde escuro) %>
+                  <%# 2. AVALIAÇÃO (Badge intermediário, verde escuro) - CORRIGIDO PARA TITLEIZE %>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-green-700 text-white">
-                      <%= config&.nome || 'Registro Avulso' %> 
+                      <%= config&.nome&.titleize || 'Registro Avulso' %> 
                     </span>
                   </td>
                   
@@ -56,7 +67,7 @@
                     </span>
                   </td>
                   
-                  <%# 4. NOTA (Mantido INALTERADO com text-lg) %>
+                  <%# 4. NOTA %>
                   <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-extrabold">
                     <% nota_formatada = '%.1f' % nota_valor %>
                     <% 
@@ -103,4 +114,8 @@
 
     </div>
   </div>
+
+  
 </div>
+
+

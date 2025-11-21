@@ -1,0 +1,8 @@
+<%= content_for :title, @titulo_pagina %>
+
+<h1 class="text-3xl font-extrabold text-gray-900 mb-8 border-b-4 border-green-500 pb-2 inline-block">
+  <%= @titulo_pagina %>
+</h1>
+
+<%# Renderiza a lista de cards, agrupada por bimestre %>
+<%= render partial: 'aluno/contents/content_list', locals: { contents: @contents } %>
