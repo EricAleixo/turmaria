@@ -47,11 +47,11 @@
 
       <!-- Área com DaisyUI Dropdown -->
       <div>
-        <%= form.label :area, "Área da Disciplina", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.label :area_nome_temp, "Área da Disciplina", class: "block text-sm font-medium text-gray-700 mb-2" %>
         
         <div class="dropdown w-full">
           <div tabindex="0" role="button" class="btn btn-outline w-full justify-between" id="area-dropdown-btn">
-            <span id="area-selecionada-texto"><%= @disciplina.area.presence || "Selecione a área" %></span>
+            <span id="area-selecionada-texto"><%= @disciplina.area_disciplina&.nome || "Selecione a área" %></span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
@@ -59,9 +59,9 @@
           <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-full mt-2 max-h-60 overflow-y-auto">
             <% (@disciplinas_areas || []).each do |area| %>
               <li>
-                <a class="area-option flex items-center gap-2" data-area="<%= area[:nome] %>" data-cor="<%= area[:cor] %>">
-                  <span class="w-4 h-4 rounded-full" style="background-color: <%= area[:cor] %>"></span>
-                  <%= area[:nome] %>
+                <a class="area-option flex items-center gap-2" data-area="<%= area.nome %>" data-cor="<%= area.cor %>">
+                  <span class="w-4 h-4 rounded-full" style="background-color: <%= area.cor %>"></span>
+                  <%= area.nome %>
                 </a>
               </li>
             <% end %>
@@ -75,9 +75,6 @@
             </li>
           </ul>
         </div>
-
-        <%= form.hidden_field :area, id: "area-hidden-field", value: @disciplina.area %>
-        <%= form.hidden_field :cor, id: "disciplina-cor", value: @disciplina.cor || "#ffffff" %>
       </div>
     </div>
 
@@ -110,8 +107,10 @@
   </div>
 
   <!-- Hidden fields -->
-  <%= form.hidden_field :cor_nome, id: "disciplina-cor-nome" %>
-  <%= form.hidden_field :nome, id: "disciplina-nome" %>
+  <%= form.hidden_field :cor_nome, id: "disciplina-cor-nome", value: @disciplina.cor_nome %>
+  <%= form.hidden_field :nome, id: "disciplina-nome", value: @disciplina.nome %>
+  <%= form.hidden_field :area_nome_temp, id: "area-nome-temp-field", value: @disciplina.area_disciplina&.nome %>
+  <%= form.hidden_field :area_cor_temp, id: "area-cor-temp-field", value: @disciplina.area_disciplina&.cor || "#6B7280" %>
 <% end %>
 
 <!-- Modal Escola -->
@@ -273,13 +272,15 @@ document.addEventListener("turbo:load", function() {
   window.modalAreaInit = true;
 
   const hiddenNome = document.getElementById("disciplina-nome");
-  const hiddenCor = document.getElementById("disciplina-cor");
   const hiddenCorNome = document.getElementById("disciplina-cor-nome");
+  const areaNomeTempField = document.getElementById("area-nome-temp-field");
+  const areaCorTempField = document.getElementById("area-cor-temp-field");
   
   console.log("DEBUG: Campos hidden", {
     hiddenNome: hiddenNome ? "✓" : "✗",
-    hiddenCor: hiddenCor ? "✓" : "✗", 
-    hiddenCorNome: hiddenCorNome ? "✓" : "✗"
+    hiddenCorNome: hiddenCorNome ? "✓" : "✗",
+    areaNomeTempField: areaNomeTempField ? "✓" : "✗",
+    areaCorTempField: areaCorTempField ? "✓" : "✗"
   });
 
   // MODAL ESCOLA
@@ -352,7 +353,6 @@ document.addEventListener("turbo:load", function() {
   // DROPDOWN ÁREA
   const areaDropdownBtn = document.getElementById("area-dropdown-btn");
   const areaTexto = document.getElementById("area-selecionada-texto");
-  const areaHiddenField = document.getElementById("area-hidden-field");
   const areaOptions = document.querySelectorAll(".area-option");
   const criarNovaAreaOption = document.getElementById("criar-nova-area-option");
   const modalArea = document.getElementById("modal-area");
@@ -367,8 +367,8 @@ document.addEventListener("turbo:load", function() {
         const areaCor = option.dataset.cor;
         
         if (areaTexto) areaTexto.textContent = areaNome;
-        if (areaHiddenField) areaHiddenField.value = areaNome;
-        if (hiddenCor) hiddenCor.value = areaCor;
+        if (areaNomeTempField) areaNomeTempField.value = areaNome;
+        if (areaCorTempField) areaCorTempField.value = areaCor;
         
         const dropdown = document.activeElement;
         if (dropdown) dropdown.blur();
@@ -392,15 +392,15 @@ document.addEventListener("turbo:load", function() {
   const bolinhaCustom = document.getElementById("custom-color");
   const previewHex = document.getElementById("color-hex-preview");
 
-  let corSelecionada = null;
+  let corSelecionada = "#6B7280"; // Cor padrão cinza
 
   coresFixas.forEach(c => {
     c.addEventListener("click", () => {
       corSelecionada = c.dataset.cor;
-      if (hiddenCor) hiddenCor.value = corSelecionada;
       resetBordas();
       c.style.borderColor = "#000000";
       c.style.borderWidth = "3px";
+      console.log("DEBUG: Cor fixa selecionada", corSelecionada);
     });
   });
 
@@ -408,82 +408,99 @@ document.addEventListener("turbo:load", function() {
     bolinhaCustom.addEventListener("click", () => inputCorCustom.click());
     inputCorCustom.addEventListener("input", () => {
       corSelecionada = inputCorCustom.value;
-      if (hiddenCor) hiddenCor.value = corSelecionada;
       bolinhaCustom.style.backgroundColor = corSelecionada;
       previewHex.textContent = corSelecionada;
       resetBordas();
+      console.log("DEBUG: Cor customizada selecionada", corSelecionada);
     });
   }
 
   if (cancelarBtnArea) {
     cancelarBtnArea.addEventListener("click", () => {
       modalArea.close();
-      corSelecionada = null;
+      corSelecionada = "#6B7280"; // Reset para cor padrão
       resetBordas();
     });
   }
 
-  // Substituir a parte do salvarBtnArea no seu script atual
-
-if (salvarBtnArea) {
-  salvarBtnArea.addEventListener("click", () => {
-    const nomeEl = document.getElementById("nova-area-nome");
-    const nome = nomeEl ? nomeEl.value.trim() : "";
-    
-    if (!nome) { 
-      alert("Digite o nome da nova área"); 
-      return; 
-    }
-
-    const novaCor = corSelecionada || "#FFFFFF";
-
-    // Atualiza o texto exibido
-    if (areaTexto) areaTexto.textContent = nome;
-    if (areaHiddenField) areaHiddenField.value = nome;
-    if (hiddenCor) hiddenCor.value = novaCor;
-
-    // Adiciona a nova opção no dropdown
-    const dropdownMenu = document.querySelector(".dropdown-content");
-    if (dropdownMenu) {
-      // Verifica se a área já existe no dropdown
-      const areaJaExiste = Array.from(document.querySelectorAll(".area-option"))
-        .some(option => option.dataset.area.toLowerCase() === nome.toLowerCase());
+  if (salvarBtnArea) {
+    salvarBtnArea.addEventListener("click", () => {
+      const nomeEl = document.getElementById("nova-area-nome");
+      const nome = nomeEl ? nomeEl.value.trim() : "";
       
-      if (!areaJaExiste) {
-        const novaLi = document.createElement("li");
-        const novoLink = document.createElement("a");
-        novoLink.className = "area-option flex items-center gap-2";
-        novoLink.dataset.area = nome;
-        novoLink.dataset.cor = novaCor;
-        novoLink.innerHTML = `
-          <span class="w-4 h-4 rounded-full" style="background-color: ${novaCor}"></span>
-          ${nome}
-        `;
-        
-        novoLink.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (areaTexto) areaTexto.textContent = nome;
-          if (areaHiddenField) areaHiddenField.value = nome;
-          if (hiddenCor) hiddenCor.value = novaCor;
-          const dropdown = document.activeElement;
-          if (dropdown) dropdown.blur();
-        });
-        
-        novaLi.appendChild(novoLink);
-        const criarNovaLi = criarNovaAreaOption.parentElement;
-        dropdownMenu.insertBefore(novaLi, criarNovaLi);
+      if (!nome) { 
+        alert("Digite o nome da nova área"); 
+        return; 
       }
-    }
 
-    // Fecha o modal e reseta
-    modalArea.close();
-    if (nomeEl) nomeEl.value = "";
-    corSelecionada = null;
-    resetBordas();
-    
-    console.log("DEBUG: Área salva", { nome, novaCor });
-  });
-}
+      const novaCor = corSelecionada; // Usa a cor selecionada
+      
+      console.log("DEBUG: Salvando área", { nome, novaCor });
+
+      // Atualiza o texto exibido
+      if (areaTexto) areaTexto.textContent = nome;
+      if (areaNomeTempField) {
+        areaNomeTempField.value = nome;
+        console.log("DEBUG: areaNomeTempField atualizado:", areaNomeTempField.value);
+      }
+      if (areaCorTempField) {
+        areaCorTempField.value = novaCor;
+        console.log("DEBUG: areaCorTempField atualizado:", areaCorTempField.value);
+      }
+      
+      console.log("DEBUG: Campos atualizados", {
+        areaNomeTemp: areaNomeTempField?.value,
+        areaCorTemp: areaCorTempField?.value
+      });
+
+      // Adiciona a nova opção no dropdown
+      const dropdownMenu = document.querySelector(".dropdown-content");
+      if (dropdownMenu && criarNovaAreaOption) {
+        const areaJaExiste = Array.from(document.querySelectorAll(".area-option"))
+          .some(option => option.dataset.area.toLowerCase() === nome.toLowerCase());
+        
+        if (!areaJaExiste) {
+          const novaLi = document.createElement("li");
+          const novoLink = document.createElement("a");
+          novoLink.className = "area-option flex items-center gap-2";
+          novoLink.dataset.area = nome;
+          novoLink.dataset.cor = novaCor;
+          novoLink.innerHTML = `
+            <span class="w-4 h-4 rounded-full" style="background-color: ${novaCor}"></span>
+            ${nome}
+          `;
+          
+          novoLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (areaTexto) areaTexto.textContent = nome;
+            if (areaNomeTempField) areaNomeTempField.value = nome;
+            if (areaCorTempField) areaCorTempField.value = novaCor;
+            const dropdown = document.activeElement;
+            if (dropdown) dropdown.blur();
+          });
+          
+          novaLi.appendChild(novoLink);
+          
+          // Encontra o <li> que contém o botão "Criar nova área"
+          const criarNovaLi = criarNovaAreaOption.closest('li');
+          if (criarNovaLi && criarNovaLi.parentElement) {
+            criarNovaLi.parentElement.insertBefore(novaLi, criarNovaLi);
+            console.log("DEBUG: Nova área adicionada ao dropdown");
+          }
+        } else {
+          console.log("DEBUG: Área já existe no dropdown");
+        }
+      }
+
+      // Fecha o modal e reseta
+      modalArea.close();
+      if (nomeEl) nomeEl.value = "";
+      corSelecionada = "#6B7280"; // Reset para cor padrão
+      resetBordas();
+      
+      console.log("DEBUG: Modal fechado e resetado");
+    });
+  }
 
   if (modalArea) {
     modalArea.addEventListener("click", (event) => {
@@ -493,7 +510,7 @@ if (salvarBtnArea) {
       if (!(event.clientX >= rect.left && event.clientX <= rect.right &&
             event.clientY >= rect.top && event.clientY <= rect.bottom)) {
         modalArea.close();
-        corSelecionada = null;
+        corSelecionada = "#6B7280"; // Reset para cor padrão
         resetBordas();
       }
     });
@@ -617,6 +634,32 @@ if (salvarBtnArea) {
       }
     });
   });
+
+  // LOG ANTES DE SUBMETER O FORMULÁRIO
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      console.log("📝 SUBMETENDO FORMULÁRIO:");
+      console.log("Nome:", hiddenNome?.value);
+      console.log("Cor Nome:", hiddenCorNome?.value);
+      console.log("Área Nome Temp:", areaNomeTempField?.value);
+      console.log("Área Cor Temp:", areaCorTempField?.value);
+      console.log("Escola ID:", escolaHidden?.value);
+      
+      // Validação antes de enviar
+      if (!hiddenNome?.value) {
+        e.preventDefault();
+        alert("Por favor, defina um nome para a disciplina");
+        return false;
+      }
+      
+      if (!areaNomeTempField?.value) {
+        e.preventDefault();
+        alert("Por favor, selecione ou crie uma área para a disciplina");
+        return false;
+      }
+    });
+  }
 
   console.log("DEBUG: JavaScript carregado");
 });

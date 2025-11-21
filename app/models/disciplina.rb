@@ -16,37 +16,63 @@ class Disciplina < ApplicationRecord
   belongs_to :area_disciplina, optional: true
   has_many :conteudos, dependent: :destroy
 
-  # Validações
-  validates :nome, presence: true
-  validates :area, presence: true
-  validates :escola_id, presence: true
+  # Atributos virtuais para receber dados do formulário
+  attr_accessor :area_nome_temp, :area_cor_temp
 
-  # Callbacks
-  before_validation :associar_ou_criar_area, if: -> { area.present? }
+  # Validações
+  validates :nome, presence: { message: "não pode ficar em branco" }
+  validates :escola_id, presence: { message: "deve ser selecionada" }
+
+  # Callbacks 
+  before_validation :associar_ou_criar_area
 
   private
 
   def associar_ou_criar_area
-    # Busca área existente (case-insensitive)
-    area_existente = AreaDisciplina.find_by('LOWER(nome) = ?', area.downcase)
+    # Se não tem area_nome_temp, não faz nada
+    return if area_nome_temp.blank?
     
-    if area_existente
-      # Se existe, apenas associa
-      self.area_disciplina = area_existente
-      # Atualiza a cor se foi fornecida uma nova
-      area_existente.update(cor: cor) if cor.present? && area_existente.cor != cor
+    # Remove espaços extras
+    nome_limpo = area_nome_temp.to_s.strip
+    
+    Rails.logger.info "🔍 Procurando área: #{nome_limpo}"
+    Rails.logger.info "🎨 Com cor: #{area_cor_temp}"
+    
+    # Busca a área existente (case insensitive)
+    area_encontrada = AreaDisciplina.where("LOWER(nome) = ?", nome_limpo.downcase).first
+    
+    if area_encontrada
+      Rails.logger.info "✅ Área encontrada: #{area_encontrada.nome} (ID: #{area_encontrada.id})"
+      
+      # Se a área já existe, apenas associa
+      self.area_disciplina = area_encontrada
+      
+      # Atualiza a cor se foi fornecida uma nova e é diferente
+      if area_cor_temp.present? && area_encontrada.cor != area_cor_temp
+        Rails.logger.info "🎨 Atualizando cor de #{area_encontrada.cor} para #{area_cor_temp}"
+        area_encontrada.update(cor: area_cor_temp)
+      end
     else
-      # Se não existe, cria nova área
-      nova_area = AreaDisciplina.create(
-        nome: area,
-        cor: cor || '#FFFFFF'
+      Rails.logger.info "➕ Criando nova área: #{nome_limpo}"
+      
+      # Se não existe, cria uma nova área com a cor selecionada
+      cor_final = area_cor_temp.presence || cor_nome.presence || "#6B7280"
+      Rails.logger.info "🎨 Cor final: #{cor_final}"
+      
+      nova_area = AreaDisciplina.new(
+        nome: nome_limpo,
+        cor: cor_final
       )
       
-      if nova_area.persisted?
+      if nova_area.save
+        Rails.logger.info "✅ Área criada com sucesso: #{nova_area.nome} (ID: #{nova_area.id})"
         self.area_disciplina = nova_area
       else
-        errors.add(:area, "não pôde ser criada: #{nova_area.errors.full_messages.join(', ')}")
+        Rails.logger.error "❌ Erro ao criar área: #{nova_area.errors.full_messages.join(', ')}"
+        errors.add(:area_nome_temp, "não pôde ser criada: #{nova_area.errors.full_messages.join(', ')}")
       end
     end
+    
+    Rails.logger.info "📌 Disciplina.area_disciplina_id: #{area_disciplina_id}"
   end
 end

@@ -80,31 +80,77 @@ end
 
   
 
-  def badge_area(area)
-    cfg = area_cfg(area)
-
-    content_tag(:div, class: "flex items-center justify-between bg-gray-50 rounded-lg p-4 border-l-4 border-#{cfg[:cor]}-500") do
-      # Parte esquerda: ícone + textos
-      icon_text = content_tag(:div, class: "flex items-center space-x-3") do
-        # Ícone
-        svg_classes = "w-5 h-5 text-#{cfg[:cor]}-600"
-        icon = content_tag(:div, svgs(area, classes: svg_classes), class: "p-2 rounded-lg bg-#{cfg[:bg]}")
-
-        # Textos
-        texts = content_tag(:div) do
-          content_tag(:p, "Área", class: "text-sm font-medium text-gray-600") +
-          content_tag(:p, area.to_s.titleize, class: "text-lg font-semibold text-#{cfg[:text]}")
+ # app/helpers/disciplinas_helper.rb
+module DisciplinasHelper
+  def badge_area(area_disciplina)
+    return unless area_disciplina
+    
+    # Usa a cor diretamente da área
+    cor = area_disciplina.cor || "#6B7280"
+    nome = area_disciplina.nome
+    
+    content_tag(:div, class: "bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]", 
+                style: "border-left: 6px solid #{cor};") do
+      
+      content_tag(:div, class: "flex items-center justify-between") do
+        # Parte esquerda: ícone + textos
+        icon_text = content_tag(:div, class: "flex items-center gap-4") do
+          # Ícone com cor dinâmica
+          icon_html = content_tag(:div, class: "w-14 h-14 rounded-xl flex items-center justify-center shadow-md",
+                                  style: "background-color: #{cor}20;") do
+            tag.svg(xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", 
+                    "stroke-width": "2", stroke: "currentColor", class: "w-7 h-7",
+                    style: "color: #{cor};") do
+              tag.path("stroke-linecap": "round", "stroke-linejoin": "round",
+                      d: "M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z") +
+              tag.path("stroke-linecap": "round", "stroke-linejoin": "round", d: "M6 6h.008v.008H6V6z")
+            end
+          end
+          
+          # Textos
+          texts = content_tag(:div) do
+            content_tag(:p, "Área da Disciplina", class: "text-sm font-medium text-gray-500 uppercase tracking-wide") +
+            content_tag(:p, nome.titleize, class: "text-2xl font-bold mt-1", style: "color: #{cor};")
+          end
+          
+          icon_html + texts
         end
-
-        icon + texts
+        
+        # Badge direita com cor dinâmica
+        badge = content_tag(:span, nome.upcase, 
+                           class: "px-4 py-2 text-sm font-semibold rounded-xl shadow-sm",
+                           style: "background-color: #{cor}20; color: #{cor};")
+        
+        icon_text + badge
       end
-
-      # Badge direita
-      badge = content_tag(:span, area.to_s.titleize.upcase, class: "px-3 py-1 text-xs font-medium rounded-full bg-#{cfg[:bg]} text-#{cfg[:text]}")
-
-      icon_text + badge
     end
   end
+  
+  # Método alternativo mais simples
+  def badge_area_simple(area_disciplina)
+    return unless area_disciplina
+    
+    cor = area_disciplina.cor || "#6B7280"
+    
+    content_tag(:div, class: "inline-flex items-center gap-3 px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all",
+                style: "background-color: #{cor}20; border: 2px solid #{cor};") do
+      # Ícone
+      icon = tag.svg(xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24",
+                    "stroke-width": "2.5", stroke: "currentColor", class: "w-5 h-5",
+                    style: "color: #{cor};") do
+        tag.path("stroke-linecap": "round", "stroke-linejoin": "round",
+                d: "M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z")
+      end
+      
+      # Texto
+      text = content_tag(:span, area_disciplina.nome.titleize, 
+                        class: "text-base font-bold", 
+                        style: "color: #{cor};")
+      
+      icon + text
+    end
+  end
+end
 
 def contraste_texto(cor_hex)
   return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)

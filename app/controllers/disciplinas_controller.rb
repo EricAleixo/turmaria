@@ -5,26 +5,21 @@ class DisciplinasController < ApplicationController
 
   # GET /disciplinas
   def index
-@disciplinas = if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
-                 # Admin e SuperAdmin veem todas as disciplinas
-                 Disciplina.all
-               elsif current_user.is_a?(Escola)
-                 # Escola vê apenas suas disciplinas
-                 current_user.disciplinas
-               elsif current_user.is_a?(Professor)
-                 # Professor vê apenas suas disciplinas
-                 current_user.disciplinas
-               else
-                 # Qualquer outro usuário não vê nada
-                 Disciplina.none
-               end
-    # Se houver professor, filtra ainda mais
+    @disciplinas = if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
+                     Disciplina.all
+                   elsif current_user.is_a?(Escola)
+                     current_user.disciplinas
+                   elsif current_user.is_a?(Professor)
+                     current_user.disciplinas
+                   else
+                     Disciplina.none
+                   end
+    
     if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])
       @disciplinas = @disciplinas.joins(:professores).where(professores: { id: @professor.id })
     end
     
-    # Inclui associações para evitar N+1
     @disciplinas = @disciplinas.includes(:escola, :professores, :area_disciplina)
   end
 
@@ -49,12 +44,10 @@ class DisciplinasController < ApplicationController
     @disciplinas_areas = AreaDisciplina.all.order(:nome)
     @disciplina = Disciplina.new
 
-    # Autocomplete ou listagem de escolas apenas para SuperAdmin
     if current_user.is_a?(SuperAdmin)
       @escolas = Escola.all
     end
 
-    # Professores apenas para autocomplete
     if params[:professor_busca].present? && params[:escola_id].present?
       @professores = Professor.where(escola_id: params[:escola_id])
                               .where("nome ILIKE ?", "%#{params[:professor_busca]}%")
@@ -68,7 +61,6 @@ class DisciplinasController < ApplicationController
       @professores = []
     end
 
-    # JSON para autocomplete
     if request.format.json?
       render json: {
         escolas: (@escolas || []).as_json(only: [:id, :nome]),
@@ -88,7 +80,6 @@ class DisciplinasController < ApplicationController
 
   # POST /disciplinas
   def create
-    # Define a escola automaticamente
     @escola = if current_user.is_a?(Admin)
                 current_user.escolas.first
               elsif current_user.is_a?(SuperAdmin) && params[:disciplina][:escola_id].present?
@@ -104,10 +95,8 @@ class DisciplinasController < ApplicationController
       render :new and return
     end
 
-    # Cria disciplina associada à escola
     @disciplina = @escola.disciplinas.new(disciplina_params.except(:professor_ids))
 
-    # Associa professores se houver
     if disciplina_params[:professor_ids].present?
       valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
       @disciplina.professores = Professor.where(id: valid_ids, escola_id: @escola.id)
@@ -123,9 +112,7 @@ class DisciplinasController < ApplicationController
 
   # PATCH/PUT /disciplinas/1
   def update
-    # Atualiza os parâmetros da disciplina
     if @disciplina.update(disciplina_params.except(:professor_ids))
-      # Atualiza professores se fornecido
       if disciplina_params[:professor_ids].present?
         valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
         @disciplina.professores = Professor.where(
@@ -158,10 +145,10 @@ class DisciplinasController < ApplicationController
   def disciplina_params
     params.require(:disciplina).permit(
       :nome, 
-      :area, 
       :escola_id, 
-      :cor, 
       :cor_nome,
+      :area_nome_temp,  # Nome temporário da área
+      :area_cor_temp,   # Cor temporária da área
       :area_disciplina_id,
       professor_ids: []
     )

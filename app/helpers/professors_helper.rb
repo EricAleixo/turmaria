@@ -80,14 +80,14 @@ def disciplinas_badges(professor, max_visible = 3)
   hidden_count = disciplinas.size - max_visible
 
   badges = visible.map do |disciplina|
-    if disciplina.cor.present?
-      cor = disciplina.cor
+    if disciplina.cor_nome.present?
+      cor = disciplina.cor_nome
       text_color = contraste_texto(cor) # 🔹 usa contraste automático
       content_tag(:span, disciplina.nome,
                   class: "px-2 py-1 rounded-full text-sm font-medium",
                   style: "background-color: #{cor}; color: #{text_color};")
     else
-      cfg = area_cfg(disciplina.area)
+      cfg = area_cfg(disciplina.area_disciplina.cor)
       content_tag(:span, disciplina.nome,
                   class: "px-2 py-1 rounded-full text-sm font-medium bg-#{cfg[:bg]} text-#{cfg[:text]}")
     end
