@@ -1,6 +1,5 @@
 <div class="min-h-screen bg-gray-100">
 
-  <!-- Header -->
   <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
     <div class="px-6 py-4 flex justify-between items-center">
       <div>
@@ -9,9 +8,18 @@
         </h1>
         <div class="text-sm breadcrumbs mt-1">
           <ul class="flex gap-2">
+            
             <li>
-              <%= link_to "Escolas", disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              <% if current_user.is_a?(Professor) %>
+                <%= link_to "Meus Conteúdos", professor_conteudos_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              <% elsif @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
+                <%= link_to "Conteúdos da Escola", escola_conteudos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              <% else %>
+                <%# Admin/SuperAdmin Global %>
+                <%= link_to "Conteúdos", professor_conteudos_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              <% end %>
             </li>
+            
             <li>
               <% if @conteudo.escola.present? %>
                 <%= link_to @conteudo.escola.nome, escola_path(@conteudo.escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
@@ -53,25 +61,37 @@
       <% end %>
     <% end %>
 
-    <%# botão de editar %>
-    <%= link_to edit_conteudo_path(@conteudo),
-                class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-      </svg>
-      Editar Conteúdo
+    <%# Lógica para alternar entre rotas aninhadas e rotas de namespace %>
+    <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
+      <%# Rota aninhada para Admin/SuperAdmin (escola/conteudo) %>
+      <%= link_to edit_escola_conteudo_path(@escola, @conteudo),
+                  class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+        </svg>
+        Editar Conteúdo
+      <% end %>
+    <% else %>
+      <%# Rota padrão para Professor e para Admin/SuperAdmin em modo global (/professor/conteudos) %>
+      <%= link_to edit_professor_conteudo_path(@conteudo),
+                  class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+        </svg>
+        Editar Conteúdo
+      <% end %>
     <% end %>
+    
   </div>
 <% end %>
     </div>
   </div>
 
-  <!-- Card do Conteúdo -->
   <div class="px-6">
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
 
-      <!-- Header do card -->
       <div class="bg-gradient-to-r from-blue-500 to-green-300 px-6 py-4 flex items-center gap-2">
         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
           <path d="M4 4h12v12H4z"/>
@@ -79,10 +99,8 @@
         <h2 class="text-xl font-bold text-white">Informações do Conteúdo</h2>
       </div>
 
-      <!-- Corpo do card -->
       <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <!-- Resumo / Dados -->
         <div class="bg-white rounded-lg shadow-lg p-6 space-y-4">
           <div>
             <% if @conteudo.disciplina.present? %>
@@ -112,7 +130,6 @@
           </div>
         </div>
 
-        <!-- Conteúdo completo -->
         <div class="bg-white rounded-lg shadow-lg p-6">
           <h3 class="text-lg font-semibold text-gray-900 mb-3">Conteúdo</h3>
             <div class="prose max-w-none text-gray-700">
@@ -122,7 +139,6 @@
 
           </div>
         </div>
-<!-- Tabela de Materiais Anexados -->
 <% if @conteudo.materiais.attached? %>
   <div class="col-span-full mt-6 overflow-x-auto">
     <table class="w-full ">
@@ -139,7 +155,6 @@
         <% @conteudo.materiais.each do |arquivo| %>
           <tr class="transition-colors hover:bg-emerald-50/50">
             
-            <!-- Arquivo + Ícone -->
             <td class="whitespace-nowrap px-6 py-4 flex items-center gap-3">
 <% case arquivo.content_type %>
 <% when /pdf/ %>
@@ -173,17 +188,14 @@
               <span class="text-gray-800 font-medium truncate max-w-[200px]"><%= arquivo.filename.to_s %></span>
             </td>
 
-            <!-- Tipo -->
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700 capitalize">
               <%= arquivo.filename.extension %>
             </td>
 
-            <!-- Tamanho -->
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
               <%= number_to_human_size(arquivo.byte_size) %>
             </td>
 
-            <!-- Ações -->
             <td class="whitespace-nowrap px-6 py-4 text-sm font-medium flex gap-3">
               <%= link_to rails_blob_path(arquivo, disposition: "attachment"), class: "rounded-full p-1 text-teal-500 hover:bg-teal-100/50 hover:text-teal-700 transition-colors", title: "Baixar" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,15 +203,31 @@
                 </svg>
               <% end %>
 
-                <%= link_to remove_material_conteudo_path(@conteudo, arquivo_id: arquivo.id),
+              <%# Lógica condicional para a rota de remoção %>
+              <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
+                <%# Rota aninhada de Admin/SuperAdmin %>
+                <%= link_to remove_material_escola_conteudo_path(@escola, @conteudo, arquivo_id: arquivo.id),
                             data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
                             class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
                             title: "Remover" do %>
 
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                <% end %>
+              <% else %>
+                <%# Rota padrão de Professor / Admin Global %>
+                <%= link_to remove_material_professor_conteudo_path(@conteudo, arquivo_id: arquivo.id),
+                            data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
+                            class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
+                            title: "Remover" do %>
+
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                <% end %>
               <% end %>
+              
             </td>
           </tr>
         <% end %>

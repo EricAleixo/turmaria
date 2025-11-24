@@ -1,8 +1,10 @@
 # app/controllers/aluno/contents_controller.rb
 class Aluno::ContentsController < ApplicationController
+  include DisciplinaHelper
   layout 'dashboard'
   before_action :authenticate_aluno!
   before_action :load_aluno_context, only: [:atividades, :materiais, :show]
+  before_action :set_content_config, only: [:show] # <-- NOVO before_action
 
   # GET /aluno/atividades
   def atividades
@@ -26,6 +28,10 @@ class Aluno::ContentsController < ApplicationController
   def show
     @content = fetch_contents_base_scope.find(params[:id])
     @titulo_pagina = @content.titulo
+
+    disciplina = @content.disciplina
+    @cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#10B981'
+    
   rescue ActiveRecord::RecordNotFound
     redirect_to aluno_minhas_atividades_e_path, alert: "Conteúdo não encontrado ou indisponível."
   end
@@ -55,4 +61,20 @@ class Aluno::ContentsController < ApplicationController
   def fetch_contents_by_type(content_type)
     fetch_contents_base_scope.where(tipo: Conteudo.tipos[content_type])
   end
+
+  def set_content_config
+    # Carrega o conteúdo se ainda não estiver carregado (para garantir o acesso à disciplina)
+    if @content.nil?
+      @content = fetch_contents_base_scope.find(params[:id]) rescue nil
+    end
+    
+    # Define @area_cfg que contém :cor, :bg, e :text
+    if @content && @content.disciplina&.area.present?
+      @area_cfg = area_cfg(@content.disciplina.area.to_s)
+    else
+      # Fallback para o cinza definido em area_cfg
+      @area_cfg = area_cfg(nil) 
+    end
+  end
+
 end

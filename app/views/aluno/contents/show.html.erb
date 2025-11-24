@@ -2,7 +2,7 @@
 
 <div class="max-w-5xl mx-auto">
   
-  <%# Link de Voltar - Com ênfase no verde %>
+  <%# Link de Voltar - Com ênfase no verde (MANTIDO ORIGINAL) %>
   <div class="mb-8">
     <% back_path = @content.material? ? aluno_meus_materiais_path : aluno_minhas_atividades_e_path %>
     <%= link_to back_path, class: "flex items-center text-lg font-medium text-green-700 hover:text-green-800 transition duration-150 group" do %>
@@ -27,7 +27,13 @@
         </div>
       </div>
       <div class="text-sm text-gray-600 font-medium bg-green-50 px-4 py-2 rounded-lg border border-green-200">
-        Disciplina: <span class="text-gray-900 font-semibold"><%= @content.disciplina.nome %></span>
+        Disciplina: 
+        
+        <%# 🌟 LINHA CORRIGIDA: Usa @cor_disciplina com style, como na sua view de frequência %>
+        <span class="text-gray-900 font-semibold" style="color: <%= @cor_disciplina %>;">
+          <%= @content.disciplina.nome %>
+        </span>
+        
       </div>
     </div>
     
@@ -37,11 +43,11 @@
     </h1>
     
     <div class="prose max-w-none text-gray-700 leading-relaxed text-lg">
-      <%# Renderiza o Markdown (Se você estiver usando uma biblioteca como 'Redcarpet' ou 'Kramdown', pode ser necessário adaptar aqui) %>
+      <%# Renderiza o Markdown %>
       <%= simple_format(@content.descricao) %>
       <% if @content.markdown.present? %>
         <h2 class="text-2xl font-extrabold text-green-700 mt-10 mb-4 pt-4 border-t border-green-100">Conteúdo Detalhado:</h2>
-        <%= @content.markdown %> <%# Se for Markdown, ele será renderizado como texto puro, ou você pode usar um helper aqui %>
+        <%= @content.markdown %>
       <% end %>
     </div>
     

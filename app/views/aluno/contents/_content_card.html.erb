@@ -1,57 +1,70 @@
 <%# app/views/aluno/contents/_content_card.html.erb %>
 <%# Recebe 'content' como local: { content: Conteudo } %>
-<%# Definindo cores com base no bimestre para alternância visual %>
-<%# Mantive a lógica de alternância, mas mudei as cores para usar mais o verde e um complemento vibrante %>
-<% is_even_bimestre = content.bimestre.to_i % 2 == 0 %>
-<%# Gradiente alternando entre Verde e Azul (próximo ao original 'red-500') %>
-<% header_class = is_even_bimestre ? "bg-gradient-to-r from-teal-500 to-green-500" : "bg-gradient-to-r from-green-600 to-emerald-700" %>
-<% button_class = is_even_bimestre ? "bg-green-500 hover:bg-teal-600" : "bg-green-700 hover:bg-emerald-800" %>
-<% text_color_class = is_even_bimestre ? "text-teal-600" : "text-green-700" %>
 
+<%# 
+  ATUALIZAÇÃO:
+  - O container principal agora é 'flex' (horizontal).
+  - A barra de destaque (agora 'w-1.5' e 'h-auto') foi movida para o início do flex.
+  - O restante do conteúdo foi agrupado em um div para manter o layout de coluna interna.
+%>
 
-<div class="bg-white rounded-3xl shadow-xl overflow-hidden transform hover:scale-[1.03] transition-all duration-300 border border-gray-100 hover:shadow-2xl">
+<%# Container Principal: Agora é um flexbox horizontal %>
+<div class="bg-white rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 flex overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
+  
+  <%# ======== BARRA DE DESTAQUE LATERAL ESQUERDA ======== %>
+  <%# A barra é fixa (w-1.5) e se expande por toda a altura (h-auto) %>
+  <div class="w-1.5 bg-green-600 h-auto flex-shrink-0"></div>
+  <%# ==================================================== %>
 
-  <%# Header Colorido com Ícone e Disciplina (com Gradiente) %>
-  <div class="<%#= header_class %> h-24 flex items-center p-5 text-white bg-gradient-to-r from-green-600 to-green-700">
-    <%# Ícone NOVO para Disciplina/Material (Ícone de Pasta) %>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-4 flex-shrink-0 opacity-90 text-white">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-    </svg>
+  <%# Conteúdo do Card: Ocupa o restante do espaço e usa flex-col para organizar verticalmente %>
+  <div class="flex flex-col justify-between w-full">
+    
+    <%# Corpo principal do Card (com padding) %>
+    <div class="p-6">
+      
+      <%# 1. Header Interno: Disciplina e Tipo %>
+      <div class="flex justify-between items-center mb-3">
+        <%# Nome da Disciplina como "categoria" principal %>
+        <span class="text-gray-900 font-semibold" style="color: <%= content.disciplina.try(:cor_nome) || content.disciplina.try(:cor) || '#10B981' %>;">
+  <%= content.disciplina.nome %>
+</span>
+        
+        <%# Badge (Etiqueta) para o tipo de conteúdo %>
+        <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+          <%= content.material? ? 'Material' : 'Atividade' %>
+        </span>
+      </div>
 
-    <div>
-      <p class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-0.5">
-        <%= content.material? ? 'Material' : 'Atividade' %>
-      </p>
-      <p class="text-xl font-bold text-white leading-tight">
-        <%= content.disciplina.nome %>
+      <%# 2. Título e Descrição %>
+      <h3 class="text-xl font-extrabold text-gray-900 mb-2 leading-snug">
+        <%= content.titulo %>
+      </h3>
+      
+      <p class="text-sm text-gray-600 mb-6 line-clamp-3 min-h-[3.75rem]">
+        <%= content.descricao.presence || "Sem descrição disponível." %>
       </p>
     </div>
-  </div>
 
-  <div class="p-6">
-    <h3 class="text-2xl font-extrabold text-gray-900 mb-2 leading-snug">
-      <%= content.titulo %>
-    </h3>
-    <p class="text-sm text-gray-600 mb-5 line-clamp-3 min-h-[4rem]">
-      <%= content.descricao %>
-    </p>
-
-    <div class="border-t border-gray-100 pt-4 space-y-2">
-      <%# Bloco: Exibe o Bimestre com cor de destaque %>
-      <div class="flex justify-between items-center text-base">
-        <span class="font-semibold text-gray-500 flex items-center">
-          <%# Ícone NOVO para Bimestre (Ícone de Copiar/Duplicar) %>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 <%= text_color_class %>">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" />
+    <%# 3. Footer: Meta-info (Bimestre) e Ação (Botão) %>
+    <%# Separador visual limpo %>
+    <div class="bg-gray-50/70 border-t border-gray-100 px-6 py-4">
+      <div class="flex justify-between items-center">
+        
+        <%# Meta-info: Bimestre %>
+        <div class="flex items-center text-gray-500">
+          <%# Ícone para Bimestre (Calendário/Coleção) %>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mr-2 text-gray-400">
+            <path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h9.5A2.25 2.25 0 0 1 17 4.25v9.5A2.25 2.25 0 0 1 14.75 16h-9.5A2.25 2.25 0 0 1 3 13.75v-9.5Zm1.5 0c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25h-9.5a.25.25 0 0 0-.25.25v9.5Z" clip-rule="evenodd" />
           </svg>
-          Bimestre
-        </span>
-        <span class="text-gray-900 font-extrabold text-2xl">
-          <%= content.bimestre %>º
-        </span>
+          <span class="font-medium text-sm">Bimestre:</span>
+          <span class="font-bold text-gray-800 text-sm ml-1.5"><%= content.bimestre %>º</span>
+        </div>
+
+        <%# Botão de Ação (CTA) %>
+        <%= link_to "Acessar", 
+              aluno_conteudo_path(content), 
+              class: "inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-xl transition-colors text-sm shadow-sm hover:shadow-md" %>
       </div>
     </div>
   </div>
-  <%# Botão de Ação: Ver Conteúdo com cor alternada %>
-  <%= link_to "Acessar", aluno_conteudo_path(content), class: "block w-full text-center py-4 text-white font-bold text-lg uppercase tracking-wider transition-colors #{button_class} shadow-inner" %>
 </div>
