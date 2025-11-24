@@ -17,10 +17,21 @@
       </div>
 
       <div>
-        <%= form.label :regiao, "Região", class: "block text-sm font-medium text-gray-700" %>
-        <%= form.select :regiao, ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'], { prompt: "Selecione a região" }, class: "mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring focus:ring-indigo-200" %>
+  <%= dropdown(
+        form: form,
+        method: :regiao,
+        collection: [
+          ["Norte", "Norte"],
+          ["Nordeste", "Nordeste"],
+          ["Centro-Oeste", "Centro-Oeste"],
+          ["Sudeste", "Sudeste"],
+          ["Sul", "Sul"]
+        ],
+        placeholder: "Selecione a região",
+        label: "Região"
+      ) %>
       </div>
-
+      
       <div class="flex justify-end">
         <%= form.submit "Salvar Estado", class: "bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md" %>
       </div>

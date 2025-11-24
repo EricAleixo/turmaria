@@ -73,7 +73,11 @@ class AlunosController < ApplicationController
     # NEW
     # -------------------------------
     def new
-        @aluno = @escola.alunos.build
+        if @escola.nil?
+            @aluno = Aluno.new
+        else
+            @aluno = @escola.alunos.build
+        end
     end
 
     # -------------------------------

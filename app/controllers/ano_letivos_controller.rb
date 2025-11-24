@@ -22,24 +22,55 @@ class AnoLetivosController < ApplicationController
   end
 
   # POST /escolas/:escola_id/ano_letivos
-  def create
-    @ano_letivo = @escola.ano_letivos.new(ano_letivo_params)
+def create
+  @ano_letivo = @escola.ano_letivos.new(ano_letivo_params)
 
-    if @ano_letivo.save
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.append("turma_ano_letivo_id", partial: "ano_letivos/option", locals: {ano_letivo: @ano_letivo}),
-            turbo_stream.update("modal", "")]
-        end
+  if @ano_letivo.save
+    respond_to do |format|
+format.turbo_stream do
+  render turbo_stream: [
+    # 1. Adiciona o novo ano LETIVO antes do botão no dropdown
+    turbo_stream.before(
+      "botao-criar-ano-letivo",
+      partial: "ano_letivos/item",
+      locals: { ano_letivo: @ano_letivo }
+    ),
 
-        
-      format.html {redirect_to escola_ano_letivos_path(@escola), notice: "Ano letivo criado com sucesso."}
+    # 2. Fecha o modal
+    turbo_stream.update("modal", ""),
+
+    # 3. Atualiza o label + hidden_field automaticamente
+    turbo_stream.replace(
+      "ano-letivo-script",
+      partial: "ano_letivos/select_js",
+      locals: { ano_letivo: @ano_letivo }
+    )
+  ]
+end
+
+
+      format.html do
+        redirect_to escola_ano_letivos_path(@escola),
+                    notice: "Ano letivo criado com sucesso."
       end
-    else
-      render :new, status: :unprocessable_entity
+    end
+  else
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "modal",
+          partial: "ano_letivos/form",
+          locals: { ano_letivo: @ano_letivo, escola: @escola }
+        )
+      end
+
+      format.html { render :new, status: :unprocessable_entity }
     end
   end
+end
+
+
+
 
   # GET /ano_letivos/:id/edit
   def edit

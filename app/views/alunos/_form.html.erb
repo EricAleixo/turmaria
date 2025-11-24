@@ -35,8 +35,20 @@
         <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
       </div>
       <div class="form-control w-full">
-        <label for="aluno_data_nascimento" class="label label-text text-gray-600 font-semibold">Data de Nascimento</label>
-        <%= form.date_field :data_nascimento, class: "input input-bordered w-full" %>
+      <%= form.label :data_nascimento, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
+      <div class="relative">
+        <%= form.text_field :data_nascimento, 
+            class: "border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:border-black focus:border-black focus:outline-none w-full pr-10 datepicker-field text-black peer", 
+            placeholder: "", 
+            required: true, 
+            autocomplete: "off" %>
+        <span class="absolute left-4 top-2 text-gray-400 pointer-events-none peer-focus:opacity-0 peer-valid:opacity-0 transition !text-black">
+          Selecione a data
+        </span>
+        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
       </div>
     </div>
 
@@ -63,10 +75,18 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <div class="form-control w-full">
-        <label for="aluno_cidade_id" class="label label-text text-gray-600 font-semibold">Cidade</label>
-          <%= form.collection_select :cidade_id, Cidade.all.order(:nome), :id, :nome_com_estado, { include_blank: "Selecione a cidade" }, { class: "select select-bordered w-full" } %>
-      </div>
+<%= dropdown(
+      form: form,
+      method: :cidade_id,
+      select_id: "professor_cidade_id_select",
+      collection: Cidade.all.order(:nome),
+      label_field: :nome_com_estado,
+      value_field: :id,
+      placeholder: "Selecione a cidade",
+      hidden_field_id: "professor_cidade_id",
+      
+    ) %>
+   
     </div>
 
     <div class="flex justify-between mt-6">
@@ -93,22 +113,55 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="form-control w-full">
-        <label for="aluno_sexo" class="label label-text text-gray-600">Sexo</label>
-        <%= form.select :sexo, options_for_select(["Masculino", "Feminino", "Outro"], selected: form.object.sexo), { include_blank: "Selecione" }, { class: "select select-bordered w-full" } %>
-      </div>
-      <div class="form-control w-full">
-        <label for="aluno_cor" class="label label-text text-gray-600">Cor</label>
-        <%= form.select :cor, options_for_select(["Branca", "Preta", "Parda", "Amarela", "Indígena", "Não declarada"], selected: form.object.cor), { include_blank: "Selecione" }, { class: "select select-bordered w-full" } %>
-      </div>
+  <div class="form-control w-full">
+ <%= dropdown(
+      form: form,
+      method: :sexo,
+      select_id: "aluno_sexo_select",
+      collection: [
+        ["Masculino", "Masculino"],
+        ["Feminino",  "Feminino"],
+        ["Outro",     "Outro"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_sexo"
+    ) %>
+
+  </div>
+
+  <div class="form-control w-full">
+<%= dropdown(
+      form: form,
+      method: :cor,
+      select_id: "aluno_cor_select",
+      collection: [
+        ["Branca", "Branca"],
+        ["Preta", "Preta"],
+        ["Parda", "Parda"],
+        ["Amarela", "Amarela"],
+        ["Indígena", "Indígena"],
+        ["Não declarada", "Não declarada"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_cor"
+    ) %>
+
+  </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <div class="form-control w-full">
-        <label for="aluno_tipo_sanguinio" class="label label-text text-gray-600">Tipo Sanguíneo</label>
-        <%= form.select :tipo_sanguinio, options_for_select(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], selected: form.object.tipo_sanguinio), { include_blank: "Selecione" }, { class: "select select-bordered w-full" } %>
-      </div>
-      <div></div>
+<%= dropdown(
+      form: form,
+      method: :tipo_sanguinio,
+      select_id: "aluno_tipo_sanguinio_select",
+      collection: [
+        ["A+","A+"],["A-","A-"],["B+","B+"],["B-","B-"],
+        ["AB+","AB+"],["AB-","AB-"],["O+","O+"],["O-","O-"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_tipo_sanguinio",
+      label: "Tipo sanguíneo"
+    ) %>
     </div>
     
     <div class="form-control w-full mt-4">
@@ -388,6 +441,113 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <style>
+
+  .placeholder-helper {
+  opacity: 1;
+}
+
+input:not(:placeholder-shown) + .placeholder-helper {
+  opacity: 0;
+}
+
+/* === ANIMAÇÕES GERAIS === */
+@keyframes pulse { 0% { transform: scale(0.9); } 100% { transform: scale(1); } }
+@keyframes hint-swipe { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } }
+
+/* === CALENDÁRIO BASE === */
+.flatpickr-calendar {
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 50px rgba(34,197,94,0.18);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease;
+  opacity: 0;
+  transform: scale(0.96);
+  max-width: 90vw;
+  width: auto !important;
+  will-change: opacity, transform;
+  z-index: 10000 !important;
+}
+.flatpickr-calendar.open, .flatpickr-calendar.fade-in[style] { opacity: 1 !important; transform: scale(1) !important; }
+.flatpickr-calendar.closing { opacity: 0; transform: scale(0.95); }
+
+/* === SWIPE === */
+.flatpickr-days {
+  transition: transform 0.25s ease;
+  will-change: transform;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+}
+.flatpickr-days:active { cursor: grabbing; }
+.flatpickr-calendar.swipe-hint .flatpickr-days { animation: hint-swipe 0.8s ease; }
+
+/* === BOTÕES DE NAVEGAÇÃO === */
+.flatpickr-prev-month, .flatpickr-next-month {
+  background: transparent !important;
+  color: #22c55e !important;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: color 0.2s ease, transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.flatpickr-prev-month:hover, .flatpickr-next-month:hover {
+  color: #16a34a !important;
+  transform: scale(1.15);
+  background-color: rgba(34,197,94,0.1);
+  box-shadow: 0 4px 15px rgba(34,197,94,0.2);
+}
+.flatpickr-prev-month:active, .flatpickr-next-month:active { transform: scale(0.9); }
+.flatpickr-prev-month svg path, .flatpickr-next-month svg path { stroke: currentColor !important; fill: none !important; }
+
+/* === INPUT DE ANO === */
+.flatpickr-year-input {
+  border: 1px solid #22c55e;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  width: 4rem;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.flatpickr-year-input:hover, .flatpickr-year-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+  outline: none;
+}
+.flatpickr-calendar .arrowUp, .flatpickr-calendar .arrowDown { display: none !important; }
+
+/* === DIAS === */
+.flatpickr-day {
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+.flatpickr-day:hover { background-color: rgba(34,197,94,0.2); color: #14532d; cursor: pointer; }
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+  background-color: #22c55e !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(34,197,94,0.4);
+  animation: pulse 0.25s ease;
+}
+.flatpickr-day.today {
+  border: 2px solid #22c55e;
+  color: #16a34a;
+  background-color: transparent;
+  font-weight: 600;
+}
+.flatpickr-day.today:hover { background-color: rgba(34,197,94,0.2); color: #14532d; }
+.flatpickr-day.today.selected { background-color: #22c55e !important; color: #fff !important; border: none !important; }
+
+
+.flatpickr-day.disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+@media (max-width: 768px) {
+  .flatpickr-prev-month, .flatpickr-next-month { display: none !important; }
+}
   /* Estilo customizado para crop circular */
   .cropper-view-box,
   .cropper-face {
@@ -420,7 +580,279 @@
   }
 </style>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
 <script>
+
+  (function() {
+    'use strict';
+    
+    function destroyAllCalendars() {
+      console.log("[CALENDAR] Destruindo todos os calendários...");
+      
+      // Destrói instâncias do flatpickr
+      document.querySelectorAll(".datepicker-field").forEach(input => {
+        if (input._flatpickr) {
+          input._flatpickr.destroy();
+        }
+      });
+      
+      // Remove elementos órfãos do DOM IMEDIATAMENTE
+      document.querySelectorAll(".flatpickr-calendar").forEach(cal => {
+        cal.style.display = 'none'; // Esconde primeiro para evitar flash
+        cal.remove();
+      });
+    }
+    
+    function initCalendar() {
+      if (typeof flatpickr === 'undefined') {
+        console.log("[CALENDAR] Flatpickr ainda não carregado, aguardando...");
+        return;
+      }
+
+      console.log("[CALENDAR] Inicializando calendário...");
+      
+      document.querySelectorAll(".datepicker-field").forEach(input => {
+        if (input._flatpickr) {
+          console.log("[CALENDAR] Campo já tem flatpickr, pulando...");
+          return;
+        }
+
+        console.log("[CALENDAR] Inicializando campo:", input);
+
+        flatpickr(input, {
+          locale: "pt",
+          dateFormat: "d/m/Y",
+          allowInput: true,
+          disableMobile: true,
+          monthSelectorType: "static",
+          appendTo: document.body,
+          
+          onOpen(selectedDates, dateStr, instance) {
+            console.log("[CALENDAR] Calendário aberto");
+            if (selectedDates.length > 0) {
+              instance.currentYear = selectedDates[0].getFullYear();
+              instance.currentMonth = selectedDates[0].getMonth();
+              instance.redraw();
+            }
+            const el = instance.calendarContainer;
+            el.classList.add("fade-in", "swipe-hint");
+            setTimeout(() => el.classList.remove("swipe-hint"), 1000);
+            setTimeout(() => el.classList.remove("fade-in"), 300);
+          },
+
+          onChange(selectedDates, dateStr, instance) {
+            console.log("[CALENDAR] Data selecionada:", dateStr);
+            if (selectedDates.length > 0) {
+              setTimeout(() => instance.close(), 300);
+            }
+          },
+
+          onReady(selectedDates, dateStr, instance) {
+            console.log("[CALENDAR] Calendário pronto");
+            const calendar = instance.calendarContainer;
+            const monthView = calendar.querySelector(".flatpickr-days");
+
+            if (!monthView) {
+              console.error("[CALENDAR] monthView não encontrado!");
+              return;
+            }
+
+            // Input de ano customizado
+            const yearContainer = calendar.querySelector(".flatpickr-current-month");
+            if (yearContainer && !yearContainer.querySelector(".flatpickr-year-input")) {
+              const yearSpan = yearContainer.querySelector(".cur-year");
+              if (yearSpan) {
+                const input = document.createElement("input");
+                input.type = "number";
+                input.value = yearSpan.textContent;
+                input.className = "flatpickr-year-input";
+                input.style.width = "4rem";
+                input.style.textAlign = "center";
+                yearSpan.textContent = "";
+                yearSpan.appendChild(input);
+
+                const applyYearChange = () => {
+                  const newYear = parseInt(input.value, 10);
+                  if (!isNaN(newYear)) {
+                    instance.currentYear = newYear;
+                    instance.redraw();
+                  }
+                };
+
+                input.addEventListener("change", applyYearChange);
+                input.addEventListener("blur", applyYearChange);
+                input.addEventListener("keydown", (e) => {
+                  if (e.key === "Enter") { 
+                    applyYearChange(); 
+                    input.blur(); 
+                  }
+                });
+              }
+            }
+
+            // Animação de mudança de mês
+            let startX = 0, currentX = 0, isDragging = false, dragged = false;
+            const threshold = 50, minDrag = 10;
+
+            const animateMonth = (direction) => {
+              const dir = direction === "right" ? 1 : -1; 
+              monthView.style.transition = "transform 0.25s ease";
+              monthView.style.transform = `translateX(${dir * 100}%)`;
+
+              setTimeout(() => {
+                instance.currentMonth += dir;
+                instance.redraw();
+                monthView.style.transition = "none";
+                monthView.style.transform = `translateX(${-dir * 100}%)`;
+                requestAnimationFrame(() => {
+                  monthView.style.transition = "transform 0.25s ease";
+                  monthView.style.transform = "translateX(0)";
+                });
+              }, 250);
+            };
+
+            // Setas com animação
+            const prevBtn = calendar.querySelector(".flatpickr-prev-month");
+            const nextBtn = calendar.querySelector(".flatpickr-next-month");
+
+            if (prevBtn) {
+              prevBtn.addEventListener("click", (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation();
+                animateMonth("right"); 
+              }, { once: false });
+            }
+            
+            if (nextBtn) {
+              nextBtn.addEventListener("click", (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation();
+                animateMonth("left"); 
+              }, { once: false });
+            }
+
+            // Swipe - com passive: true para evitar warnings
+            const startDrag = (x, target) => {
+              if (target.closest(".flatpickr-prev-month") || target.closest(".flatpickr-next-month")) return;
+              startX = x; currentX = 0; isDragging = true; dragged = false;
+              monthView.style.transition = "none";
+            };
+            
+            const moveDrag = (x) => {
+              if (!isDragging) return;
+              currentX = x - startX;
+              if (Math.abs(currentX) > minDrag) { 
+                dragged = true; 
+                monthView.style.transform = `translateX(${currentX * 0.4}px)`; 
+              }
+            };
+            
+            const endDrag = () => {
+              if (!isDragging) return;
+              isDragging = false;
+              monthView.style.transition = "transform 0.25s ease";
+              if (!dragged) { 
+                monthView.style.transform = "translateX(0)"; 
+                return; 
+              }
+              if (Math.abs(currentX) > threshold) {
+                animateMonth(currentX > 0 ? "right" : "left");
+              } else {
+                monthView.style.transform = "translateX(0)";
+              }
+            };
+
+            calendar.addEventListener("touchstart", (e) => 
+              startDrag(e.changedTouches[0].screenX, e.target), { passive: true }
+            );
+            
+            calendar.addEventListener("mousedown", (e) => 
+              startDrag(e.clientX, e.target)
+            );
+            
+            calendar.addEventListener("touchmove", (e) => 
+              moveDrag(e.changedTouches[0].screenX), { passive: true }
+            );
+            
+            calendar.addEventListener("mousemove", (e) => 
+              moveDrag(e.clientX)
+            );
+            
+            ["touchend", "mouseup", "mouseleave"].forEach(evt => 
+              calendar.addEventListener(evt, endDrag)
+            );
+
+            // Fechamento suave
+            const calendarEl = instance.calendarContainer;
+            const originalClose = instance.close.bind(instance);
+            instance.close = function() {
+              calendarEl.classList.add("closing");
+              setTimeout(() => { 
+                originalClose(); 
+                calendarEl.classList.remove("closing"); 
+              }, 220);
+            };
+          },
+          
+          onClose() {
+            console.log("[CALENDAR] Calendário fechado");
+          },
+          
+          onDestroy() {
+            console.log("[CALENDAR] Calendário destruído");
+          }
+        });
+        
+        console.log("[CALENDAR] Campo inicializado com sucesso!");
+      });
+    }
+
+    // CRÍTICO: Limpa ANTES de renderizar para evitar flash
+    document.addEventListener("turbo:before-frame-render", (event) => {
+      console.log("[CALENDAR] turbo:before-frame-render - limpando calendários");
+      destroyAllCalendars();
+    });
+
+    // CRÍTICO: Limpa IMEDIATAMENTE após submit
+    document.addEventListener("turbo:submit-start", (event) => {
+      console.log("[CALENDAR] turbo:submit-start - limpando calendários");
+      destroyAllCalendars();
+    });
+
+    // Limpa após submit do form (dupla garantia)
+    document.addEventListener("turbo:submit-end", (event) => {
+      console.log("[CALENDAR] turbo:submit-end - limpando calendários");
+      destroyAllCalendars();
+    });
+
+    // Inicializa após frame carregar (MODAL)
+    document.addEventListener("turbo:frame-load", (event) => {
+      console.log("[CALENDAR] turbo:frame-load disparado");
+      setTimeout(initCalendar, 100);
+    });
+
+    // Inicializa após página carregar
+    document.addEventListener("turbo:load", () => {
+      console.log("[CALENDAR] turbo:load disparado");
+      initCalendar();
+    });
+
+    // Limpa antes de navegar
+    document.addEventListener("turbo:before-visit", () => {
+      console.log("[CALENDAR] turbo:before-visit - limpando calendários");
+      destroyAllCalendars();
+    });
+
+    // Fallback: Inicializa se já estiver carregado
+    if (document.readyState !== "loading") {
+      console.log("[CALENDAR] DOM já carregado, inicializando imediatamente");
+      setTimeout(initCalendar, 100);
+    }
+  })();
+
 let cropper = null;
 let currentDocumentType = null;
 let tempDocumentFiles = [];
