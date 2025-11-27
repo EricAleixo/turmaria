@@ -30,15 +30,19 @@ class DashboardController < ApplicationController
 
   def minhas_notas
     load_aluno_data_for_pages
-    return if performed? # Sai se houve redirecionamento na autenticação/carregamento
+    return if performed?
     
-    # Carrega todas as notas com inclusão de disciplina (via avaliacao_configuracao)
+    # Carrega todas as notas
     @registros_notas = RegistroDeNota.includes(avaliacao_configuracao: [:disciplina])
                                      .where(aluno_id: @aluno.id)
                                      .order(created_at: :desc)
     
+    # NOVO: Carrega o Resumo da Média por Disciplina
+    # Passamos apenas o ID do aluno, e não a coleção, para uma consulta mais limpa no método privado
+    @media_por_disciplina = calcular_media_por_disciplina(@aluno.id) 
+    
     @titulo_pagina = "Minhas Notas | #{@aluno.nome}"
-    render 'aluno/minhas_notas' # Renderiza a view na pasta aluno/
+    render 'aluno/minhas_notas'
   end
   
   def minha_frequencia
@@ -128,6 +132,42 @@ end
   end
 
   private
+
+  def calcular_media_por_disciplina(aluno_id)
+    
+    tabela_notas = RegistroDeNota.table_name
+    
+    resumo_agregado = RegistroDeNota
+      .where(aluno_id: aluno_id) # Filtra primeiro pelo aluno
+      .joins(avaliacao_configuracao: :disciplina)
+      .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.cor', 'disciplinas.id')
+      .select(
+        'disciplinas.nome AS nome',
+        'disciplinas.cor_nome AS cor_nome', 
+        # CORREÇÃO CRÍTICA: Definir explicitamente o alias para o campo 'cor'
+        'disciplinas.cor AS cor_hex', # Usamos um alias único para evitar conflitos
+        
+        "COUNT(#{tabela_notas}.id) AS provas_lancadas",
+        "AVG(#{tabela_notas}.valor) AS media",
+        "SUM(#{tabela_notas}.valor) AS total_notas"
+      )
+      .order('disciplinas.nome ASC')
+      
+    # 2. Formatar para o Array de Hashes que a View espera
+    resumo_agregado.map do |item|
+      media_calculada = item.media.to_f
+      
+      {
+        nome: item.nome,
+        # CORREÇÃO CRÍTICA: Acessar o campo pelo novo alias 'cor_hex'
+        # Usamos cor_nome ou cor_hex (o valor RGB/HEX) como fallback para o default.
+        cor: item.cor_nome || item.cor_hex || '#10B981', 
+        media: media_calculada.round(1),
+        provas_lancadas: item.provas_lancadas.to_i,
+        total_notas: item.total_notas.to_f.round(1)
+      }
+    end
+  end
 
   def load_professores_da_turma_data
     if @turma_atual.nil?

@@ -66,12 +66,12 @@ helper_method :current_any_user, :authenticated_user_type
     case resource
     when Admin
       if resource.escolas.present?
-        # Admin já tem escola, vai para o show da escola
-        escola_path(resource.escola)
-      else
-        # Admin não tem escola, vai para a tela de boas-vindas
-        welcome_escola_path
-      end
+      # CORREÇÃO: Usa o método plural 'escolas' e pega o primeiro item (.first)
+      return escola_path(resource.escolas.first) 
+    else
+      # Admin não tem escola, vai para a tela de boas-vindas
+      return welcome_escola_path
+    end
     when SuperAdmin
       # Super Admin vai para o dashboard de super admin
       dashboard_path
