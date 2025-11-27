@@ -25,6 +25,9 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
           UserMailer.login_alert(user).deliver_later
           flash[:notice] = "#{registro.user_type} logado com sucesso!"
 
+          redirect_to after_sign_in_path_for(user)
+          return
+
           if user.is_a?(SuperAdmin)
             redirect_to dashboard_path
           else
@@ -33,15 +36,18 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
         else
           flash.now[:alert] = "Senha inválida"
           render :new
+          return
         end
       else
         # Novo tratamento: O EmailCadastro existe, mas o usuário (SuperAdmin, Professor, etc.) não.
         flash.now[:alert] = "Dados inconsistentes. Usuário não encontrado."
         render :new
+        return
       end
     else
       flash.now[:alert] = "Email não encontrado"
       render :new
+      return
     end
   end
  
