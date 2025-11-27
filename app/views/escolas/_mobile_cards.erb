@@ -771,10 +771,10 @@
         style="background: linear-gradient(
           to bottom right,
           white 0%,
-          <%= disciplina.cor %>33 60%,
-          <%= disciplina.cor %>55 100%
+          <%= disciplina.cor_nome %>33 60%,
+          <%= disciplina.cor_nome %>55 100%
         );"
-        onmouseover="this.querySelector('h2').dataset.originalColor=this.querySelector('h2').style.color; this.querySelector('h2').style.color='<%= disciplina.cor_nome %>'"
+        onmouseover="this.querySelector('h2').dataset.originalColor=this.querySelector('h2').style.color; this.querySelector('h2').style.color='<%= disciplina.area_disciplina.cor %>'"
         onmouseout="this.querySelector('h2').style.color=this.querySelector('h2').dataset.originalColor"
       >
         <div class="card-body p-4 relative">
@@ -791,7 +791,7 @@
                 </span>
 
                 <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold">
-                  <%= disciplina.area || "Área não informada" %>
+                  <%= disciplina.area_disciplina.nome|| "Área não informada" %>
                 </span>
               </div>
             </div>

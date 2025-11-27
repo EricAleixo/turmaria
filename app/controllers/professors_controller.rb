@@ -3,10 +3,21 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-    @professores = Professor.all
+    @escola = Escola.find(params[:escola_id])
+
+    if (current_user.is_a?(SuperAdmin))
+          @professores = Professor.all
                             .por_nome(params[:busca])
                             .por_formacao(params[:formacao])
                             .por_tipo(params[:tipo])
+    else
+          @professores = @escola.professors
+                            .por_nome(params[:busca])
+                            .por_formacao(params[:formacao])
+                            .por_tipo(params[:tipo])
+    end
+
+
 
     if params[:filtros].present?
       formacoes = %w[mestrado doutorado pos_graduados graduados] & params[:filtros]
@@ -90,6 +101,10 @@ class ProfessorsController < ApplicationController
   end
 
   private
+
+  def set_escola
+    @escola = current_admin.escolas.find(params[:escola_id])
+  end
 
   def set_professor
     @professor = Professor.find(params[:id])

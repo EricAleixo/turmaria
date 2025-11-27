@@ -609,7 +609,7 @@
             </tr>
           </thead>
 <tbody>
-  <% @disciplinas.group_by(&:area).each do |area, disciplinas| %>
+  <% @disciplinas.group_by(&:area_disciplina).each do |area, disciplinas| %>
     <!-- Linha da área -->
     <tr class="bg-gray-100">
       <!-- Coluna esquerda: badge + contagem -->

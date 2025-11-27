@@ -4,24 +4,30 @@ class DisciplinasController < ApplicationController
   layout 'dashboard'
 
   # GET /disciplinas
-  def index
-    @disciplinas = if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
-                     Disciplina.all
-                   elsif current_user.is_a?(Escola)
-                     current_user.disciplinas
-                   elsif current_user.is_a?(Professor)
-                     current_user.disciplinas
-                   else
-                     Disciplina.none
-                   end
-    
-    if params[:professor_id].present?
-      @professor = Professor.find(params[:professor_id])
-      @disciplinas = @disciplinas.joins(:professores).where(professores: { id: @professor.id })
+def index
+  @escola = Escola.find(params[:escola_id])
+
+  @disciplinas =
+    if current_user.is_a?(SuperAdmin)
+      Disciplina.all
+    elsif current_user.is_a?(Admin)
+      @escola.disciplinas
+    elsif current_user.is_a?(Escola)
+      current_user.disciplinas
+    elsif current_user.is_a?(Professor)
+      current_user.disciplinas
+    else
+      Disciplina.none
     end
-    
-    @disciplinas = @disciplinas.includes(:escola, :professores, :area_disciplina)
+
+  if params[:professor_id].present?
+    @professor = Professor.find(params[:professor_id])
+    @disciplinas = @disciplinas.joins(:professores)
+                               .where(professores: { id: @professor.id })
   end
+
+  @disciplinas = @disciplinas.includes(:escola, :professores, :area_disciplina)
+end
 
   # GET /disciplinas/1
   def show
@@ -137,6 +143,10 @@ class DisciplinasController < ApplicationController
   end
 
   private
+
+    def set_escola
+      @escola = current_admin.escolas.find(params[:escola_id])
+    end
 
   def set_disciplina
     @disciplina = Disciplina.find(params[:id])
