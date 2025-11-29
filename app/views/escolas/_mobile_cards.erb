@@ -1061,8 +1061,8 @@
                   </li>
 
                   <li>
-                    <%= button_to conteudo_path(conteudo), method: :delete,
-                          data: { confirm: "Deseja excluir este conteúdo?" } do %>
+                    <%= button_to escola_conteudo_path(@escola, conteudo), method: :delete,
+    data: { confirm: "Deseja excluir este conteúdo?" } do %>
                       <span class="flex items-center gap-2 text-red-600">
                         <!-- Ícone excluir -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"

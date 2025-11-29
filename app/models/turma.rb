@@ -8,7 +8,7 @@ class Turma < ApplicationRecord
   
   # --- Associações com Professores (Para Turmas) ---
   has_many :professor_turmas
-  has_many :professores, through: :professor_turmas
+  has_many :professores, through: :professor_turmas, source: :professor
   
   # --- ASSOCIAÇÃO ADICIONADA PARA DISCIPLINAS (Resolve o erro) ---
   has_many :turma_disciplinas

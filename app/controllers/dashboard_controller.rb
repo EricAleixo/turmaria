@@ -1,14 +1,20 @@
 class DashboardController < ApplicationController
   # 1. Lógica de autenticação flexível (Mantida)
   before_action :authenticate_any_user!
+
+  
   
   def index
     if current_super_admin
       load_super_admin_dashboard_data
+    elsif current_admin # Adicionado: Se for Admin, ele executa a verificação
+      # O redirect_admin_without_school já checou se ele pode continuar.
+      # Se chegou até aqui, ele TEM uma escola.
+      load_admin_dashboard_data # <--- Crie este método se ainda não existir
     elsif current_professor
       load_professor_dashboard_data
     elsif current_aluno
-      load_aluno_dashboard_data # <--- Esta função será corrigida
+      load_aluno_dashboard_data
     end
   end
 
@@ -24,29 +30,82 @@ class DashboardController < ApplicationController
 
   def minhas_notas
     load_aluno_data_for_pages
-    return if performed? # Sai se houve redirecionamento na autenticação/carregamento
+    return if performed?
     
-    # Carrega todas as notas com inclusão de disciplina (via avaliacao_configuracao)
+    # Carrega todas as notas
     @registros_notas = RegistroDeNota.includes(avaliacao_configuracao: [:disciplina])
                                      .where(aluno_id: @aluno.id)
                                      .order(created_at: :desc)
     
+    # NOVO: Carrega o Resumo da Média por Disciplina
+    # Passamos apenas o ID do aluno, e não a coleção, para uma consulta mais limpa no método privado
+    @media_por_disciplina = calcular_media_por_disciplina(@aluno.id) 
+    
     @titulo_pagina = "Minhas Notas | #{@aluno.nome}"
-    render 'aluno/minhas_notas' # Renderiza a view na pasta aluno/
+    render 'aluno/minhas_notas'
   end
   
   def minha_frequencia
-    load_aluno_data_for_pages
-    return if performed? # Sai se houve redirecionamento na autenticação/carregamento
+  load_aluno_data_for_pages
+  return if performed? 
+  
+  # 1. Carrega o HISTÓRICO (Consulta Limpa, sem o GROUP BY que falhava)
+  @registros_frequencia = FrequenciaAluno.includes(frequencia: [:disciplina, :turma])
+                                         .where(aluno_id: @aluno.id)
+                                         # O ORDER BY da sua query original era incompatível com o GROUP BY seguinte
+                                         # Mas como esta consulta só carrega o histórico, podemos manter um ORDER BY:
+                                         .order('frequencias.data_aula DESC') 
+  
+  # =========================================================
+  # 💡 NOVO CÁLCULO: Frequência Percentual por Disciplina 💡
+  #    -> Usamos uma NOVA CONSULTA, focada APENAS em obter dados agregados.
+  # =========================================================
+  
+  aluno_id = @aluno.id # Cache o ID para a consulta
+  
+  # 1. Agrupar os registros. Adicionamos 'disciplinas.id' ao GROUP BY para evitar a falha
+  # e garantimos que apenas os campos agrupados e agregados são usados no SELECT.
+  frequencia_agrupada = FrequenciaAluno
+    .joins(frequencia: :disciplina)
+    .where(aluno_id: aluno_id)
+    .group('disciplinas.nome', 'disciplinas.id') # Adicionamos disciplinas.id para compatibilidade
+    .select(
+      'disciplinas.id AS disciplina_id', # Usamos o ID para buscar a cor
+      'disciplinas.nome AS nome',
+      'COUNT(frequencia_alunos.id) AS total_aulas',
+      "SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END) AS total_presencas"
+    )
+
+  # 2. Calcular o percentual e formatar para a View (melhoramos a busca por cor)
+  @frequencia_por_disciplina = frequencia_agrupada.map do |item|
+    total_aulas = item.total_aulas.to_i
+    total_presencas = item.total_presencas.to_i
     
-    # Carrega todos os registros de frequência
-    @registros_frequencia = FrequenciaAluno.includes(frequencia: [:disciplina, :turma])
-                                          .where(aluno_id: @aluno.id)
-                                          .order(created_at: :desc)
+    percentual = total_aulas.zero? ? 0.0 : ((total_presencas.to_f / total_aulas) * 100).round(1)
     
-    @titulo_pagina = "Minha Frequência | #{@aluno.nome}"
-    render 'aluno/minha_frequencia' # Renderiza a view na pasta aluno/
+    # Buscamos a cor usando o ID retornado pela consulta agrupada.
+    # Isso é mais eficiente do que buscar no banco novamente com Disciplina.find(id)
+    # se o objeto Discipline já estiver carregado em memória.
+    # Caso 'cor' não esteja na lista de atributos do `item`, mantenha a lógica de buscar a cor separadamente.
+    
+    # Vamos manter a busca por cor simples, usando a associação do primeiro registro,
+    # ou usando uma busca mais direta:
+    
+    disciplina_obj = Disciplina.find_by(id: item.disciplina_id)
+    
+    {
+      nome: item.nome,
+      total_aulas: total_aulas,
+      total_presencas: total_presencas,
+      percentual: percentual,
+      cor: disciplina_obj&.cor_nome || '#10B981' # Fallback da cor
+    }
   end
+  # =========================================================
+  
+  @titulo_pagina = "Minha Frequência | #{@aluno.nome}"
+  render 'aluno/minha_frequencia'
+end
 
   def minhas_atividades
     load_aluno_data_for_pages
@@ -73,6 +132,42 @@ class DashboardController < ApplicationController
   end
 
   private
+
+  def calcular_media_por_disciplina(aluno_id)
+    
+    tabela_notas = RegistroDeNota.table_name
+    
+    resumo_agregado = RegistroDeNota
+      .where(aluno_id: aluno_id) # Filtra primeiro pelo aluno
+      .joins(avaliacao_configuracao: :disciplina)
+      .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.cor', 'disciplinas.id')
+      .select(
+        'disciplinas.nome AS nome',
+        'disciplinas.cor_nome AS cor_nome', 
+        # CORREÇÃO CRÍTICA: Definir explicitamente o alias para o campo 'cor'
+        'disciplinas.cor AS cor_hex', # Usamos um alias único para evitar conflitos
+        
+        "COUNT(#{tabela_notas}.id) AS provas_lancadas",
+        "AVG(#{tabela_notas}.valor) AS media",
+        "SUM(#{tabela_notas}.valor) AS total_notas"
+      )
+      .order('disciplinas.nome ASC')
+      
+    # 2. Formatar para o Array de Hashes que a View espera
+    resumo_agregado.map do |item|
+      media_calculada = item.media.to_f
+      
+      {
+        nome: item.nome,
+        # CORREÇÃO CRÍTICA: Acessar o campo pelo novo alias 'cor_hex'
+        # Usamos cor_nome ou cor_hex (o valor RGB/HEX) como fallback para o default.
+        cor: item.cor_nome || item.cor_hex || '#10B981', 
+        media: media_calculada.round(1),
+        provas_lancadas: item.provas_lancadas.to_i,
+        total_notas: item.total_notas.to_f.round(1)
+      }
+    end
+  end
 
   def load_professores_da_turma_data
     if @turma_atual.nil?

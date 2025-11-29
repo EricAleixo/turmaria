@@ -71,11 +71,7 @@ Rails.application.routes.draw do
         get :buscar_escolas
       end
     end
-    resources :conteudos do
-      member do
-        delete :remove_material
-      end
-    end
+    
     resources :professors do
       resources :alunos
       member do 
@@ -88,7 +84,7 @@ Rails.application.routes.draw do
       collection do
         get :search
       end
-      resources :conteudos
+      resources :conteudos, controller: 'professor/conteudos'
       resources :disciplinas
       resources :professors
       resources :ano_letivos do

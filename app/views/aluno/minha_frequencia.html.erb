@@ -11,14 +11,14 @@
           Minha Frequência
         </h1>
         <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
-  Turma Atual: 
-  <%= if @turma_atual
-        "#{@turma_atual.serie} ° #{@turma_atual.nome}"
-      else
-        'Nenhuma'
-      end
-  %>
-</span>
+          Turma Atual: 
+          <%= if @turma_atual
+              "#{@turma_atual.serie} ° #{@turma_atual.nome}"
+            else
+              'Nenhuma'
+            end
+          %>
+        </span>
       </div>
 
       <%# --- Lógica para Ausência de Dados vs. Tabela --- %>
@@ -26,7 +26,7 @@
         
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Histórico de Chamadas</h2>
         
-        <div class="overflow-x-auto shadow-xl rounded-xl">
+        <div class="overflow-x-auto shadow-xl rounded-xl mb-12">
           <table class="min-w-full divide-y divide-gray-200">
             <thead>
               <tr class="bg-indigo-600 text-white text-left text-sm uppercase tracking-wider">
@@ -76,6 +76,53 @@
             </tbody>
           </table>
         </div>
+        
+        <%# ---------------------------------------------------- %>
+        <%# 🆕 NOVO BLOCO DE FREQUÊNCIA POR DISCIPLINA (Resumo no Rodapé) 🆕 %>
+        <%# ---------------------------------------------------- %>
+        <% if @frequencia_por_disciplina.present? %>
+          <div class="mt-8 pt-6 border-t-2 border-indigo-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
+                Resumo Percentual por Disciplina
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <% @frequencia_por_disciplina.each do |freq| %>
+                
+                <%# Lógica de cores baseada no percentual de presença %>
+                <% status_cor = case freq[:percentual]
+                  when 75.0..100.0 then 'bg-green-600 text-white' # Acima de 75% é Verde
+                  when 50.0..74.9 then 'bg-yellow-500 text-gray-900' # Entre 50% e 74.9% é Amarelo
+                  else 'bg-red-600 text-white' # Abaixo de 50% é Vermelho
+                end %>
+
+                <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200">
+                  
+                  <%# Nome da Disciplina com cor customizada %>
+                  <h3 class="text-lg font-bold mb-2 truncate" style="color: <%= freq[:cor] %>;">
+                    <%= freq[:nome] %>
+                  </h3>
+                  
+                  <%# Badge de Percentual de Destaque %>
+                  <div class="text-3xl font-extrabold <%= status_cor %> inline-block px-3 py-1 rounded-lg shadow-sm">
+                    <%= "#{freq[:percentual]}%" %>
+                  </div>
+
+                  <%# Detalhes Menores %>
+                  <p class="text-sm text-gray-600 mt-3">
+                    <span class="font-bold text-green-700"><%= freq[:total_presencas] %></span> Presenças
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    <span class="font-bold text-red-700"><%= freq[:total_aulas] - freq[:total_presencas] %></span> Faltas (<%= freq[:total_aulas] %> Aulas no Total)
+                  </p>
+
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <%# ---------------------------------------------------- %>
 
       <% else %>
         

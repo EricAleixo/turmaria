@@ -3,10 +3,24 @@
 <div class="flex justify-center min-h-screen bg-gray-50 py-12">
   <div class="w-full max-w-4xl bg-white rounded-xl shadow-none">
 
-    <%= form_with(model: [:professor, @conteudo], 
-                  id: 'conteudo_form', 
-                  class: "space-y-0",
-                  multipart: true) do |f| %>
+    <%
+  # 1. Determina o escopo da rota:
+  # Se @escola está presente E o usuário não é um Professor (ou seja, Admin/SuperAdmin em rota aninhada),
+  # o formulário deve ser submetido no escopo da Escola.
+  # Caso contrário, usa o escopo :professor (que cobre o Professor e o Admin/SuperAdmin Global).
+  form_scope = if @escola.present? && !current_user.is_a?(Professor)
+                 [@escola, @conteudo] # Rota aninhada: escolas/:id/conteudos
+               else
+                 [:professor, @conteudo] # Rota namespace: professor/conteudos
+               end
+%>
+
+<%= form_with(model: form_scope, 
+              id: 'conteudo_form', 
+              class: "space-y-0",
+              multipart: true) do |f| %>
+
+  <%# O restante do seu formulário aqui %>
 
       <div class="px-8 py-6 border-b border-black/10 space-y-4">
         
