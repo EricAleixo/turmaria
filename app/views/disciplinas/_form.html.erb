@@ -39,7 +39,7 @@
         <button 
           type="button" 
           id="abrir-modal-nome" 
-          class="w-full bg-white text-black border border-gray-300 hover:bg-green-400 hover:text-white px-4 py-2 rounded-lg font-medium transition text-left"
+          class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none "
         >
           <%= @disciplina.nome.presence || "Criar nome" %>
         </button>
@@ -77,16 +77,18 @@
         </div>
       </div>
     </div>
+  </details>
+</div>
 
-    <!-- Filtros Escola / Professor -->
-    <% if current_user.is_a?(SuperAdmin) %>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+      <!-- Escola -->
+      <% if current_user.is_a?(SuperAdmin) %>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Escola *</label>
           <button 
             type="button" 
             id="abrir-modal-escola-btn"
-            class="w-full bg-white text-black border border-gray-300 hover:bg-green-400 hover:text-white px-4 py-2 rounded-lg font-medium transition text-left"
+            class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none"
           >
             <%= @disciplina.escola&.nome || "Selecione a Escola" %>
           </button>
@@ -94,10 +96,9 @@
           <p id="escola-selecionada" class="text-sm text-gray-600 mt-1"><%= @disciplina.escola&.nome %></p>
           <%= form.hidden_field :escola_id, id: "escola_id" %>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
-
   <!-- Actions -->
   <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
     <div class="flex justify-between">
@@ -116,31 +117,43 @@
 <!-- Modal Escola -->
 <dialog id="modal-escola" class="modal">
   <div class="modal-box max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900">Selecionar Escola</h3>
       <button type="button" id="fechar-modal-escola" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
+
     <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
+
       <input 
         type="text" 
         id="filtro-nome-escola" 
         placeholder="Buscar por nome..." 
         class="input input-bordered flex-1 focus:outline-none focus:border-green-500 mb-2 md:mb-0"
       >
-      <select 
-        id="filtro-tipo-escola" 
-        class="select select-bordered focus:outline-none focus:border-green-500"
-      >
-        <option value="">Todas</option>
-        <option value="publica">Pública</option>
-        <option value="privada">Privada</option>
-      </select>
-    </div>
+
+      <div class="flex-none w-36">
+        <%= dropdown(
+              select_id: "filtro-tipo-escola",
+              collection: [
+                ["Todas", ""],
+                ["Pública", "publica"],
+                ["Privada", "privada"]
+              ],
+              initial_value: "",
+              placeholder: "Tipo da escola",
+            ) %>
+      </div>
+
+    </div> 
+
 
     <div id="lista-escolas" class="max-h-64 overflow-y-auto rounded-lg divide-y divide-green-500 p-2 bg-gray-50"></div>
+
   </div>
 </dialog>
+
 
 <!-- Modal de Área -->
 <dialog id="modal-area" class="modal">
@@ -377,9 +390,11 @@ document.addEventListener("turbo:load", function() {
       });
     });
   }
+}
 
-  if (criarNovaAreaOption && modalArea) {
-    criarNovaAreaOption.addEventListener("click", (e) => {
+if (areaOptions) {
+  areaOptions.forEach(option => {
+    option.addEventListener("click", (e) => {
       e.preventDefault();
       const dropdown = document.activeElement;
       if (dropdown) dropdown.blur();
@@ -403,6 +418,7 @@ document.addEventListener("turbo:load", function() {
       console.log("DEBUG: Cor fixa selecionada", corSelecionada);
     });
   });
+}
 
   if (inputCorCustom && bolinhaCustom && previewHex) {
     bolinhaCustom.addEventListener("click", () => inputCorCustom.click());
@@ -414,6 +430,7 @@ document.addEventListener("turbo:load", function() {
       console.log("DEBUG: Cor customizada selecionada", corSelecionada);
     });
   }
+});
 
   if (cancelarBtnArea) {
     cancelarBtnArea.addEventListener("click", () => {
@@ -525,7 +542,19 @@ document.addEventListener("turbo:load", function() {
       bolinhaCustom.style.borderColor = "#D1D5DB";
       bolinhaCustom.style.borderWidth = "1px";
     }
+  });
+}
+
+function resetBordas() {
+  coresFixas.forEach(c => {
+    c.style.borderColor = "#D1D5DB";
+    c.style.borderWidth = "2px";
+  });
+  if (bolinhaCustom) {
+    bolinhaCustom.style.borderColor = "#D1D5DB";
+    bolinhaCustom.style.borderWidth = "1px";
   }
+}
 
   // MODAL NOME
   const abrirModalNomeBtn = document.getElementById("abrir-modal-nome");
@@ -662,5 +691,22 @@ document.addEventListener("turbo:load", function() {
   }
 
   console.log("DEBUG: JavaScript carregado");
+
+  // ROTACIONAR SETA DO DROPDOWN
+const detalhesDropdown = document.querySelector("details.dropdown");
+const setaDropdown = detalhesDropdown ? detalhesDropdown.querySelector("summary svg") : null;
+
+if (detalhesDropdown && setaDropdown) {
+  detalhesDropdown.addEventListener("toggle", () => {
+    if (detalhesDropdown.hasAttribute("open")) {
+      setaDropdown.classList.add("rotate-180");
+      setaDropdown.classList.remove("rotate-0");
+    } else {
+      setaDropdown.classList.add("rotate-0");
+      setaDropdown.classList.remove("rotate-180");
+    }
+  });
+}
+
 });
 </script>

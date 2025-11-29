@@ -53,7 +53,11 @@ class AlunosController < ApplicationController
     def show; end
 
     def new
-        @aluno = @escola.alunos.build
+        if @escola.nil?
+            @aluno = Aluno.new
+        else
+            @aluno = @escola.alunos.build
+        end
     end
 
     def create

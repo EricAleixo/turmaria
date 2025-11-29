@@ -791,7 +791,7 @@
                 </span>
 
                 <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold">
-                  <%= disciplina.area || "Área não informada" %>
+                  <%= disciplina.area_disciplina&.nome|| "Área não informada" %>
                 </span>
               </div>
             </div>

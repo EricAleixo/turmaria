@@ -3,7 +3,7 @@
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div class="flex">
         <svg class="h-5 w-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <div>
           <h3 class="text-sm font-medium text-red-800">Erro ao salvar!</h3>
@@ -32,6 +32,7 @@
     <div class="mb-8">
       <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Campos de texto -->
         <div>
           <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= form.text_field :nome, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "Ex: João da Silva", required: true %>
@@ -44,7 +45,6 @@
 
         <div>
           <%= form.label :password, "Senha *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%# Nota: O campo deveria ser :password, e não :senha, para o Devise/Rails funcionar corretamente %>
           <%= form.password_field :password, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "••••••••", required: !@professor.persisted? %>
         </div>
 
@@ -58,46 +58,24 @@
           <%= form.text_field :telefone, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "(00) 90000-0000" %>
         </div>
 
+        <!-- Dropdown Escola -->
         <div>
-          <%= form.label :escola_id, "Escola *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.collection_select :escola_id, Escola.all.order(:nome), :id, :nome,
-            { prompt: "Selecione a escola" },
-            { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" }
-          %>
+          <%= dropdown(form: form, method: :escola_id, select_id: "escola_select", collection: Escola.all.order(:nome), label_field: :nome, value_field: :id, placeholder: "Selecione a Escola", hidden_field_id: "escola_hidden") %>
+
         </div>
 
+        <!-- Dropdown Tipo de Professor -->
         <div>
-          <%= form.label :tipo_professor, "Tipo de Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.hidden_field :tipo_professor, id: "tipo_hidden", value: @professor.tipo_professor %>
-          <div class="relative w-full">
-            <button type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-left flex justify-between items-center" id="tipo_button">
-              <span id="tipo_label"><%= @professor.tipo_professor.present? ? @professor.tipo_professor.titleize : "Selecione o tipo" %></span>
-              <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <ul id="tipo_list" class="hidden absolute z-10 mt-1 w-full bg-base-100 shadow-lg rounded-lg overflow-auto max-h-60">
-              <% [['Contratado','contratado'], ['Concursado','concursado']].each do |label, value| %>
-                <li><a href="#" data-value="<%= value %>" class="block px-4 py-2 hover:bg-green-100 tipo-option"><%= label %></a></li>
-              <% end %>
-            </ul>
-          </div>
+          <%= dropdown(form: form, method: :tipo_professor, select_id: "tipo_professor_select", collection: [["Contratado","contratado"],["Concursado","concursado"]], placeholder: "Selecione o Tipo", hidden_field_id: "tipo_hidden") %>
+
         </div>
 
-        <div>
-          <%= form.label :formacao, "Formação do Professor *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= form.hidden_field :formacao, id: "formacao_hidden", value: @professor.formacao %>
-          <div class="relative w-full">
-            <button type="button" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-left flex justify-between items-center" id="formacao_button">
-              <span id="formacao_label"><%= @professor.formacao.present? ? @professor.formacao.titleize : "Selecione a formação" %></span>
-              <svg class="w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <ul id="formacao_list" class="hidden absolute z-10 mt-1 w-full bg-base-100 shadow-lg rounded-lg overflow-auto max-h-60">
-              <% [['Doutorado','doutorado'], ['Mestrado','mestrado'], ['Pós graduado','pos_graduado'], ['Graduado','graduado']].each do |label, value| %>
-                <li><a href="#" data-value="<%= value %>" class="block px-4 py-2 hover:bg-green-100 formacao-option"><%= label %></a></li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
+          <%= dropdown(form: form, method: :formacao, select_id: "formacao_select", collection: [["Doutorado","doutorado"],["Mestrado","mestrado"],["Pós graduado","pos_graduado"],["Graduado","graduado"]], placeholder: "Selecione a Formação", hidden_field_id: "formacao_hidden ") %>
 
+
+        <div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -109,42 +87,33 @@
     </div>
   </div>
 <% end %>
- 
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Apenas os dropdowns customizados que usam hidden_field e listas
-    const dropdowns = [
-      {btnId: "tipo_button", listId: "tipo_list", hiddenId: "tipo_hidden", labelId: "tipo_label", optionClass: "tipo-option"},
-      {btnId: "formacao_button", listId: "formacao_list", hiddenId: "formacao_hidden", labelId: "formacao_label", optionClass: "formacao-option"}
-      // O dropdown da escola foi removido daqui pois agora usa o collection_select nativo do Rails
-    ];
+document.addEventListener("DOMContentLoaded", () => {
+  const dropdownConfigs = [
+    {optionClass: "escola-option", hiddenId: "escola_hidden", labelId: "escola_label"},
+    {optionClass: "tipo-option", hiddenId: "tipo_hidden", labelId: "tipo_label"},
+    {optionClass: "formacao-option", hiddenId: "formacao_hidden", labelId: "formacao_label"}
+  ];
 
-    dropdowns.forEach(d => {
-      const btn = document.getElementById(d.btnId);
-      const list = document.getElementById(d.listId);
-
-      // Abre/fecha a lista ao clicar no botão
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation(); // Impede o clique de propagar para o document
-        list.classList.toggle("hidden")
-      });
-
-      // Lógica para selecionar uma opção da lista
-      document.querySelectorAll("." + d.optionClass).forEach(el => {
-        el.addEventListener("click", e => {
-          e.preventDefault();
-          document.getElementById(d.hiddenId).value = el.dataset.value;
-          document.getElementById(d.labelId).textContent = el.textContent;
-          list.classList.add("hidden");
-        });
-      });
-
-      // Fecha ao clicar fora
-      document.addEventListener("click", e => {
-        if (!btn.contains(e.target) && !list.contains(e.target)) {
-          list.classList.add("hidden");
-        }
+  dropdownConfigs.forEach(d => {
+    document.querySelectorAll("." + d.optionClass).forEach(option => {
+      option.addEventListener("click", e => {
+        e.preventDefault();
+        document.getElementById(d.hiddenId).value = option.dataset.value;
+        document.getElementById(d.labelId).textContent = option.textContent;
+        option.closest("details").removeAttribute("open");
       });
     });
   });
+
+  // Fecha dropdowns ao clicar fora
+  document.addEventListener("click", e => {
+    document.querySelectorAll("details.dropdown").forEach(detail => {
+      if (!detail.contains(e.target)) {
+        detail.removeAttribute("open");
+      }
+    });
+  });
+});
 </script>

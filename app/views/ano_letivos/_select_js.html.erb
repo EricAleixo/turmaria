@@ -1,0 +1,23 @@
+<div id="ano-letivo-script">
+  <script>
+    console.log("[DEBUG] _select_js rodou!");
+    console.log("[DEBUG] AnoLetivo ID:", "<%= ano_letivo.id %>", "Ano:", "<%= ano_letivo.ano %>");
+
+    const hiddenField = document.querySelector('#turma_ano_letivo');
+    if(hiddenField) {
+      hiddenField.value = '<%= ano_letivo.id %>';
+      hiddenField.dispatchEvent(new Event('change'));
+      console.log("[DEBUG] Hidden field atualizado:", hiddenField.value);
+    } else {
+      console.warn("[DEBUG] Hidden field #turma_ano_letivo não encontrado");
+    }
+
+    const label = document.querySelector('#ano-letivo-label');
+    if(label) {
+      label.textContent = '<%= ano_letivo.ano %>';
+      console.log("[DEBUG] Label atualizado:", label.textContent);
+    } else {
+      console.warn("[DEBUG] Label #ano-letivo-label não encontrado");
+    }
+  </script>
+</div>
