@@ -1,17 +1,16 @@
 services:
   db:
-    image: postgres
+    image: postgres:18
+    container_name: banco-postgres
+    restart: always
     ports:
       - "5433:5432"
-    container_name: "banco-postgres"
-    restart: "always"
-
     environment:
       POSTGRES_USER: ipdesenvolvimento
       POSTGRES_PASSWORD: ipdesenvolvimento
       POSTGRES_DB: sistema_academico_development
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - turmaria_pgdata:/var/lib/postgresql  # sem /data
 
 volumes:
-  pgdata:
+  turmaria_pgdata:

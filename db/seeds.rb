@@ -54,42 +54,34 @@ puts "Criando Professores..."
   end
 end
 
-puts "Criando Aluno de Teste e Registro de Login..."
-aluno_email = "luan@teste.com" # ALTERADO para ser consistente com o nome
-aluno_password = "123456"
 
-# 1. Criação/Atualização do Objeto Aluno (com Devise)
-aluno = Aluno.find_or_initialize_by(email: aluno_email)
+puts "Criando Alunos de Teste..."
+Aluno.delete_all
 
-if aluno.new_record? || aluno.password_digest.blank? || aluno.confirmed_at.nil?
-  # Adicionando a atribuição do NOME aqui:
-  aluno.nome = "Luan" 
-  
-  aluno.password = aluno_password
-  aluno.password_confirmation = aluno_password
-  aluno.confirmed_at = Time.current # Necessário para o Devise :confirmable
-  aluno.escola = escola # Associa a escola criada
+10.times do |i|
+  aluno = Aluno.find_or_initialize_by(email: "aluno#{i+1}@teste.com")
+  aluno.nome = "Aluno #{i+1}"
+  aluno.password = "12345678"
+  aluno.password_confirmation = "12345678"
+  aluno.confirmed_at = Time.current
+  aluno.escola = Escola.find_by_cnpj("12.345.678/0001-98") # associa a escola criada
 
   if aluno.save
-    puts "Aluno de Teste 'Luan' criado/atualizado!"
+    puts "Aluno #{i+1} criado!"
+    
+    # Criação do registro polimórfico EmailCadastro
+    email_cadastro = EmailCadastro.find_or_initialize_by(email: aluno.email)
+    email_cadastro.user = aluno
+    if email_cadastro.save
+      puts "  → EmailCadastro criado para #{aluno.email}"
+    else
+      puts "  ❌ Erro EmailCadastro: #{email_cadastro.errors.full_messages.to_sentence}"
+    end
+
   else
-    puts "❌ ERRO ao salvar Aluno: #{aluno.errors.full_messages.to_sentence}"
+    puts "❌ Erro Aluno #{i+1}: #{aluno.errors.full_messages.join(", ")}"
   end
 end
 
-
-# 2. Criação/Atualização do EmailCadastro (Registro Polimórfico)
-if aluno.persisted?
-  email_cadastro = EmailCadastro.find_or_initialize_by(email: aluno.email)
-
-  # AQUI está a atribuição polimórfica que resolve todos os erros de validação:
-  email_cadastro.user = aluno
-
-  if email_cadastro.save
-    puts "Registro EmailCadastro criado/atualizado para Aluno."
-  else
-    puts "❌ ERRO ao salvar EmailCadastro: #{email_cadastro.errors.full_messages.to_sentence}"
-  end
-end
 
 puts "🌱 Seeds finalizados com sucesso!"
