@@ -1,28 +1,46 @@
+# app/controllers/professors_controller.rb
+
 class ProfessorsController < ApplicationController
   layout 'dashboard'
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-    @professores = Professor.all
-                            .por_nome(params[:busca])
-                            .por_formacao(params[:formacao])
-                            .por_tipo(params[:tipo])
+    # 1. Escopo inicial de todos os professores
+    professors = Professor.all
 
+    # 2. Aplicar a busca por nome/email
+    professors = professors.por_nome(params[:busca])
+
+    # 3. Aplicar os filtros do Modal (Tipo e Formação)
     if params[:filtros].present?
-      formacoes = %w[mestrado doutorado pos_graduados graduados] & params[:filtros]
-      tipos     = %w[concursado contratado] & params[:filtros]
+      # Opções baseadas nos ENUMs do Professor.rb (precisa estar alinhado com a view)
+      formacao_options = %w[mestrado doutorado pos_graduado graduado]
+      tipo_options     = %w[concursado contratado]
 
-      @professores = @professores.por_formacao(formacoes) if formacoes.any?
-      @professores = @professores.por_tipo(tipos) if tipos.any?
+      # Intersecção: Seleciona apenas as opções válidas que vieram no array de filtros
+      formacoes_selecionadas = formacao_options & params[:filtros]
+      tipos_selecionados     = tipo_options & params[:filtros]
+
+      # Aplica o scope por_formacao
+      professors = professors.por_formacao(formacoes_selecionadas) if formacoes_selecionadas.any?
+      
+      # Aplica o scope por_tipo (que usa a coluna tipo_professor)
+      professors = professors.por_tipo(tipos_selecionados) if tipos_selecionados.any?
     end
+
+    # 4. Atribuição final, ordenação E PAGINAÇÃO
+    professors = professors.order(nome: :asc)
+    
+    # Adiciona a paginação: 15 itens por página.
+    @professores = professors.page(params[:page]).per(15) 
   end
 
+  # ---
+
   def show
-    # Não precisa de código aqui, @professor é definido por set_professor
+    # @professor é definido por set_professor
     @disciplinas = Disciplina.all
-
     @disciplinas_por_area = @disciplinas.group_by { |d| d.area }
-
   end
 
   def new
@@ -32,8 +50,7 @@ class ProfessorsController < ApplicationController
   def create
     @professor = Professor.new(professor_params)
 
-    # 🛑 MUDANÇA PRINCIPAL: Preenche confirmed_at para que o Devise permita o login imediato.
-    # Isso evita o erro 401 Unauthorized, pois a conta é considerada confirmada.
+    # Preenche confirmed_at para que o Devise permita o login imediato.
     @professor.confirmed_at = Time.current
     
     if @professor.save
@@ -43,21 +60,14 @@ class ProfessorsController < ApplicationController
     end
   end
 
-
   def edit
-    # Não precisa de código aqui, @professor é definido por set_professor
+    # @professor é definido por set_professor
   end
 
   def update
-    # 🛑 MUDANÇA SECUNDÁRIA: Permite a atualização da senha. 
-    # Usar .update com 'password' em branco pode falhar em alguns cenários.
-    # O Devise tem um helper para lidar com senhas opcionais.
-    
-    # 🛑 CORREÇÃO NO UPDATE (Se a senha for opcional na atualização)
-    # Se 'password' estiver vazio nos params, removemos para evitar que o Devise
-    # tente salvar um hash vazio ou falhe nas validações.
-    
     update_params = professor_params
+    
+    # Se a senha estiver vazia, remove os campos de senha
     if update_params[:password].blank?
       update_params = update_params.except(:password, :password_confirmation)
     end
@@ -76,7 +86,7 @@ class ProfessorsController < ApplicationController
 
   def update_disciplinas
     @professor = Professor.find(params[:id])
-    @professor.disciplina_ids = params[:disciplina_ids] || []
+    @professor.disciplina_ids = params[:disciplina_ids] || [] 
     redirect_to @professor, notice: "Disciplinas atualizadas com sucesso!"
   end
 
@@ -87,9 +97,18 @@ class ProfessorsController < ApplicationController
   end
 
   def professor_params
-    # 🛑 MUDANÇA: Adiciona :password_confirmation
-    # Embora não esteja no seu 'permit' original, Devise frequentemente o espera
-    # para garantir que a senha foi digitada corretamente ao criar/editar.
-    params.require(:professor).permit(:nome, :email, :password, :password_confirmation, :cpf, :telefone, :escola_id, :tipo_professor, :formacao)
+    params.require(:professor).permit(
+      :nome, 
+      :email, 
+      :password, 
+      :password_confirmation, 
+      :cpf, 
+      :telefone, 
+      :escola_id, 
+      :tipo_professor, 
+      :formacao,
+      :data_nascimento,
+      :foto
+    )
   end
 end

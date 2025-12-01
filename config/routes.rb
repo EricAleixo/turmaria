@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  # Devise para diferentes tipos de usuários
+  # Health check
+  get "up" => "rails/health#show", as: :rails_health_check
+
+  # Devise para diferentes tipos de usuários (sem rotas de registro/senha/sessão padrão)
   devise_for :admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :professors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :coordenadors, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
@@ -8,6 +11,12 @@ Rails.application.routes.draw do
 
   # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
+
+  # Rotas explícitas para a Home (Correção para o erro No route matches [GET] "/home")
+  get 'home', to: 'home#index' 
+  
+  # Página inicial (Rota raiz)
+  root to: "home#index"
 
   # Estados e cidades
   resources :estados do
@@ -41,9 +50,8 @@ Rails.application.routes.draw do
   # Rotas autenticadas (admin ou super_admin)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     
-    # ROTAS DE ALUNOS - CORREÇÃO CRÍTICA AQUI!
+    # ROTAS DE ALUNOS
     resources :alunos do
-      # Adiciona o endpoint AJAX para ser acessível via /alunos/cidades_por_estado
       collection do
         get :cidades_por_estado
       end
@@ -115,10 +123,10 @@ Rails.application.routes.draw do
         resources :disciplinas, only: [:index] do
           # Visualização de resultados
           resource :resultados, controller: 'notas/resultados', only: [:show] do
-             member do
+              member do
               get :detalhes
              end
-           end
+          end
 
           # Frequências aninhadas
           resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
@@ -146,22 +154,17 @@ Rails.application.routes.draw do
     end
   end
 
+  # Rota de Perfil
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'
 
-  # Rotas unificadas Devise
+  # Rotas unificadas Devise (Login/Logout/Recuperação de Senha)
   devise_scope :professor do
-    get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session
-    post   "/login",  to: "devise/unified_sessions#create", as: :user_session
+    get    "/login",   to: "devise/unified_sessions#new",     as: :new_user_session
+    post   "/login",   to: "devise/unified_sessions#create",  as: :user_session
 
-    get    "/password/new", to: "devise/unified_passwords#new",   as: :new_user_password
+    get    "/password/new", to: "devise/unified_passwords#new",    as: :new_user_password
     post   "/password",     to: "devise/unified_passwords#create", as: :user_password
 
     delete "/logout", to: "devise/unified_sessions#destroy", as: :destroy_user_session
   end
-
-  # Página inicial
-  root to: "home#index"
-
-  # Health check
-  get "up" => "rails/health#show", as: :rails_health_check
 end
