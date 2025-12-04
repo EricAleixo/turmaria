@@ -80,8 +80,8 @@
                         <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
                           <%= image_tag current_any_user.foto.variant(resize_to_fill: [42, 42]), class: "object-cover rounded-full w-10 h-10" %>
                         <% else %>
-                        <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
-                          <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
+                          <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                           <% if current_any_user&.nome.present? %>
                             <%= current_any_user.nome.first.upcase %>
                           <% elsif current_any_user&.email.present? %>
@@ -108,7 +108,7 @@
                           <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
                             <%= image_tag current_any_user.foto.variant(resize_to_fill: [32, 32]), class: "object-cover rounded-full w-10 h-10" %>
                           <% else %>
-                          <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
+                          <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
                             <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                               <% if current_any_user&.nome.present? %>
                                 <%= current_any_user.nome.first.upcase %>
