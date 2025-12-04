@@ -71,7 +71,6 @@
     <%# --- SEÇÃO: LISTAGEM DE ALUNOS (Turbo Frame) --- %>
     <%# ---------------------------------------------------------------------- %>
 
-    <%= turbo_frame_tag "alunos" do %>
       <% if @alunos.blank? %>
         <%# CÓDIGO DO EMPTY STATE (Sem alterações significativas, usando Font Awesome) %>
         <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
@@ -279,7 +278,7 @@
         <% end %>
         
       <% end %>
-    <% end %>
+
 
   </div>
 </main>
