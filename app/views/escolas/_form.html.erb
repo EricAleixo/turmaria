@@ -43,11 +43,8 @@
         </div>
 
         <div>
-
           <%= dropdown(form: form, method: :tipo, collection: [['Pública','publica'],['Privada','privada']], placeholder: "Selecione o tipo") %>
-
         </div>
-
 
         <div>
           <%= form.label :cnpj, "CNPJ", class: "block text-sm font-medium text-gray-700 mb-2" %>
@@ -78,13 +75,22 @@
               placeholder: "https://www.escola.com.br" %>
         </div>
 
+        <!-- Campo Admin: mostra diferente se for admin logado -->
         <div>
-            <div>
-
-              <%= dropdown(form: form, method: :admin_id, collection: Admin.where.not(confirmed_at: nil).order(:nome), label_field: :nome, value_field: :id, placeholder: "Selecione um administrador") %>
-
-            </div>
-          <p class="mt-1 text-sm text-gray-500">Apenas administradores confirmados podem ser associados</p>
+          <% if current_admin.present? %>
+            <!-- Admin logado: mostra campo desabilitado com o nome dele -->
+            <%= form.label :admin_id, "Administrador", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field :admin_nome, 
+                value: current_admin.nome,
+                disabled: true,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" %>
+            <%= form.hidden_field :admin_id, value: current_admin.id %>
+            <p class="mt-1 text-sm text-gray-500">Você será automaticamente associado como administrador</p>
+          <% else %>
+            <!-- Não é admin: mostra dropdown normal -->
+            <%= dropdown(form: form, method: :admin_id, collection: Admin.where.not(confirmed_at: nil).order(:nome), label_field: :nome, value_field: :id, placeholder: "Selecione um administrador") %>
+            <p class="mt-1 text-sm text-gray-500">Apenas administradores confirmados podem ser associados</p>
+          <% end %>
         </div>
       </div>
     </div>
@@ -118,19 +124,12 @@
           </div>
 
           <div>
-
             <%= dropdown(form: e, method: :cidade_id, collection: Cidade.all, label_field: :nome_com_estado, value_field: :id, placeholder: "Selecione uma cidade") %>
-
           </div>
 
-          <!-- O campo estado foi removido pois o endereço se relaciona apenas com cidade_id -->
           <div>
-
-
             <%= dropdown(form: e, method: :cidade_id, collection: Cidade.all, label_field: :nome_com_estado, value_field: :id, placeholder: "Selecione uma cidade") %>
-
           </div>
-
 
           <div>
             <%= e.label :cep, "CEP", class: "block text-sm font-medium text-gray-700 mb-2" %>

@@ -1,9 +1,6 @@
 <div class="drawer lg:drawer-open bg-gray-100">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-  <%# Aqui ficaria o Drawer Side (Menu Lateral) %>
-  <%# Exemplo: <%= render 'shared/sidebar' %>
-  
   <div class="drawer-content flex flex-col items-center">
     
     <%# --- LÓGICA CONDICIONAL --- %>
@@ -13,6 +10,9 @@
       
     <% elsif current_professor %>
       <%= render 'dashboard/professores' %>
+    
+    <% elsif current_admin %>
+      <%= render 'dashboard/admin' %>
 
     <% elsif current_aluno %>
       <%= render 'dashboard/aluno' %>

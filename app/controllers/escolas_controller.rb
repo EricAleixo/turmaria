@@ -1,15 +1,25 @@
 class EscolasController < ApplicationController
   layout 'dashboard'
+
+  # SuperAdmin é exigido em tudo, EXCETO:
+  # show, new, edit, update (onde admin comum pode atuar via policy)
+  before_action :required_super_admin!, except: %i[show new edit update]
   before_action :set_escola, only: %i[show edit update destroy]
 
+  # --------------------------
+  # BUSCA RÁPIDA
+  # --------------------------
   def search
     query = params[:q]
     @escolas = Escola.where("nome ILIKE ?", "%#{query}%").limit(10)
 
     render json: @escolas
   end
+
+  # --------------------------
+  # INDEX
+  # --------------------------
   def index
-    # Tenta usar Pundit, com fallback para todos os registros
     begin
       authorize Escola
       @escolas = policy_scope(Escola).includes(:turmas, :alunos, :endereco, :admin)
@@ -17,8 +27,10 @@ class EscolasController < ApplicationController
       Rails.logger.warn "Pundit error: #{e.message}"
       @escolas = Escola.includes(:turmas, :alunos, :endereco, :admin).all
     end
-     
-    # Statistics for dashboard
+
+    # --------------------------
+    # Estatísticas
+    # --------------------------
     @total_escolas = @escolas.count
     @total_escolas_publicas = @escolas.publicas.count
     @total_escolas_privadas = @escolas.privadas.count
@@ -26,22 +38,25 @@ class EscolasController < ApplicationController
     @total_alunos = Aluno.count
     @media_alunos_escola = @total_escolas > 0 ? (@total_alunos.to_f / @total_escolas).round(1) : 0
 
-    # Data for charts
+    # --------------------------
+    # Dados para gráficos
+    # --------------------------
     @escolas_with_counts = @escolas.left_joins(:turmas, :alunos)
                                   .group('escolas.id', 'escolas.nome')
                                   .select('escolas.*, COUNT(DISTINCT turmas.id) as turmas_count, COUNT(DISTINCT alunos.id) as alunos_count')
 
     respond_to do |format|
-      format.html # renderiza a página normal
-      format.turbo_stream # deixa o turbo funcionar
+      format.html
+      format.turbo_stream
     end
 
-    # Apply search filter
+    # --------------------------
+    # BUSCA E FILTROS
+    # --------------------------
     if params[:busca].present?
       @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
     end
 
-    # Apply modal filter
     @escolas = @escolas.where(tipo: "publica") if params[:filtros]&.include?("publicas")
     @escolas = @escolas.where(tipo: "privada") if params[:filtros]&.include?("privadas")
     @escolas = @escolas.where.not(cnpj: [nil, ""]) if params[:filtros]&.include?("with_cnpj")
@@ -58,23 +73,20 @@ class EscolasController < ApplicationController
     end
   end
 
+  # --------------------------
+  # SHOW
+  # --------------------------
   def show
-    # Autorização com Pundit
-    begin
-      authorize @escola
-    rescue Pundit::NotDefinedError => e
-      Rails.logger.warn "Pundit error: #{e.message}"
-      # Continua sem autorização se Pundit não funcionar
-    end
-    
-    # Carrega todos os alunos da escola com a mesma lógica do alunos controller
-    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
+    authorize @escola
 
+    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
     @professores = @escola.professors.includes(:disciplinas).order(:nome)
     @disciplinas = @escola.disciplinas
-    #@disciplinas_por_area = @disciplinas.group(:area).count
   end
 
+  # --------------------------
+  # NEW / WELCOME
+  # --------------------------
   def new
     @escola = Escola.new
     @escola.build_endereco
@@ -85,44 +97,65 @@ class EscolasController < ApplicationController
     @escola.build_endereco
   end
 
+  # --------------------------
+  # EDIT
+  # --------------------------
   def edit
+    authorize @escola
     @escola.build_endereco if @escola.endereco.nil?
   end
 
+  # --------------------------
+  # CREATE
+  # --------------------------
   def create
     @escola = Escola.new(escola_params)
-    
-    # Se for um admin logado, associa automaticamente
+
+    # Força associação ao admin logado
     if current_admin.present?
       @escola.admin = current_admin
     end
 
     respond_to do |format|
       if @escola.save
-        # Se for um admin, associa também na direção inversa
-        if current_admin.present? && current_admin.escolas.nil?
+        # Se o admin não tem escola ainda, vincula
+        if current_admin.present? && current_admin.escola.nil?
           current_admin.update(escola: @escola)
         end
-        
+
         format.html { redirect_to escola_url(@escola), notice: "Escola foi criada com sucesso." }
         format.json { render :show, status: :created, location: @escola }
       else
         @escola.build_endereco if @escola.endereco.nil?
-        
-        # Se veio da página de welcome, renderiza welcome em caso de erro
+
         if request.referer&.include?('welcome')
           format.html { render :welcome, status: :unprocessable_entity }
         else
           format.html { render :new, status: :unprocessable_entity }
         end
+
         format.json { render json: @escola.errors, status: :unprocessable_entity }
       end
     end
   end
 
+  # --------------------------
+  # UPDATE
+  # --------------------------
   def update
+    authorize @escola
+
     respond_to do |format|
-      if @escola.update(escola_params)
+      # Se for admin logado, força admin_id
+      if current_admin.present?
+        escola_params_copy = escola_params
+        escola_params_copy[:admin_id] = current_admin.id
+        update_params = escola_params_copy
+      else
+        update_params = escola_params
+      end
+
+      if @escola.update(update_params)
         format.html { redirect_to @escola, notice: "Escola foi atualizada com sucesso." }
         format.json { render :show, status: :ok, location: @escola }
       else
@@ -132,7 +165,11 @@ class EscolasController < ApplicationController
     end
   end
 
+  # --------------------------
+  # DESTROY (Somente SuperAdmin)
+  # --------------------------
   def destroy
+    authorize @escola
     @escola.destroy!
 
     respond_to do |format|
@@ -141,6 +178,9 @@ class EscolasController < ApplicationController
     end
   end
 
+  # --------------------------
+  # PRIVATE
+  # --------------------------
   private
 
   def set_escola
@@ -155,5 +195,4 @@ class EscolasController < ApplicationController
       ]
     )
   end
-
 end

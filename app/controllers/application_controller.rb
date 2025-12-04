@@ -55,6 +55,13 @@ helper_method :current_any_user, :authenticated_user_type
 
   protected
 
+  def required_super_admin!
+    unless current_any_user.is_a?(SuperAdmin)
+      redirect_to root_path, alert: "Acesso negado"
+    end
+  end
+
+
   # Override Devise's after_confirmation_path_for to use our custom login path
   def after_confirmation_path_for(resource_name, resource)
     new_user_session_path

@@ -7,10 +7,8 @@ class DashboardController < ApplicationController
   def index
     if current_super_admin
       load_super_admin_dashboard_data
-    elsif current_admin # Adicionado: Se for Admin, ele executa a verificação
-      # O redirect_admin_without_school já checou se ele pode continuar.
-      # Se chegou até aqui, ele TEM uma escola.
-      load_admin_dashboard_data # <--- Crie este método se ainda não existir
+    elsif current_admin
+      load_admin_dashboard_data 
     elsif current_professor
       load_professor_dashboard_data
     elsif current_aluno
@@ -305,7 +303,7 @@ end
 
   # Método para garantir que o acesso é liberado (Mantido)
   def authenticate_any_user!
-    unless super_admin_signed_in? || professor_signed_in? || aluno_signed_in?
+    unless super_admin_signed_in? || admin_signed_in? || professor_signed_in? || aluno_signed_in?
       redirect_to new_user_session_path, alert: 'Acesso negado. Faça login para acessar o painel.'
     end
   end
@@ -345,6 +343,71 @@ end
     
     # System growth data for charts
     @monthly_growth = calculate_monthly_growth
+  end
+
+  def load_admin_dashboard_data
+  # Pega apenas as escolas do admin logado
+  @escolas_do_admin = current_admin.escolas.includes(:turmas, :alunos)
+  
+  # Estatísticas principais
+  @minhas_escolas = @escolas_do_admin.count
+  @total_turmas = @escolas_do_admin.sum(&:turmas_count)
+  @total_alunos = @escolas_do_admin.sum(&:alunos_count)
+  
+  escola_ids = @escolas_do_admin.pluck(:id)
+  @total_professores = Professor.where(escola_id: escola_ids).count
+  
+  # Crescimento no mês atual
+  inicio_mes = Date.today.beginning_of_month
+  @escolas_mes_atual = @escolas_do_admin.where('created_at >= ?', inicio_mes).count
+  @alunos_mes_atual = Aluno.where(escola_id: escola_ids)
+                           .where('created_at >= ?', inicio_mes).count
+  
+  # Médias
+  @media_alunos_escola = @minhas_escolas > 0 ? (@total_alunos.to_f / @minhas_escolas).round(1) : 0
+  @media_turmas_escola = @minhas_escolas > 0 ? (@total_turmas.to_f / @minhas_escolas).round(1) : 0
+  @media_alunos_turma = @total_turmas > 0 ? (@total_alunos.to_f / @total_turmas).round(1) : 0
+  
+  # Distribuição por tipo
+  @escolas_publicas = @escolas_do_admin.publicas.count
+  @escolas_privadas = @escolas_do_admin.privadas.count
+  @percentual_publicas = @minhas_escolas > 0 ? ((@escolas_publicas.to_f / @minhas_escolas) * 100).round(1) : 0
+  @percentual_privadas = @minhas_escolas > 0 ? ((@escolas_privadas.to_f / @minhas_escolas) * 100).round(1) : 0
+  
+  # Maiores escolas (top 5)
+  @maiores_escolas = @escolas_do_admin.order(alunos_count: :desc).limit(5)
+  
+  # Escolas recentes (últimas 5)
+  @escolas_recentes = @escolas_do_admin.order(created_at: :desc).limit(5)
+  
+  # Todas as escolas para a grid
+  @todas_escolas = @escolas_do_admin.order(:nome)
+  
+  # Dados para gráfico de crescimento (últimos 6 meses)
+  # Array com nomes dos meses em português
+  meses_pt = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+  
+  @crescimento_labels = []
+  @crescimento_alunos = []
+  @crescimento_turmas = []
+  
+  6.downto(1) do |i|
+    data = i.months.ago.end_of_month
+    # Usa o array de meses em português
+    @crescimento_labels << meses_pt[data.month - 1]
+    
+    alunos_ate_data = Aluno.where(escola_id: escola_ids)
+                           .where('created_at <= ?', data).count
+    turmas_ate_data = Turma.where(escola_id: escola_ids)
+                           .where('created_at <= ?', data).count
+    
+    @crescimento_alunos << alunos_ate_data
+    @crescimento_turmas << turmas_ate_data
+  end
+  
+  # Dados para gráfico de barras (alunos por escola)
+  @escolas_nomes = @escolas_do_admin.order(alunos_count: :desc).pluck(:nome)
+  @escolas_alunos = @escolas_do_admin.order(alunos_count: :desc).pluck(:alunos_count)
   end
 
   # 3. Método: Carrega dados para Professor (Mantido Intacto)

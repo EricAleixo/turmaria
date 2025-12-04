@@ -138,10 +138,8 @@ module ApplicationHelper
   end
 
   def dashboard_link_path
-    if current_super_admin.present? || current_professor.present? || current_aluno
+    if current_super_admin.present? || current_admin.present? || current_professor.present? || current_aluno
       dashboard_path
-    elsif current_admin.present?
-      escolas_path
     else
       root_path
     end
