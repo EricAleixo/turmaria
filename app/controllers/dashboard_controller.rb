@@ -68,10 +68,10 @@ class DashboardController < ApplicationController
   frequencia_agrupada = FrequenciaAluno
     .joins(frequencia: :disciplina)
     .where(aluno_id: aluno_id)
-    .group('disciplinas.nome', 'disciplinas.id') # Adicionamos disciplinas.id para compatibilidade
+    .group('disciplinas.nome', 'disciplinas.id')
     .select(
       'disciplinas.id AS disciplina_id', # Usamos o ID para buscar a cor
-      'disciplinas.nome AS nome',
+      'disciplinas.cor_nome AS nome',
       'COUNT(frequencia_alunos.id) AS total_aulas',
       "SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END) AS total_presencas"
     )
@@ -138,20 +138,19 @@ end
     tabela_notas = RegistroDeNota.table_name
     
     resumo_agregado = RegistroDeNota
-      .where(aluno_id: aluno_id) # Filtra primeiro pelo aluno
-      .joins(avaliacao_configuracao: :disciplina)
-      .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.cor', 'disciplinas.id')
-      .select(
-        'disciplinas.nome AS nome',
-        'disciplinas.cor_nome AS cor_nome', 
-        # CORREÇÃO CRÍTICA: Definir explicitamente o alias para o campo 'cor'
-        'disciplinas.cor AS cor_hex', # Usamos um alias único para evitar conflitos
-        
-        "COUNT(#{tabela_notas}.id) AS provas_lancadas",
-        "AVG(#{tabela_notas}.valor) AS media",
-        "SUM(#{tabela_notas}.valor) AS total_notas"
-      )
-      .order('disciplinas.nome ASC')
+    .where(aluno_id: aluno_id)
+    .joins(avaliacao_configuracao: :disciplina)
+    .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.id')
+    .select(
+      'disciplinas.nome AS nome',
+      'disciplinas.cor_nome AS cor_nome',
+      'disciplinas.cor_nome AS cor_hex', # alias opcional do mesmo campo
+      "COUNT(#{tabela_notas}.id) AS provas_lancadas",
+      "AVG(#{tabela_notas}.valor) AS media",
+      "SUM(#{tabela_notas}.valor) AS total_notas"
+    )
+    .order('disciplinas.nome ASC')
+
       
     # 2. Formatar para o Array de Hashes que a View espera
     resumo_agregado.map do |item|

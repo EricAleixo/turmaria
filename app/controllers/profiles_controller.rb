@@ -8,7 +8,24 @@ class ProfilesController < ApplicationController
 
   # GET /profile
   def show
+    if current_super_admin
+      render "profiles/super_admin_profile"
+
+    elsif current_admin
+      @escola = @user.escolas[0]
+      render "profiles/admin_profile"
+
+    elsif current_professor
+      render "profiles/professor_profile"
+
+    elsif current_aluno
+      render "profiles/aluno_profile"
+
+    else
+      redirect_to root_path, alert: "Acesso não permitido"
+    end
   end
+
 
   # GET /profile/edit
   def edit

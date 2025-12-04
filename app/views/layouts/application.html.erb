@@ -77,18 +77,22 @@
                   </div>
                   
                   <div class="avatar placeholder">
-                    <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
-                      <span class="text-sm font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <% if current_any_user&.nome.present? %>
-                          <%= current_any_user.nome.first.upcase %>
-                        <% elsif current_any_user&.email.present? %>
-                          <%= current_any_user.email.first.upcase %>
+                        <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
+                          <%= image_tag current_any_user.foto.variant(resize_to_fill: [42, 42]), class: "object-cover rounded-full w-10 h-10" %>
                         <% else %>
-                          U
-                        <% end %>
-                      </span>
-                    </div>
-                  </div>
+                        <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
+                          <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                          <% if current_any_user&.nome.present? %>
+                            <%= current_any_user.nome.first.upcase %>
+                          <% elsif current_any_user&.email.present? %>
+                            <%= current_any_user.email.first.upcase %>
+                          <% else %>
+                            U
+                          <% end %>
+                        </span>
+                      </div>
+                    <% end %>
+                  </div>  
 
                   <!-- Dropdown Menu -->
                    <div class="dropdown dropdown-end">
@@ -101,6 +105,9 @@
                     <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
                       <div class="flex items-center gap-3 px-3 py-2 border-b border-gray-100">
                         <div class="avatar placeholder">
+                          <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
+                            <%= image_tag current_any_user.foto.variant(resize_to_fill: [32, 32]), class: "object-cover rounded-full w-10 h-10" %>
+                          <% else %>
                           <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
                             <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                               <% if current_any_user&.nome.present? %>
@@ -112,6 +119,7 @@
                               <% end %>
                             </span>
                           </div>
+                          <% end %>
                         </div>
                         <div>
                           <p class="text-sm font-medium text-gray-900">
@@ -205,6 +213,5 @@
         </footer>
       </div>
     </div>
-    <%# 🛑 FIM DO NOVO LAYOUT DO DRAWER 🛑 %>
   </body>
 </html>
