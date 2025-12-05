@@ -1,53 +1,122 @@
-# app/controllers/disciplinas_controller.rb
 class DisciplinasController < ApplicationController
   before_action :set_disciplina, only: %i[show edit update destroy]
   layout 'dashboard'
 
-  # GET /disciplinas
+  # ---------------------------
+  # INDEX
+  # ---------------------------
   def index
-    @disciplinas = if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
-                     Disciplina.all
-                   elsif current_user.is_a?(Escola)
-                     current_user.disciplinas
-                   elsif current_user.is_a?(Professor)
-                     current_user.disciplinas
-                   else
-                     Disciplina.none
-                   end
-    
+    @disciplinas = policy_scope(Disciplina)
+                    .includes(:escola, :professores, :area_disciplina)
+
     if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])
-      @disciplinas = @disciplinas.joins(:professores).where(professores: { id: @professor.id })
+      @disciplinas = @disciplinas.joins(:professores)
+                                 .where(professores: { id: @professor.id })
     end
-    
-    @disciplinas = @disciplinas.includes(:escola, :professores, :area_disciplina)
   end
 
-  # GET /disciplinas/1
+  # ---------------------------
+  # SHOW
+  # ---------------------------
   def show
+    authorize @disciplina
   end
 
-  # GET /disciplinas/buscar_escolas
-  def buscar_escolas
-    nome = params[:escola_busca].to_s.strip.downcase
-    tipo = params[:tipo].to_s.strip.downcase
-
-    escolas = Escola.all
-    escolas = escolas.where("LOWER(nome) LIKE ?", "%#{nome}%") if nome.present?
-    escolas = escolas.where(tipo: tipo) if tipo.present?
-
-    render json: { escolas: escolas.as_json(only: %i[id nome tipo]) }
-  end
-
-  # GET /disciplinas/new
+  # ---------------------------
+  # NEW
+  # ---------------------------
   def new
-    @disciplinas_areas = AreaDisciplina.all.order(:nome)
     @disciplina = Disciplina.new
+    authorize @disciplina
 
-    if current_user.is_a?(SuperAdmin)
-      @escolas = Escola.all
+    @disciplinas_areas = AreaDisciplina.all.order(:nome)
+
+    # SuperAdmin pode escolher qualquer escola
+    @escolas = Escola.all if current_user.is_a?(SuperAdmin)
+
+    load_professores
+    respond_to_json_if_needed
+  end
+
+  # ---------------------------
+  # EDIT
+  # ---------------------------
+  def edit
+    authorize @disciplina
+
+    @disciplinas_areas = AreaDisciplina.all.order(:nome)
+    @escolas = Escola.all if current_user.is_a?(SuperAdmin)
+  end
+
+  # ---------------------------
+  # CREATE
+  # ---------------------------
+  def create
+    # Escola vinculada ao admin ou escolhida pelo SuperAdmin
+    @escola =
+      if current_user.is_a?(Admin)
+        current_user.escolas.first
+      elsif current_user.is_a?(SuperAdmin)
+        Escola.find(params[:disciplina][:escola_id])
+      end
+
+    @disciplina = @escola.disciplinas.new(disciplina_params.except(:professor_ids))
+    authorize @disciplina
+
+    assign_professores
+
+    if @disciplina.save
+      redirect_to escola_disciplinas_path(@escola), notice: "Disciplina criada com sucesso!"
+    else
+      @disciplinas_areas = AreaDisciplina.all.order(:nome)
+      render :new, status: :unprocessable_entity
     end
+  end
 
+  # ---------------------------
+  # UPDATE
+  # ---------------------------
+  def update
+    authorize @disciplina
+
+    if @disciplina.update(disciplina_params.except(:professor_ids))
+      assign_professores
+      redirect_to @disciplina, notice: "Disciplina atualizada com sucesso."
+    else
+      @disciplinas_areas = AreaDisciplina.all.order(:nome)
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  # ---------------------------
+  # DESTROY
+  # ---------------------------
+  def destroy
+    authorize @disciplina
+    escola = @disciplina.escola
+    @disciplina.destroy
+
+    redirect_to escola_disciplinas_path(escola), notice: "Disciplina removida com sucesso."
+  end
+
+  # ---------------------------
+  # PRIVATE
+  # ---------------------------
+  private
+
+  def set_disciplina
+    @disciplina = Disciplina.find(params[:id])
+  end
+
+  def assign_professores
+    return unless disciplina_params[:professor_ids].present?
+
+    ids = disciplina_params[:professor_ids].reject(&:blank?)
+    @disciplina.professores = Professor.where(id: ids, escola_id: @disciplina.escola_id)
+  end
+
+  def load_professores
     if params[:professor_busca].present? && params[:escola_id].present?
       @professores = Professor.where(escola_id: params[:escola_id])
                               .where("nome ILIKE ?", "%#{params[:professor_busca]}%")
@@ -60,95 +129,24 @@ class DisciplinasController < ApplicationController
     else
       @professores = []
     end
-
-    if request.format.json?
-      render json: {
-        escolas: (@escolas || []).as_json(only: [:id, :nome]),
-        professores: @professores.as_json(only: [:id, :nome, :escola_id])
-      }
-    end
   end
 
-  # GET /disciplinas/1/edit
-  def edit
-    @disciplinas_areas = AreaDisciplina.all.order(:nome)
-    
-    if current_user.is_a?(SuperAdmin)
-      @escolas = Escola.all
-    end
-  end
+  def respond_to_json_if_needed
+    return unless request.format.json?
 
-  # POST /disciplinas
-  def create
-    @escola = if current_user.is_a?(Admin)
-                current_user.escolas.first
-              elsif current_user.is_a?(SuperAdmin) && params[:disciplina][:escola_id].present?
-                Escola.find(params[:disciplina][:escola_id])
-              else
-                nil
-              end
-
-    unless @escola&.is_a?(Escola)
-      flash.now[:alert] = "Escolha uma escola válida"
-      @disciplinas_areas = AreaDisciplina.all.order(:nome)
-      @disciplina = Disciplina.new(disciplina_params)
-      render :new and return
-    end
-
-    @disciplina = @escola.disciplinas.new(disciplina_params.except(:professor_ids))
-
-    if disciplina_params[:professor_ids].present?
-      valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
-      @disciplina.professores = Professor.where(id: valid_ids, escola_id: @escola.id)
-    end
-
-    if @disciplina.save
-      redirect_to escola_disciplinas_path(@escola), notice: "Disciplina criada com sucesso!"
-    else
-      @disciplinas_areas = AreaDisciplina.all.order(:nome)
-      render :new, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /disciplinas/1
-  def update
-    if @disciplina.update(disciplina_params.except(:professor_ids))
-      if disciplina_params[:professor_ids].present?
-        valid_ids = disciplina_params[:professor_ids].reject(&:blank?)
-        @disciplina.professores = Professor.where(
-          id: valid_ids, 
-          escola_id: @disciplina.escola_id
-        )
-      end
-    
-      redirect_to @disciplina, notice: "Disciplina atualizada com sucesso."
-    else
-      @disciplinas_areas = AreaDisciplina.all.order(:nome)
-      render :edit, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /disciplinas/1
-  def destroy
-    escola = @disciplina.escola
-    @disciplina.destroy
-    
-    redirect_to escola_disciplinas_path(escola), notice: "Disciplina removida com sucesso."
-  end
-
-  private
-
-  def set_disciplina
-    @disciplina = Disciplina.find(params[:id])
+    render json: {
+      escolas: (@escolas || []).as_json(only: [:id, :nome]),
+      professores: @professores.as_json(only: [:id, :nome, :escola_id])
+    }
   end
 
   def disciplina_params
     params.require(:disciplina).permit(
-      :nome, 
-      :escola_id, 
+      :nome,
+      :escola_id,
       :cor_nome,
-      :area_nome_temp,  # Nome temporário da área
-      :area_cor_temp,   # Cor temporária da área
+      :area_nome_temp,
+      :area_cor_temp,
       :area_disciplina_id,
       professor_ids: []
     )

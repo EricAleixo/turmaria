@@ -43,10 +43,12 @@
               <div>
                 <p class="text-xs font-medium text-blue-700">Públicas</p>
                 <p class="text-lg font-bold text-blue-800">
-                  <%= @total_escolas_publicas %>
-                  <span class="text-xs font-normal text-blue-600">
-                    (<%= @total_escolas > 0 ? ((@total_escolas_publicas.to_f / @total_escolas) * 100).round(1) : 0 %>%)
-                  </span>
+                  <% if @total_escolas.present? %>
+                    <span class="text-xs font-normal text-blue-600">
+                      (<%= @total_escolas > 0 ? ((@total_escolas_publicas.to_f / @total_escolas) * 100).round(1) : 0 %>%)
+                    </span>
+                  <% end %>
+
                 </p>
               </div>
               <div class="w-6 h-6 bg-blue-200 rounded flex items-center justify-center">
@@ -65,9 +67,12 @@
                 <p class="text-xs font-medium text-purple-700">Privadas</p>
                 <p class="text-lg font-bold text-purple-800">
                   <%= @total_escolas_privadas %>
-                  <span class="text-xs font-normal text-purple-600">
-                    (<%= @total_escolas > 0 ? ((@total_escolas_privadas.to_f / @total_escolas) * 100).round(1) : 0 %>%)
-                  </span>
+                  <% if @total_escolas.present? %>
+                    <span class="text-xs font-normal text-blue-600">
+                      (<%= @total_escolas > 0 ? ((@total_escolas_privadas.to_f / @total_escolas) * 100).round(1) : 0 %>%)
+                    </span>
+                  <% end %>
+
                 </p>
               </div>
               <div class="w-6 h-6 bg-purple-200 rounded flex items-center justify-center">

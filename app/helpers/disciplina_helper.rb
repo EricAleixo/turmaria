@@ -67,12 +67,12 @@ module DisciplinaHelper
   end
 
 def badge_direita(disciplina)
-  cor_bg = disciplina.cor || "#3c3c3c" 
+  cor_bg = disciplina.cor_nome || "#3c3c3c" 
   text_color = contraste_texto(cor_bg) 
 
   content_tag(
     :span,
-    disciplina.area.to_s.titleize.upcase,
+    disciplina.area_disciplina.nome.to_s.titleize.upcase,
     class: "px-3 py-1 text-xs font-medium rounded-full",
     style: "background-color: #{cor_bg}; color: #{text_color};"
   )

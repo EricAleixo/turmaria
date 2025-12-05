@@ -2,76 +2,62 @@ class EscolasController < ApplicationController
   layout 'dashboard'
 
   # SuperAdmin é exigido em tudo, EXCETO:
-  # show, new, edit, update (onde admin comum pode atuar via policy)
-  before_action :required_super_admin!, except: %i[show new edit update]
+  # index, show, new, edit, update (admin acessa via policy)
+  before_action :required_super_admin!, except: %i[index show new edit update]
   before_action :set_escola, only: %i[show edit update destroy]
-
-  # --------------------------
-  # BUSCA RÁPIDA
-  # --------------------------
-  def search
-    query = params[:q]
-    @escolas = Escola.where("nome ILIKE ?", "%#{query}%").limit(10)
-
-    render json: @escolas
-  end
 
   # --------------------------
   # INDEX
   # --------------------------
   def index
-    begin
-      authorize Escola
-      @escolas = policy_scope(Escola).includes(:turmas, :alunos, :endereco, :admin)
-    rescue Pundit::NotDefinedError => e
-      Rails.logger.warn "Pundit error: #{e.message}"
-      @escolas = Escola.includes(:turmas, :alunos, :endereco, :admin).all
+    authorize Escola
+
+    # Admin → só as dele
+    # SuperAdmin → todas
+    @escolas = policy_scope(Escola)
+                .includes(:turmas, :alunos, :endereco, :admin)
+
+    # === ESCOLAS DINÂMICAS ===
+    scope = current_super_admin? ? Escola : @escolas
+
+    @total_escolas = scope.count
+    @total_escolas_publicas = scope.where(tipo: "publica").count
+    @total_escolas_privadas = scope.where(tipo: "privada").count
+
+    # === ALUNOS DINÂMICOS ===
+    if current_super_admin?
+      @total_alunos = Aluno.count
+    else
+      # alunos SOMENTE das escolas do admin
+      @total_alunos = Aluno.where(escola_id: @escolas.ids).count
     end
 
-    # --------------------------
-    # Estatísticas
-    # --------------------------
-    @total_escolas = @escolas.count
-    @total_escolas_publicas = @escolas.publicas.count
-    @total_escolas_privadas = @escolas.privadas.count
-    @total_turmas = Turma.count
-    @total_alunos = Aluno.count
-    @media_alunos_escola = @total_escolas > 0 ? (@total_alunos.to_f / @total_escolas).round(1) : 0
+    # === TURMAS DINÂMICAS ===
+    if current_super_admin?
+      @total_turmas = Turma.count
+    else
+      # turmas SOMENTE das escolas do admin
+      @total_turmas = Turma.where(escola_id: @escolas.ids).count
+    end
 
-    # --------------------------
-    # Dados para gráficos
-    # --------------------------
-    @escolas_with_counts = @escolas.left_joins(:turmas, :alunos)
-                                  .group('escolas.id', 'escolas.nome')
-                                  .select('escolas.*, COUNT(DISTINCT turmas.id) as turmas_count, COUNT(DISTINCT alunos.id) as alunos_count')
+    # === MÉDIA DE ALUNOS POR ESCOLA ===
+    if @total_escolas > 0
+      @media_alunos_escola = (@total_alunos.to_f / @total_escolas).round(1)
+    else
+      @media_alunos_escola = 0
+    end
+
+    # === BUSCA (depois dos stats) ===
+    if params[:busca].present?
+      @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
+    end
 
     respond_to do |format|
       format.html
       format.turbo_stream
     end
-
-    # --------------------------
-    # BUSCA E FILTROS
-    # --------------------------
-    if params[:busca].present?
-      @escolas = @escolas.where("escolas.nome ILIKE ?", "%#{params[:busca]}%")
-    end
-
-    @escolas = @escolas.where(tipo: "publica") if params[:filtros]&.include?("publicas")
-    @escolas = @escolas.where(tipo: "privada") if params[:filtros]&.include?("privadas")
-    @escolas = @escolas.where.not(cnpj: [nil, ""]) if params[:filtros]&.include?("with_cnpj")
-    @escolas = @escolas.where(cnpj: [nil, ""]) if params[:filtros]&.include?("without_cnpj")
-
-    if params[:filtros]&.include?("most_students")
-      @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) DESC')
-    elsif params[:filtros]&.include?("least_students")
-      @escolas = @escolas.left_joins(:alunos).group('escolas.id').order('COUNT(alunos.id) ASC')
-    elsif params[:filtros]&.include?("most_classes")
-      @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) DESC')
-    elsif params[:filtros]&.include?("least_classes")
-      @escolas = @escolas.left_joins(:turmas).group('escolas.id').order('COUNT(turmas.id) ASC')
-    end
   end
+
 
   # --------------------------
   # SHOW
@@ -79,20 +65,15 @@ class EscolasController < ApplicationController
   def show
     authorize @escola
 
-    @alunos = Aluno.where(escola_id: @escola.id).includes(:turma)
+    @alunos = @escola.alunos.includes(:turma)
     @professores = @escola.professors.includes(:disciplinas).order(:nome)
     @disciplinas = @escola.disciplinas
   end
 
   # --------------------------
-  # NEW / WELCOME
+  # NEW
   # --------------------------
   def new
-    @escola = Escola.new
-    @escola.build_endereco
-  end
-
-  def welcome
     @escola = Escola.new
     @escola.build_endereco
   end
@@ -111,31 +92,16 @@ class EscolasController < ApplicationController
   def create
     @escola = Escola.new(escola_params)
 
-    # Força associação ao admin logado
+    # Admin que cria → vira dono
     if current_admin.present?
       @escola.admin = current_admin
     end
 
-    respond_to do |format|
-      if @escola.save
-        # Se o admin não tem escola ainda, vincula
-        if current_admin.present? && current_admin.escola.nil?
-          current_admin.update(escola: @escola)
-        end
-
-        format.html { redirect_to escola_url(@escola), notice: "Escola foi criada com sucesso." }
-        format.json { render :show, status: :created, location: @escola }
-      else
-        @escola.build_endereco if @escola.endereco.nil?
-
-        if request.referer&.include?('welcome')
-          format.html { render :welcome, status: :unprocessable_entity }
-        else
-          format.html { render :new, status: :unprocessable_entity }
-        end
-
-        format.json { render json: @escola.errors, status: :unprocessable_entity }
-      end
+    if @escola.save
+      redirect_to escolas_path, notice: "Escola criada com sucesso."
+    else
+      @escola.build_endereco if @escola.endereco.nil?
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -145,37 +111,27 @@ class EscolasController < ApplicationController
   def update
     authorize @escola
 
-    respond_to do |format|
-      # Se for admin logado, força admin_id
+    update_params =
       if current_admin.present?
-        escola_params_copy = escola_params
-        escola_params_copy[:admin_id] = current_admin.id
-        update_params = escola_params_copy
+        escola_params.except(:admin_id) # Admin não pode trocar dono
       else
-        update_params = escola_params
+        escola_params
       end
 
-      if @escola.update(update_params)
-        format.html { redirect_to @escola, notice: "Escola foi atualizada com sucesso." }
-        format.json { render :show, status: :ok, location: @escola }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @escola.errors, status: :unprocessable_entity }
-      end
+    if @escola.update(update_params)
+      redirect_to escolas_path, notice: "Escola atualizada com sucesso."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
   # --------------------------
-  # DESTROY (Somente SuperAdmin)
+  # DESTROY
   # --------------------------
   def destroy
     authorize @escola
-    @escola.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to escolas_path, status: :see_other, notice: "Escola foi excluída com sucesso." }
-      format.json { head :no_content }
-    end
+    @escola.destroy
+    redirect_to escolas_path, notice: "Escola excluída com sucesso."
   end
 
   # --------------------------
@@ -189,10 +145,15 @@ class EscolasController < ApplicationController
 
   def escola_params
     params.require(:escola).permit(
-      :nome, :cnpj, :telefone, :email, :site, :tipo, :admin_id,
+      :nome, :cnpj, :telefone, :email, :site, :tipo,
       endereco_attributes: [
-        :id, :logradouro, :numero, :complemento, :bairro, :cidade_id, :cep, :_destroy
+        :id, :logradouro, :numero, :complemento, 
+        :bairro, :cidade_id, :cep, :_destroy
       ]
     )
+  end
+
+  def current_super_admin?
+    current_user.is_a?(SuperAdmin) || current_admin.is_a?(SuperAdmin) rescue false
   end
 end

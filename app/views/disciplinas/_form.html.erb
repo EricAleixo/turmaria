@@ -1,4 +1,4 @@
-<%=form_with(model: @disciplina, class: "bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
+<%= form_with(model: @disciplina, class: "bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
   <% if @disciplina&.errors&.any? %>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div class="flex">
@@ -77,28 +77,24 @@
         </div>
       </div>
     </div>
-  </details>
-</div>
 
-
-      <!-- Escola -->
-      <% if current_user.is_a?(SuperAdmin) %>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Escola *</label>
-          <button 
-            type="button" 
-            id="abrir-modal-escola-btn"
-            class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none"
-          >
-            <%= @disciplina.escola&.nome || "Selecione a Escola" %>
-          </button>
-
-          <p id="escola-selecionada" class="text-sm text-gray-600 mt-1"><%= @disciplina.escola&.nome %></p>
-          <%= form.hidden_field :escola_id, id: "escola_id" %>
-        </div>
-      <% end %>
-    </div>
+    <!-- Escola -->
+    <% if current_user.is_a?(SuperAdmin) %>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Escola *</label>
+        <button 
+          type="button" 
+          id="abrir-modal-escola-btn"
+          class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none"
+        >
+          <%= @disciplina.escola&.nome || "Selecione a Escola" %>
+        </button>
+        <p id="escola-selecionada" class="text-sm text-gray-600 mt-1"><%= @disciplina.escola&.nome %></p>
+        <%= form.hidden_field :escola_id, id: "escola_id" %>
+      </div>
+    <% end %>
   </div>
+
   <!-- Actions -->
   <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
     <div class="flex justify-between">
@@ -117,22 +113,18 @@
 <!-- Modal Escola -->
 <dialog id="modal-escola" class="modal">
   <div class="modal-box max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900">Selecionar Escola</h3>
       <button type="button" id="fechar-modal-escola" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-
     <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
-
       <input 
         type="text" 
         id="filtro-nome-escola" 
         placeholder="Buscar por nome..." 
         class="input input-bordered flex-1 focus:outline-none focus:border-green-500 mb-2 md:mb-0"
       >
-
       <div class="flex-none w-36">
         <%= dropdown(
               select_id: "filtro-tipo-escola",
@@ -145,15 +137,11 @@
               placeholder: "Tipo da escola",
             ) %>
       </div>
-
-    </div> 
-
+    </div>
 
     <div id="lista-escolas" class="max-h-64 overflow-y-auto rounded-lg divide-y divide-green-500 p-2 bg-gray-50"></div>
-
   </div>
 </dialog>
-
 
 <!-- Modal de Área -->
 <dialog id="modal-area" class="modal">
@@ -276,7 +264,7 @@
 
 <script>
 document.addEventListener("turbo:load", function() {
-  console.log("DEBUG: JS iniciado");
+  console.log("DEBUG: JS inicializado");
 
   if (window.modalAreaInit) {
     console.log("DEBUG: JS já foi inicializado");
@@ -284,11 +272,12 @@ document.addEventListener("turbo:load", function() {
   }
   window.modalAreaInit = true;
 
+  // Campos hidden
   const hiddenNome = document.getElementById("disciplina-nome");
   const hiddenCorNome = document.getElementById("disciplina-cor-nome");
   const areaNomeTempField = document.getElementById("area-nome-temp-field");
   const areaCorTempField = document.getElementById("area-cor-temp-field");
-  
+
   console.log("DEBUG: Campos hidden", {
     hiddenNome: hiddenNome ? "✓" : "✗",
     hiddenCorNome: hiddenCorNome ? "✓" : "✗",
@@ -372,6 +361,13 @@ document.addEventListener("turbo:load", function() {
   const cancelarBtnArea = document.getElementById("cancelar-btn-area");
   const salvarBtnArea = document.getElementById("salvar-btn-area");
 
+  // Variáveis para cores da área
+  let corSelecionadaArea = "#6B7280"; // Cor padrão
+  const coresFixasArea = document.querySelectorAll("#cores-fixas span[data-cor]");
+  const inputCorCustomArea = document.getElementById("color-picker");
+  const bolinhaCustomArea = document.getElementById("custom-color");
+  const previewHexArea = document.getElementById("color-hex-preview");
+
   if (areaOptions) {
     areaOptions.forEach(option => {
       option.addEventListener("click", (e) => {
@@ -390,53 +386,43 @@ document.addEventListener("turbo:load", function() {
       });
     });
   }
-}
 
-if (areaOptions) {
-  areaOptions.forEach(option => {
-    option.addEventListener("click", (e) => {
+  if (criarNovaAreaOption) {
+    criarNovaAreaOption.addEventListener("click", (e) => {
       e.preventDefault();
-      const dropdown = document.activeElement;
-      if (dropdown) dropdown.blur();
       modalArea.showModal();
     });
   }
 
-  const coresFixas = document.querySelectorAll("#cores-fixas span[data-cor]");
-  const inputCorCustom = document.getElementById("color-picker");
-  const bolinhaCustom = document.getElementById("custom-color");
-  const previewHex = document.getElementById("color-hex-preview");
-
-  let corSelecionada = "#6B7280"; // Cor padrão cinza
-
-  coresFixas.forEach(c => {
-    c.addEventListener("click", () => {
-      corSelecionada = c.dataset.cor;
-      resetBordas();
-      c.style.borderColor = "#000000";
-      c.style.borderWidth = "3px";
-      console.log("DEBUG: Cor fixa selecionada", corSelecionada);
-    });
-  });
-}
-
-  if (inputCorCustom && bolinhaCustom && previewHex) {
-    bolinhaCustom.addEventListener("click", () => inputCorCustom.click());
-    inputCorCustom.addEventListener("input", () => {
-      corSelecionada = inputCorCustom.value;
-      bolinhaCustom.style.backgroundColor = corSelecionada;
-      previewHex.textContent = corSelecionada;
-      resetBordas();
-      console.log("DEBUG: Cor customizada selecionada", corSelecionada);
+  // Seleção de cores para área
+  if (coresFixasArea) {
+    coresFixasArea.forEach(c => {
+      c.addEventListener("click", () => {
+        corSelecionadaArea = c.dataset.cor;
+        resetBordasArea();
+        c.style.borderColor = "#000000";
+        c.style.borderWidth = "3px";
+        console.log("DEBUG: Cor fixa área selecionada", corSelecionadaArea);
+      });
     });
   }
-});
+
+  if (inputCorCustomArea && bolinhaCustomArea && previewHexArea) {
+    bolinhaCustomArea.addEventListener("click", () => inputCorCustomArea.click());
+    inputCorCustomArea.addEventListener("input", () => {
+      corSelecionadaArea = inputCorCustomArea.value;
+      bolinhaCustomArea.style.backgroundColor = corSelecionadaArea;
+      previewHexArea.textContent = corSelecionadaArea;
+      resetBordasArea();
+      console.log("DEBUG: Cor custom área selecionada", corSelecionadaArea);
+    });
+  }
 
   if (cancelarBtnArea) {
     cancelarBtnArea.addEventListener("click", () => {
       modalArea.close();
-      corSelecionada = "#6B7280"; // Reset para cor padrão
-      resetBordas();
+      corSelecionadaArea = "#6B7280"; // Reset
+      resetBordasArea();
     });
   }
 
@@ -450,27 +436,15 @@ if (areaOptions) {
         return; 
       }
 
-      const novaCor = corSelecionada; // Usa a cor selecionada
+      const novaCor = corSelecionadaArea;
       
       console.log("DEBUG: Salvando área", { nome, novaCor });
 
-      // Atualiza o texto exibido
       if (areaTexto) areaTexto.textContent = nome;
-      if (areaNomeTempField) {
-        areaNomeTempField.value = nome;
-        console.log("DEBUG: areaNomeTempField atualizado:", areaNomeTempField.value);
-      }
-      if (areaCorTempField) {
-        areaCorTempField.value = novaCor;
-        console.log("DEBUG: areaCorTempField atualizado:", areaCorTempField.value);
-      }
-      
-      console.log("DEBUG: Campos atualizados", {
-        areaNomeTemp: areaNomeTempField?.value,
-        areaCorTemp: areaCorTempField?.value
-      });
+      if (areaNomeTempField) areaNomeTempField.value = nome;
+      if (areaCorTempField) areaCorTempField.value = novaCor;
 
-      // Adiciona a nova opção no dropdown
+      // Adiciona nova opção ao dropdown
       const dropdownMenu = document.querySelector(".dropdown-content");
       if (dropdownMenu && criarNovaAreaOption) {
         const areaJaExiste = Array.from(document.querySelectorAll(".area-option"))
@@ -498,7 +472,6 @@ if (areaOptions) {
           
           novaLi.appendChild(novoLink);
           
-          // Encontra o <li> que contém o botão "Criar nova área"
           const criarNovaLi = criarNovaAreaOption.closest('li');
           if (criarNovaLi && criarNovaLi.parentElement) {
             criarNovaLi.parentElement.insertBefore(novaLi, criarNovaLi);
@@ -509,13 +482,12 @@ if (areaOptions) {
         }
       }
 
-      // Fecha o modal e reseta
       modalArea.close();
       if (nomeEl) nomeEl.value = "";
-      corSelecionada = "#6B7280"; // Reset para cor padrão
-      resetBordas();
+      corSelecionadaArea = "#6B7280"; // Reset
+      resetBordasArea();
       
-      console.log("DEBUG: Modal fechado e resetado");
+      console.log("DEBUG: Modal área fechado e resetado");
     });
   }
 
@@ -527,34 +499,22 @@ if (areaOptions) {
       if (!(event.clientX >= rect.left && event.clientX <= rect.right &&
             event.clientY >= rect.top && event.clientY <= rect.bottom)) {
         modalArea.close();
-        corSelecionada = "#6B7280"; // Reset para cor padrão
-        resetBordas();
+        corSelecionadaArea = "#6B7280"; // Reset
+        resetBordasArea();
       }
     });
   }
 
-  function resetBordas() {
-    coresFixas.forEach(c => {
+  function resetBordasArea() {
+    coresFixasArea.forEach(c => {
       c.style.borderColor = "#D1D5DB";
       c.style.borderWidth = "2px";
     });
-    if (bolinhaCustom) {
-      bolinhaCustom.style.borderColor = "#D1D5DB";
-      bolinhaCustom.style.borderWidth = "1px";
+    if (bolinhaCustomArea) {
+      bolinhaCustomArea.style.borderColor = "#D1D5DB";
+      bolinhaCustomArea.style.borderWidth = "1px";
     }
-  });
-}
-
-function resetBordas() {
-  coresFixas.forEach(c => {
-    c.style.borderColor = "#D1D5DB";
-    c.style.borderWidth = "2px";
-  });
-  if (bolinhaCustom) {
-    bolinhaCustom.style.borderColor = "#D1D5DB";
-    bolinhaCustom.style.borderWidth = "1px";
   }
-}
 
   // MODAL NOME
   const abrirModalNomeBtn = document.getElementById("abrir-modal-nome");
@@ -562,6 +522,13 @@ function resetBordas() {
   const cancelarBtnNome = document.getElementById("cancelar-btn-nome");
   const salvarBtnNome = document.getElementById("salvar-btn-nome");
   const inputNome = document.getElementById("input-nome");
+
+  // Variáveis para cores do nome
+  let corSelecionadaNome = null;
+  const coresFixasNome = document.querySelectorAll("#cores-nome span[data-cor]");
+  const inputCorCustomNome = document.getElementById("color-picker-nome");
+  const bolinhaCustomNome = document.getElementById("custom-color-nome");
+  const previewHexNome = document.getElementById("color-hex-preview-nome");
 
   if (abrirModalNomeBtn && modalNome) {
     abrirModalNomeBtn.addEventListener("click", () => {
@@ -608,14 +575,8 @@ function resetBordas() {
     });
   }
 
-  // CORES NOME
-  const coresFixasNome = document.querySelectorAll("#cores-nome span[data-cor]");
-  const inputCorCustomNome = document.getElementById("color-picker-nome");
-  const bolinhaCustomNome = document.getElementById("custom-color-nome");
-  const previewHexNome = document.getElementById("color-hex-preview-nome");
-  let corSelecionadaNome = null;
-
-  if (coresFixasNome.length > 0) {
+  // Seleção de cores para nome
+  if (coresFixasNome) {
     coresFixasNome.forEach(c => {
       c.addEventListener("click", () => {
         corSelecionadaNome = c.dataset.cor;
@@ -675,7 +636,6 @@ function resetBordas() {
       console.log("Área Cor Temp:", areaCorTempField?.value);
       console.log("Escola ID:", escolaHidden?.value);
       
-      // Validação antes de enviar
       if (!hiddenNome?.value) {
         e.preventDefault();
         alert("Por favor, defina um nome para a disciplina");
@@ -691,22 +651,5 @@ function resetBordas() {
   }
 
   console.log("DEBUG: JavaScript carregado");
-
-  // ROTACIONAR SETA DO DROPDOWN
-const detalhesDropdown = document.querySelector("details.dropdown");
-const setaDropdown = detalhesDropdown ? detalhesDropdown.querySelector("summary svg") : null;
-
-if (detalhesDropdown && setaDropdown) {
-  detalhesDropdown.addEventListener("toggle", () => {
-    if (detalhesDropdown.hasAttribute("open")) {
-      setaDropdown.classList.add("rotate-180");
-      setaDropdown.classList.remove("rotate-0");
-    } else {
-      setaDropdown.classList.add("rotate-0");
-      setaDropdown.classList.remove("rotate-180");
-    }
-  });
-}
-
 });
 </script>
