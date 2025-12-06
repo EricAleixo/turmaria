@@ -17,7 +17,7 @@ class Turma < ApplicationRecord
   # --- Associações de Frequência e Notas ---
   has_many :frequencias, dependent: :destroy
   has_many :avaliacoes_configuracoes, class_name: 'AvaliacaoConfiguracao'
-  has_many :avaliacoes_bimestrais
+  has_many :avaliacoes_bimestrais, class_name: 'AvaliacaoBimestral', dependent: :destroy
 
   # --- Validações ---
   validates :nome, presence: true

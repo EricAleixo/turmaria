@@ -5,11 +5,31 @@ class Aluno < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable,
          :trackable
-  
+
   # === Associações ===
   belongs_to :escola
   belongs_to :turma, optional: true
   belongs_to :cidade, optional: true
+
+  
+  # === Associações ===
+  # 1. Aluno tem muitas Avaliações Bimestrais
+  has_many :avaliacoes_bimestrais, dependent: :destroy, class_name: 'AvaliacaoBimestral'
+  
+  # 2. Aluno tem muitas Turmas ao longo do tempo (através das notas)
+  # CORRIGIDO: Removendo o 'distinct: true' do options hash e usando o bloco de escopo.
+  has_many :turmas_cursadas, -> { distinct }, 
+           through: :avaliacoes_bimestrais, 
+           source: :turma, 
+           class_name: 'Turma'
+  
+  # 3. Aluno tem muitos Anos Letivos (através das turmas cursadas)
+  # CORRIGIDO: Removendo o 'distinct: true' do options hash e usando o bloco de escopo.
+  has_many :anos_letivos_com_boletim, -> { distinct }, 
+           through: :turmas_cursadas, 
+           source: :ano_letivo, 
+           class_name: 'AnoLetivo'
+
 
   # === Validações ===
   validates :nome, presence: { message: "não pode estar em branco." }, length: { minimum: 3 }
@@ -29,6 +49,11 @@ class Aluno < ApplicationRecord
   before_create :generate_matricula
 
   # === Métodos Públicos ===
+
+  def anos_letivos_com_notas
+    # Retorna uma coleção de objetos AnoLetivo, ordenados do mais novo para o mais antigo.
+    anos_letivos_com_boletim.order(ano: :desc)
+  end
   
   def idade
     return nil unless data_nascimento

@@ -23,6 +23,14 @@ Rails.application.routes.draw do
 
       # Rota para ver o detalhe de um conteúdo
       resources :conteudos, only: [:show], controller: 'aluno/contents'
+
+      resources :boletins, only: [:index], controller: 'aluno/boletins' do
+        
+        # 2. Show: Exibe o boletim detalhado para o Ano Letivo específico
+        # Helper: aluno_boletim_por_ano_path(ano_letivo)
+        # URL: /aluno/boletins/show_por_ano/:id
+        get 'show_por_ano/:id', on: :collection, to: 'aluno/boletins#show_por_ano', as: :por_ano
+      end
     end
   end
 

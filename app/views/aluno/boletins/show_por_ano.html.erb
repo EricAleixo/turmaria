@@ -1,0 +1,189 @@
+<div class="boletim-container p-8 max-w-4xl mx-auto bg-white shadow-xl border border-gray-300">
+
+  <%# --- BOTÕES DE AÇÃO (IMPRIMIR E BAIXAR) --- %>
+  <div class="mb-6 flex justify-end gap-3 print-hide">
+    
+    <%# Link para Baixar PDF (VERDE) %>
+    <%= link_to 'Baixar PDF', por_ano_aluno_boletins_path(@ano_letivo, format: :pdf), 
+                class: "flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 transition duration-150" %>
+    
+    <%# Botão para Impressão com NOVO ÍCONE %>
+    <button onclick="window.print()" 
+            class="flex items-center px-4 py-2 bg-gray-500 text-white font-medium rounded-lg shadow-md hover:bg-gray-600 transition duration-150">
+      <%# ÍCONE DE IMPRESSORA (NOVO SVG) %>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+      </svg>
+      Imprimir
+    </button>
+  </div>
+  <%# --------------------------------------------- %>
+
+
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-800 border-b-2 border-gray-400 pb-2 mb-1">BOLETIM ESCOLAR</h1>
+    <p class="text-right text-sm text-gray-600">Emitido em <%= Time.zone.now.strftime('%d/%m/%Y') %></p>
+  </div>
+
+  <%# --- DADOS DO ALUNO E ESCOLA --- %>
+  <div class="mb-6 p-4 border border-gray-400 bg-gray-50 rounded">
+    <div class="grid grid-cols-2 gap-y-1 text-sm font-medium">
+      <p><strong>ESCOLA:</strong> <%= @aluno.escola.nome.upcase %></p>
+      <p><strong>Matrícula:</strong> <%= @aluno.matricula %></p>
+      <p><strong>Aluno:</strong> <%= @aluno.nome.upcase %></p>
+      <p><strong>Idade:</strong> <%= @aluno.idade || 'N/A' %> anos</p>
+      <p><strong>Série/Ano:</strong> <%= @turma.serie %>º Ano</p>
+      <p><strong>Turma:</strong> <%= @turma.nome %></p>
+      <p><strong>Turno:</strong> <%= @turma.turno.capitalize %></p>
+      <p><strong>Ano Letivo:</strong> <%= @ano_letivo.ano %></p>
+    </div>
+  </div>
+  
+  <%# --- TABELA DE NOTAS --- %>
+  <table class="w-full text-sm border-collapse">
+    <thead>
+      <tr class="bg-gray-700 text-white font-bold">
+        <th class="text-left border border-gray-600 p-2">DISCIPLINA</th>
+        <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+          <th class="text-center border border-gray-600 p-2">Média <%= i + 1 %>º Bim</th>
+        <% end %>
+        <th class="text-center border border-gray-600 p-2">Faltas (ano)</th>
+        <th class="text-center border border-gray-600 p-2">Recup</th>
+        <th class="text-center border border-gray-600 p-2">Média Final</th>
+        <th class="text-center border border-gray-600 p-2">Situação Final</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+      <% @boletim_disciplinas.each do |disciplina, avaliacoes| %>
+        <% notas_bimestrais = {} %>
+        <% avaliacoes.each { |av| notas_bimestrais[av.bimestre] = av.nota_bimestre_final } %>
+
+        <% notas_validas = notas_bimestrais.values.compact %>
+        <% media_simples = notas_validas.any? ? (notas_validas.sum.to_f / notas_validas.size).round(2) : nil %>
+        
+        <% nota_recuperacao = nil %>
+
+        <% media_final_ano = nil %>
+        <% if media_simples.present? %>
+          <% media_final_ano = media_simples.round(1) %>
+        <% end %>
+        <% if nota_recuperacao.present? && media_final_ano.present? %>
+          <% media_final_ano = [media_final_ano, nota_recuperacao].max.round(1) %>
+        <% end %>
+
+        <% freq_data = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 } %>
+        <% total_faltas = freq_data[:total_faltas] %>
+        <% frequencia_percentual = freq_data[:total_aulas] > 0 ? ((freq_data[:total_aulas] - total_faltas).to_f / freq_data[:total_aulas]) * 100 : nil %>
+        
+        <% situacao_final = determinar_situacao_final(media_final_ano, frequencia_percentual) %>
+
+        <tr class="hover:bg-gray-100">
+          <td class="text-left border border-gray-300 p-2 font-semibold"><%= disciplina.nome.upcase %></td>
+          
+          <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+            <% nota = notas_bimestrais[i + 1] %>
+            <td class="text-center border border-gray-300 p-2">
+              <% if nota.present? %>
+                <span class="<%= nota >= 6.0 ? 'text-green-700' : 'text-red-700' %> font-medium">
+                  <%= '%.1f' % nota %>
+                </span>
+              <% else %>
+                <span class="text-gray-400">0.0</span>
+              <% end %>
+            </td>
+          <% end %>
+
+          <td class="text-center border border-gray-300 p-2">
+            <%= total_faltas %>
+          </td>
+          
+          <td class="text-center border border-gray-300 p-2">
+            <%= nota_recuperacao.present? ? ('%.1f' % nota_recuperacao) : '0' %>
+          </td>
+
+          <td class="text-center border border-gray-300 p-2 font-bold">
+            <% if media_final_ano.present? %>
+              <span class="<%= media_final_ano >= 6.0 ? 'text-green-700' : 'text-red-700' %>">
+                <%= '%.1f' % media_final_ano %>
+              </span>
+            <% else %>
+              <span>0.0</span>
+            <% end %>
+          </td>
+
+          <td class="text-center border border-gray-300 p-2 font-bold">
+            <%= situacao_final[:texto].upcase %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%# --- RESULTADO FINAL E POSIÇÃO NA TURMA --- %>
+  <div class="mt-6">
+
+    <%
+      reprovado_em_alguma = @boletim_disciplinas.keys.any? do |disciplina|
+        notas_validas_d = @boletim_disciplinas[disciplina].map(&:nota_bimestre_final).compact
+        media_simples_d = notas_validas_d.any? ? (notas_validas_d.sum.to_f / notas_validas_d.size).round(2) : nil
+        
+        media_final_global = media_simples_d
+        
+        freq_data_d = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+        total_faltas_d = freq_data_d[:total_faltas]
+        frequencia_percentual_d = freq_data_d[:total_aulas] > 0 ? ((freq_data_d[:total_aulas] - total_faltas_d).to_f / freq_data_d[:total_aulas]) * 100 : nil
+        
+        final_situacao = determinar_situacao_final(media_final_global, frequencia_percentual_d)
+        
+        final_situacao[:texto] == 'Reprovado' || final_situacao[:texto] == 'Reprovado por Falta'
+      end
+    %>
+
+    <p class="text-lg mt-4 font-bold text-gray-800 border-t-2 border-b-2 border-gray-400 p-2">
+        RESULTADO FINAL: 
+        <span class="<%= reprovado_em_alguma ? 'text-red-700' : 'text-green-700' %>">
+            <%= reprovado_em_alguma ? 'REPROVADO' : 'APROVADO' %>
+        </span>
+    </p>
+  </div>
+</div>
+
+<%# --- ESTILOS DE IMPRESSÃO (CORRIGIDO PARA EXIBIR APENAS O BOLETIM) --- %>
+<style>
+  @media print {
+    /* 1. OCULTA TODOS OS ELEMENTOS DE NAVEGAÇÃO E BOTÕES */
+    .print-hide {
+      display: none !important;
+    }
+
+    /* 2. OCULTA TODOS OS IRMÃOS DO CONTAINER DO BOLETIM */
+    body > * {
+        visibility: hidden;
+    }
+    
+    /* 3. FORÇA A EXIBIÇÃO APENAS DO BOLETIM (boletim-container) */
+    .boletim-container {
+        /* Torna o container visível e o posiciona no topo da página */
+        visibility: visible !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        
+        /* Ocupa a página inteira e remove estilos de tela */
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Garante que cores de fundo e texto sejam impressas */
+    table, th, td, h1 {
+      background-color: white !important;
+      -webkit-print-color-adjust: exact; 
+      color-adjust: exact;
+    }
+  }
+</style>
