@@ -59,7 +59,7 @@ class Professor::ConteudosController < ApplicationController
       format.html { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." } 
       
       # CORREÇÃO CHAVE: Redireciona o cliente Turbo Stream para a index
-      format.turbo_stream { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." }
+      format.turbo_stream { redirect_to professor_painel_conteudos_path, notice: "Conteúdo criado com sucesso." }
       
       format.json { render :show, status: :created, location: @conteudo }
     end

@@ -98,7 +98,7 @@
           </div>
 
           <!-- Lista de disciplinas -->
-          <%= turbo_frame_tag "disciplinas" do %>
+
             <% if @disciplinas&.any? %>
               <!-- Tabela desktop -->
               <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-200">
@@ -351,7 +351,6 @@
                 <% end %>
               </div>
             <% end %>
-          <% end %>
         </div>
       </main>
     </div>

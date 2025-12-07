@@ -52,7 +52,7 @@
     </div>
 
           <!-- Content: turbo frame -->
-          <%= turbo_frame_tag "alunos" do %>
+          
             <% if @alunos.blank? %>
               <!-- Empty State -->
               <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
@@ -238,7 +238,7 @@
           <%= paginate @alunos %> 
         </div>
         
-      <% end %>
+
     <% end %>
 
   </div>

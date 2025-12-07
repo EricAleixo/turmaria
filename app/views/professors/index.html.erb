@@ -156,7 +156,7 @@
           </div>
 
           <!-- Content: turbo frame -->
-          <%= turbo_frame_tag "professors" do %>
+
             <% if @professores.blank? %>
               <!-- Empty State -->
               <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-green-50 rounded-3xl border-2 border-dashed border-slate-200">
@@ -330,7 +330,6 @@
                 <% end %>
               </div>
             <% end %>
-          <% end %>
 
         </div> <!-- end premium container -->
       </main>

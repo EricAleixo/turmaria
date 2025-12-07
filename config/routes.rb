@@ -71,13 +71,14 @@ Rails.application.routes.draw do
         get :buscar_escolas
       end
     end
-    resources :conteudos do
+    resources :conteudos, controller: 'admin_conteudos' do
       member do
         delete :remove_material
       end
     end
     resources :professors do
       resources :alunos
+      resources :conteudos
       member do 
         patch :update_disciplinas
         patch :update_conteudos
@@ -88,7 +89,7 @@ Rails.application.routes.draw do
       collection do
         get :search
       end
-      resources :conteudos
+      resources :conteudos, controller: 'admin_conteudos'
       resources :disciplinas
       resources :professors
       resources :ano_letivos do
@@ -174,7 +175,7 @@ Rails.application.routes.draw do
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
       resources :alunos
       resources :disciplinas
-      resources :conteudos 
+      resources :conteudos, as: :painel_conteudos
     end
     
   end
