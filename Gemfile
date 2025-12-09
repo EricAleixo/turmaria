@@ -31,6 +31,10 @@ gem "sprockets-rails"
 gem "cssbundling-rails"
 gem "tailwindcss-rails", "~> 4.3"
 
+# pdf downloads
+gem 'prawn'
+gem 'prawn-table'
+
 # Front-end moderno com Hotwire
 gem "importmap-rails"
 gem "turbo-rails"

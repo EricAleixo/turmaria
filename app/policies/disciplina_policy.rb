@@ -1,41 +1,43 @@
 class DisciplinaPolicy < ApplicationPolicy
-  # INDEX - qualquer user autenticado vê as disciplinas dele
+
+  # QUALQUER usuário autenticado pode ver a lista filtrada
   def index?
     user.present?
   end
 
-  # SHOW - Admin só vê se a disciplina é da escola dele
+  # SHOW / CREATE / UPDATE / DESTROY
   def show?
-    return true if user.is_a?(SuperAdmin)
-    return user.escolas.include?(record.escola) if user.is_a?(Admin)
-
-    false
+    can_manage?
   end
 
-  # CREATE
   def create?
-    return true if user.is_a?(SuperAdmin)
-    return user.escolas.include?(record.escola) if user.is_a?(Admin)
-
-    false
+    can_manage?
   end
 
-  # UPDATE
   def update?
-    return true if user.is_a?(SuperAdmin)
-    return user.escolas.include?(record.escola) if user.is_a?(Admin)
-
-    false
+    can_manage?
   end
 
-  # DESTROY
   def destroy?
+    can_manage?
+  end
+
+  private
+
+  # Regras principais centralizadas
+  def can_manage?
+    return false unless user.present?
+
     return true if user.is_a?(SuperAdmin)
-    return user.escolas.include?(record.escola) if user.is_a?(Admin)
+
+    if user.is_a?(Admin)
+      return user.escolas.include?(record.escola)
+    end
 
     false
   end
 
+  # ESCOPO DE CONSULTA
   class Scope < ApplicationPolicy::Scope
     def resolve
       return scope.all if user.is_a?(SuperAdmin)
