@@ -77,7 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_28_144511) do
     t.bigint "turma_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "escola_id", null: false
+    t.uuid "escola_id"
     t.integer "idade"
     t.string "cpf"
     t.string "rg"

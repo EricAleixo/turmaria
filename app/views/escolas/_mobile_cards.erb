@@ -433,11 +433,18 @@
   <% if turmas.any? %>
     <% turmas.each do |turma| %>
       <% card_classes = case turma.turno.to_s.downcase
-        when 'manha' then "bg-gradient-to-br from-yellow-50/40 via-yellow-100/40 to-yellow-200/60 border border-yellow-300/50"
-        when 'tarde' then "bg-gradient-to-br from-blue-50/40 via-blue-100/40 to-blue-200/60 border border-blue-300/50"
-        when 'integral' then "bg-gradient-to-br from-indigo-50/40 via-indigo-100/40 to-indigo-200/60 border border-indigo-300/50"
-        else "bg-white border border-gray-200"
-      end %>
+when "manha"
+  "bg-gradient-to-br from-white via-yellow-50 to-yellow-100 border border-yellow-200/50"
+when "tarde"
+  "bg-gradient-to-br from-white via-orange-50 to-orange-100 border border-orange-200/50"
+when "noite"
+  "bg-gradient-to-br from-white via-blue-50 to-blue-100 border border-blue-200/50"
+when "integral"
+  "bg-gradient-to-br from-white via-green-50 to-green-100 border border-green-200/50"
+else
+  "bg-white border border-gray-200"
+  end
+       %>
 
       <div class="relative  <%= card_classes %> rounded-xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 mb-5 w-full">
         <div class="absolute inset-0 pointer-events-none"></div>
@@ -447,9 +454,7 @@
           <div class="flex justify-between items-start mb-4">
             <div class="flex items-center gap-2">
               <h3 class="text-xl font-bold text-gray-900"><%= turma.nome %></h3>
-              <span class="badge badge-sm bg-white/50 border border-gray-300 text-gray-700 shadow-sm px-3 py-1 font-semibold">
-                <%= turma.turno&.capitalize || "Turno não informado" %>
-              </span>
+                <%=badge_turno(turma) %>
             </div>
 
             <!-- Dropdown ações -->
@@ -774,7 +779,7 @@
           <%= disciplina.cor_nome %>33 60%,
           <%= disciplina.cor_nome %>55 100%
         );"
-        onmouseover="this.querySelector('h2').dataset.originalColor=this.querySelector('h2').style.color; this.querySelector('h2').style.color='<%= disciplina.cor_nome %>'"
+        onmouseover="this.querySelector('h2').dataset.originalColor=this.querySelector('h2').style.color; this.querySelector('h2').style.color='<%= disciplina.area_disciplina.cor %>'"
         onmouseout="this.querySelector('h2').style.color=this.querySelector('h2').dataset.originalColor"
       >
         <div class="card-body p-4 relative">
@@ -953,7 +958,7 @@
   <div class="grid grid-cols-1 gap-4 md:hidden">
     <% if conteudos.any? %>
       <% conteudos.each do |conteudo| %>
-        <% cor_disciplina = conteudo.disciplina&.cor || "#3c3c3c" %>
+        <% cor_disciplina = conteudo.disciplina&.cor_nome || "#3c3c3c" %>
         <div class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg border border-gray-100"
              style="background: linear-gradient(
                       to bottom right,

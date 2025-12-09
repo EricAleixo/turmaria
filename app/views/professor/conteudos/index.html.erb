@@ -26,15 +26,18 @@
 
       <main class="w-full max-w-7xl mx-auto">
         <!-- Breadcrumbs -->
+        <%if current_user.is_a?(SuperAdmin)%>
         <div class="breadcrumbs text-sm mb-6">
           <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-white/20">
-            <li><%= link_to "Escolas", escolas_path, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
-            <% if (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) && @escola %>
+            <%if current_user.is_a?(SuperAdmin)%>
+              <li><%= link_to "Escolas", escolas_path, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+            <% elsif (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) && @escola %>
               <li><%= link_to @escola.nome, escola_path(@escola), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
             <% end %>
             <li class="text-slate-500 font-medium">Conteúdos</li>
           </ul>
         </div>
+        <% end %>
 
         <!-- Success Alert -->
         <% if notice.present? %>
@@ -64,7 +67,7 @@
               </div>
             </div>
 
-            <div class="flex flex-row gap-3 flex-shrink-0">
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
               <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
                 <% if @escola %>
                   <%= link_to new_escola_conteudo_path(@escola), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
@@ -82,7 +85,7 @@
                   <% end %>
                 <% end %>
               <% else %>
-                <%= link_to new_professor_conteudo_path, class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                <%= link_to new_professor_painel_conteudo_path, class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
                   Novo Conteúdo
                 <% end %>
               <% end %>
@@ -104,21 +107,26 @@
         if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
           @escola.present? ? escola_conteudos_path(@escola) : conteudos_path
         else
-          professor_conteudos_path
+          professor_conteudos_path(current_professor)
         end
       ),
       method: :get,
       data: { turbo_frame: "conteudos" },
-      class: 'flex flex-wrap gap-4 items-end' do |form| %>
+      class: 'w-full' do |form| %>
 
-    <div class="flex-1 min-w-0">
-      <div class="flex gap-3 w-full items-end">
-        <div class="flex-1">
-          <%= form.text_field :busca, placeholder: "Buscar por título do conteúdo...", value: params[:busca],
-              class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" %>
-        </div>
+    <!-- Layout responsivo -->
+    <div class="flex flex-col md:flex-row gap-3">
+      <!-- Campo de busca -->
+      <div class="w-full md:flex-1">
+        <%= form.text_field :busca, 
+            placeholder: "Buscar por título do conteúdo...", 
+            value: params[:busca],
+            class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
 
-        <label for="filtro-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-emerald-500 hover:text-white w-44 justify-between">
+      <!-- Botões de filtro e limpar -->
+      <div class="flex gap-3 md:flex-shrink-0">
+        <label for="filtro-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-emerald-500 hover:text-white flex-1 md:w-44 justify-between">
           Filtros
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -129,24 +137,21 @@
             if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
               @escola.present? ? escola_conteudos_path(@escola) : conteudos_path
             else
-              professor_conteudos_path
+              professor_conteudos_path(current_professor)
             end,
-            class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
+            class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 flex-1 md:flex-none md:px-6" %>
       </div>
     </div>
+
   <% end %>
 </div>
-
-
-          <!-- Turbo frame -->
-          <%= turbo_frame_tag "conteudos" do %>
             <% if @conteudos.blank? %>
               <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
                 <div class="max-w-md mx-auto">
-                  <div class="flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-30">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.3
-                    75-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                  </svg>
+                  <div class="flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
                 </div>
                   <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum conteúdo encontrado</h3>
                   <p class="text-slate-500 mb-6">Não existem conteúdos cadastrados para esta escola ou filtros.</p>
@@ -161,7 +166,7 @@
                       <% end %>
                     <% end %>
                   <% else %>
-                    <%= link_to new_professor_conteudo_path, class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full" do %>
+                    <%= link_to new_professor_painel_conteudo_path, class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full" do %>
                       Adicionar Conteúdo
                     <% end %>
                   <% end %>
@@ -202,7 +207,8 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo)
+                                  professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               class: "btn btn-sm btn-circle bg-gradient-to-r from-blue-500 to-green-300 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg",
@@ -221,7 +227,8 @@
                                 elsif current_user.is_a?(Admin)
                                   edit_escola_conteudo_path(@escola, conteudo)
                                 else
-                                  edit_professor_conteudo_path(conteudo)
+                                  edit_professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               class: "btn btn-sm btn-circle bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 hover:scale-110 transition-all duration-300 shadow-lg",
@@ -239,7 +246,8 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo)
+                                  professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               method: :delete,
@@ -294,7 +302,8 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo)
+                                  professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               data: { turbo: false } do %>
@@ -315,7 +324,8 @@
                                 elsif current_user.is_a?(Admin)
                                   edit_escola_conteudo_path(@escola, conteudo)
                                 else
-                                  edit_professor_conteudo_path(conteudo)
+                                  edit_professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               data: { turbo: false } do %>
@@ -334,7 +344,8 @@
                                 elsif current_user.is_a?(Admin)
                                   escola_conteudo_path(@escola, conteudo)
                                 else
-                                  professor_conteudo_path(conteudo)
+                                  professor_painel_conteudo_path(conteudo)
+
                                 end
                               ),
                               method: :delete,
@@ -353,7 +364,7 @@
                 <% end %>
               </div>
             <% end %>
-          <% end %>
+          
         </div>
       </main>
     </div>

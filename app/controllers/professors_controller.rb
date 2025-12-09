@@ -102,6 +102,10 @@ class ProfessorsController < ApplicationController
 
   private
 
+  def set_escola
+    @escola = current_admin.escolas.find(params[:escola_id])
+  end
+
   def set_professor
     @professor = Professor.find(params[:id])
   end

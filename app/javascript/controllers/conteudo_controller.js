@@ -20,6 +20,7 @@ export default class extends Controller {
       this._listeners.push({ node: el, evt, fn, opts });
     };
 
+
     // ====== TURBO: BEFORE-CACHE cleanup handler (mantém comportamento do seu script) ======
     this._beforeCacheHandler = () => {
       const container = document.getElementById("editor-container");
@@ -64,6 +65,19 @@ export default class extends Controller {
     container.dataset.initialized = "true";
 
     let currentRange = null;
+let selectionTimeout = null;
+
+// Função que atualiza a toolbar de verdade no mobile
+const handleSelection = () => {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) {
+    hideToolbar();
+    return;
+  }
+
+  showToolbar();  // tua função já calcula corretamente posição
+};
+
 
     // ============ CONVERSÃO MARKDOWN ============
     // Mantive as mesmas regex/objetos do seu script (sem alterações funcionais)
@@ -311,48 +325,129 @@ export default class extends Controller {
     addElListener(container, "paste", handlePaste);
 
     // ============ TOOLBAR ============
-    const showToolbar = () => {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-          
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-          
-      // Seleciona o form mais próximo do editor
-      const form = toolbar.closest("form");
-      if (!form) return;
-          
-      const formRect = form.getBoundingClientRect();
-      const tbRect = toolbar.getBoundingClientRect();
-          
-      // Calcula posição relativa ao form
-      let left = rect.left + rect.width / 2 - tbRect.width / 2 - formRect.left;
-      let top = rect.top - tbRect.height - 8 - formRect.top + form.scrollTop;
-          
-      // Limita dentro do form (margem interna de 8px)
-      left = Math.max(8, Math.min(left, form.offsetWidth - tbRect.width - 8));
-      top = Math.max(8, top);
-          
-      // Se estiver muito perto do topo, joga pra baixo
-      if (top < 8) {
-        top = rect.bottom - formRect.top + 8 + form.scrollTop;
-      }
-      
-      // Aplica estilos
-      toolbar.style.left = `${left}px`;
-      toolbar.style.top = `${top}px`;
-      toolbar.classList.add("show");
+   
+
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+let toolbarVisible = false;
+let rafId = null;
 
 
-      updateToolbarButtons();
-    };
+// Ajustes de scroll automático
+const SCROLL_MARGIN = 40;
+const SCROLL_SPEED = 8;
 
-    const hideToolbar = () => {
-      toolbar.classList.remove("show");
-      if (headingMenu) headingMenu.classList.remove("show");
-      if (sizeMenu) sizeMenu.classList.remove("show");
-      currentRange = null;
-    };
+
+const MOBILE_OFFSET = 20;
+
+
+const showToolbar = () => {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => {
+    // CORREÇÃO: Tornar toolbar visível temporariamente para calcular dimensões
+    toolbar.style.visibility = 'hidden';
+    toolbar.style.display = 'flex';
+    toolbar.classList.add("show");
+    
+    const tbRect = toolbar.getBoundingClientRect();
+    
+    // Agora sim calcula posição
+    let left = rect.left + rect.width / 2 - tbRect.width / 2 - containerRect.left + container.scrollLeft;
+    left = Math.max(8, Math.min(left, container.offsetWidth - tbRect.width - 8));
+
+    // Verifica espaço disponível
+    const spaceAbove = rect.top - containerRect.top + container.scrollTop;
+    const spaceBelow = containerRect.bottom - rect.bottom;
+    const toolbarHeight = tbRect.height + 16;
+    
+    let top;
+    
+    // Prioriza posicionar ACIMA da seleção
+    if (spaceAbove >= toolbarHeight) {
+      top = rect.top - tbRect.height - 12 - containerRect.top + container.scrollTop;
+    }
+    // Se não couber acima, coloca embaixo
+    else if (spaceBelow >= toolbarHeight) {
+      top = rect.bottom + 12 - containerRect.top + container.scrollTop;
+    }
+    // Último recurso: lado com mais espaço
+    else {
+      top = spaceAbove > spaceBelow 
+        ? Math.max(8, rect.top - tbRect.height - 8 - containerRect.top + container.scrollTop)
+        : rect.bottom + 8 - containerRect.top + container.scrollTop;
+    }
+
+    toolbar.style.left = `${left}px`;
+    toolbar.style.top = `${top}px`;
+    
+    // CORREÇÃO: Agora torna realmente visível
+    toolbar.style.visibility = 'visible';
+    
+    toolbarVisible = true;
+    updateToolbarButtons();
+  });
+};
+
+const hideToolbar = () => {
+  toolbar.classList.remove("show");
+  if (headingMenu) headingMenu.classList.remove("show");
+  if (sizeMenu) sizeMenu.classList.remove("show");
+  currentRange = null;
+  toolbarVisible = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+};
+
+// Auto-scroll quando seleção chega perto do topo/fundo do container
+const autoScroll = () => {
+  if (!toolbarVisible) return;
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const selRect = selection.getRangeAt(0).getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+
+  if (selRect.bottom > containerRect.bottom - SCROLL_MARGIN) {
+    container.scrollTop += SCROLL_SPEED;
+  } else if (selRect.top < containerRect.top + SCROLL_MARGIN) {
+    container.scrollTop -= SCROLL_SPEED;
+  }
+};
+
+// Atualiza posição da toolbar e scroll enquanto arrasta seleção
+let isDraggingHandle = false;
+
+// Começa a arrastar handle
+const handleStartDrag = () => { isDraggingHandle = true; };
+
+// Solta handle
+const handleStopDrag = () => { isDraggingHandle = false; };
+
+// Atualiza toolbar durante arraste
+document.addEventListener("mousemove", () => {
+  if (!isDraggingHandle) return;
+  showToolbar();
+  autoScroll();
+});
+document.addEventListener("touchmove", () => {
+  if (!isDraggingHandle) return;
+  showToolbar();
+  autoScroll();
+});
+
+// Atualiza toolbar quando a seleção muda
+document.addEventListener("selectionchange", () => {
+  if (!toolbarVisible) return;
+  showToolbar();
+});
+
 
     const updateToolbarButtons = () => {
       const sel = window.getSelection();
@@ -619,14 +714,20 @@ export default class extends Controller {
     if (toolbar) addElListener(toolbar, "mousedown", handleToolbarClick);
 
     // Eventos globais (selectionchange, mousedown, click)
-    const selectionChangeHandler = () => {
-      if (document.activeElement === container || container.contains(document.activeElement)) {
-        const sel = window.getSelection();
-        if (!sel.isCollapsed && container.contains(sel.anchorNode)) showToolbar();
-        else hideToolbar();
-      }
-    };
-    addDocListener("selectionchange", selectionChangeHandler);
+
+
+// No mobile NÃO usamos selectionchange porque ele dispara cedo demais
+if (!isMobile) {
+  const selectionChangeHandler = () => {
+    if (document.activeElement === container || container.contains(document.activeElement)) {
+      const sel = window.getSelection();
+      if (!sel.isCollapsed && container.contains(sel.anchorNode)) showToolbar();
+      else hideToolbar();
+    }
+  };
+  addDocListener("selectionchange", selectionChangeHandler);
+}
+
 
     const docMousedownHandler = (e) => {
       if (!container.contains(e.target) && !toolbar.contains(e.target)) hideToolbar();
@@ -640,45 +741,348 @@ export default class extends Controller {
     addDocListener("click", docClickHandler);
 
     // Suporte a Enter em listas
-    const handleKeydown = (e) => {
-      if (e.key === "Enter") {
-        const sel = window.getSelection();
-        if (!sel.rangeCount) return;
+   // Suporte a Enter em listas
+const handleKeydown = (e) => {
+  if (e.key === "Enter") {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
 
-        const node = sel.anchorNode;
-        const parent = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-        const listItem = parent?.closest("li");
+    const node = sel.anchorNode;
+    const parent =
+      node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+    const listItem = parent?.closest("li");
 
-        if (listItem) {
-          e.preventDefault();
+    if (listItem) {
+      e.preventDefault();
 
-          if (!listItem.textContent.trim()) {
-            const list = listItem.closest("ul, ol");
-            const p = document.createElement("p");
-            p.innerHTML = "<br>";
+      if (!listItem.textContent.trim()) {
+        const list = listItem.closest("ul, ol");
+        const p = document.createElement("p");
+        p.innerHTML = "<br>";
 
-            if (listItem.nextSibling) {
-              list.insertBefore(p, listItem);
-            } else {
-              list.parentNode.insertBefore(p, list.nextSibling);
-            }
-
-            listItem.remove();
-
-            if (!list.children.length) list.remove();
-
-            selectNode(p);
-          } else {
-            const newLi = document.createElement("li");
-            newLi.innerHTML = "<br>";
-            listItem.parentNode.insertBefore(newLi, listItem.nextSibling);
-            selectNode(newLi);
-          }
-
-          updateMarkdown();
+        if (listItem.nextSibling) {
+          list.insertBefore(p, listItem);
+        } else {
+          list.parentNode.insertBefore(p, list.nextSibling);
         }
+
+        listItem.remove();
+
+        if (!list.children.length) list.remove();
+
+        selectNode(p);
+      } else {
+        const newLi = document.createElement("li");
+        newLi.innerHTML = "<br>";
+        listItem.parentNode.insertBefore(newLi, listItem.nextSibling);
+        selectNode(newLi);
       }
-    };
-    addElListener(container, "keydown", handleKeydown);
+
+      updateMarkdown();
+    }
   }
+};
+
+addElListener(container, "keydown", handleKeydown);
+
+
+
+//// MOBILE
+
+if (isMobile) {
+  let startHandle = null;
+  let endHandle = null;
+  let isDragging = false;
+  let dragTarget = null;
+  let savedRange = null;
+
+  const getTextNodeAtPoint = (x, y) => {
+    let node = null;
+    let offset = 0;
+
+    if (document.caretPositionFromPoint) {
+      const pos = document.caretPositionFromPoint(x, y);
+      if (pos) { node = pos.offsetNode; offset = pos.offset; }
+    } else if (document.caretRangeFromPoint) {
+      const range = document.caretRangeFromPoint(x, y);
+      if (range) { node = range.startContainer; offset = range.startOffset; }
+    }
+
+    if (node && node.nodeType === Node.ELEMENT_NODE) {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
+      const textNode = walker.nextNode();
+      if (textNode) { node = textNode; offset = 0; }
+    }
+
+    return { node, offset };
+  };
+
+  const createSelectionHandles = () => {
+    if (!startHandle) {
+      startHandle = document.createElement("div");
+      startHandle.className = "selection-handle selection-handle-start";
+      startHandle.innerHTML = '<div class="selection-handle-circle"></div>';
+      document.body.appendChild(startHandle);
+    }
+    if (!endHandle) {
+      endHandle = document.createElement("div");
+      endHandle.className = "selection-handle selection-handle-end";
+      endHandle.innerHTML = '<div class="selection-handle-circle"></div>';
+      document.body.appendChild(endHandle);
+    }
+  };
+
+  const removeSelectionHandles = () => {
+    if (startHandle) { startHandle.remove(); startHandle = null; }
+    if (endHandle) { endHandle.remove(); endHandle = null; }
+  };
+
+const positionHandles = () => {
+  const sel = window.getSelection();
+  if (!sel.rangeCount || sel.isCollapsed) { 
+    removeSelectionHandles(); 
+    return; 
+  }
+
+  // NOVO: Verifica se a seleção está visível
+  if (!isSelectionVisible()) {
+    // Oculta handles mas não remove (mantém seleção)
+    if (startHandle) startHandle.style.display = 'none';
+    if (endHandle) endHandle.style.display = 'none';
+    hideToolbar();
+    return;
+  }
+
+  createSelectionHandles();
+
+  const range = sel.getRangeAt(0);
+  const rects = range.getClientRects();
+  if (!rects.length) return;
+
+  // CORREÇÃO: Adiciona scroll da página para posição absoluta correta
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+  const firstRect = rects[0];
+  startHandle.style.position = 'absolute';
+  startHandle.style.left = `${firstRect.left + scrollX}px`;
+  startHandle.style.top = `${firstRect.top + scrollY}px`;
+  startHandle.style.display = 'block';
+
+  const lastRect = rects[rects.length - 1];
+  endHandle.style.position = 'absolute';
+  endHandle.style.left = `${lastRect.right + scrollX}px`;
+  endHandle.style.top = `${lastRect.top + scrollY}px`;
+  endHandle.style.display = 'block';
+};
+
+  const updateSelectionFromHandle = (clientX, clientY, isStart) => {
+    if (!savedRange) return;
+
+    const { node: newNode, offset: newOffset } = getTextNodeAtPoint(clientX, clientY);
+    if (!newNode || !container.contains(newNode)) return;
+
+    try {
+      const newRange = document.createRange();
+      if (isStart) {
+        newRange.setStart(newNode, newOffset);
+        newRange.setEnd(savedRange.endContainer, savedRange.endOffset);
+      } else {
+        newRange.setStart(savedRange.startContainer, savedRange.startOffset);
+        newRange.setEnd(newNode, newOffset);
+      }
+
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      savedRange = newRange.cloneRange();
+    } catch (e) {
+      console.warn("Erro ao atualizar seleção:", e);
+    }
+  };
+
+  const handleTouchStart = (e, isStart) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging = true;
+    dragTarget = isStart ? 'start' : 'end';
+    const sel = window.getSelection();
+    if (sel.rangeCount) savedRange = sel.getRangeAt(0).cloneRange();
+    hideToolbar();
+
+    // MELHORIA: Iniciar scroll imediatamente
+    const touch = e.touches[0];
+    currentTouchY = touch.clientY;
+    startContinuousScroll();
+  };
+
+    let autoScrollInterval = null;
+  let currentTouchY = null;
+
+  const startContinuousScroll = () => {
+  if (autoScrollInterval) return;
+  
+  autoScrollInterval = setInterval(() => {
+    if (!currentTouchY || !isDragging) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const SCROLL_MARGIN = 80; // zona de detecção
+    const MAX_SPEED = 10;
+    
+    // Calcula distância da borda (quanto mais perto, mais rápido)
+    const distanceFromTop = currentTouchY - containerRect.top;
+    const distanceFromBottom = containerRect.bottom - currentTouchY;
+    
+    // Scroll para cima
+    if (distanceFromTop < SCROLL_MARGIN && distanceFromTop > 0) {
+      const speed = Math.max(2, MAX_SPEED * (1 - distanceFromTop / SCROLL_MARGIN));
+      container.scrollTop = Math.max(0, container.scrollTop - speed);
+      positionHandles();
+    }
+    // Scroll para baixo
+    else if (distanceFromBottom < SCROLL_MARGIN && distanceFromBottom > 0) {
+      const speed = Math.max(2, MAX_SPEED * (1 - distanceFromBottom / SCROLL_MARGIN));
+      container.scrollTop = Math.min(
+        container.scrollHeight - container.clientHeight,
+        container.scrollTop + speed
+      );
+      positionHandles();
+    }
+  }, 16); // ~60fps
+};
+  const stopContinuousScroll = () => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
+    currentTouchY = null;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging && !e.target.closest('.selection-handle')) return; // MELHORIA
+
+    const touch = e.touches[0];
+    currentTouchY = touch.clientY;
+
+    // Inicia o loop de scroll se ainda não estiver rodando
+    if (!autoScrollInterval) {
+      startContinuousScroll();
+    }
+
+    // Se está arrastando handle, atualiza a seleção
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+      updateSelectionFromHandle(touch.clientX, touch.clientY, dragTarget === 'start');
+      requestAnimationFrame(() => positionHandles());
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    stopContinuousScroll(); // Para o scroll quando solta o dedo
+    
+    if (!isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging = false;
+    dragTarget = null;
+
+    setTimeout(() => {
+      positionHandles();
+      showToolbar();
+    }, 100);
+  };
+
+  const isSelectionVisible = () => {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return false;
+  
+  const range = sel.getRangeAt(0);
+  const rects = range.getClientRects();
+  if (!rects.length) return false;
+  
+  const containerRect = container.getBoundingClientRect();
+  
+  // Verifica se QUALQUER parte da seleção está visível
+  for (let rect of rects) {
+    if (rect.bottom >= containerRect.top && 
+        rect.top <= containerRect.bottom &&
+        rect.right >= containerRect.left &&
+        rect.left <= containerRect.right) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
+
+  const selectionChangeHandler = () => {
+  if (isDragging) return;
+
+  const sel = window.getSelection();
+  if (!sel.rangeCount) { 
+    removeSelectionHandles(); 
+    hideToolbar(); 
+    return; 
+  }
+
+  const anchor = sel.anchorNode;
+  if (!container.contains(anchor)) { 
+    removeSelectionHandles(); 
+    hideToolbar(); 
+    return; 
+  }
+
+  if (!sel.isCollapsed) {
+    savedRange = sel.getRangeAt(0).cloneRange();
+    
+    // MELHORIA: Forçar posicionamento imediato na primeira seleção
+    requestAnimationFrame(() => {
+      positionHandles();
+      
+      // Adicionar listeners apenas uma vez
+      if (startHandle && !startHandle.dataset.hasListeners) {
+        startHandle.addEventListener('touchstart', (e) => handleTouchStart(e, true), { passive: false });
+        startHandle.dataset.hasListeners = 'true';
+      }
+      if (endHandle && !endHandle.dataset.hasListeners) {
+        endHandle.addEventListener('touchstart', (e) => handleTouchStart(e, false), { passive: false });
+        endHandle.dataset.hasListeners = 'true';
+      }
+
+      showToolbar();
+    });
+  } else {
+    removeSelectionHandles();
+    hideToolbar();
+  }
+};
+  document.addEventListener("selectionchange", selectionChangeHandler);
+  document.addEventListener('touchmove', handleTouchMove, { passive: false });
+  document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+  
+
+const containerScrollHandler = () => {
+  if (!isDragging) {
+    // Atualiza posição dos handles durante scroll normal
+    requestAnimationFrame(() => {
+      positionHandles();
+    });
+  }
+};
+
+container.addEventListener('scroll', containerScrollHandler, { passive: true });
+
+// E adicione na função de cleanup:
+this._cleanupMobileHandles = () => {
+  stopContinuousScroll();
+  removeSelectionHandles();
+  container.removeEventListener('scroll', containerScrollHandler);
+  document.removeEventListener("selectionchange", selectionChangeHandler);
+  document.removeEventListener('touchmove', handleTouchMove);
+  document.removeEventListener('touchend', handleTouchEnd);
+};
 }
+}}

@@ -1,34 +1,38 @@
+<% 
+  # Detecta o contexto e define as variáveis adequadamente
+  if defined?(current_professor) && current_professor.present?
+    # Contexto: Professor acessando suas próprias views
+    disciplinas = current_professor.disciplinas
+    scope = professor_painel_conteudos_path
+  elsif @escola.present?
+    # Contexto: Admin acessando via escola específica
+    disciplinas = @escola.disciplinas
+    scope = escola_conteudos_path(@escola)
+  else
+    # Fallback: Sem contexto específico
+    disciplinas = []
+    scope = conteudos_path
+  end
+%>
+
 <div data-controller="conteudo arquivos">
 
 <div class="flex justify-center min-h-screen bg-gray-50 py-12">
   <div class="w-full max-w-4xl bg-white rounded-xl shadow-none">
 
-    <%
-  # 1. Determina o escopo da rota:
-  # Se @escola está presente E o usuário não é um Professor (ou seja, Admin/SuperAdmin em rota aninhada),
-  # o formulário deve ser submetido no escopo da Escola.
-  # Caso contrário, usa o escopo :professor (que cobre o Professor e o Admin/SuperAdmin Global).
-  form_scope = if @escola.present? && !current_user.is_a?(Professor)
-                 [@escola, @conteudo] # Rota aninhada: escolas/:id/conteudos
-               else
-                 [:professor, @conteudo] # Rota namespace: professor/conteudos
-               end
-%>
-
-<%= form_with(model: form_scope, 
-              id: 'conteudo_form', 
-              class: "space-y-0",
-              multipart: true) do |f| %>
-
-  <%# O restante do seu formulário aqui %>
+    <%= form_with(model: conteudo, 
+                  url: scope,
+                  id: 'conteudo_form', 
+                  class: "space-y-0",
+                  multipart: true) do |f| %>
 
       <div class="px-8 py-6 border-b border-black/10 space-y-4">
         
-        <% if @conteudo.errors.any? %>
+        <% if conteudo.errors.any? %>
           <div class="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg">
-            <h2 class="font-bold text-lg mb-2"><%= pluralize(@conteudo.errors.count, "Erro") %> impediu o salvamento:</h2>
+            <h2 class="font-bold text-lg mb-2"><%= pluralize(conteudo.errors.count, "Erro") %> impediu o salvamento:</h2>
             <ul class="list-disc list-inside">
-              <% @conteudo.errors.full_messages.each do |message| %>
+              <% conteudo.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
             </ul>
@@ -43,11 +47,6 @@
 
           <%# --- Bloco de Disciplina (Atualizado com daisyUI select) --- %>
           <div>
-            <% disciplinas = if current_user.is_a?(Professor)
-                                @professor&.disciplinas || []
-                              else
-                                @escola&.disciplinas || []
-                              end %>
             
             <%= f.collection_select :disciplina_id, 
                   disciplinas, 
@@ -94,7 +93,7 @@
           <div id="editor-container" 
                class="relative border-0 p-0 py-4 min-h-[500px] text-lg leading-relaxed text-gray-700 outline-none font-sans" 
                contenteditable="true" 
-               data-placeholder="Digite seu conteúdo em Markdown..."><%= @conteudo.markdown %></div>
+               data-placeholder="Digite seu conteúdo em Markdown..."><%= conteudo.markdown %></div>
 
           <div class="hidden absolute z-[1000] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] rounded-xl p-1.5 gap-0.5 border border-gray-200 items-center pointer-events-auto" id="floating-toolbar">
             <button type="button" data-action="bold" title="Negrito (Ctrl+B)" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100"><strong>B</strong></button>
@@ -207,7 +206,7 @@
                   </button>
                 </div>
 
-                <% if @conteudo.persisted? && @conteudo.materiais.attached? %>
+                <% if conteudo.persisted? && conteudo.materiais.attached? %>
                   <div class="mt-6 bg-white rounded-xl border border-gray-200 p-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                       <svg class="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -216,7 +215,7 @@
                       Arquivos anexados
                     </h4>
                     <ul class="space-y-2">
-                      <% @conteudo.materiais.each do |arquivo| %>
+                      <% conteudo.materiais.each do |arquivo| %>
                         <li id="arquivo_<%= arquivo.id %>" class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 group hover:bg-gray-100 transition-colors">
                           <div class="flex items-center gap-3 flex-1 min-w-0">
                             <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -232,7 +231,7 @@
                           
                             <span><%= arquivo.filename %></span>
                             <%= link_to "Remover",
-                              remove_material_conteudo_path(@conteudo, arquivo_id: arquivo.id),
+                              remove_material_conteudo_path(conteudo, arquivo_id: arquivo.id),
                               data: { turbo_method: :delete, turbo_confirm: "Remover este arquivo?" },
                               class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
                             %>
@@ -316,6 +315,160 @@
   color: #9ca3af;
   pointer-events: none;
 }
+
+/* ================================
+   EDITOR - seleção liberada
+==================================*/
+#editor-container,
+#editor-container * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Seleção visual */
+#editor-container ::selection,
+#editor-container *::selection {
+  background: rgba(0,122,255,.25);
+}
+
+/* ================================
+   TOOLBAR FLUTUANTE
+==================================*/
+#floating-toolbar {
+  position: absolute;
+  z-index: 10000;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-8px) scale(.95);
+  transition: opacity .15s cubic-bezier(.4,0,.2,1),
+              transform .15s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform;
+}
+
+#floating-toolbar.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#editor-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 450px);
+  min-height: 500px;
+  position: relative; 
+}
+
+
+#floating-toolbar {
+  position: absolute;
+  z-index: 10000;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden; 
+  transform: translateY(-8px) scale(.95);
+  transition: opacity .15s cubic-bezier(.4,0,.2,1),
+              visibility .15s cubic-bezier(.4,0,.2,1),
+              transform .15s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform, visibility;
+}
+
+#floating-toolbar.show {
+  opacity: 1;
+  visibility: visible; 
+  transform: translateY(0) scale(1);
+}
+#floating-toolbar:not(.show) { pointer-events:none; }
+
+/* ================================
+   HANDLES — ocultos por padrão
+   só aparecem no mobile
+==================================*/
+.selection-handle {
+  display:none;              /* ← impede exibição desktop */
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 9999;
+  cursor:grab;
+  touch-action:none;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+  pointer-events:auto;
+  transition: transform .1s cubic-bezier(.4,0,.2,1);
+  animation: handleFadeIn .15s cubic-bezier(.4,0,.2,1);
+  
+}
+
+.selection-handle:active {
+  cursor:grabbing;
+  transform: scale(1.3);
+}
+
+/* -- Estilo 2 aplicado ao círculo -- */
+.selection-handle-circle {
+  width:14px;
+  height:14px;
+  background:#007aff;
+  border-radius:50%;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,.25),
+    0 0 0 3px rgba(0,122,255,.25);
+  transition:transform .15s, box-shadow .15s, background .2s;
+  pointer-events:none;
+}
+
+.selection-handle:active .selection-handle-circle {
+  transform:scale(1.23);
+  background:#1584ff;
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.3),
+    0 0 0 4px rgba(0,122,255,.35);
+}
+
+/* posição inicial dos dois handles */
+.selection-handle-start,
+.selection-handle-end {
+  transform:translate(-6px,-6px);
+}
+
+/* marcadores verticais */
+.selection-handle-start::before,
+.selection-handle-end::before {
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+
+.selection-handle::after {
+  content:'';
+  position:absolute;
+  width:44px; height:44px;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* animação */
+@keyframes handleFadeIn {
+  from { opacity:0; transform:scale(.5); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+
+@media(max-width:768px){
+  .selection-handle { display:block; } 
+
+  #floating-toolbar {
+    max-width:calc(100vw - 16px);
+  }
+}
+
 
 /* Elementos do editor markdown */
 #editor-container p { margin: 0.5em 0; }
