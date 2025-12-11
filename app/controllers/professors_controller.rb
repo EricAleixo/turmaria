@@ -5,11 +5,10 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-    # 1. Escopo inicial de todos os professores
     professors = Professor.all
-
-    # 2. Aplicar a busca por nome/email
     professors = professors.por_nome(params[:busca])
+
+    @escola = Escola.find(params[:escola_id])
 
     # 3. Aplicar os filtros do Modal (Tipo e Formação)
     if params[:filtros].present?
@@ -35,21 +34,27 @@ class ProfessorsController < ApplicationController
     @professores = professors.page(params[:page]).per(15) 
   end
 
+  def selecionar_escola
+    @escolas = Escola.all
+  end
+
   # ---
 
   def show
+    @escola = Escola.find(params[:escola_id])
+
     # @professor é definido por set_professor
     @disciplinas = Disciplina.all
-    @disciplinas_por_area = @disciplinas.group_by { |d| d.area }
+    @disciplinas_por_area = @disciplinas.group_by { |d| d.area_disciplina }
 
     @conteudos_por_disciplina = Conteudo.includes(:disciplina).group_by(&:disciplina)
 
   end
 
   def update_conteudos
-  @professor = Professor.find(params[:id])
-  @professor.conteudo_ids = params[:conteudo_ids] || []
-  redirect_to @professor, notice: "Conteúdos atualizados com sucesso!"
+    @professor = Professor.find(params[:id])
+    @professor.conteudo_ids = params[:conteudo_ids] || []
+    redirect_to @professor, notice: "Conteúdos atualizados com sucesso!"
   end
 
 

@@ -1,4 +1,8 @@
 module ProfessorsHelper
+
+  def professors_section_active?
+    current_page?(selecionar_escola_professores_path)
+  end
   
   # Configuração das cores por formação
   def tipo_professor_config(formacao)

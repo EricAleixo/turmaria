@@ -72,10 +72,9 @@ Rails.application.routes.draw do
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
     
     get "/escolas/ano_letivos", to: "ano_letivos#selecionar_escola", as: :selecionar_escola_ano_letivo
-
     get "/escolas/alunos", to: "alunos#selecionar_escola", as: :selecionar_escola_alunos
-
     get "/escolas/disciplinas", to: "disciplinas#selecionar_escola", as: :selecionar_escola_disciplinas
+    get "/escolas/professores", to: "professors#selecionar_escola", as: :selecionar_escola_professores
     
     # ROTAS DE ALUNOS
     resources :alunos do
