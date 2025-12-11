@@ -6,14 +6,18 @@ class DisciplinasController < ApplicationController
   # INDEX
   # ---------------------------
   def index
-    @disciplinas = policy_scope(Disciplina)
-                    .includes(:escola, :professores, :area_disciplina)
+    @escola = Escola.find(params[:escola_id])
+    @disciplinas = @escola.disciplinas
 
     if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])
       @disciplinas = @disciplinas.joins(:professores)
                                  .where(professores: { id: @professor.id })
     end
+  end
+
+  def selecionar_escola 
+    @escolas = Escola.all
   end
 
   # ---------------------------

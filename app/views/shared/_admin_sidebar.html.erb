@@ -19,7 +19,7 @@
         
         <li>
           <% if current_admin&.escolas&.first.present? %>
-            <%= link_to dashboard_link_path, class: "flex items-center p-3 rounded-lg #{current_page?(dashboard_link_path) ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <%= link_to dashboard_link_path, class: "flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
               </svg>
@@ -40,7 +40,7 @@
         <% if current_admin&.escolas&.first.present? %>
           <!-- Years and Classes -->
           <li>
-            <%= link_to escola_ano_letivos_path(current_admin.escolas.first), class: "flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700" do %>
+            <%= link_to dashboard_link_path, class: "flex items-center p-3 rounded-lg #{current_page?(dashboard_link_path) ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5M9 12.75h6m-6 3h6m-6-6h6" />
               </svg>
@@ -49,7 +49,9 @@
           </li>
 
           <li>
-            <%= link_to escola_ano_letivos_path(current_admin.escolas.first), class: "flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700" do %>
+            <%= link_to selecionar_escola_ano_letivo_path,
+            class: "flex items-center p-3 rounded-lg 
+            #{ano_letivos_section_active? ? 'bg-green-100 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5M9 12.75h6m-6 3h6m-6-6h6" />
               </svg>
@@ -60,7 +62,7 @@
 
           <!-- Students of the School -->
           <li>
-            <%= link_to escola_alunos_path(current_admin.escolas.first), class: "flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700" do %>
+            <%= link_to selecionar_escola_alunos_path, class: "flex items-center p-3 rounded-lg #{alunos_section_active? ? 'bg-green-100 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
               </svg>
@@ -69,7 +71,7 @@
           </li>
 
           <li>
-            <%= link_to escola_disciplinas_path(current_admin.escolas.first), class: "flex items-center p-3 rounded-lg hover:bg-gray-100 text-gray-700" do %>
+            <%= link_to selecionar_escola_disciplinas_path, class: "flex items-center p-3 rounded-lg #{disciplinas_section_active? ? 'bg-green-100 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" do %>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
               </svg>

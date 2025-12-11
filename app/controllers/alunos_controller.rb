@@ -29,6 +29,10 @@ class AlunosController < ApplicationController
                         .per(15)
     end
 
+    def selecionar_escola
+      @escolas = Escola.all
+    end
+
     # =====================================================================
     # AJAX ENDPOINTS
     # =====================================================================
@@ -189,10 +193,8 @@ class AlunosController < ApplicationController
         # Lógica inalterada
         if params[:escola_id].present?
             @escola = Escola.find(params[:escola_id])
-        elsif super_admin_signed_in?
-            @escola = nil
         else
-            raise ActiveRecord::RecordNotFound, "Couldn't find Escola without an ID"
+            @escola = nil
         end
     end
     

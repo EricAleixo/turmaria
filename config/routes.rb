@@ -9,7 +9,6 @@ Rails.application.routes.draw do
   devise_for :super_admins, skip: [:registrations, :passwords, :sessions], controllers: { confirmations: 'confirmations' }
   devise_for :alunos, skip: [:registrations, :sessions], controllers: { confirmations: 'confirmations' }
 
-  # Dashboard principal
   get 'dashboard', to: 'dashboard#index'
 
   constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
@@ -36,8 +35,6 @@ Rails.application.routes.draw do
       end
     end
   end
-  # Rotas explícitas para a Home (Correção para o erro No route matches [GET] "/home")
-  get 'home', to: 'home#index' 
   
   # Página inicial (Rota raiz)
   root to: "home#index"
@@ -73,6 +70,12 @@ Rails.application.routes.draw do
   
   # Rotas autenticadas (admin ou super_admin)
   constraints lambda { |request| request.env['warden'].authenticated?(:admin) || request.env['warden'].authenticated?(:super_admin) } do
+    
+    get "/escolas/ano_letivos", to: "ano_letivos#selecionar_escola", as: :selecionar_escola_ano_letivo
+
+    get "/escolas/alunos", to: "alunos#selecionar_escola", as: :selecionar_escola_alunos
+
+    get "/escolas/disciplinas", to: "disciplinas#selecionar_escola", as: :selecionar_escola_disciplinas
     
     # ROTAS DE ALUNOS
     resources :alunos do

@@ -10,6 +10,10 @@ class AnoLetivosController < ApplicationController
     @ano_letivos = @escola.ano_letivos
   end
 
+  def selecionar_escola
+    @escolas = Escola.all
+  end
+
   # GET /ano_letivos/:id
   def show
     @escola = @ano_letivo.escola
