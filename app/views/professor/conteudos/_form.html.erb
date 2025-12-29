@@ -45,27 +45,54 @@
 
         <div class="flex flex-wrap items-center gap-4 mt-2">
 
-          <%# --- Bloco de Disciplina (Atualizado com daisyUI select) --- %>
-          <div>
-            
-            <%= f.collection_select :disciplina_id, 
-                  disciplinas, 
-                  :id, 
-                  :nome, 
-                  { prompt: "Selecionar disciplina" }, 
-                  { class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" } %>
-          </div>
+          <%# --- Bloco de Disciplina (Obrigatório) --- %>
+<div>
+  <label class="label">
+    <span class="label-text text-sm font-medium text-gray-700">
+      Disciplina <span class="text-red-500">*</span>
+    </span>
+  </label>
+  <%= f.collection_select :disciplina_id, 
+      disciplinas, 
+      :id, 
+      :nome, 
+      { prompt: "Selecionar disciplina" }, 
+      { 
+        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:disciplina_id].any? ? 'select-error' : ''}", 
+        required: true 
+      } %>
+  <% if conteudo.errors[:disciplina_id].any? %>
+    <label class="label">
+      <span class="label-text-alt text-error">
+        <%= conteudo.errors[:disciplina_id].first %>
+      </span>
+    </label>
+  <% end %>
+</div>
 
-          <%# --- Bloco de Bimestre (Atualizado com daisyUI select) --- %>
-          <div>
-            <%# TODO: Substitua (1..4) pela sua variável correta, ex: (1..@ano_letivo.bimestres) %>
-            <% bimestres_opcoes = (1..4).map { |b| ["#{b}º Bimestre", b] } %>
-            
-            <%= f.select :bimestre, 
-                  bimestres_opcoes, 
-                  { prompt: "Selecionar bimestre" }, 
-                  { class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" } %>
-          </div>
+          <%# --- Bloco de Bimestre (Obrigatório) --- %>
+<div>
+  <label class="label">
+    <span class="label-text text-sm font-medium text-gray-700">
+      Bimestre <span class="text-red-500">*</span>
+    </span>
+  </label>
+  <% bimestres_opcoes = (1..4).map { |b| ["#{b}º Bimestre", b] } %>
+  <%= f.select :bimestre, 
+      bimestres_opcoes, 
+      { prompt: "Selecionar bimestre" }, 
+      { 
+        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:bimestre].any? ? 'select-error' : ''}", 
+        required: true 
+      } %>
+  <% if conteudo.errors[:bimestre].any? %>
+    <label class="label">
+      <span class="label-text-alt text-error">
+        <%= conteudo.errors[:bimestre].first %>
+      </span>
+    </label>
+  <% end %>
+</div>
           
           <%# --- Bloco "Marcar como Atividade" (Atualizado com daisyUI Toggle) --- %>
           <div class="form-control flex-shrink-0">

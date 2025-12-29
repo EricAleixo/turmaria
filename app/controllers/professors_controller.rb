@@ -5,10 +5,11 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
+    if(current_user.is_a?(Admin))
+      @escola = Escola.find(params[:escola_id])
+    end
     professors = Professor.all
     professors = professors.por_nome(params[:busca])
-
-    @escola = Escola.find(params[:escola_id])
 
     # 3. Aplicar os filtros do Modal (Tipo e Formação)
     if params[:filtros].present?
@@ -35,7 +36,7 @@ class ProfessorsController < ApplicationController
   end
 
   def selecionar_escola
-    @escolas = Escola.all
+    @escolas = current_admin.escolas
   end
 
   # ---
@@ -44,10 +45,10 @@ class ProfessorsController < ApplicationController
     @escola = Escola.find(params[:escola_id])
 
     # @professor é definido por set_professor
-    @disciplinas = Disciplina.all
+    @disciplinas = @escola.disciplinas
     @disciplinas_por_area = @disciplinas.group_by { |d| d.area_disciplina }
 
-    @conteudos_por_disciplina = Conteudo.includes(:disciplina).group_by(&:disciplina)
+    @conteudos = @professor.conteudos
 
   end
 
@@ -64,6 +65,9 @@ class ProfessorsController < ApplicationController
 
   def create
     @professor = Professor.new(professor_params)
+
+    @escola = Escola.find(params[:escola_id])
+    @professor.escola = @escola
 
     # Preenche confirmed_at para que o Devise permita o login imediato.
     @professor.confirmed_at = Time.current

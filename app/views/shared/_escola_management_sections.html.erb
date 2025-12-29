@@ -187,7 +187,7 @@
               <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
                 <div class="flex space-x-3">
                   <%# Links de Ação - Usando rotas globais %>
-                  <%= link_to professor_path(professor), class: "rounded-full p-1 text-blue-500 transition-colors hover:bg-blue-100/50 hover:text-blue-700", title: "Ver professor" do %>
+                  <%= link_to escola_professor_path(escola, professor), class: "rounded-full p-1 text-blue-500 transition-colors hover:bg-blue-100/50 hover:text-blue-700", title: "Ver professor" do %>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                   <% end %>
 
@@ -673,105 +673,6 @@
       </div>
     <% end %>
   </div>
-</div>
-
-<div class="mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
-  <div class="flex items-center justify-between border-b border-gray-200 p-6">
-    <h3 class="text-2xl font-bold text-gray-800">Professores da Escola</h3>
-
-    <!-- Ações desktop -->
-    <div class="flex w-80 gap-3">
-      <%= link_to "Ver Professores", escola_professors_path(escola), class: "btn w-1/2 border-blue-500 bg-blue-500 text-white hover:border-blue-600 hover:bg-blue-600" %>
-      <%= link_to "Novo Professor", new_escola_professor_path(escola), class: "btn bg-green-500 text-white w-1/2" %>
-    </div>
-  </div>
-
-  <% if professores.any? %>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="border-b border-gray-200 bg-gradient-to-r from-blue-500 to-green-300">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Professor</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">E-mail</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Disciplina</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Ações</th>
-          </tr>
-        </thead>
-
-        <tbody class="divide-y divide-gray-100 bg-white">
-          <% professores.limit(10).each do |professor| %>
-            <tr class="transition-colors hover:bg-emerald-50/50">
-              <td class="whitespace-nowrap px-6 py-4">
-                <div class="flex items-center space-x-3">
-                  <% if professor.foto.present? %>
-                    <%= image_tag professor.foto, class: "h-10 w-10 rounded-full object-cover shadow-sm border border-gray-200" %>
-                  <% else %>
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white font-semibold shadow-sm border border-emerald-400">
-                      <%= professor.nome[0].upcase %>
-                    </div>
-                  <% end %>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900"><%= professor.nome %></div>
-                  </div>
-                </div>
-              </td>
-
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700"><%= professor.email %></td>
-
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                <% professores.each do |professor| %>
-                  <%= disciplinas_badges(professor) %>
-                <% end %>
-              </td>
-
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                <div class="flex space-x-3">
-                  <%= link_to escola_professor_path(escola, professor), class: "rounded-full p-1 text-blue-500 transition-colors hover:bg-blue-100/50 hover:text-blue-700" do %>
-                    <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                  <% end %>
-
-                  <%= link_to edit_escola_professor_path(escola, professor), class: "rounded-full p-1 text-yellow-600 transition-colors hover:bg-yellow-100/50 hover:text-yellow-800" do %>
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                  <% end %>
-
-                  <%= link_to escola_professor_path(escola, professor),
-                              method: :delete,
-                              data: { turbo: 'Tem certeza que deseja excluir este professor?' },
-                              class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  <% end %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-    </table>
-
-      <% if escola.professors.count > 10 %>
-        <div class="border-t border-gray-200 px-6 py-4 text-center">
-          <%= link_to "Ver todos os professores (#{escola.professors.count})", escola_professors_path(escola), class: "font-semibold text-emerald-600 hover:text-emerald-800" %>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="py-12 text-center">
-      <svg class="mx-auto h-16 w-16 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9A3.75 3.75 0 1112 5.25 3.75 3.75 0 0115.75 9zM4.5 18.75a8.25 8.25 0 0115 0" />
-      </svg>
-      <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum professor cadastrado</h3>
-      <p class="mt-1 text-sm text-gray-500">Comece adicionando o primeiro professor desta escola.</p>
-      <div class="mt-6">
-        <%= link_to "Criar Primeiro Professor", new_escola_professor_path(escola), class: "btn btn-primary rounded-lg px-5 py-2.5 font-medium text-white shadow-md transition-colors" %>
-      </div>
-    </div>
-  <% end %>
 </div>
 
 <div class="hidden md:block mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">

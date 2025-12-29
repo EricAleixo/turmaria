@@ -1,6 +1,6 @@
 class Conteudo < ApplicationRecord
   belongs_to :professor, optional:true 
-  belongs_to :disciplina, optional:true 
+  belongs_to :disciplina
   belongs_to :escola, optional: true
   
   has_many_attached :materiais

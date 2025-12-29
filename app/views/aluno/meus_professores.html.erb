@@ -1,3 +1,5 @@
+<% puts controller_name %>
+
 <%# Define o título da página usando a variável carregada no controller %>
 <%= content_for :page_title, @titulo_pagina %>
 
@@ -75,13 +77,11 @@
                         <% cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#10B981' %>
                         
                         <%# Filtra para exibir apenas as disciplinas associadas à Turma Atual %>
-                        <% if disciplina.turmas.include?(@turma_atual) %>
                           <div class="mb-1">
                             <span class="font-semibold text-base" style="color: <%= cor_disciplina %>;">
                               <%= disciplina.nome %>
                             </span>
                           </div>
-                        <% end %>
                       <% end %>
                     <% else %>
                       <span class="text-sm text-gray-500 italic">Sem disciplinas cadastradas</span>

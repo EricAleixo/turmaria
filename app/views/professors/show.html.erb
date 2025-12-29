@@ -180,7 +180,6 @@
               <tr>
                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Selecionar</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome da Disciplina</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -226,7 +225,7 @@
         </div>
     
         <div class="flex justify-end">
-          <%= submit_tag "Salvar alterações", class: "inline-flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all duration-200" %>
+          <%= submit_tag "Salvar alterações", class: "cursor-pointer inline-flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all duration-200" %>
         </div>
       <% end %>
     </div>
@@ -235,68 +234,175 @@
   <div class="flex items-center justify-between mb-6">
     <div>
       <h3 class="text-xl font-semibold text-gray-800">Conteúdos do Professor</h3>
-      <p class="text-sm text-gray-500">Selecione os conteúdos que <%= @professor.nome %> leciona.</p>
+      <p class="text-sm text-gray-500"><%= @conteudos.count %> conteúdos cadastrados</p>
     </div>
   </div>
 
-  <%= form_with url: update_conteudos_professor_path(@professor), method: :patch, class: "space-y-6" do %>
-    <div class="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Selecionar</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título do Conteúdo</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disciplina</th>
-          </tr>
-        </thead>
+  <% if @conteudos.any? %>
+    <% conteudos_por_disciplina = @conteudos.group_by(&:disciplina) %>
+    <% conteudos_por_disciplina.sort_by { |disciplina, _| disciplina&.area_disciplina&.nome || "Sem área" }.each do |disciplina, conteudos| %>
+      <% if disciplina %>
+        <!-- Cabeçalho da Área -->
+        <% area = disciplina.area_disciplina %>
+        <% if area && (conteudos_por_disciplina.keys.first(conteudos_por_disciplina.keys.index(disciplina) + 1).none? { |d| d&.area_disciplina == area } || disciplina == conteudos_por_disciplina.keys.first) %>
+          <div class="mt-6 mb-4 flex items-center gap-3">
+            <div class="flex-grow h-px" style="background: linear-gradient(to right, <%= area.cor || '#ccc' %>, transparent);"></div>
+            <div class="badge badge-lg font-bold text-white px-4 py-3" style="background-color: <%= area.cor || '#6b7280' %>;">
+              <%= area.nome %>
+            </div>
+            <div class="flex-grow h-px" style="background: linear-gradient(to left, <%= area.cor || '#ccc' %>, transparent);"></div>
+          </div>
+        <% end %>
 
-        <tbody class="divide-y divide-gray-100">
-          <% @conteudos_por_disciplina.each do |disciplina, conteudos| %>
-            <tbody class="group hover:bg-green-50 transition">
+        <!-- Header da Disciplina -->
+        <div class="mb-2 mt-4">
+          <div class="flex items-center gap-2 px-4 py-2 rounded-lg" style="background-color: <%= disciplina.cor_nome %>15; border-left: 4px solid <%= disciplina.cor_nome %>;">
+            <div class="w-3 h-3 rounded-full" style="background-color: <%= disciplina.cor_nome %>;"></div>
+            <span class="font-semibold text-lg" style="color: <%= disciplina.cor_nome %>;">
+              <%= disciplina.nome %>
+            </span>
+            <span class="badge badge-sm" style="background-color: <%= disciplina.cor_nome %>30; color: <%= disciplina.cor_nome %>;">
+              <%= conteudos.count %> <%= conteudos.count == 1 ? 'conteúdo' : 'conteúdos' %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Tabela de Conteúdos da Disciplina -->
+        <div class="overflow-x-auto rounded-lg shadow-sm mb-6">
+          <table class="table">
+            <thead style="background-color: <%= disciplina.cor_nome %>08;">
+              <tr>
+                <th class="font-semibold" style="color: <%= disciplina.cor_nome %>;">Título</th>
+                <th class="text-center font-semibold" style="color: <%= disciplina.cor_nome %>;">Bimestre</th>
+                <th class="font-semibold" style="color: <%= disciplina.cor_nome %>;">Descrição</th>
+                <th class="text-center font-semibold" style="color: <%= disciplina.cor_nome %>;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
               <% conteudos.each do |conteudo| %>
-                <tr class="transition">
-                  <!-- Checkbox -->
-                  <td class="px-6 py-4 text-center">
-                    <%= check_box_tag "conteudo_ids[]", conteudo.id, @professor.conteudo_ids.include?(conteudo.id),
-                        class: "h-5 w-5 appearance-none rounded border border-green-400 cursor-pointer checked:bg-green-600 checked:border-green-600 relative checked:after:content-[''] checked:after:absolute checked:after:top-1 checked:after:left-2 checked:after:w-1 checked:after:h-2 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45" %>
-                  </td>
-
-                  <!-- Nome -->
-                  <td class="px-6 py-4 text-sm font-medium transition-colors duration-300"
-                      data-conteudo-id="<%= conteudo.id %>"
-                      data-cor-nome="<%= conteudo.disciplina&.cor_nome || '#111' %>"
-                      style="color: <%= @professor.conteudo_ids.include?(conteudo.id) ? (conteudo.disciplina&.cor_nome || '#111') : 'inherit' %>;">
+                <tr class="hover border-l-4 transition-all duration-200" style="border-left-color: <%= disciplina.cor_nome %>40;">
+                  <td class="font-medium">
                     <%= conteudo.titulo %>
                   </td>
-                  
-                  <!-- Disciplina -->
-                  <% if conteudo == conteudos.first %>
-                    <td class="px-6 py-4" rowspan="<%= conteudos.size %>">
-                      <% if disciplina.present? %>
-                        <%= badge_conteudo(conteudo) %>
-                      <% else %>
-                        
-                          Sem disciplina
-
+                  <td class="text-center">
+                    <div class="badge badge-outline font-semibold" style="border-color: <%= disciplina.cor_nome %>; color: <%= disciplina.cor_nome %>;">
+                      <%= conteudo.bimestre %>º
+                    </div>
+                  </td>
+                  <td class="text-sm text-gray-600">
+                    <%= truncate(conteudo.descricao, length: 80) if conteudo.descricao.present? %>
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-center gap-2">
+                      <%= link_to escola_conteudo_path(@professor.escola,conteudo), 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-blue-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                        <span class="text-blue-500 font-medium">Ver</span>
                       <% end %>
-                    </td>
-                  <% end %>
+                      <%= link_to edit_conteudo_path(conteudo), 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-orange-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-orange-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        </svg>
+                        <span class="text-orange-500 font-medium">Editar</span>
+                      <% end %>
+                      <%= button_to conteudo_path(conteudo), 
+                          method: :delete, 
+                          data: { turbo_confirm: "Tem certeza?" }, 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-red-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-red-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                        <span class="text-red-500 font-medium">Excluir</span>
+                      <% end %>
+                    </div>
+                  </td>
                 </tr>
               <% end %>
             </tbody>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="flex justify-end">
-      <%= submit_tag "Salvar alterações", class: "inline-flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all duration-200" %>
-    </div>
+          </table>
+        </div>
+      <% else %>
+        <!-- Conteúdos sem disciplina -->
+        <div class="mb-2 mt-6">
+          <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 border-l-4 border-gray-400">
+            <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+            <span class="font-semibold text-lg text-gray-600">Sem Disciplina</span>
+            <span class="badge badge-sm bg-gray-200 text-gray-600">
+              <%= conteudos.count %> <%= conteudos.count == 1 ? 'conteúdo' : 'conteúdos' %>
+            </span>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto rounded-lg shadow-sm mb-6">
+          <table class="table">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="font-semibold text-gray-600">Título</th>
+                <th class="text-center font-semibold text-gray-600">Bimestre</th>
+                <th class="font-semibold text-gray-600">Descrição</th>
+                <th class="text-center font-semibold text-gray-600">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% conteudos.each do |conteudo| %>
+                <tr class="hover border-l-4 border-gray-300 transition-all duration-200">
+                  <td class="font-medium">
+                    <%= conteudo.titulo %>
+                  </td>
+                  <td class="text-center">
+                    <div class="badge badge-outline border-gray-400 text-gray-600 font-semibold">
+                      <%= conteudo.bimestre %>º
+                    </div>
+                  </td>
+                  <td class="text-sm text-gray-600">
+                    <%= truncate(conteudo.descricao, length: 80) if conteudo.descricao.present? %>
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-center gap-2">
+                      <%= link_to conteudo_path(conteudo), 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-blue-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                        <span class="text-blue-500 font-medium">Ver</span>
+                      <% end %>
+                      <%= link_to edit_conteudo_path(conteudo), 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-orange-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-orange-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        </svg>
+                        <span class="text-orange-500 font-medium">Editar</span>
+                      <% end %>
+                      <%= button_to conteudo_path(conteudo), 
+                          method: :delete, 
+                          data: { turbo_confirm: "Tem certeza?" }, 
+                          class: "btn btn-ghost btn-sm gap-2 hover:bg-red-50 transition-all duration-200" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-red-500">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                        <span class="text-red-500 font-medium">Excluir</span>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="text-gray-500 text-center py-8">Nenhum conteúdo cadastrado.</p>
   <% end %>
 </div>
-  </div>
+<!-- Termina aqui -->
 
-  
+  </div>
 </div>
 
 

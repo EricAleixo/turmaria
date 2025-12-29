@@ -22,7 +22,7 @@
         <!-- Breadcrumbs -->
         <div class="breadcrumbs text-sm mb-6">
           <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-white/20">
-            <li><%= link_to "Escolas", escolas_path, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+            <li><%= link_to "Escolas", escolas_menager_paths, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
             <% if @escola %>
               <li><%= link_to @escola.nome, escola_path(@escola), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
             <% end %>
@@ -72,7 +72,7 @@
                   <% end %>
                 <% end %>
 
-                <%= link_to escolas_path, class: "btn btn-md bg-white/20 text-white hover:bg-white/30 border-white/30 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                <%= link_to escolas_menager_paths, class: "btn btn-md bg-white/20 text-white hover:bg-white/30 border-white/30 shadow-lg hover:scale-105 transition-all duration-300" do %>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                   </svg>

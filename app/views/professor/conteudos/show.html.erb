@@ -7,24 +7,22 @@
           Conteúdo - <%= @conteudo.titulo %>
         </h1>
         <div class="text-sm breadcrumbs mt-1">
-          <ul class="flex gap-2">
-            
-            <li>
-              <% if current_user.is_a?(Professor) %>
-                <%= link_to "Meus Conteúdos", professor_conteudos_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
-              <% elsif @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-                <%= link_to "Conteúdos da Escola", escola_conteudos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
-              <% else %>
-                <%# Admin/SuperAdmin Global %>
-                <%= link_to "Conteúdos", professor_conteudos_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
-              <% end %>
-            </li>
-            
+          <ul>
             <li>
               <% if @conteudo.escola.present? %>
                 <%= link_to @conteudo.escola.nome, escola_path(@conteudo.escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
-              <%end%>
+              <% end %>
             </li>
+            <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
+              <li>
+                <%= link_to "Conteúdos da Escola", escola_conteudos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              </li>
+            <% end %>
+            <% if @escola.present? && (current_user.is_a?(Professor)) %>
+              <li>
+                <%= link_to "Meus Conteúdos", escola_conteudos_path(@conteudo.escola.id), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
+              </li>
+            <% end %>
             <li class="text-gray-600"><%= @conteudo.titulo %></li>
           </ul>
         </div>

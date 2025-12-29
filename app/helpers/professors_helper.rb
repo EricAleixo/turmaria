@@ -1,7 +1,8 @@
 module ProfessorsHelper
 
   def professors_section_active?
-    current_page?(selecionar_escola_professores_path)
+    current_page?(selecionar_escola_professores_path) ||
+      (controller_name == 'professors' && action_name.in?(%w[index show edit new]))
   end
   
   # Configuração das cores por formação
@@ -61,7 +62,6 @@ module ProfessorsHelper
     end
   end
   
-
   def contato_card(titulo:, valor:, cor:, icone_svg:)
     content_tag(:div, class: "bg-gradient-to-br from-#{cor}-50 to-#{cor}-100 rounded-lg p-4 border border-#{cor}-200") do
       concat(
@@ -78,48 +78,95 @@ module ProfessorsHelper
     end
   end
   
-def disciplinas_badges(professor, max_visible = 3)
-  disciplinas = professor.disciplinas.to_a
-  visible = disciplinas.first(max_visible)
-  hidden_count = disciplinas.size - max_visible
-
-  base_classes = "inline-flex items-center justify-center px-3 py-1.5 rounded-full font-medium " \
-                 "whitespace-nowrap truncate max-w-[9rem] text-xs sm:text-[0.8rem] md:text-sm " \
-                 "transition-all duration-200 leading-tight mr-1 mb-1"
-
-  badges = visible.map do |disciplina|
-    if disciplina.cor_nome.present?
-      cor = disciplina.cor_nome
-      text_color = contraste_texto(cor) # 🔹 usa contraste automático
-      content_tag(:span, disciplina.nome,
-                  class: base_classes,
-                  style: "background-color: #{cor}; color: #{text_color};")
+  # 🔹 MÉTODO PRINCIPAL: Abreviação inteligente de disciplinas
+  def abreviar_disciplina(nome)
+    return nome if nome.blank?
+    
+    # Divide por hífen para separar partes principais
+    partes = nome.split(' - ').map(&:strip)
+    
+    if partes.size == 1
+      # Sem hífen: "Programação Orientada a Objeto"
+      abreviar_parte(partes[0])
     else
-      cfg = area_cfg(disciplina.area_disciplina.cor)
-      content_tag(:span, disciplina.nome,
-                  class: "#{base_classes} bg-#{cfg[:bg]} text-#{cfg[:text]}")
+      # Com hífen: "Programação Orientada a Objeto - Java"
+      parte_principal = abreviar_parte(partes[0])
+      resto = partes[1..-1].join(' - ')
+      "#{parte_principal} - #{resto}"
     end
   end
-
-  if hidden_count.positive?
-    badges << content_tag(:span, "+#{hidden_count}",
-                          class: "#{base_classes} bg-gray-200 text-gray-700")
+  
+  # 🔹 Abrevia uma parte da disciplina
+  def abreviar_parte(texto)
+    return texto if texto.blank?
+    
+    palavras = texto.split(' ')
+    
+    # Se tiver menos de 4 palavras, não abrevia
+    return texto if palavras.size < 4
+    
+    # Palavras que não devem ser abreviadas (preposições, artigos, etc)
+    palavras_ignoradas = %w[a o de da do das dos e em na no nas nos para com por]
+    
+    # Filtra apenas palavras significativas (não ignora e tem 4+ letras)
+    palavras_significativas = palavras.select do |palavra|
+      palavra_limpa = palavra.downcase.strip
+      !palavras_ignoradas.include?(palavra_limpa) && palavra.length >= 4
+    end
+    
+    # Se não tiver palavras significativas suficientes, retorna o texto original
+    return texto if palavras_significativas.size < 2
+    
+    # Abrevia pegando primeira letra de cada palavra significativa
+    palavras_significativas.map { |p| p[0].upcase }.join
   end
 
-  safe_join(badges)
-end
+  def disciplinas_badges(professor, max_visible = 3)
+    disciplinas = professor.disciplinas.to_a
+    visible = disciplinas.first(max_visible)
+    hidden_count = disciplinas.size - max_visible
 
+    base_classes = "inline-flex items-center justify-center px-3 py-1.5 rounded-full font-medium " \
+                   "whitespace-nowrap text-xs sm:text-[0.8rem] md:text-sm " \
+                   "transition-all duration-200 leading-tight mr-1 mb-1"
 
-def contraste_texto(cor_hex)
-  return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+    badges = visible.map do |disciplina|
+      # 🔹 Aplica abreviação inteligente
+      nome_exibido = abreviar_disciplina(disciplina.nome)
+      
+      if disciplina.cor_nome.present?
+        cor = disciplina.cor_nome
+        text_color = contraste_texto(cor)
+        content_tag(:span, nome_exibido,
+                    class: base_classes,
+                    style: "background-color: #{cor}; color: #{text_color};",
+                    title: disciplina.nome) # 🔹 Tooltip com nome completo
+      else
+        cfg = area_cfg(disciplina.area_disciplina.cor)
+        content_tag(:span, nome_exibido,
+                    class: "#{base_classes} bg-#{cfg[:bg]} text-#{cfg[:text]}",
+                    title: disciplina.nome) # 🔹 Tooltip com nome completo
+      end
+    end
 
-  # Remove o "#" e converte os componentes
-  r, g, b = cor_hex.delete("#").scan(/../).map { |c| c.to_i(16) }
+    if hidden_count.positive?
+      badges << content_tag(:span, "+#{hidden_count}",
+                            class: "#{base_classes} bg-gray-200 text-gray-700")
+    end
 
-  # Calcula a luminância relativa (fórmula do W3C)
-  luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    safe_join(badges)
+  end
 
-  # Se for claro, usa texto escuro; se for escuro, texto branco
-  luminancia > 0.6 ? "#000000" : "#FFFFFF"
-end
+  def contraste_texto(cor_hex)
+    return "#000000" unless cor_hex.present? && cor_hex.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+
+    # Remove o "#" e converte os componentes
+    r, g, b = cor_hex.delete("#").scan(/../).map { |c| c.to_i(16) }
+
+    # Calcula a luminância relativa (fórmula do W3C)
+    luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+    # Se for claro, usa texto escuro; se for escuro, texto branco
+    luminancia > 0.6 ? "#000000" : "#FFFFFF"
+  end
 end

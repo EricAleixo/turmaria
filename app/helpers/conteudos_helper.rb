@@ -1,4 +1,10 @@
 module ConteudosHelper
+
+  def conteudos_section_active?
+    current_page?(selecionar_escola_conteudos_path) ||
+      (controller_name == 'admin_conteudos' && action_name.in?(%w[index show edit new]))
+  end
+
   def badge_conteudo(conteudo)
   cor_bg = conteudo.disciplina&.cor_nome || "#3c3c3c"
   text_color = contraste_texto(cor_bg)

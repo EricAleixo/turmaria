@@ -35,12 +35,11 @@
         <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
       </div>
       <div class="form-control w-full">
-      <%= form.label :data_nascimento, "Data de Fim *", class: "label label-text text-gray-600 font-semibold" %>
+      <%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600 font-semibold" %>
       <div class="relative">
         <%= form.text_field :data_nascimento, 
             class: "border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:border-black focus:border-black focus:outline-none w-full pr-10 datepicker-field text-black peer", 
             placeholder: "", 
-            required: true, 
             autocomplete: "off" %>
         <span class="absolute left-4 top-2 text-gray-400 pointer-events-none peer-focus:opacity-0 peer-valid:opacity-0 transition !text-black">
           Selecione a data

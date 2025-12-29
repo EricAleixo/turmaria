@@ -21,6 +21,7 @@ class DashboardController < ApplicationController
     return if performed?
     
     load_professores_da_turma_data
+    puts "Professores: ", @professores_da_turma
 
     @titulo_pagina = "Meus Professores | #{@aluno.nome}"
     render 'aluno/meus_professores'
@@ -173,11 +174,8 @@ end
     end
 
     # Consulta Validada e Confirmada pelas suas Associações
-    @professores_da_turma = Professor.with_attached_foto 
-                                   .joins(disciplinas: :turmas)
-                                   .where(turmas: { id: @turma_atual.id })
-                                   .distinct
-                                   .order(:nome)
+    @professores_da_turma = @turma_atual.professores.includes(disciplinas: :turmas)
+    puts "Disciplinas: ", @professores_da_turma[0].disciplinas[0].nome
   end
 
 

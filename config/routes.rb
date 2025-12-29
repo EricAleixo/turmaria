@@ -13,11 +13,8 @@ Rails.application.routes.draw do
 
   constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
     scope :aluno, as: :aluno do
-      # URL: /aluno/notas (Helper: aluno_minhas_notas_path)
       get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
-      # URL: /aluno/frequencia (Helper: aluno_minha_frequencia_path)
       get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
-      # 🆕 NOVA ROTA: URL: /aluno/professores (Helper: aluno_meus_professores_path)
       get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
 
       get 'atividades', to: 'aluno/contents#atividades', as: :minhas_atividades_e 
@@ -75,6 +72,10 @@ Rails.application.routes.draw do
     get "/escolas/alunos", to: "alunos#selecionar_escola", as: :selecionar_escola_alunos
     get "/escolas/disciplinas", to: "disciplinas#selecionar_escola", as: :selecionar_escola_disciplinas
     get "/escolas/professores", to: "professors#selecionar_escola", as: :selecionar_escola_professores
+    get "/escolas/conteudos", to: "conteudos#selecionar_escola", as: :selecionar_escola_conteudos
+
+    #Rota para minhas escolas(ADMINISTRADOR)
+    get "/minhas_escolas", to: "administradores#minhas_escolas", as: :minhas_escolas_admin
     
     # ROTAS DE ALUNOS
     resources :alunos do
@@ -121,6 +122,12 @@ Rails.application.routes.draw do
       end
 
       resources :turmas do
+        resources :disciplinas, controller: 'turma_disciplinas' do
+          collection do
+            get 'associar'
+            post 'associar', action: :processar_associacao
+          end
+        end
         resources :alunos, except: [:new, :create] do
           member do
             patch :remove_from_turma

@@ -6,8 +6,7 @@ class DisciplinasController < ApplicationController
   # INDEX
   # ---------------------------
   def index
-    @escola = Escola.find(params[:escola_id])
-    @disciplinas = @escola.disciplinas
+    @disciplinas = Disciplina.all
 
     if params[:professor_id].present?
       @professor = Professor.find(params[:professor_id])
@@ -17,7 +16,43 @@ class DisciplinasController < ApplicationController
   end
 
   def selecionar_escola 
-    @escolas = Escola.all
+    @escolas = current_user.escolas
+  end
+
+  # ---------------------------
+  # BUSCAR ESCOLAS (NOVA ACTION)
+  # ---------------------------
+  def buscar_escolas
+    # SuperAdmin pode buscar qualquer escola
+    # Admin só pode buscar suas próprias escolas
+    authorize Disciplina, :buscar_escolas?
+    
+    escolas = if current_user.is_a?(SuperAdmin)
+      Escola.all
+    elsif current_user.is_a?(Admin)
+      current_user.escolas
+    else
+      Escola.none
+    end
+
+    # Filtros opcionais
+    if params[:escola_busca].present?
+      escolas = escolas.where("nome ILIKE ?", "%#{params[:escola_busca]}%")
+    end
+
+    if params[:tipo].present?
+      escolas = escolas.where(tipo: params[:tipo])
+    end
+
+    escolas = escolas.order(:nome).limit(50)
+
+    respond_to do |format|
+      format.json do
+        render json: {
+          escolas: escolas.as_json(only: [:id, :nome, :tipo])
+        }
+      end
+    end
   end
 
   # ---------------------------

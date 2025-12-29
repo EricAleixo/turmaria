@@ -1,11 +1,14 @@
 class DisciplinaPolicy < ApplicationPolicy
-
-  # QUALQUER usuário autenticado pode ver a lista filtrada
+  
   def index?
     user.present?
   end
 
-  # SHOW / CREATE / UPDATE / DESTROY
+  def new?
+    # Qualquer admin ou super_admin pode TENTAR criar
+    user.present? && (user.is_a?(SuperAdmin) || user.is_a?(Admin))
+  end
+
   def show?
     can_manage?
   end
@@ -24,24 +27,25 @@ class DisciplinaPolicy < ApplicationPolicy
 
   private
 
-  # Regras principais centralizadas
   def can_manage?
     return false unless user.present?
-
     return true if user.is_a?(SuperAdmin)
 
     if user.is_a?(Admin)
-      return user.escolas.include?(record.escola)
+      # Garante que a escola existe antes de verificar
+      return false if record.escola.nil?
+      
+      # Usa escola_ids (mais eficiente que include?)
+      return user.escola_ids.include?(record.escola_id)
     end
 
     false
   end
 
-  # ESCOPO DE CONSULTA
   class Scope < ApplicationPolicy::Scope
     def resolve
       return scope.all if user.is_a?(SuperAdmin)
-      return scope.where(escola_id: user.escolas.ids) if user.is_a?(Admin)
+      return scope.where(escola_id: user.escola_ids) if user.is_a?(Admin)
       scope.none
     end
   end

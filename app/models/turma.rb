@@ -24,6 +24,10 @@ class Turma < ApplicationRecord
   validates :serie, presence: true
   validate :ano_letivo_deve_pertencer_a_escola
 
+  def turno_humanizado
+    self.class.human_attribute_name("turnos.#{turno}")
+  end
+
   def nome_completo
     "#{nome} - #{escola.nome} (#{serie}º #{turno.humanize})"
   end

@@ -41,6 +41,10 @@ class AdministradoresController < ApplicationController
     @administradores = Admin.all
   end
 
+  def minhas_escolas
+    @escolas = current_admin.escolas
+  end
+
   def show; end
 
   def new

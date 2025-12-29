@@ -48,42 +48,52 @@ class Professor::ConteudosController < ApplicationController
 
   # POST /conteudos
   def create
-    # 1. DETERMINA O CRIADOR
-    # Se @professor ou @escola estão definidos (rota aninhada ou prof. logado), usa eles.
-    # Se não (SuperAdmin/Admin na rota raiz), usa a classe Conteudo para .new
-    creator = @professor || @escola || Conteudo 
-    
-    # 2. INICIALIZA O CONTEÚDO
-    if creator.is_a?(Class) 
-      # SuperAdmin/Admin criando globalmente
-      @conteudo = Conteudo.new(conteudo_params)
-    else
-      # Professor logado ou Admin/SuperAdmin em rota aninhada
-      @conteudo = creator.conteudos.new(conteudo_params)
+  creator = @professor || @escola || Conteudo 
+
+  if creator.is_a?(Class)
+    @conteudo = Conteudo.new(conteudo_params)
+  else
+    @conteudo = creator.conteudos.new(conteudo_params)
+  end
+
+  if current_user.is_a?(Professor)
+    @conteudo.professor ||= current_user
+    @conteudo.escola ||= @escola
+  end
+
+  if @conteudo.save
+
+    redirect_path =
+      if @professor
+        professor_conteudos_path(@professor)
+      elsif @escola
+        escola_conteudos_path(@escola)
+      else
+        conteudos_path
+      end
+
+    respond_to do |format|
+      format.html { redirect_to redirect_path, notice: "Conteúdo criado com sucesso." }
+      format.turbo_stream { redirect_to redirect_path, notice: "Conteúdo criado com sucesso." }
+      format.json { render :show, status: :created, location: @conteudo }
     end
 
-    # 3. ASSOCIAÇÕES DE FALLBACK (para Professor logado)
-    # Garante que o conteúdo tenha escola e professor, caso não venham nos params
-    if current_user.is_a?(Professor)
-      @conteudo.professor ||= current_user
-      @conteudo.escola ||= @escola # @escola é definida em set_scope_objects
-    end
-    
-    # 4. SALVA
-    if @conteudo.save
-      respond_to do |format|
-        format.html { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." } 
-        format.turbo_stream { redirect_to professor_conteudos_path, notice: "Conteúdo criado com sucesso." }
-        format.json { render :show, status: :created, location: @conteudo }
-      end
-    else
-      respond_to do |format|
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @conteudo.errors, status: :unprocessable_entity }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace('conteudo_form', partial: 'form', locals: { conteudo: @conteudo }), status: :unprocessable_entity }
+  else
+    respond_to do |format|
+      format.html { render :new, status: :unprocessable_entity }
+      format.json { render json: @conteudo.errors, status: :unprocessable_entity }
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          'conteudo_form',
+          partial: 'form',
+          locals: { conteudo: @conteudo }
+        ),
+        status: :unprocessable_entity
       end
     end
   end
+end
+
 
   # PATCH/PUT /conteudos/1
   def update

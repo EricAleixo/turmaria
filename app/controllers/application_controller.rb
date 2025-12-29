@@ -73,7 +73,7 @@ helper_method :current_any_user, :authenticated_user_type
     when Admin
       if resource.escolas.present?
       # CORREÇÃO: Usa o método plural 'escolas' e pega o primeiro item (.first)
-      return escola_path(resource.escolas.first) 
+      return dashboard_path
     else
       # Admin não tem escola, vai para a tela de boas-vindas
       return welcome_escola_path

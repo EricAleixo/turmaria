@@ -30,7 +30,7 @@ class AlunosController < ApplicationController
     end
 
     def selecionar_escola
-      @escolas = Escola.all
+      @escolas = current_admin.escolas
     end
 
     # =====================================================================

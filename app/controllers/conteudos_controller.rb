@@ -15,6 +15,10 @@ class ConteudosController < ApplicationController
     end
   end
 
+  def selecionar_escola
+    @escolas = current_admin.escolas
+  end
+
   def show; end
 
   def edit

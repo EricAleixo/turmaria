@@ -1,0 +1,220 @@
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 md:p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Breadcrumbs -->
+    <div class="mb-6">
+      <div class="text-sm breadcrumbs">
+        <ul>
+          <li>
+            <%= link_to escolas_menager_paths, class: "text-green-600 hover:text-green-700 transition-colors duration-200 flex items-center gap-1" do %>
+              Escolas
+            <% end %>
+          </li>
+          <li>
+            <%= link_to @turma.escola.nome, escola_path(@turma.escola), class: "text-green-600 hover:text-green-700 transition-colors duration-200" %>
+          </li>
+          <li>
+            <%= link_to "Turmas", escola_turmas_path(@turma.escola), class: "text-green-600 hover:text-green-700 transition-colors duration-200" %>
+          </li>
+          <li>
+            <%= link_to "#{@turma.nome}", escola_turma_path(@turma.escola, @turma), class: "text-green-600 hover:text-green-700 transition-colors duration-200" %>
+          </li>
+          <li class="text-gray-600 font-medium">Associar Disciplinas</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-500">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+              Associar Disciplinas
+            </h1>
+            <p class="text-gray-600">
+              Gerencie as disciplinas da turma <strong class="text-green-600"><%= @turma.nome %></strong>
+            </p>
+          </div>
+          <%= link_to escola_turma_disciplinas_path(@turma.escola, @turma), class: "btn btn-outline btn-sm md:btn-md gap-2" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Cancelar
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%= form_with url: associar_escola_turma_disciplinas_path(@turma.escola, @turma), method: :post, local: true do |f| %>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        
+        <!-- Disciplinas já Associadas -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-t-4 border-green-500">
+          <div class="bg-gradient-to-r from-green-500 to-green-600 p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-3 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Disciplinas Associadas</h2>
+                  <p class="text-green-100 text-sm">Disciplinas já vinculadas à turma</p>
+                </div>
+              </div>
+              <span class="badge badge-lg bg-white text-green-600 font-bold">
+                <%= @disciplinas_associadas.count %>
+              </span>           
+            </div>
+          </div>
+
+          <div class="p-6">
+            <% if @disciplinas_associadas.any? %>
+              <% disciplinas_por_area = @disciplinas_associadas.group_by(&:area_disciplina) %>
+              <div class="space-y-6">
+                <% disciplinas_por_area.each do |area, disciplinas| %>
+                  <div>
+                    <div class="flex items-center gap-2 mb-3">
+                      <div class="w-1 h-6 rounded-full" style="background-color: <%= area&.cor || '#10b981' %>"></div>
+                      <h3 class="font-bold text-gray-700"><%= area&.nome || 'Sem Área' %></h3>
+                      <span class="badge badge-sm bg-green-100 text-green-700"><%= disciplinas.count %></span>
+                    </div>
+                    
+                    <div class="space-y-2 ml-3">
+                      <% disciplinas.each do |disciplina| %>
+                        <div class="form-control">
+                          <label class="label cursor-pointer justify-start gap-3 p-3 rounded-lg hover:bg-red-50 transition-colors duration-200 border border-transparent hover:border-red-200">
+                            <%= check_box_tag 'disciplinas_remover[]', disciplina.id, false, 
+                                class: "checkbox checkbox-error checkbox-sm", 
+                                id: "remover_disciplina_#{disciplina.id}" %>
+                            <div class="flex items-center gap-2 flex-1">
+                              <span class="w-2 h-2 rounded-full" style="background-color: <%= disciplina.area_disciplina&.cor || '#10b981' %>"></span>
+                              <span class="label-text text-gray-800 font-medium"><%= disciplina.nome %></span>
+                            </div>
+                            <% if disciplina.cor_nome.present? %>
+                              <span class="badge badge-sm badge-outline"><%= disciplina.cor_nome %></span>
+                            <% end %>
+                          </label>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="alert alert-warning mt-6 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-sm">Marque as disciplinas que deseja <strong>remover</strong> da turma</span>
+              </div>
+            <% else %>
+              <div class="text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-gray-500 font-medium">Nenhuma disciplina associada</p>
+                <p class="text-gray-400 text-sm">Adicione disciplinas usando a coluna ao lado</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Disciplinas Disponíveis -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-t-4 border-blue-500">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-3 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold text-white">Disciplinas Disponíveis</h2>
+                  <p class="text-blue-100 text-sm">Disciplinas que podem ser adicionadas</p>
+                </div>
+              </div>
+              <span class="badge badge-lg bg-white text-blue-600 font-bold">
+                <%= @disciplinas_disponiveis.count %>
+              </span>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <% if @disciplinas_disponiveis.any? %>
+              <% disciplinas_por_area = @disciplinas_disponiveis.group_by(&:area_disciplina) %>
+              <div class="space-y-6">
+                <% disciplinas_por_area.each do |area, disciplinas| %>
+                  <div>
+                    <div class="flex items-center gap-2 mb-3">
+                      <div class="w-1 h-6 rounded-full" style="background-color: <%= area&.cor || '#10b981' %>"></div>
+                      <h3 class="font-bold text-gray-700"><%= area&.nome || 'Sem Área' %></h3>
+                      <span class="badge badge-sm bg-blue-100 text-blue-700"><%= disciplinas.count %></span>
+                    </div>
+                    
+                    <div class="space-y-2 ml-3">
+                      <% disciplinas.each do |disciplina| %>
+                        <div class="form-control">
+                          <label class="label cursor-pointer justify-start gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors duration-200 border border-transparent hover:border-green-200">
+                            <%= check_box_tag 'disciplinas_adicionar[]', disciplina.id, false, 
+                                class: "checkbox checkbox-success checkbox-sm", 
+                                id: "adicionar_disciplina_#{disciplina.id}" %>
+                            <div class="flex items-center gap-2 flex-1">
+                              <span class="w-2 h-2 rounded-full" style="background-color: <%= disciplina.area_disciplina&.cor || '#10b981' %>"></span>
+                              <span class="label-text text-gray-800 font-medium"><%= disciplina.nome %></span>
+                            </div>
+                            <% if disciplina.cor_nome.present? %>
+                              <span class="badge badge-sm badge-outline"><%= disciplina.cor_nome %></span>
+                            <% end %>
+                          </label>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="alert alert-info mt-6 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm">Marque as disciplinas que deseja <strong>adicionar</strong> à turma</span>
+              </div>
+            <% else %>
+              <div class="text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-gray-500 font-medium">Nenhuma disciplina disponível</p>
+                <p class="text-gray-400 text-sm">Todas as disciplinas já estão associadas</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 sticky bottom-4">
+        <div class="flex flex-col sm:flex-row gap-4 justify-end items-center">
+          <div class="text-sm text-gray-600 text-center sm:text-left">
+            <span class="font-medium text-green-600"><%= @disciplinas_associadas.count %></span> associadas •
+            <span class="font-medium text-blue-600"><%= @disciplinas_disponiveis.count %></span> disponíveis
+          </div>
+          
+          <div class="flex gap-3 w-full sm:w-auto">
+            <%= link_to escola_turma_disciplinas_path(@turma.escola, @turma), class: "btn btn-ghost flex-1 sm:flex-none" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cancelar
+            <% end %>
+            
+            <%= f.submit "Salvar Alterações", class: "btn bg-gradient-to-r from-green-500 to-blue-500 text-white border-none hover:from-green-600 hover:to-blue-600 flex-1 sm:flex-none gap-2" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
