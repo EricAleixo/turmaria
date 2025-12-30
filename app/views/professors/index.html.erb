@@ -85,7 +85,7 @@
 
                 
                 <%# BOTÃO "NOVO PROFESSOR" %>
-                <%= link_to (@escola ? new_escola_professor_path : new_professor_path),
+                <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
                     class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm" do %>
 
                   <svg xmlns="http://www.w3.org/2000/svg"
@@ -373,7 +373,7 @@
                         </label>
 
                         <%# ================= BOTÃO NOVO PROFESSOR ================= %>
-                        <%= link_to (@escola ? new_escola_professor_path : new_professor_path),
+                        <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
                           class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm" do %>
 
                           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

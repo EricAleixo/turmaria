@@ -427,7 +427,7 @@
 
     <%# Seção de Notas e Boletim %>
     <div class="bg-white rounded-3xl p-6 md:p-8 border border-green-100 shadow-md mt-6">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div class="flex items-center gap-4">
           <div class="bg-gradient-to-br from-green-400 to-emerald-500 p-4 rounded-2xl shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -439,7 +439,6 @@
             <p class="text-gray-600">Visualize suas notas e gere seu boletim</p>
           </div>
         </div>
-        
         <%= link_to "#", class: "btn bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 gap-2 shadow-md hover:shadow-lg transition-all" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -449,161 +448,99 @@
       </div>
 
       <%# Cards de Disciplinas com Notas %>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <% if @disciplinas_com_medias.present? %>
         
-        <%# Exemplo de Disciplina 1 %>
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-200 hover:shadow-md transition-all">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-white p-2 rounded-lg border border-green-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <% @disciplinas_com_medias.each do |dados| %>
+            <% disciplina = dados[:disciplina] %>
+            <% cor_disciplina = disciplina.cor_nome || disciplina.cor || '#10B981' %>
+            <% media_geral = dados[:media_geral] %>
+            <% professor = dados[:professor] %>
+            
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-200 hover:shadow-md transition-all">
+              
+              <%# Cabeçalho da Disciplina %>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="bg-white p-2 rounded-lg border border-green-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: <%= cor_disciplina %>;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-gray-800" style="color: <%= cor_disciplina %>;">
+                      <%= disciplina.nome %>
+                    </h3>
+                    <p class="text-xs text-gray-500">
+                      <%= professor ? "Prof. #{professor.nome}" : "Professor não definido" %>
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 class="font-bold text-gray-800">Matemática</h3>
-                <p class="text-xs text-gray-500">Prof. João Silva</p>
+              
+              <%# Notas por Bimestre %>
+              <div class="space-y-2 mb-4">
+                <% [1, 2, 3, 4].each do |bimestre| %>
+                  <% media_bim = dados[:medias_bimestres][bimestre] %>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600"><%= bimestre %>º Bimestre</span>
+                    <% if media_bim %>
+                      <% 
+                        cor_nota = case media_bim
+                        when 9.0..10.0 then 'text-green-600 bg-white border-green-200'
+                        when 7.0...9.0 then 'text-yellow-600 bg-white border-yellow-200'
+                        when 6.0...7.0 then 'text-orange-600 bg-white border-orange-200'
+                        else 'text-red-600 bg-white border-red-200'
+                        end
+                      %>
+                      <span class="font-bold <%= cor_nota %> px-3 py-1 rounded-lg border">
+                        <%= '%.1f' % media_bim %>
+                      </span>
+                    <% else %>
+                      <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
+                    <% end %>
+                  </div>
+                <% end %>
               </div>
+              
+              <%# Média Geral da Disciplina %>
+              <div class="pt-3 border-t border-green-200">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-semibold text-gray-700">Média Atual</span>
+                  <% 
+                    cor_media = case media_geral
+                    when 9.0..10.0 then 'text-green-600'
+                    when 7.0...9.0 then 'text-yellow-600'
+                    when 6.0...7.0 then 'text-orange-600'
+                    else 'text-red-600'
+                    end
+                  %>
+                  <span class="text-xl font-bold <%= cor_media %>">
+                    <%= '%.2f' % media_geral %>
+                  </span>
+                </div>
+              </div>
+              
             </div>
-          </div>
-          
-          <div class="space-y-2 mb-4">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">1º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">8.5</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">2º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">9.0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">3º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">4º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-          </div>
-          
-          <div class="pt-3 border-t border-green-200">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-semibold text-gray-700">Média Atual</span>
-              <span class="text-xl font-bold text-green-600">8.75</span>
-            </div>
-          </div>
+          <% end %>
         </div>
-
-        <%# Exemplo de Disciplina 2 %>
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-200 hover:shadow-md transition-all">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-white p-2 rounded-lg border border-green-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-bold text-gray-800">Português</h3>
-                <p class="text-xs text-gray-500">Prof. Maria Santos</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="space-y-2 mb-4">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">1º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">7.5</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">2º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">8.0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">3º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">4º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-          </div>
-          
-          <div class="pt-3 border-t border-green-200">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-semibold text-gray-700">Média Atual</span>
-              <span class="text-xl font-bold text-green-600">7.75</span>
-            </div>
-          </div>
-        </div>
-
-        <%# Exemplo de Disciplina 3 %>
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-200 hover:shadow-md transition-all">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-white p-2 rounded-lg border border-green-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-bold text-gray-800">Geografia</h3>
-                <p class="text-xs text-gray-500">Prof. Carlos Oliveira</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="space-y-2 mb-4">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">1º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">9.0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">2º Bimestre</span>
-              <span class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg border border-green-200">8.5</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">3º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">4º Bimestre</span>
-              <span class="font-bold text-gray-400 bg-white px-3 py-1 rounded-lg border border-gray-200">-</span>
-            </div>
-          </div>
-          
-          <div class="pt-3 border-t border-green-200">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-semibold text-gray-700">Média Atual</span>
-              <span class="text-xl font-bold text-green-600">8.75</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <%# Resumo Geral %>
-      <div class="bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl p-6 border-2 border-green-300">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="text-center">
-            <p class="text-sm font-semibold text-green-700 mb-2">Média Geral</p>
-            <p class="text-4xl font-black text-green-600">8.42</p>
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-semibold text-green-700 mb-2">Disciplinas Cursadas</p>
-            <p class="text-4xl font-black text-green-600">3</p>
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-semibold text-green-700 mb-2">Status</p>
-            <div class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-xl border-2 border-green-400 mt-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <% else %>
+        
+        <%# Estado Vazio %>
+        <div class="text-center py-16 bg-green-50 rounded-xl border-2 border-dashed border-green-200">
+          <div class="max-w-md mx-auto">
+            <div class="text-6xl mb-4 text-green-400 flex justify-center">
+              <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
-              <span class="text-xl font-bold text-green-600">Aprovado</span>
             </div>
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhuma nota encontrada</h3>
+            <p class="text-slate-500">Suas notas aparecerão aqui assim que forem lançadas pelos professores.</p>
           </div>
         </div>
-      </div>
+
+      <% end %>
+
     </div>
 
     <%# Ações Rápidas %>

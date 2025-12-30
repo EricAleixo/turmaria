@@ -1,0 +1,158 @@
+<%# app/views/professor/conteudos/selecionar_turma.html.erb %>
+
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50">
+  <div class="container mx-auto px-4 py-6 sm:py-10">
+    
+    <!-- Header compacto -->
+    <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-emerald-500 rounded-xl shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7 text-white">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Meus Conteúdos</h1>
+          </div>
+          <p class="text-gray-600 ml-14 text-sm sm:text-base">Escolha uma turma para continuar</p>
+        </div>
+        
+        <%= link_to dashboard_path, class: "btn btn-ghost btn-sm gap-2 self-start sm:self-center" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Voltar
+        <% end %>
+      </div>
+
+      <!-- Stats inline -->
+      <% unless @turmas.empty? %>
+        <div class="flex flex-wrap gap-3 mt-6 ml-14">
+          <div class="badge badge-lg bg-emerald-100 text-emerald-700 border-emerald-300 gap-2 px-4 py-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <%= @turmas.count %> turmas
+          </div>
+          
+          <div class="badge badge-lg bg-teal-100 text-teal-700 border-teal-300 gap-2 px-4 py-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <%= @turmas.sum { |t| t.conteudos.count rescue 0 } %> conteúdos
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @turmas.empty? %>
+      <!-- Estado Vazio -->
+      <div class="max-w-md mx-auto mt-12">
+        <div class="card bg-white shadow-xl">
+          <div class="card-body items-center text-center">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">Nenhuma turma encontrada</h3>
+            <p class="text-gray-500 text-sm">Você ainda não está atribuído a nenhuma turma. Entre em contato com a coordenação para receber suas atribuições.</p>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <!-- Lista de Turmas -->
+      <div class="max-w-7xl mx-auto">
+        <% @turmas.group_by(&:ano_letivo).each_with_index do |(ano_letivo, turmas_ano), index| %>
+          
+          <div class="mb-8">
+            <!-- Ano Letivo Badge -->
+            <div class="flex items-center gap-3 mb-4">
+              <div class="badge badge-lg bg-emerald-600 text-white border-0 gap-2 px-4 py-3 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                <%= ano_letivo.ano %>
+              </div>
+              <div class="text-sm text-gray-500"><%= turmas_ano.count %> <%= turmas_ano.count == 1 ? 'turma' : 'turmas' %></div>
+            </div>
+
+            <!-- Grid Responsivo -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <% turmas_ano.each do |turma| %>
+                <%= link_to professor_turma_conteudos_path(turma), 
+                    class: "group block" do %>
+                  
+                  <div class="card bg-white hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 shadow-md hover:shadow-2xl transition-all duration-300 border-l-4 border-emerald-500 h-full">
+                    <div class="card-body p-5">
+                      
+                      <!-- Header -->
+                      <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                          <div class="avatar placeholder">
+                            <div class="bg-emerald-500 text-white rounded-lg w-11 h-11 shadow-md relative">
+                              <span class="text-lg font-bold absolute top-1/2 left-1/2 -translate-1/2"><%= turma.serie %></span>
+                            </div>
+                          </div>
+                          <div>
+                            <h3 class="font-bold text-lg text-gray-800 group-hover:text-emerald-700 transition-colors">
+                              <%= turma.nome %>
+                            </h3>
+                            <p class="text-xs text-gray-500"><%= turma.serie %>º ano</p>
+                          </div>
+                        </div>
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                      </div>
+
+                      <!-- Info -->
+                      <div class="space-y-2 mb-4">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-emerald-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span><%= turma.turno_humanizado rescue 'N/A' %></span>
+                        </div>
+
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-emerald-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                          </svg>
+                          <span class="truncate"><%= turma.escola.nome rescue 'N/A' %></span>
+                        </div>
+                      </div>
+
+                      <!-- Footer -->
+                      <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                        <div class="flex items-center gap-2">
+                          <div class="badge badge-ghost badge-sm gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <%= turma.conteudos.count rescue 0 %>
+                          </div>
+                        </div>
+                        
+                        <button class="btn btn-sm bg-emerald-500 hover:bg-emerald-600 text-white border-0 gap-1 group-hover:gap-2 transition-all">
+                          Acessar
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                          </svg>
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

@@ -2,12 +2,15 @@ class Professor::ConteudosController < ApplicationController
   layout 'dashboard'
 
   # Define os escopos (@professor, @escola) ANTES de tentar encontrar o @conteudo
-  before_action :set_scope_objects, only: [:new, :create, :index, :show, :edit, :update, :destroy]
+  before_action :set_scope_objects, only: [:new, :create, :index, :show, :edit, :update, :destroy, :selecionar_turma]
   
   # Encontra o @conteudo específico (com permissão) para as ações de membro
   before_action :set_conteudo, only: %i[ show edit update destroy remove_material]
 
   before_action :set_escola, only: [:show, :edit, :update, :destroy]
+
+  before_action :set_form_collections, only: [:new, :edit, :create, :update]
+
 
   # GET /conteudos
   def index
@@ -17,10 +20,16 @@ class Professor::ConteudosController < ApplicationController
     elsif current_user.is_a?(Admin)
       # Admin vê apenas o conteúdo das escola que ele administra
       @conteudos = Conteudo.where(escola_id: current_user.escola.pluck(:id)).order(created_at: :desc)
-    else # Professor
-      # Professor vê apenas o seu conteúdo
-      @conteudos = current_user.conteudos.order(created_at: :desc)
+    else
+      @turma = Turma.find(params[:turma_id])
+      @conteudos = @turma.conteudos.where(professor_id: current_user.id).order(created_at: :desc)
     end
+  end
+
+
+  def selecionar_turma
+    @turmas = @professor.turmas.includes(:ano_letivo, :escola)
+                        .order('ano_letivos.ano DESC, turmas.serie ASC, turmas.nome ASC')
   end
 
   # GET /conteudos/1
@@ -29,8 +38,13 @@ class Professor::ConteudosController < ApplicationController
   # GET /conteudos/new
   def new
     if @professor
-      # Se o escopo é o professor, usa ele para construir o novo conteúdo
-      @conteudo = @professor.conteudos.new(escola_id: @escola&.id)
+      @turma = Turma.find(params[:turma_id])
+
+      @conteudo = @turma.conteudos.new(
+        professor: @professor,
+        escola: @escola
+      )
+
     elsif @escola
       # Se o escopo é a escola, usa ela
       @conteudo = @escola.conteudos.new
@@ -48,51 +62,32 @@ class Professor::ConteudosController < ApplicationController
 
   # POST /conteudos
   def create
-  creator = @professor || @escola || Conteudo 
+    creator = @professor || @escola || Conteudo 
 
-  if creator.is_a?(Class)
-    @conteudo = Conteudo.new(conteudo_params)
-  else
-    @conteudo = creator.conteudos.new(conteudo_params)
-  end
-
-  if current_user.is_a?(Professor)
-    @conteudo.professor ||= current_user
-    @conteudo.escola ||= @escola
-  end
-
-  if @conteudo.save
-
-    redirect_path =
-      if @professor
-        professor_conteudos_path(@professor)
-      elsif @escola
-        escola_conteudos_path(@escola)
+    @conteudo =
+      if creator.is_a?(Class)
+        Conteudo.new(conteudo_params)
       else
-        conteudos_path
+        creator.conteudos.new(conteudo_params)
       end
 
-    respond_to do |format|
-      format.html { redirect_to redirect_path, notice: "Conteúdo criado com sucesso." }
-      format.turbo_stream { redirect_to redirect_path, notice: "Conteúdo criado com sucesso." }
-      format.json { render :show, status: :created, location: @conteudo }
+    if current_user.is_a?(Professor)
+      @conteudo.professor ||= current_user
+      @conteudo.escola ||= @escola
     end
 
-  else
-    respond_to do |format|
-      format.html { render :new, status: :unprocessable_entity }
-      format.json { render json: @conteudo.errors, status: :unprocessable_entity }
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          'conteudo_form',
-          partial: 'form',
-          locals: { conteudo: @conteudo }
-        ),
-        status: :unprocessable_entity
-      end
+    # 🔥 ISSO AQUI RESOLVE O ERRO
+    if params[:turma_id].present?
+      @conteudo.turma = Turma.find(params[:turma_id])
+    end
+
+    if @conteudo.save
+      redirect_to professor_conteudos_path(@professor), notice: "Conteúdo criado com sucesso."
+    else
+      render :new, status: :unprocessable_entity
     end
   end
-end
+
 
 
   # PATCH/PUT /conteudos/1
@@ -201,7 +196,7 @@ end
       
     rescue ActiveRecord::RecordNotFound
       # Redireciona para a index se o conteúdo não for encontrado NO ESCOPO do usuário
-      redirect_to professor_conteudos_path, alert: "Conteúdo não encontrado ou você não tem permissão para acessá-lo."
+      redirect_to professor_conteudos_path(@professor), alert: "Conteúdo não encontrado ou você não tem permissão para acessá-lo."
     end
   end
 
@@ -251,5 +246,19 @@ end
       @escola = Escola.find(params[:escola_id])
     end
   end
+
+  def set_form_collections
+    return unless @professor
+
+    # No edit, a turma vem do conteúdo
+    @turma ||= @conteudo&.turma || Turma.find_by(id: params[:turma_id])
+
+    return unless @turma
+
+    @bimestres = @turma.ano_letivo.numero_bimestre
+    @disciplinas = @professor.disciplinas.order(:nome)
+    @disciplinas_da_turma_ids = @turma.disciplinas.pluck(:id)
+  end
+
   
 end

@@ -64,28 +64,36 @@
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div class="form-control w-full">
-        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone</label>
-        <%= form.text_field :telefone, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
-      </div>
-      <div class="form-control w-full">
         <label for="aluno_email" class="label label-text text-gray-600 font-semibold">Email</label>
         <%= form.email_field :email, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_password" class="label label-text text-gray-600 font-semibold">
+          Senha
+        </label>
+
+        <%= form.password_field :password,
+          class: "input input-bordered w-full",
+          placeholder: "Digite a senha do aluno" %>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-<%= dropdown(
-      form: form,
-      method: :cidade_id,
-      select_id: "professor_cidade_id_select",
-      collection: Cidade.all.order(:nome),
-      label_field: :nome_com_estado,
-      value_field: :id,
-      placeholder: "Selecione a cidade",
-      hidden_field_id: "professor_cidade_id",
-      
-    ) %>
-   
+      <%= dropdown(
+            form: form,
+            method: :cidade_id,
+            select_id: "professor_cidade_id_select",
+            collection: Cidade.all.order(:nome),
+            label_field: :nome_com_estado,
+            value_field: :id,
+            placeholder: "Selecione a cidade",
+            hidden_field_id: "professor_cidade_id",
+            
+          ) %>
+      <div class="form-control w-full">
+        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone</label>
+        <%= form.text_field :telefone, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
+      </div>
     </div>
 
     <div class="flex justify-between mt-6">

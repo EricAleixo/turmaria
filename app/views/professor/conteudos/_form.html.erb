@@ -25,6 +25,7 @@
                   id: 'conteudo_form', 
                   class: "space-y-0",
                   multipart: true) do |f| %>
+    <%= hidden_field_tag :turma_id, params[:turma_id] %>
 
       <div class="px-8 py-6 border-b border-black/10 space-y-4">
         
@@ -52,15 +53,23 @@
       Disciplina <span class="text-red-500">*</span>
     </span>
   </label>
-  <%= f.collection_select :disciplina_id, 
-      disciplinas, 
-      :id, 
-      :nome, 
-      { prompt: "Selecionar disciplina" }, 
-      { 
-        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:disciplina_id].any? ? 'select-error' : ''}", 
-        required: true 
+  <%= f.collection_select :disciplina_id,
+      @disciplinas || [],
+      :id,
+      :nome,
+      {
+        prompt: "Selecionar disciplina",
+        disabled: ->(disciplina) do
+          !@disciplinas_da_turma_ids.include?(disciplina.id)
+        end
+      },
+      {
+        class: "select select-bordered w-56 font-medium text-gray-700
+                focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500
+                #{conteudo.errors[:disciplina_id].any? ? 'select-error' : ''}",
+        required: true
       } %>
+
   <% if conteudo.errors[:disciplina_id].any? %>
     <label class="label">
       <span class="label-text-alt text-error">
@@ -77,14 +86,16 @@
       Bimestre <span class="text-red-500">*</span>
     </span>
   </label>
-  <% bimestres_opcoes = (1..4).map { |b| ["#{b}º Bimestre", b] } %>
-  <%= f.select :bimestre, 
-      bimestres_opcoes, 
-      { prompt: "Selecionar bimestre" }, 
-      { 
-        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:bimestre].any? ? 'select-error' : ''}", 
-        required: true 
+  <% bimestres_opcoes = (1..@bimestres).map { |b| ["#{b}º Bimestre", b] } %>
+
+  <%= f.select :bimestre,
+      bimestres_opcoes,
+      { prompt: "Selecionar bimestre" },
+      {
+        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:bimestre].any? ? 'select-error' : ''}",
+        required: true
       } %>
+
   <% if conteudo.errors[:bimestre].any? %>
     <label class="label">
       <span class="label-text-alt text-error">

@@ -242,27 +242,45 @@ class AlunosController < ApplicationController
     # Parâmetros permitidos (inalterados)
     def aluno_params
         params.require(:aluno).permit(
-            :escola_id, 
-            :turma_id, 
+            :escola_id,
+            :turma_id,
             :cidade_id,
-            :nome, :data_nascimento, :idade, :cpf, :rg, :telefone, :email, :sexo, 
-            :cor, :tipo_sanguinio, :observacoes_pcd, :responsavel_1, :responsavel_2, 
-            :telefone_responsavel_1, :telefone_responsavel_2, :foto_url, :cpf_url, 
-            :comprovante_residencia_url, :historico_academico_url, :matricula,
-            :encrypted_password, :reset_password_token, :reset_password_sent_at, 
-            :remember_created_at,
-            necessidades_especiais_tipo: [], 
+            :nome,
+            :data_nascimento,
+            :cpf,
+            :rg,
+            :telefone,
+            :email,
+            :sexo,
+            :cor,
+            :tipo_sanguinio,
+            :observacoes_pcd,
+            :responsavel_1,
+            :responsavel_2,
+            :telefone_responsavel_1,
+            :telefone_responsavel_2,
+            :foto_url,
+            :cpf_url,
+            :comprovante_residencia_url,
+            :historico_academico_url,
+            :matricula,
+
+            # ✅ DEVise
+            :password,
+            :password_confirmation,
+
+            necessidades_especiais_tipo: [],
             cpf_documento: []
         ).tap do |whitelisted_params|
             whitelisted_params[:cidade_id] = nil if whitelisted_params[:cidade_id].blank?
 
             if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-                whitelisted_params[:necessidades_especiais_tipo] = whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+            whitelisted_params[:necessidades_especiais_tipo] =
+                whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
             end
 
-            if whitelisted_params[:necessidades_especiais_tipo].blank?
-                whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"]
-            end
+            whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"] if whitelisted_params[:necessidades_especiais_tipo].blank?
         end
     end
+
 end

@@ -70,10 +70,15 @@
               </div>
               
               <%# Checkbox para remover foto %>
+              <%# Botão para remover foto %>
               <% if @user.respond_to?(:foto) && @user.foto.attached? %>
-                <div class="absolute -bottom-2 -right-2 bg-white rounded-full shadow-lg p-2 flex items-center gap-2">
-                  <%= f.check_box :remove_foto, class: "checkbox checkbox-error checkbox-sm", id: "remove_foto_checkbox" %>
-                  <label for="remove_foto_checkbox" class="text-xs text-gray-700 cursor-pointer">Remover</label>
+                <div class="absolute -bottom-2 -right-2">
+                  <label for="remove_foto_checkbox" class="btn btn-circle btn-sm bg-red-500 hover:bg-red-600 border-0 shadow-lg cursor-pointer" title="Remover foto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </label>
+                  <%= f.check_box :remove_foto, class: "hidden", id: "remove_foto_checkbox" %>
                 </div>
               <% end %>
             </div>

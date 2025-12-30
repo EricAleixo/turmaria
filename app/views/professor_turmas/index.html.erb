@@ -7,13 +7,14 @@
           <h1 class="text-2xl font-bold text-gray-900">Gerenciar Turmas - <%= @professor.nome %></h1>
           <div class="text-sm breadcrumbs mt-1">
             <ul>
-              <li><%= link_to "Professores", professors_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-              <li><%= link_to @professor.nome, professor_path(@professor), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to "Professores", escola_professors_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @professor.nome, escola_professor_path(@escola, @professor), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li class="text-gray-600">Gerenciar Turmas</li>
             </ul>
           </div>
         <div class="flex gap-3">
-          <%= link_to professor_path(@professor), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
+          <%= link_to escola_professor_path(@escola, @professor), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2 inline">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
@@ -39,7 +40,7 @@
 
       <div class="p-6">
         <% if @turmas_disponiveis.any? %>
-          <%= form_with url: professor_professor_turmas_path(@professor), method: :post, local: true, class: "flex flex-col md:flex-row gap-4 items-end" do |form| %>
+          <%= form_with url: professor_turmas_path(@professor), method: :post, local: true, class: "flex flex-col md:flex-row gap-4 items-end" do |form| %>
             <div class="flex-1 w-full">
               <%= form.label :turma_id, "Selecione uma turma:", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= form.select :turma_id, 

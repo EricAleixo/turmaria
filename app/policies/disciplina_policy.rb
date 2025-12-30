@@ -4,8 +4,11 @@ class DisciplinaPolicy < ApplicationPolicy
     user.present?
   end
 
+  def buscar_escolas?
+    user.present? && (user.is_a?(SuperAdmin) || user.is_a?(Admin))
+  end
+
   def new?
-    # Qualquer admin ou super_admin pode TENTAR criar
     user.present? && (user.is_a?(SuperAdmin) || user.is_a?(Admin))
   end
 
@@ -32,10 +35,8 @@ class DisciplinaPolicy < ApplicationPolicy
     return true if user.is_a?(SuperAdmin)
 
     if user.is_a?(Admin)
-      # Garante que a escola existe antes de verificar
       return false if record.escola.nil?
       
-      # Usa escola_ids (mais eficiente que include?)
       return user.escola_ids.include?(record.escola_id)
     end
 

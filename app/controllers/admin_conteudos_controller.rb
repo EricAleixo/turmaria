@@ -4,6 +4,8 @@ class AdminConteudosController < ApplicationController
   before_action :authorize_admin_or_super_admin
   before_action :set_scope_objects, only: [:new, :create, :index, :show, :edit, :update, :destroy]
   before_action :set_conteudo, only: %i[show edit update destroy remove_material]
+  before_action :set_disciplinas, only: [:new, :edit, :create, :update]
+
 
   # GET /escolas/:escola_id/conteudos
   def index
@@ -202,6 +204,18 @@ class AdminConteudosController < ApplicationController
       conteudos_path
     end
   end
+
+  def set_disciplinas
+    @disciplinas =
+      if @escola
+        @escola.disciplinas
+      elsif current_user.is_a?(SuperAdmin)
+        Disciplina.all
+      else # Admin
+        Disciplina.where(escola_id: current_user.escolas.pluck(:id))
+      end
+  end
+
 
   def processar_materiais(conteudo)
     return unless conteudo.materiais.attached?

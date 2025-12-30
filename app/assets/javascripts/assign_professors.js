@@ -1,10 +1,9 @@
-// Student Assignment Management
-// Handles allocation and removal of students to/from classes
-
-class StudentAssignment {
+// Professor Assignment Management
+// Handles allocation and removal of professors to/from classes
+class ProfessorAssignment {
   constructor() {
-    this.currentStudentId = null;
-    this.currentStudentName = null;
+    this.currentProfessorId = null;
+    this.currentProfessorName = null;
     this.init();
   }
 
@@ -17,13 +16,13 @@ class StudentAssignment {
 
   // Modal Management
   bindModalEvents() {
-    window.openAllocateModal = (studentId, studentName) => {
-      this.currentStudentId = studentId;
-      this.currentStudentName = studentName;
-      const nameElement = document.getElementById('allocate-student-name');
+    window.openAllocateModal = (professorId, professorName) => {
+      this.currentProfessorId = professorId;
+      this.currentProfessorName = professorName;
+      const nameElement = document.getElementById('allocate-professor-name');
       const modal = document.getElementById('allocate-modal');
       if (nameElement && modal) {
-        nameElement.textContent = studentName;
+        nameElement.textContent = professorName;
         modal.showModal();
       }
       return false;
@@ -32,24 +31,24 @@ class StudentAssignment {
     window.closeAllocateModal = () => {
       const modal = document.getElementById('allocate-modal');
       if (modal) modal.close();
-      this.currentStudentId = null;
-      this.currentStudentName = null;
+      this.currentProfessorId = null;
+      this.currentProfessorName = null;
     };
 
     window.confirmAllocate = () => {
-      if (this.currentStudentId) {
-        this.submitForm('assign_student', { student_id: this.currentStudentId });
+      if (this.currentProfessorId) {
+        this.submitForm('assign_professor', { professor_id: this.currentProfessorId });
       }
       window.closeAllocateModal();
     };
 
-    window.openRemoveModal = (studentId, studentName) => {
-      this.currentStudentId = studentId;
-      this.currentStudentName = studentName;
-      const nameElement = document.getElementById('remove-student-name');
+    window.openRemoveModal = (professorId, professorName) => {
+      this.currentProfessorId = professorId;
+      this.currentProfessorName = professorName;
+      const nameElement = document.getElementById('remove-professor-name');
       const modal = document.getElementById('remove-modal');
       if (nameElement && modal) {
-        nameElement.textContent = studentName;
+        nameElement.textContent = professorName;
         modal.showModal();
       }
       return false;
@@ -58,24 +57,19 @@ class StudentAssignment {
     window.closeRemoveModal = () => {
       const modal = document.getElementById('remove-modal');
       if (modal) modal.close();
-      this.currentStudentId = null;
-      this.currentStudentName = null;
+      this.currentProfessorId = null;
+      this.currentProfessorName = null;
     };
 
     window.confirmRemove = () => {
-      if (this.currentStudentId) {
-        this.submitForm(
-          'remove_from_turma',
-          {},
-          this.currentStudentId
-        );
+      if (this.currentProfessorId) {
+        this.submitForm('remove_professor_from_turma', { professor_id: this.currentProfessorId });
       }
       window.closeRemoveModal();
     };
 
-
     window.openBulkAllocateModal = () => {
-      const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+      const checkedBoxes = document.querySelectorAll('.professor-checkbox:checked');
       const countElement = document.getElementById('bulk-allocate-count');
       const modal = document.getElementById('bulk-allocate-modal');
       if (countElement && modal) {
@@ -91,9 +85,9 @@ class StudentAssignment {
     };
 
     window.confirmBulkAllocate = () => {
-      const studentIds = this.getSelectedStudentIds('.student-checkbox:checked');
-      if (studentIds.length > 0) {
-        this.submitBulkForm('assign_students', studentIds);
+      const professorIds = this.getSelectedProfessorIds('.professor-checkbox:checked');
+      if (professorIds.length > 0) {
+        this.submitBulkForm('assign_professor', professorIds);
       }
       window.closeBulkAllocateModal();
     };
@@ -115,9 +109,9 @@ class StudentAssignment {
     };
 
     window.confirmBulkRemove = () => {
-      const studentIds = this.getSelectedStudentIds('.allocated-checkbox:checked');
-      if (studentIds.length > 0) {
-        this.submitBulkForm('remove_students', studentIds);
+      const professorIds = this.getSelectedProfessorIds('.allocated-checkbox:checked');
+      if (professorIds.length > 0) {
+        this.submitBulkForm('remove_professor_from_turma', professorIds);
       }
       window.closeBulkRemoveModal();
     };
@@ -125,39 +119,46 @@ class StudentAssignment {
 
   // Checkbox Management
   bindCheckboxEvents() {
-    // Available students checkboxes (Desktop)
+    // Available professors checkboxes (Desktop)
     const selectAllAvailable = document.getElementById('select-all-available');
-    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+    const professorCheckboxes = document.querySelectorAll('.professor-checkbox');
 
     selectAllAvailable?.addEventListener('change', (e) => {
-      studentCheckboxes.forEach(checkbox => {
+      professorCheckboxes.forEach(checkbox => {
         checkbox.checked = e.target.checked;
       });
+      // Sincroniza o checkbox mobile
+      const selectAllAvailableMobile = document.getElementById('select-all-available-mobile');
+      if (selectAllAvailableMobile) {
+        selectAllAvailableMobile.checked = e.target.checked;
+        selectAllAvailableMobile.indeterminate = false;
+      }
       this.updateAvailableCount();
     });
 
-    // Available students checkboxes (Mobile)
+    // Available professors checkboxes (Mobile)
     const selectAllAvailableMobile = document.getElementById('select-all-available-mobile');
     selectAllAvailableMobile?.addEventListener('change', (e) => {
-      studentCheckboxes.forEach(checkbox => {
+      professorCheckboxes.forEach(checkbox => {
         checkbox.checked = e.target.checked;
       });
+      // Sincroniza o checkbox desktop
+      if (selectAllAvailable) {
+        selectAllAvailable.checked = e.target.checked;
+        selectAllAvailable.indeterminate = false;
+      }
       this.updateAvailableCount();
     });
 
-    studentCheckboxes.forEach(checkbox => {
+    professorCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
-        if (selectAllAvailable) {
-          this.updateSelectAllState(selectAllAvailable, studentCheckboxes);
-        }
-        if (selectAllAvailableMobile) {
-          this.updateSelectAllState(selectAllAvailableMobile, studentCheckboxes);
-        }
+        this.updateSelectAllState(selectAllAvailable, professorCheckboxes);
+        this.updateSelectAllState(selectAllAvailableMobile, professorCheckboxes);
         this.updateAvailableCount();
       });
     });
 
-    // Allocated students checkboxes (Desktop)
+    // Allocated professors checkboxes (Desktop)
     const selectAllAllocated = document.getElementById('select-all-allocated');
     const allocatedCheckboxes = document.querySelectorAll('.allocated-checkbox');
 
@@ -165,26 +166,33 @@ class StudentAssignment {
       allocatedCheckboxes.forEach(checkbox => {
         checkbox.checked = e.target.checked;
       });
+      // Sincroniza o checkbox mobile
+      const selectAllAllocatedMobile = document.getElementById('select-all-allocated-mobile');
+      if (selectAllAllocatedMobile) {
+        selectAllAllocatedMobile.checked = e.target.checked;
+        selectAllAllocatedMobile.indeterminate = false;
+      }
       this.updateAllocatedCount();
     });
 
-    // Allocated students checkboxes (Mobile)
+    // Allocated professors checkboxes (Mobile)
     const selectAllAllocatedMobile = document.getElementById('select-all-allocated-mobile');
     selectAllAllocatedMobile?.addEventListener('change', (e) => {
       allocatedCheckboxes.forEach(checkbox => {
         checkbox.checked = e.target.checked;
       });
+      // Sincroniza o checkbox desktop
+      if (selectAllAllocated) {
+        selectAllAllocated.checked = e.target.checked;
+        selectAllAllocated.indeterminate = false;
+      }
       this.updateAllocatedCount();
     });
 
     allocatedCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', () => {
-        if (selectAllAllocated) {
-          this.updateSelectAllState(selectAllAllocated, allocatedCheckboxes);
-        }
-        if (selectAllAllocatedMobile) {
-          this.updateSelectAllState(selectAllAllocatedMobile, allocatedCheckboxes);
-        }
+        this.updateSelectAllState(selectAllAllocated, allocatedCheckboxes);
+        this.updateSelectAllState(selectAllAllocatedMobile, allocatedCheckboxes);
         this.updateAllocatedCount();
       });
     });
@@ -206,16 +214,16 @@ class StudentAssignment {
 
     bulkAssignBtn?.addEventListener('click', (e) => {
       e.preventDefault();
-      const studentIds = this.getSelectedStudentIds('.student-checkbox:checked');
-      if (studentIds.length > 0) {
+      const professorIds = this.getSelectedProfessorIds('.professor-checkbox:checked');
+      if (professorIds.length > 0) {
         window.openBulkAllocateModal();
       }
     });
 
     bulkRemoveBtn?.addEventListener('click', (e) => {
       e.preventDefault();
-      const studentIds = this.getSelectedStudentIds('.allocated-checkbox:checked');
-      if (studentIds.length > 0) {
+      const professorIds = this.getSelectedProfessorIds('.allocated-checkbox:checked');
+      if (professorIds.length > 0) {
         window.openBulkRemoveModal();
       }
     });
@@ -224,9 +232,8 @@ class StudentAssignment {
   // Helper Methods
   updateSelectAllState(selectAllCheckbox, checkboxes) {
     if (!selectAllCheckbox) return;
-    
+
     const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
-    
     if (checkedBoxes.length === 0) {
       selectAllCheckbox.indeterminate = false;
       selectAllCheckbox.checked = false;
@@ -240,14 +247,15 @@ class StudentAssignment {
   }
 
   updateAvailableCount() {
-    const count = document.querySelectorAll('.student-checkbox:checked').length;
+    const count = document.querySelectorAll('.professor-checkbox:checked').length;
     const selectedCountSpan = document.getElementById('selected-count');
     const selectedCountSpanMobile = document.getElementById('selected-count-mobile');
     const bulkAssignSection = document.getElementById('bulk-assign-section');
     const bulkAssignSectionMobile = document.getElementById('bulk-assign-section-mobile');
-    
+
     if (selectedCountSpan) selectedCountSpan.textContent = count;
     if (selectedCountSpanMobile) selectedCountSpanMobile.textContent = count;
+
     this.toggleSection(bulkAssignSection, count > 0);
     this.toggleSection(bulkAssignSectionMobile, count > 0);
   }
@@ -260,12 +268,13 @@ class StudentAssignment {
     const bulkRemoveSectionMobile = document.getElementById('bulk-remove-section-mobile');
     const bulkRemoveBtn = document.getElementById('bulk-remove-btn');
     const bulkRemoveBtnMobile = document.getElementById('bulk-remove-btn-mobile');
-    
+
     if (allocatedCountSpan) allocatedCountSpan.textContent = count;
     if (allocatedCountSpanMobile) allocatedCountSpanMobile.textContent = count;
+
     this.toggleSection(bulkRemoveSection, count > 0);
     this.toggleSection(bulkRemoveSectionMobile, count > 0);
-    
+
     if (bulkRemoveBtn) {
       bulkRemoveBtn.style.display = count > 0 ? 'flex' : 'none';
     }
@@ -276,7 +285,7 @@ class StudentAssignment {
 
   toggleSection(section, show) {
     if (!section) return;
-    
+
     if (show) {
       section.classList.remove('hidden');
       setTimeout(() => {
@@ -292,29 +301,29 @@ class StudentAssignment {
     }
   }
 
-  getSelectedStudentIds(selector) {
+  getSelectedProfessorIds(selector) {
     const checkedBoxes = document.querySelectorAll(selector);
-    return Array.from(checkedBoxes).map(cb => cb.dataset.studentId);
+    return Array.from(checkedBoxes).map(cb => cb.dataset.professorId);
   }
 
   applyFilters(type) {
     const searchInput = document.getElementById(`search-${type}`);
-    const ageFilter = document.getElementById(`age-filter-${type}`);
+    const typeFilter = document.getElementById(`type-filter-${type}`);
     const orderFilter = document.getElementById(`order-filter-${type}`);
-    
-    if (!searchInput || !ageFilter || !orderFilter) return;
-    
+
+    if (!searchInput || !typeFilter || !orderFilter) return;
+
     const searchQuery = searchInput.value;
-    const ageFilterValue = ageFilter.value;
+    const typeFilterValue = typeFilter.value;
     const orderFilterValue = orderFilter.value;
-    
+
     const params = new URLSearchParams(window.location.search);
     const prefix = type === 'allocated' ? 'allocated_' : 'available_';
-    
+
     this.setOrDeleteParam(params, `${prefix}search`, searchQuery);
-    this.setOrDeleteParam(params, `${prefix}age_filter`, ageFilterValue);
+    this.setOrDeleteParam(params, `${prefix}type_filter`, typeFilterValue);
     this.setOrDeleteParam(params, `${prefix}order_filter`, orderFilterValue);
-    
+
     document.body.style.cursor = 'wait';
     window.location.search = params.toString();
   }
@@ -327,35 +336,34 @@ class StudentAssignment {
     }
   }
 
-  submitForm(action, data, studentId = null) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = this.getActionUrl(action, studentId);
-
-  this.addFormField(form, '_method', 'PATCH');
-  this.addFormField(form, 'authenticity_token', this.getCsrfToken());
-
-  Object.entries(data).forEach(([key, value]) => {
-    this.addFormField(form, key, value);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
-}
-
-
-  submitBulkForm(action, studentIds) {
+  submitForm(action, data) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = this.getActionUrl(action);
-    
+
     this.addFormField(form, '_method', 'PATCH');
     this.addFormField(form, 'authenticity_token', this.getCsrfToken());
-    
-    studentIds.forEach(id => {
-      this.addFormField(form, 'student_ids[]', id);
+
+    Object.entries(data).forEach(([key, value]) => {
+      this.addFormField(form, key, value);
     });
-    
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  submitBulkForm(action, professorIds) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = this.getActionUrl(action);
+
+    this.addFormField(form, '_method', 'PATCH');
+    this.addFormField(form, 'authenticity_token', this.getCsrfToken());
+
+    professorIds.forEach(id => {
+      this.addFormField(form, 'professor_ids[]', id);
+    });
+
     document.body.appendChild(form);
     form.submit();
   }
@@ -368,18 +376,11 @@ class StudentAssignment {
     form.appendChild(input);
   }
 
-  getActionUrl(action, studentId = null) {
+  getActionUrl(action) {
     const escolaId = document.querySelector('[data-escola-id]')?.dataset.escolaId;
-    const turmaId  = document.querySelector('[data-turma-id]')?.dataset.turmaId;
-
-    if (action === 'remove_from_turma' && studentId) {
-      return `/escolas/${escolaId}/turmas/${turmaId}/remove_from_turma/${studentId}`;
-    }
-
+    const turmaId = document.querySelector('[data-turma-id]')?.dataset.turmaId;
     return `/escolas/${escolaId}/turmas/${turmaId}/${action}`;
   }
-
-
 
   getCsrfToken() {
     const token = document.querySelector('meta[name="csrf-token"]');
@@ -388,32 +389,32 @@ class StudentAssignment {
 }
 
 // Initialize when DOM is ready
-function initializeStudentAssignment() {
+function initializeProfessorAssignment() {
   // Previne múltiplas inicializações
-  if (window.studentAssignmentInstance) {
+  if (window.professorAssignmentInstance) {
     return;
   }
-  
+
   // Verifica se estamos na página correta
   const pageContainer = document.querySelector('[data-escola-id][data-turma-id]');
   if (!pageContainer) {
     return;
   }
-  
-  window.studentAssignmentInstance = new StudentAssignment();
+
+  window.professorAssignmentInstance = new ProfessorAssignment();
 }
 
 // Limpa a instância antes do Turbo renderizar nova página
 document.addEventListener('turbo:before-render', () => {
-  window.studentAssignmentInstance = null;
+  window.professorAssignmentInstance = null;
 });
 
 // Inicializa em todas as situações possíveis
-document.addEventListener('turbo:load', initializeStudentAssignment);
-document.addEventListener('turbo:render', initializeStudentAssignment);
-document.addEventListener('DOMContentLoaded', initializeStudentAssignment);
+document.addEventListener('turbo:load', initializeProfessorAssignment);
+document.addEventListener('turbo:render', initializeProfessorAssignment);
+document.addEventListener('DOMContentLoaded', initializeProfessorAssignment);
 
 // Executa imediatamente se o DOM já estiver pronto
 if (document.readyState !== 'loading') {
-  initializeStudentAssignment();
+  initializeProfessorAssignment();
 }

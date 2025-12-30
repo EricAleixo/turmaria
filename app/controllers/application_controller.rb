@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+  before_action :configure_permitted_parameters, if: :devise_controller?
   
   helper_method :current_any_user, :current_user_type, :user_signed_in?, :current_user
 
@@ -54,6 +55,10 @@ helper_method :current_any_user, :authenticated_user_type
   end
 
   protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_in, keys: [:matricula])
+  end
 
   def required_super_admin!
     unless current_any_user.is_a?(SuperAdmin)

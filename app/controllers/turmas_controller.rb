@@ -3,7 +3,11 @@ class TurmasController < ApplicationController
   layout 'dashboard'
 
   before_action :set_escola
-  before_action :set_turma, only: %i[show edit update destroy assign_students assign_student remove_from_turma]
+  before_action :set_turma, only: %i[
+  show edit update destroy 
+  assign_students assign_student remove_from_turma remove_students 
+  assign_professors assign_professor remove_professor_from_turma
+]
 
   # GET /escolas/:escola_id/turmas or /escolas/:escola_id/turmas.json
   def index
@@ -207,7 +211,7 @@ class TurmasController < ApplicationController
         end
       end
     else
-      @aluno = Aluno.find_by(id: params[:aluno_id], escola_id: @escola.id)
+      @aluno = Aluno.find_by(id: params[:student_id], escola_id: @escola.id)
       
       if @aluno.nil?
         redirect_to assign_students_escola_turma_path(@escola, @turma), 
@@ -226,20 +230,9 @@ class TurmasController < ApplicationController
   end
 
   def remove_from_turma
-    if params[:student_ids].present?
-      student_ids = params[:student_ids]
-      students = Aluno.where(id: student_ids, turma_id: @turma.id)
-      
-      if students.any?
-        updated_count = students.update_all(turma_id: nil)
-        redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma), 
-                    notice: "#{updated_count} aluno(s) removido(s) da turma #{@turma.nome}."
-      else
-        redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma), 
-                    alert: 'Nenhum aluno válido encontrado para remoção.'
-      end
-    else
-      @aluno = Aluno.find_by(id: params[:aluno_id], turma_id: @turma.id)
+      @aluno = Aluno.find_by(id: params[:student_id], turma_id: @turma.id)
+      puts "Papapapa: ", params[:student_id]
+      puts "Parara ",@turma.id
       
       if @aluno.nil?
         respond_to do |format|
@@ -259,6 +252,233 @@ class TurmasController < ApplicationController
           format.html { redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma), alert: 'Erro ao remover aluno da turma.' }
           format.js { render js: "alert('Erro ao remover aluno da turma.');" }
         end
+      end
+  end
+
+  def remove_students
+    if params[:student_ids].blank?
+      redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma),
+                  alert: 'Nenhum aluno selecionado para remoção.'
+      return
+    end
+
+    students = Aluno.where(
+      id: params[:student_ids],
+      turma_id: @turma.id
+    )
+
+    if students.empty?
+      respond_to do |format|
+        format.html do
+          redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma),
+                      alert: 'Nenhum aluno válido encontrado nesta turma.'
+        end
+        format.js { render js: "alert('Nenhum aluno válido encontrado nesta turma.');" }
+      end
+      return
+    end
+
+    removed_count = students.update_all(turma_id: nil)
+
+    respond_to do |format|
+      format.html do
+        redirect_to request.referer || assign_students_escola_turma_path(@escola, @turma),
+                    notice: "#{removed_count} aluno(s) removido(s) da turma #{@turma.nome}."
+      end
+      format.js { render js: "window.location.reload();" }
+    end
+  end
+
+
+
+  # Adicionar no TurmasController
+
+# GET /escolas/:escola_id/turmas/:id/assign_professors
+  def assign_professors
+    # Filtros separados para cada tabela
+    allocated_type_filter = params[:allocated_type_filter]
+    allocated_order_filter = params[:allocated_order_filter] || 'recent'
+    allocated_search_query = params[:allocated_search]
+
+    available_type_filter = params[:available_type_filter]
+    available_order_filter = params[:available_order_filter] || 'recent'
+    available_search_query = params[:available_search]
+
+    # Base queries - professores já alocados nesta turma
+    @allocated_professores = @turma.professores.includes(:escola)
+    
+    # Professores disponíveis - que pertencem à escola mas NÃO estão nesta turma
+    @unallocated_professores = Professor.where(escola_id: @escola.id)
+                                        .where.not(id: @turma.professores.pluck(:id))
+                                        .includes(:escola)
+
+    # Aplicar filtros para professores alocados
+    if allocated_type_filter.present?
+      @allocated_professores = @allocated_professores.where(tipo_professor: allocated_type_filter)
+    end
+
+    if allocated_search_query.present?
+      @allocated_professores = @allocated_professores.where(
+        'nome ILIKE ? OR email ILIKE ?', 
+        "%#{allocated_search_query}%", 
+        "%#{allocated_search_query}%"
+      )
+    end
+
+    case allocated_order_filter
+    when 'recent'
+      @allocated_professores = @allocated_professores.order(created_at: :desc)
+    when 'oldest'
+      @allocated_professores = @allocated_professores.order(created_at: :asc)
+    when 'name_asc'
+      @allocated_professores = @allocated_professores.order(:nome)
+    when 'name_desc'
+      @allocated_professores = @allocated_professores.order(nome: :desc)
+    end
+
+    # Aplicar filtros para professores disponíveis
+    if available_type_filter.present?
+      @unallocated_professores = @unallocated_professores.where(tipo_professor: available_type_filter)
+    end
+
+    if available_search_query.present?
+      @unallocated_professores = @unallocated_professores.where(
+        'nome ILIKE ? OR email ILIKE ?', 
+        "%#{available_search_query}%", 
+        "%#{available_search_query}%"
+      )
+    end
+
+    case available_order_filter
+    when 'recent'
+      @unallocated_professores = @unallocated_professores.order(created_at: :desc)
+    when 'oldest'
+      @unallocated_professores = @unallocated_professores.order(created_at: :asc)
+    when 'name_asc'
+      @unallocated_professores = @unallocated_professores.order(:nome)
+    when 'name_desc'
+      @unallocated_professores = @unallocated_professores.order(nome: :desc)
+    end
+    
+    if request.patch?
+      if params[:professor_ids].present?
+        professor_ids = params[:professor_ids]
+        professores = Professor.where(id: professor_ids, escola_id: @escola.id)
+        
+        success_count = 0
+        professores.each do |professor|
+          unless @turma.professores.include?(professor)
+            @turma.professores << professor
+            success_count += 1
+          end
+        end
+        
+        if success_count > 0
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      notice: "#{success_count} professor(es) foram alocados para a turma #{@turma.nome}."
+        else
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      alert: 'Erro ao alocar professores para a turma.'
+        end
+        return
+      end
+    end
+  end
+
+# PATCH /escolas/:escola_id/turmas/:id/assign_professor
+  def assign_professor
+    if params[:professor_ids].present?
+      professor_ids = params[:professor_ids]
+      action_type = params[:action_type] # Para diferenciar de 'action' do Rails
+
+      if action_type == 'remove'
+        # Busca professores que estão nesta turma
+        professores = @turma.professores.where(id: professor_ids)
+        
+        if professores.any?
+          professores.each do |professor|
+            @turma.professores.delete(professor)
+          end
+          
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      notice: "#{professores.count} professor(es) removido(s) da turma #{@turma.nome}."
+        else
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      alert: 'Nenhum professor válido encontrado para remoção.'
+        end
+      else
+        professores = Professor.where(id: professor_ids, escola_id: @escola.id)
+        
+        success_count = 0
+        professores.each do |professor|
+          unless @turma.professores.include?(professor)
+            @turma.professores << professor
+            success_count += 1
+          end
+        end
+        
+        if success_count > 0
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      notice: "#{success_count} professor(es) foram alocados para a turma #{@turma.nome}."
+        else
+          redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                      alert: 'Erro ao alocar professores para a turma.'
+        end
+      end
+    else
+      # Busca apenas por ID, sem turma_id
+      @professor = Professor.find_by(id: params[:professor_id], escola_id: @escola.id)
+      
+      if @professor.nil?
+        redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                    alert: 'Professor não encontrado.'
+        return
+      end
+      
+      unless @turma.professores.include?(@professor)
+        @turma.professores << @professor
+        redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                    notice: "#{@professor.nome} foi alocado para a turma #{@turma.nome}."
+      else
+        redirect_to assign_professors_escola_turma_path(@escola, @turma), 
+                    alert: 'Professor já está alocado nesta turma.'
+      end
+    end
+  end
+
+# PATCH /escolas/:escola_id/turmas/:id/remove_professor_from_turma
+  def remove_professor_from_turma
+    if params[:professor_ids].present?
+      professor_ids = params[:professor_ids]
+      # Busca professores que estão nesta turma
+      professores = @turma.professores.where(id: professor_ids)
+      
+      if professores.any?
+        professores.each do |professor|
+          @turma.professores.delete(professor)
+        end
+        
+        redirect_to request.referer || assign_professors_escola_turma_path(@escola, @turma), 
+                    notice: "#{professores.count} professor(es) removido(s) da turma #{@turma.nome}."
+      else
+        redirect_to request.referer || assign_professors_escola_turma_path(@escola, @turma), 
+                    alert: 'Nenhum professor válido encontrado para remoção.'
+      end
+    else
+      @professor = Professor.find_by(id: params[:professor_id])
+      
+      if @professor.nil? || !@turma.professores.include?(@professor)
+        respond_to do |format|
+          format.html { redirect_to request.referer || assign_professors_escola_turma_path(@escola, @turma), alert: 'Professor não encontrado nesta turma.' }
+          format.js { render js: "alert('Professor não encontrado nesta turma.');" }
+        end
+        return
+      end
+      
+      @turma.professores.delete(@professor)
+      respond_to do |format|
+        format.html { redirect_to request.referer || assign_professors_escola_turma_path(@escola, @turma), notice: "#{@professor.nome} foi removido da turma #{@turma.nome}." }
+        format.js { render js: "window.location.reload();" }
       end
     end
   end

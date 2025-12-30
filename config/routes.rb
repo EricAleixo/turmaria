@@ -57,11 +57,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Professor-Turma associations
-  get '/professors/:professor_id/turmas', to: 'professor_turmas#show', as: 'professor_professor_turmas'
-  post '/professors/:professor_id/turmas', to: 'professor_turmas#create'
-  delete '/professors/:professor_id/turmas/:id', to: 'professor_turmas#destroy', as: 'professor_professor_turma'
-
   # Welcome route
   get 'escolas/welcome', to: 'escolas#welcome', as: 'welcome_escola'
   
@@ -107,9 +102,25 @@ Rails.application.routes.draw do
       collection do
         get :search
       end
+
       resources :conteudos, controller: 'admin_conteudos'
       resources :disciplinas
-      resources :professors
+
+      resources :professors do
+        resources :alunos
+        resources :conteudos
+
+        member do
+          patch :update_disciplinas
+          patch :update_conteudos
+        end
+
+        resources :turmas,
+                  controller: 'professor_turmas',
+                  only: [:index, :create, :destroy]
+      end
+
+
       resources :ano_letivos do
         resources :turmas
       end
@@ -124,10 +135,11 @@ Rails.application.routes.draw do
       resources :turmas do
         resources :disciplinas, controller: 'turma_disciplinas' do
           collection do
-            get 'associar'
-            post 'associar', action: :processar_associacao
+            get :associar
+            post :associar, action: :processar_associacao
           end
         end
+
         resources :alunos, except: [:new, :create] do
           member do
             patch :remove_from_turma
@@ -136,11 +148,21 @@ Rails.application.routes.draw do
 
         member do
           get :assign_students
+          patch :assign_students
           patch :assign_student
-          patch 'remove_from_turma/:aluno_id', to: 'turmas#remove_from_turma', as: :remove_from_turma_individual
+          patch :remove_students
+          
+          patch 'remove_from_turma/:student_id',
+                to: 'turmas#remove_from_turma',
+                as: :remove_from_turma_individual
+
+          get :assign_professors
+          patch :assign_professor
+          patch :remove_professor_from_turma
         end
       end
     end
+
   end
 
   # Rotas autenticadas (professor)
@@ -157,11 +179,15 @@ Rails.application.routes.draw do
 
     # Estrutura aninhada de turmas -> disciplinas -> funcionalidades
     namespace :professor do
+      get "selecionar_turma", to: "conteudos#selecionar_turma"
       # Turmas principais
       resources :turmas, only: [:index] do
         member do
           get :historico # /professor/turmas/:id/historico
         end
+
+        # **ADICIONE AQUI: Conteúdos aninhados em turmas**
+        resources :conteudos, only: [:index, :show, :new, :create, :edit, :update, :destroy]
 
         # Disciplinas dentro da turma
         resources :disciplinas, only: [:index] do
@@ -169,7 +195,7 @@ Rails.application.routes.draw do
           resource :resultados, controller: 'notas/resultados', only: [:show] do
               member do
               get :detalhes
-             end
+            end
           end
 
           # Frequências aninhadas
@@ -207,6 +233,7 @@ Rails.application.routes.draw do
   # Rota de Perfil
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'
 
+  devise_for :alunos, path: 'aluno'
   # Rotas unificadas Devise
   devise_scope :user do
     get    "/login",  to: "devise/unified_sessions#new",    as: :new_user_session

@@ -1,4 +1,5 @@
 class Devise::UnifiedSessionsController < Devise::SessionsController
+  layout "application"
   helper_method :resource, :resource_name, :devise_mapping
 
   def new
@@ -28,11 +29,6 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
           redirect_to after_sign_in_path_for(user)
           return
 
-          if user.is_a?(SuperAdmin)
-            redirect_to dashboard_path
-          else
-            redirect_to root_path
-          end
         else
           flash.now[:alert] = "Senha inválida"
           render :new

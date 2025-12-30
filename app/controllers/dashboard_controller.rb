@@ -6,6 +6,7 @@ class DashboardController < ApplicationController
   
   def index
     if current_super_admin
+      puts "É ADMIN"
       load_super_admin_dashboard_data
     elsif current_admin
       load_admin_dashboard_data 
@@ -21,7 +22,6 @@ class DashboardController < ApplicationController
     return if performed?
     
     load_professores_da_turma_data
-    puts "Professores: ", @professores_da_turma
 
     @titulo_pagina = "Meus Professores | #{@aluno.nome}"
     render 'aluno/meus_professores'
@@ -32,9 +32,9 @@ class DashboardController < ApplicationController
     return if performed?
     
     # Carrega todas as notas
-    @registros_notas = RegistroDeNota.includes(avaliacao_configuracao: [:disciplina])
-                                     .where(aluno_id: @aluno.id)
-                                     .order(created_at: :desc)
+    @registros_notas = @aluno.registros_de_notas
+                         .includes(avaliacao_configuracao: [:disciplina])
+                         .order(created_at: :desc)
     
     # NOVO: Carrega o Resumo da Média por Disciplina
     # Passamos apenas o ID do aluno, e não a coleção, para uma consulta mais limpa no método privado
@@ -410,40 +410,50 @@ end
 
   # 3. Método: Carrega dados para Professor (Mantido Intacto)
   def load_professor_dashboard_data
-    # 1. Dados do Professor
-    @professor_nome = current_professor.nome rescue "Professor Teste Mock"
-
-    # 2. Cartões Principais
-    @turmas_ativas = 5
-    @disciplinas_contagem = 3
-    @alunos_unicos = 185
-    @media_presenca = "94.2%"
+    # 1. Dados do Professor (dados reais)
+    @professor_nome = current_professor.nome
     
-    # 3. Cartões Secundários
-    @media_geral_notas = "7.8"
-    @pior_turma_media = "6.5 (9º ano A - Matemática)"
-    @notas_lancadas_mes = 320
-
-    # 4. Lista de Disciplinas/Turmas
-    @disciplinas_e_turmas = [
-      { disciplina: "Matemática", turma: "9º ano A" },
-      { disciplina: "Física", turma: "2º ano A" },
-      { disciplina: "Robótica", turma: "7º ano Única" },
-    ]
-
-    # 5. Dados dos Gráficos (Estrutura para Chart.js)
-    @grafico_desempenho_disciplinas = {
-      labels: ["Matemática", "Física", "Robótica"],
-      data: [7.8, 8.5, 9.1]
-    }
-    @grafico_evolucao_notas = {
-      labels: ["Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
-      data: [7.2, 7.5, 7.8, 7.7, 8.0, 7.9]
-    }
-    @grafico_presenca_turmas = {
-      labels: ["9º A", "9º B", "2º A", "2º B"],
-      data: [96.0, 91.5, 94.8, 92.0]
-    }
+    # 2. Turmas e Disciplinas do Professor (dados reais)
+    frequencias = Frequencia.where(professor_id: current_professor.id)
+    
+    @turmas_ativas = frequencias.distinct.pluck(:turma_id).count
+    @disciplinas_contagem = frequencias.distinct.pluck(:disciplina_id).count
+    
+    # 3. Alunos únicos nas turmas do professor (dados reais)
+    turma_ids = frequencias.distinct.pluck(:turma_id)
+    @alunos_unicos = Aluno.where(turma_id: turma_ids).count
+    
+    # 4. Taxa de presença (NIL - necessário modelo de registros de presença individual)
+    # TODO: Criar cálculo real quando houver modelo de presença por aluno
+    @media_presenca = nil
+    
+    # 5. Média geral de notas (NIL - necessário modelo de Nota/Avaliacao)
+    # TODO: Buscar média real das notas quando modelo estiver disponível
+    @media_geral_notas = nil
+    
+    # 6. Lista de Disciplinas/Turmas (dados reais)
+    @disciplinas_e_turmas = frequencias
+      .includes(:turma, :disciplina)
+      .select(:turma_id, :disciplina_id)
+      .distinct
+      .map do |freq|
+        {
+          disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
+          turma: freq.turma&.nome || "Turma não encontrada"
+        }
+      end
+    
+    # 7. Gráfico de Desempenho por Disciplina (NIL - necessário modelo de Nota)
+    # TODO: Calcular médias reais por disciplina
+    @grafico_desempenho_disciplinas = nil
+    
+    # 8. Calendário de Presença do Mês (NIL)
+    # TODO: Implementar com dados reais de frequência por dia
+    @calendario_presenca = nil
+    
+    # 9. Presença Semanal (NIL)
+    # TODO: Calcular presença dos últimos 5 dias úteis
+    @presenca_semanal = nil
   end
 
   # 4. Mantenha o método de cálculo de crescimento (Mantido Intacto)

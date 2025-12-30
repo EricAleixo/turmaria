@@ -63,14 +63,14 @@
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
               <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
                 <% if @escola %>
-                  <%= link_to new_escola_conteudo_path(@escola), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                  <%= link_to new_professor_turma_conteudo_path(@turma), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-1">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     Novo Conteúdo
                   <% end %>
                 <% else %>
-                  <%= link_to new_conteudo_path, class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                  <%= link_to new_professor_turma_conteudo_path(@turma), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-1">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -78,7 +78,7 @@
                   <% end %>
                 <% end %>
               <% else %>
-                <%= link_to new_professor_painel_conteudo_path, class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                <%= link_to new_professor_turma_conteudo_path(@turma), class: "btn btn-md bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
                   Novo Conteúdo
                 <% end %>
               <% end %>
@@ -159,7 +159,7 @@
                       <% end %>
                     <% end %>
                   <% else %>
-                    <%= link_to new_professor_painel_conteudo_path, class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full" do %>
+                    <%= link_to new_professor_turma_conteudo_path(@turma), class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full" do %>
                       Adicionar Conteúdo
                     <% end %>
                   <% end %>
@@ -220,7 +220,7 @@
                                 elsif current_user.is_a?(Admin)
                                   edit_escola_conteudo_path(@escola, conteudo)
                                 else
-                                  edit_professor_painel_conteudo_path(conteudo)
+                                  edit_professor_turma_conteudo_path(@turma, conteudo)
 
                                 end
                               ),

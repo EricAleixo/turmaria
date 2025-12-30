@@ -186,7 +186,7 @@
               }
               
               # Usa a cor da disciplina ou cor padrão baseada na área
-              disciplina_cor = disciplina.cor.presence || cores_padrao[disciplina.area] || '#6b7280'
+              disciplina_cor = disciplina.cor_nome.presence || cores_padrao[disciplina.area] || '#6b7280'
             %>
             
             <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer" 
@@ -208,7 +208,7 @@
                 <%# Ícone da Área %>
                 <div class="flex items-start justify-between mb-4">
                   <div class="p-3 rounded-xl" style="background-color: rgba(0, 0, 0, 0.2);">
-                    <% case disciplina.area %>
+                    <% case disciplina.area_disciplina %>
                     <% when 'exatas' %>
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: rgba(255, 255, 255, 0.95);">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -233,7 +233,7 @@
                   </div>
                   
                   <div class="badge badge-sm border-0" style="background-color: rgba(0, 0, 0, 0.2); color: rgba(255, 255, 255, 0.95);">
-                    <%= disciplina.area&.humanize || 'Geral' %>
+                    <%= disciplina.area_disciplina.nome || 'Geral' %>
                   </div>
                 </div>
 

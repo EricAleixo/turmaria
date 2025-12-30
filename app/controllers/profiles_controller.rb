@@ -19,6 +19,7 @@ class ProfilesController < ApplicationController
       render "profiles/professor_profile"
 
     elsif current_aluno
+      preparar_dados_notas_aluno
       render "profiles/aluno_profile"
 
     else
@@ -108,5 +109,82 @@ class ProfilesController < ApplicationController
     unless professor_signed_in? || aluno_signed_in? || admin_signed_in? || coordenador_signed_in? || super_admin_signed_in?
       redirect_to new_user_session_path, alert: "Você precisa fazer login para continuar."
     end
+  end
+
+  def preparar_dados_notas_aluno
+    aluno = @user
+    @turma_atual = aluno.turma
+    
+    # Busca todos os registros de notas do aluno
+    @registros_notas = aluno.registros_de_notas
+                            .includes(avaliacao_configuracao: [:disciplina, turma: :professores])
+                            .order(created_at: :desc)
+    
+    # Agrupa notas por disciplina e bimestre
+    notas_por_disciplina = {}
+    
+    @registros_notas.each do |registro|
+      config = registro.avaliacao_configuracao
+      next unless config && config.disciplina
+      
+      disciplina_id = config.disciplina_id
+      bimestre = config.bimestre || 0
+      
+      notas_por_disciplina[disciplina_id] ||= {
+        disciplina: config.disciplina,
+        notas_por_bimestre: { 1 => [], 2 => [], 3 => [], 4 => [] },
+        professor: nil
+      }
+      
+      # Adiciona a nota no bimestre correspondente
+      if bimestre.between?(1, 4)
+        notas_por_disciplina[disciplina_id][:notas_por_bimestre][bimestre] << registro.valor.to_f
+      end
+      
+      # Tenta pegar o professor da disciplina na turma atual
+      if notas_por_disciplina[disciplina_id][:professor].nil?
+        professores_disciplina = config.disciplina.professores
+                                      .joins(:turmas)
+                                      .where(turmas: { id: @turma_atual&.id })
+                                      .distinct
+        notas_por_disciplina[disciplina_id][:professor] = professores_disciplina.first
+      end
+    end
+    
+    # Calcula médias por disciplina e bimestre
+    @disciplinas_com_medias = []
+    @total_disciplinas = 0
+    
+    notas_por_disciplina.each do |disciplina_id, dados|
+      medias_bimestres = {}
+      soma_medias_disciplina = 0.0
+      bimestres_com_nota = 0
+      
+      # Calcula média de cada bimestre
+      dados[:notas_por_bimestre].each do |bimestre, notas|
+        if notas.any?
+          medias_bimestres[bimestre] = notas.sum / notas.size.to_f
+          soma_medias_disciplina += medias_bimestres[bimestre]
+          bimestres_com_nota += 1
+        else
+          medias_bimestres[bimestre] = nil
+        end
+      end
+      
+      # Média geral da disciplina (média dos bimestres com nota)
+      media_disciplina = bimestres_com_nota > 0 ? soma_medias_disciplina / bimestres_com_nota : 0.0
+      
+      @disciplinas_com_medias << {
+        disciplina: dados[:disciplina],
+        professor: dados[:professor],
+        medias_bimestres: medias_bimestres,
+        media_geral: media_disciplina
+      }
+      
+    end
+    
+    # Ordena por nome da disciplina
+    @disciplinas_com_medias.sort_by! { |d| d[:disciplina].nome }
+    
   end
 end

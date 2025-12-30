@@ -28,7 +28,7 @@ class ConteudosController < ApplicationController
   # GET /conteudos/new
   def new
     if @professor
-      @conteudo = @professor.conteudos.new(escola_id: @professor.escola_id)
+      @conteudo = @professor.conteudos.new(escola_id: @professor.escola_id, turma_id: @turma.id)
     elsif @escola
       @conteudo = @escola.conteudos.new
     else
@@ -38,7 +38,6 @@ class ConteudosController < ApplicationController
 
   # POST /conteudos
   def create
-    @conteudo =
       if @professor
         @professor.conteudos.new(conteudo_params)
       elsif @escola

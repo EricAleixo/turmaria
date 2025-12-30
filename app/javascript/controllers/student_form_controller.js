@@ -3,7 +3,6 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   connect() {
     this.initializeForm();
-    console.log("Controller student-form conectado!");
   }
 
   initializeForm() {

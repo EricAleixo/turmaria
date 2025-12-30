@@ -1,9 +1,16 @@
 module ConteudosHelper
 
   def conteudos_section_active?
-    current_page?(selecionar_escola_conteudos_path) ||
-      (controller_name == 'admin_conteudos' && action_name.in?(%w[index show edit new]))
+    return true if controller_path == 'professor/selecionar_turma'
+
+    controller_path.start_with?('professor/') &&
+      controller_name.in?(%w[
+        conteudos
+        professor_conteudos
+        admin_conteudos
+      ])
   end
+
 
   def badge_conteudo(conteudo)
   cor_bg = conteudo.disciplina&.cor_nome || "#3c3c3c"

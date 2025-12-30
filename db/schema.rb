@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_28_144511) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_30_153742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -77,7 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_28_144511) do
     t.bigint "turma_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "escola_id"
+    t.uuid "escola_id", null: false
     t.integer "idade"
     t.string "cpf"
     t.string "rg"
@@ -195,11 +195,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_28_144511) do
     t.uuid "escola_id"
     t.text "markdown"
     t.integer "tipo", default: 0, null: false
+    t.bigint "turma_id", null: false
     t.index ["bimestre"], name: "index_conteudos_on_bimestre"
     t.index ["disciplina_id"], name: "index_conteudos_on_disciplina_id"
     t.index ["escola_id", "disciplina_id", "professor_id"], name: "index_conteudos_on_escola_disciplina_professor"
     t.index ["escola_id"], name: "index_conteudos_on_escola_id"
     t.index ["professor_id"], name: "index_conteudos_on_professor_id"
+    t.index ["turma_id"], name: "index_conteudos_on_turma_id"
   end
 
   create_table "coordenadors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -446,6 +448,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_28_144511) do
   add_foreign_key "conteudos", "disciplinas"
   add_foreign_key "conteudos", "escolas"
   add_foreign_key "conteudos", "professors"
+  add_foreign_key "conteudos", "turmas"
   add_foreign_key "disciplinas", "area_disciplinas"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"

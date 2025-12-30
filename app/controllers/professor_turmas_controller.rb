@@ -1,11 +1,12 @@
 class ProfessorTurmasController < ApplicationController
   layout 'dashboard'
   before_action :authenticate_any_user!
-  before_action :set_professor, only: [:show, :create, :destroy]
+  before_action :set_professor, only: [:index, :create, :destroy]
   before_action :set_professor_turma, only: [:destroy]
 
-  def show
-    @turmas_disponiveis = Turma.where.not(id: @professor.turma_ids)
+  def index
+    @escola = Escola.find(params[:escola_id])
+    @turmas_disponiveis = @escola.turmas.where.not(id: @professor.turma_ids)
     @turmas_associadas = @professor.turmas.includes(:escola)
   end
 
