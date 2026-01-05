@@ -1,4 +1,7 @@
 pt-BR:
+  time:
+    formats:
+      short: "%d/%m/%Y %H:%M"
   datetime:
     distance_in_words:
       half_a_minute: "meio minuto"

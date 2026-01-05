@@ -105,15 +105,23 @@ class AlunosController < ApplicationController
         redirect_to redirect_path, notice: 'Aluno removido com sucesso.'
     end
 
-    # =====================================================================
-    # ALOCAÇÃO DE TURMAS (Inalterado)
-    # =====================================================================
+    def regenerate_matricula
+    @escola = Escola.find(params[:escola_id])
+    @aluno = @escola.alunos.find(params[:id])
     
-    # ... (métodos assign_to_turma e remove_from_turma inalterados) ...
+    loop do
+        @aluno.matricula = SecureRandom.alphanumeric(8).upcase
+        break unless Aluno.exists?(matricula: @aluno.matricula)
+    end
+    
+    if @aluno.save
+        redirect_to escola_aluno_path(@escola, @aluno), notice: 'Matrícula regenerada com sucesso!'
+    else
+        redirect_to escola_aluno_path(@escola, @aluno), alert: 'Erro ao gerar nova matrícula.'
+    end
+    end
 
-    # =====================================================================
     # PRIVATE METHODS
-    # =====================================================================
     private
 
     # Define o escopo inicial baseado na navegação

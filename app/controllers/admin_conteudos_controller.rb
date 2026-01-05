@@ -10,19 +10,40 @@ class AdminConteudosController < ApplicationController
   # GET /escolas/:escola_id/conteudos
   def index
     @conteudos = if @escola
-                   @escola.conteudos
-                 elsif current_user.is_a?(SuperAdmin)
-                   Conteudo.all
-                 else # Admin
-                   Conteudo.where(escola_id: current_user.escolas.pluck(:id))
-                 end
-    
-    render template: 'professor/conteudos/index'
+                  @escola.conteudos
+                elsif current_user.is_a?(SuperAdmin)
+                  Conteudo.all
+                else
+                  Conteudo.where(escola_id: current_user.escolas.pluck(:id))
+                end
+
+    # Aplicar filtros
+    @conteudos = @conteudos.where(disciplina_id: params[:disciplina_id]) if params[:disciplina_id].present?
+    @conteudos = @conteudos.where(professor_id: params[:professor_id]) if params[:professor_id].present?
+    @conteudos = @conteudos.where(bimestre: params[:bimestre]) if params[:bimestre].present?
+    @conteudos = @conteudos.where(tipo: params[:tipo]) if params[:tipo].present?
+
+    # Busca por texto (opcional)
+    if params[:search].present?
+      @conteudos = @conteudos.where("titulo ILIKE ? OR descricao ILIKE ?", 
+                                    "%#{params[:search]}%", 
+                                    "%#{params[:search]}%")
+    end
+
+    # Ordenação e paginação
+    @conteudos = @conteudos.order(created_at: :desc).page(params[:page])
+
+    render "conteudos/index"
   end
 
   # GET /conteudos/1
   def show
-    render template: 'professor/conteudos/show'
+    puts "isso"
+    render template: 'conteudos/show'
+  end
+
+  def selecionar_turma
+    
   end
 
   # GET /conteudos/new
@@ -32,13 +53,16 @@ class AdminConteudosController < ApplicationController
     else
       @conteudo = Conteudo.new
     end
+
+    @bimestres = 4
     
-    render template: 'professor/conteudos/new'
+    render template: 'conteudos/new'
   end
 
   # GET /conteudos/1/edit
   def edit
-    render template: 'professor/conteudos/edit'
+    @bimestres = @conteudo.turma.ano_letivo.numero_bimestre
+    render template: 'conteudos/edit'
   end
 
   # POST /conteudos
@@ -122,9 +146,9 @@ class AdminConteudosController < ApplicationController
 
   # DELETE /conteudos/1
   def destroy
-    # Validação adicional de segurança para Admin
     if current_user.is_a?(Admin) && @conteudo.escola_id.present?
       unless current_user.escolas.pluck(:id).include?(@conteudo.escola_id)
+        puts "Sem permissão"
         redirect_to conteudos_path, alert: "Você não tem permissão para deletar este conteúdo."
         return
       end

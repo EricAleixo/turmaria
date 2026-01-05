@@ -129,6 +129,7 @@ Rails.application.routes.draw do
         member do
           patch :assign_to_turma
           patch :remove_from_turma
+          patch :regenerate_matricula 
         end
       end
 
