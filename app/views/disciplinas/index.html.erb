@@ -131,7 +131,9 @@
                           <% end %>
                         </td>
                         <td>
-                          <span class="text-gray-700"><%= disciplina.escola&.nome || "-" %></span>
+                          <span class="text-gray-700">
+                            <%= link_to_if disciplina.escola, disciplina.escola&.nome || "-", escola_path(disciplina.escola), class: "text-green-600 hover:text-green-700 hover:underline transition-colors" %>
+                          </span>
                         </td>
                         <td>
                           <% professores = disciplina.professores %>

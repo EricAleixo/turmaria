@@ -1,16 +1,32 @@
 services:
+  # web:
+  #   build: .
+  #   container_name: rails_app
+  #   command: bundle exec rails server -b 0.0.0.0
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     RAILS_ENV: development
+  #     DATABASE_URL: postgres://ipdesenvolvimento:ipdesenvolvimento@db:5432/sistema_academico_development
+  #   volumes:
+  #     - .:/rails
+  #   stdin_open: true
+  #   tty: true
+
   db:
     image: postgres:18
     container_name: banco-postgres
     restart: always
-    ports:
-      - "5433:5432"
     environment:
       POSTGRES_USER: ipdesenvolvimento
       POSTGRES_PASSWORD: ipdesenvolvimento
       POSTGRES_DB: sistema_academico_development
+    ports:
+      - "5433:5432"
     volumes:
-      - turmaria_pgdata:/var/lib/postgresql  # sem /data
+      - turmaria_pgdata:/var/lib/postgresql/data
 
 volumes:
   turmaria_pgdata:

@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- Filtros -->
+        <!-- Filtros -->
     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
       <div class="flex items-center gap-3 mb-6">
         <div class="bg-green-600 p-2.5 rounded-lg shadow-md">
@@ -34,7 +34,7 @@
         <h2 class="text-xl font-bold text-gray-800">Filtros de Busca</h2>
       </div>
       
-      <%= form_with url: conteudos_path, method: :get, local: true do |f| %>
+      <%= form_with url: @escola ? escola_conteudos_path(@escola) : conteudos_path, method: :get, local: true, id: "filtros_form" do |f| %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <!-- Disciplina -->
           <div class="form-control">
@@ -47,7 +47,7 @@
               </span>
             </label>
             <%= f.select :disciplina_id, 
-                options_from_collection_for_select(Disciplina.order(:nome), :id, :nome, params[:disciplina_id]),
+                options_from_collection_for_select(@escola.disciplinas.order(:nome), :id, :nome, params[:disciplina_id]),
                 { include_blank: "Todas" }, 
                 class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
           </div>
@@ -63,12 +63,29 @@
               </span>
             </label>
             <%= f.select :professor_id,
-                options_from_collection_for_select(Professor.order(:nome), :id, :nome, params[:professor_id]),
+                options_from_collection_for_select(@escola.professors.order(:nome), :id, :nome, params[:professor_id]),
                 { include_blank: "Todos" },
                 class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
           </div>
 
-          <!-- Bimestre -->
+          <!-- Turma -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold text-gray-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-green-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+                Turma
+              </span>
+            </label>
+            <%= f.select :turma_id,
+                options_from_collection_for_select(@turmas, :id, :nome, params[:turma_id]),
+                { include_blank: "Todas" },
+                class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all",
+                onchange: "this.form.requestSubmit()" %>
+          </div>
+
+          <!-- Bimestre (habilitado apenas quando turma está selecionada) -->
           <div class="form-control">
             <label class="label">
               <span class="label-text font-semibold text-gray-700 flex items-center gap-2">
@@ -78,10 +95,18 @@
                 Bimestre
               </span>
             </label>
-            <%= f.select :bimestre,
-                options_for_select([["1º Bimestre", 1], ["2º Bimestre", 2], ["3º Bimestre", 3], ["4º Bimestre", 4]], params[:bimestre]),
-                { include_blank: "Todos" },
-                class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
+            <% if params[:turma_id].present? && @bimestres_disponiveis.any? %>
+              <%= f.select :bimestre,
+                  options_for_select(@bimestres_disponiveis.map { |b| ["#{b}º Bimestre", b] }, params[:bimestre]),
+                  { include_blank: "Todos" },
+                  class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
+            <% else %>
+              <%= f.select :bimestre,
+                  [],
+                  { include_blank: "Selecione uma turma primeiro" },
+                  class: "select select-bordered w-full bg-gray-100 border-gray-200 cursor-not-allowed",
+                  disabled: true %>
+            <% end %>
           </div>
 
           <!-- Tipo -->
@@ -128,7 +153,7 @@
         <!-- Botões de ação -->
         <div class="flex flex-col sm:flex-row gap-3">
           <%= f.submit "Aplicar Filtros", class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-md hover:shadow-lg transition-all duration-300 gap-2" %>
-          <%= link_to conteudos_path, class: "btn btn-outline border-gray-300 hover:border-green-600 hover:bg-green-50 hover:text-green-600 gap-2" do %>
+          <%= link_to @escola ? escola_conteudos_path(@escola) : conteudos_path, class: "btn btn-outline border-gray-300 hover:border-green-600 hover:bg-green-50 hover:text-green-600 gap-2" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>

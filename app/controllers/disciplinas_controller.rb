@@ -6,14 +6,20 @@ class DisciplinasController < ApplicationController
   # INDEX
   # ---------------------------
   def index
-    @disciplinas = Disciplina.all
+    @escola = Escola.find_by(id: params[:escola_id])
+    @disciplinas = @escola ? @escola.disciplinas : Disciplina.all
 
     if params[:professor_id].present?
-      @professor = Professor.find(params[:professor_id])
-      @disciplinas = @disciplinas.joins(:professores)
-                                 .where(professores: { id: @professor.id })
+      @professor = Professor.find_by(id: params[:professor_id])
+      return unless @professor
+
+      @disciplinas = @disciplinas
+                      .joins(:professores)
+                      .where(professores: { id: @professor.id })
     end
   end
+
+
 
   def selecionar_escola 
     @escolas = current_user.escolas

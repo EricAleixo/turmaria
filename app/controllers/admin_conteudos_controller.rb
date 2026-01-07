@@ -20,15 +20,33 @@ class AdminConteudosController < ApplicationController
     # Aplicar filtros
     @conteudos = @conteudos.where(disciplina_id: params[:disciplina_id]) if params[:disciplina_id].present?
     @conteudos = @conteudos.where(professor_id: params[:professor_id]) if params[:professor_id].present?
+    @conteudos = @conteudos.where(turma_id: params[:turma_id]) if params[:turma_id].present?
     @conteudos = @conteudos.where(bimestre: params[:bimestre]) if params[:bimestre].present?
     @conteudos = @conteudos.where(tipo: params[:tipo]) if params[:tipo].present?
 
-    # Busca por texto (opcional)
+    # Busca por texto
     if params[:search].present?
       @conteudos = @conteudos.where("titulo ILIKE ? OR descricao ILIKE ?", 
                                     "%#{params[:search]}%", 
                                     "%#{params[:search]}%")
     end
+
+    # Para popular os selects de filtro
+    @turmas = if @escola
+                @escola.turmas.order(:nome)
+              elsif current_user.is_a?(SuperAdmin)
+                Turma.all.order(:nome)
+              else
+                Turma.where(escola_id: current_user.escolas.pluck(:id)).order(:nome)
+              end
+
+    # Bimestres disponíveis baseados na turma selecionada
+    @bimestres_disponiveis = if params[:turma_id].present?
+                                turma = Turma.find_by(id: params[:turma_id])
+                                turma ? (1..turma.ano_letivo.numero_bimestre).to_a : []
+                              else
+                                []
+                              end
 
     # Ordenação e paginação
     @conteudos = @conteudos.order(created_at: :desc).page(params[:page])
@@ -42,10 +60,6 @@ class AdminConteudosController < ApplicationController
     render template: 'conteudos/show'
   end
 
-  def selecionar_turma
-    
-  end
-
   # GET /conteudos/new
   def new
     if @escola
@@ -54,7 +68,7 @@ class AdminConteudosController < ApplicationController
       @conteudo = Conteudo.new
     end
 
-    @bimestres = 4
+    @turmas = @escola.turmas
     
     render template: 'conteudos/new'
   end

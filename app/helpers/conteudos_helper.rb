@@ -1,15 +1,9 @@
 module ConteudosHelper
 
   def conteudos_section_active?
-    return true if controller_path == 'professor/selecionar_turma'
-
-    controller_path.start_with?('professor/') &&
-      controller_name.in?(%w[
-        conteudos
-        professor_conteudos
-        admin_conteudos
-      ])
+    controller_path.include?('conteudo')
   end
+
 
 
   def badge_conteudo(conteudo)

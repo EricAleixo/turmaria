@@ -1,7 +1,8 @@
 class CidadesController < ApplicationController
+  layout "dashboard"
   before_action :carregar_estado
   before_action :carregar_cidade, only: [:edit, :update, :destroy, :confirm_delete]
-
+  
   def index
     @cidades = @estado.cidades.order(:nome)
   end

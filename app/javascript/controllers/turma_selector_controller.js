@@ -8,7 +8,10 @@ export default class extends Controller {
     "cardsContainer",
     "detailsSection",
     "bimestreInput",
-    "bimestresContainer"
+    "bimestresContainer",
+    "carouselContainer",
+    "prevButton",
+    "nextButton"
   ]
 
   connect() {
@@ -33,6 +36,24 @@ export default class extends Controller {
           this.selectBimestreCard(bimestreBtn)
         }
       }, 100)
+    }
+
+    // Verificar se precisa mostrar botões de navegação do carrossel
+    if (this.hasCardsContainerTarget) {
+      setTimeout(() => this.updateTurmaButtons(), 100)
+      
+      // Adicionar listener para resize da janela
+      this.resizeObserver = new ResizeObserver(() => {
+        this.updateTurmaButtons()
+      })
+      this.resizeObserver.observe(this.cardsContainerTarget)
+    }
+  }
+
+  disconnect() {
+    // Limpar observer quando o controller for desconectado
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
     }
   }
 
@@ -137,5 +158,73 @@ export default class extends Controller {
     // Adicionar classe de selecionado
     btn.classList.add('selected', 'border-teal-500', 'bg-teal-50', 'shadow-md')
     btn.classList.remove('border-gray-200')
+  }
+
+  // ========================================
+  // MÉTODOS DO CARROSSEL DE TURMAS
+  // ========================================
+
+  scrollTurmasLeft(event) {
+    event.preventDefault()
+    console.log("⬅️ Scroll para esquerda");
+    if (!this.hasCardsContainerTarget) return
+    
+    const container = this.cardsContainerTarget
+    const scrollAmount = 320
+    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
+    
+    setTimeout(() => this.updateTurmaButtons(), 300)
+  }
+
+  scrollTurmasRight(event) {
+    event.preventDefault()
+    console.log("➡️ Scroll para direita");
+    if (!this.hasCardsContainerTarget) return
+    
+    const container = this.cardsContainerTarget
+    const scrollAmount = 320
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    
+    setTimeout(() => this.updateTurmaButtons(), 300)
+  }
+
+  updateTurmaButtons() {
+    console.log("🔄 Atualizando botões do carrossel");
+    if (!this.hasCardsContainerTarget) return
+    if (!this.hasPrevButtonTarget) return
+    if (!this.hasNextButtonTarget) return
+    
+    const container = this.cardsContainerTarget
+    const prevBtn = this.prevButtonTarget
+    const nextBtn = this.nextButtonTarget
+    
+    const needsScroll = container.scrollWidth > container.clientWidth
+    
+    if (!needsScroll) {
+      prevBtn.classList.add('hidden')
+      prevBtn.classList.remove('flex')
+      nextBtn.classList.add('hidden')
+      nextBtn.classList.remove('flex')
+      return
+    }
+    
+    const canScrollLeft = container.scrollLeft > 10
+    const canScrollRight = container.scrollLeft < (container.scrollWidth - container.clientWidth - 10)
+    
+    if (canScrollLeft) {
+      prevBtn.classList.remove('hidden')
+      prevBtn.classList.add('flex')
+    } else {
+      prevBtn.classList.add('hidden')
+      prevBtn.classList.remove('flex')
+    }
+    
+    if (canScrollRight) {
+      nextBtn.classList.remove('hidden')
+      nextBtn.classList.add('flex')
+    } else {
+      nextBtn.classList.add('hidden')
+      nextBtn.classList.remove('flex')
+    }
   }
 }
