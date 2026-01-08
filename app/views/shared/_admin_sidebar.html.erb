@@ -1,5 +1,5 @@
 <!-- Admin Sidebar -->
-<div class="drawer-side">
+<div class="drawer-side z-111111111111">
   <label for="my-drawer" class="drawer-overlay"></label>
   <aside class="w-64 min-h-full bg-white shadow-lg">
     <!-- System Title -->
@@ -106,13 +106,12 @@
             <% end %>
           </li>
 
-          <!-- Coordinators of the School -->
           <li>
-            <%= link_to estados_path, class: "flex items-center p-3 rounded-lg #{current_page?(estados_path) ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-              </svg>
-              Estados
+            <%= link_to admin_cidades_path, class: "flex items-center p-3 rounded-lg #{cidades_section_active? ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
+              </svg>  
+              Cidades
             <% end %>
           </li>
 

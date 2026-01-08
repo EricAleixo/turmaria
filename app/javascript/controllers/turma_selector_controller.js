@@ -3,15 +3,16 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "turmaInput",
-    "turmaCard",
-    "cardsContainer",
-    "detailsSection",
-    "bimestreInput",
-    "bimestresContainer",
-    "carouselContainer",
-    "prevButton",
-    "nextButton"
+  "turmaInput",
+  "turmaCard",
+  "cardsContainer",
+  "detailsSection",
+  "bimestreInput",
+  "bimestresContainer",
+  "carouselContainer",
+  "prevButton",
+  "nextButton",
+  "disciplinaSelect"
   ]
 
   connect() {
@@ -58,26 +59,57 @@ export default class extends Controller {
   }
 
   selectTurma(event) {
-    const card = event.currentTarget
-    const turmaId = card.dataset.turmaId
+  const card = event.currentTarget
+  const turmaId = card.dataset.turmaId
+  const disciplinasIds = JSON.parse(card.dataset.disciplinas || '[]')  // ← ADICIONAR
+  
+  // Atualizar seleção visual
+  this.selectTurmaCard(card)
+  
+  // Atualizar campo hidden
+  this.turmaInputTarget.value = turmaId
+  
+  // Atualizar disciplinas disponíveis
+  this.updateDisciplinas(disciplinasIds)  // ← ADICIONAR
+  
+  // Mostrar seção de detalhes e gerar bimestres
+  this.showDetails(card)
+  
+  // Scroll suave até a seção de detalhes
+  setTimeout(() => {
+    this.detailsSectionTarget.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'nearest' 
+    })
+  }, 150)
+}
+
+  // ← ADICIONAR ESTE MÉTODO NOVO
+updateDisciplinas(disciplinasIds) {
+  if (!this.hasDisciplinaSelectTarget) return
+  
+  const select = this.disciplinaSelectTarget
+  const options = select.querySelectorAll('option')
+  
+  options.forEach(option => {
+    if (option.value === '') return // Manter o prompt habilitado
     
-    // Atualizar seleção visual
-    this.selectTurmaCard(card)
+    const disciplinaId = parseInt(option.value)
     
-    // Atualizar campo hidden
-    this.turmaInputTarget.value = turmaId
-    
-    // Mostrar seção de detalhes e gerar bimestres
-    this.showDetails(card)
-    
-    // Scroll suave até a seção de detalhes
-    setTimeout(() => {
-      this.detailsSectionTarget.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      })
-    }, 150)
-  }
+    if (disciplinasIds.includes(disciplinaId)) {
+      option.disabled = false
+      option.classList.remove('text-gray-400')
+    } else {
+      option.disabled = true
+      option.classList.add('text-gray-400')
+      
+      // Se estava selecionada, limpar
+      if (option.selected) {
+        select.value = ''
+      }
+    }
+  })
+}
 
   selectTurmaCard(card) {
     // Remover seleção de todos os cards

@@ -1,5 +1,4 @@
 module FormHelper
-
   def dropdown(
     form: nil,
     method: nil,
@@ -10,7 +9,8 @@ module FormHelper
     placeholder: "Selecione",
     label: nil,
     hidden_field_id: nil,
-    initial_value: nil
+    initial_value: nil,
+    disabled: false
   )
 
     hidden_id =
@@ -29,18 +29,16 @@ module FormHelper
 
     selected_label =
       if label_field && value_field
-
         obj = collection.find { |item| item.send(value_field).to_s == selected_value.to_s }
         obj ? obj.send(label_field) : placeholder
       else
-
         pair = collection.find { |label, value| value.to_s == selected_value.to_s }
         pair ? pair.first : placeholder
       end
 
-
     content_tag(:div, class: "form-control w-full") do
 
+      # ---------- LABEL ----------
       label_html =
         if label.present?
           tag.label(label, class: "label label-text text-gray-600 font-semibold", for: hidden_id)
@@ -50,30 +48,64 @@ module FormHelper
           "".html_safe
         end
 
-
+      # ---------- HIDDEN FIELD ----------
       hidden_html =
         if form
-          form.hidden_field(method, id: hidden_id, value: selected_value)
+          form.hidden_field(method, id: hidden_id, value: selected_value, disabled: disabled)
         else
-          tag.input(type: "hidden", id: hidden_id, value: selected_value)
+          tag.input(type: "hidden", id: hidden_id, value: selected_value, disabled: disabled)
         end
 
+      # ---------- DROPDOWN ----------
       dropdown_html =
-        content_tag(:details, class: "dropdown w-full", data: { controller: "dropdown", "dropdown-hidden-field-id": hidden_id }) do
+        content_tag(
+          :details,
+          class: "dropdown w-full #{'pointer-events-none opacity-60' if disabled}",
+          data: {
+            controller: "dropdown",
+            "dropdown-hidden-field-id": hidden_id,
+            disabled: disabled
+          }
+        ) do
 
-
+          # ---------- SUMMARY ----------
           summary_tag =
-            content_tag(:summary, class: "w-full flex items-center justify-between bg-white border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:border-black focus:border-black focus:outline-none list-none") do
+            content_tag(
+              :summary,
+              class: [
+                "w-full flex items-center justify-between rounded-md px-3 py-2 list-none",
+                disabled ?
+                  "bg-gray-100 border border-gray-300 cursor-not-allowed text-gray-400" :
+                  "bg-white border border-gray-300 cursor-pointer hover:border-black focus:border-black focus:outline-none"
+              ].join(" "),
+              aria: { disabled: disabled }
+            ) do
               content_tag(:span, selected_label, class: "dropdown-label") +
-              tag.svg(class: "dropdown-arrow ml-2 h-5 w-5 text-gray-600 transition-transform duration-300", xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor") do
-                tag.path(stroke_linecap: "round", stroke_linejoin: "round", stroke_width: 2, d: "M19 9l-7 7-7-7")
+              tag.svg(
+                class: [
+                  "dropdown-arrow ml-2 h-5 w-5 transition-transform duration-300",
+                  disabled ? "text-gray-400" : "text-gray-600"
+                ].join(" "),
+                xmlns: "http://www.w3.org/2000/svg",
+                fill: "none",
+                viewBox: "0 0 24 24",
+                stroke: "currentColor"
+              ) do
+                tag.path(
+                  stroke_linecap: "round",
+                  stroke_linejoin: "round",
+                  stroke_width: 2,
+                  d: "M19 9l-7 7-7-7"
+                )
               end
             end
 
-
+          # ---------- OPTIONS ----------
           ul_tag =
-            content_tag(:ul, class: "menu dropdown-content p-2 bg-white border border-gray-300 rounded-md w-full mt-1 absolute z-[9999] max-h-60 overflow-auto shadow-lg") do
-
+            content_tag(
+              :ul,
+              class: "menu dropdown-content p-2 bg-white border border-gray-300 rounded-md w-full mt-1 absolute z-[9999] max-h-60 overflow-auto shadow-lg"
+            ) do
               collection.map do |item|
 
                 option_label =
@@ -93,14 +125,18 @@ module FormHelper
                 content_tag(:li) do
                   tag.a(
                     option_label,
-                    href: "#",
-                    class: "dropdown-option px-3 py-2 rounded cursor-pointer hover:bg-green-100 active:!bg-green-500 active:!text-white",
-                    data: { value: option_value }
+                    href: disabled ? nil : "#",
+                    class: [
+                      "dropdown-option px-3 py-2 rounded",
+                      disabled ?
+                        "text-gray-400 cursor-not-allowed" :
+                        "cursor-pointer hover:bg-green-100 active:!bg-green-500 active:!text-white"
+                    ].join(" "),
+                    data: disabled ? {} : { value: option_value }
                   )
                 end
 
               end.join.html_safe
-
             end
 
           summary_tag + ul_tag

@@ -1,7 +1,8 @@
 class CidadesController < ApplicationController
   layout "dashboard"
-  before_action :carregar_estado
-  before_action :carregar_cidade, only: [:edit, :update, :destroy, :confirm_delete]
+
+  before_action :carregar_estado, only: [:index, :new, :edit, :destroy, :confirm_delete, :create, :update, :show]
+  before_action :carregar_cidade, only: [:edit, :update, :destroy, :confirm_delete, :show]
   
   def index
     @cidades = @estado.cidades.order(:nome)
@@ -9,6 +10,36 @@ class CidadesController < ApplicationController
 
   def new
     @cidade = @estado.cidades.new
+  end
+
+  def show
+       @cidade = Cidade.find(params[:id])
+  @estado = @cidade.estado
+  render :show
+  end
+
+  def admin_index
+      @cidades = Cidade.includes(:estado).order('cidades.nome')
+  end
+
+  def admin_show
+    @cidade = Cidade.find(params[:id])
+    @estado = @cidade.estado
+    render :show
+  end
+
+  def admin_new
+    @cidade = Cidade.new
+  end
+
+  def admin_create
+    @cidade = Cidade.new(cidade_params_admin)
+    if @cidade.save
+      redirect_to @cidade, notice: 'Cidade criada com sucesso!'
+    else
+      @estados = Estado.order(:nome)
+      render :admin_new
+    end
   end
 
   def create
@@ -54,5 +85,9 @@ class CidadesController < ApplicationController
 
   def cidade_params
     params.require(:cidade).permit(:nome)
+  end
+
+  def cidade_params_admin
+    params.require(:cidade).permit(:nome, :estado_id)
   end
 end

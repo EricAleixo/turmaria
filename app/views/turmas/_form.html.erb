@@ -57,14 +57,16 @@
           label_field: :ano,
           value_field: :id,
           placeholder: "Selecione o Ano Letivo",
+          disabled: @anos_letivos.blank?,
           label: "Ano letivo *"
         ) %>
 
     <!-- O BOTÃO CONTINUA IGUAL -->
     <div class="border-t border-gray-200 p-2 mt-2">
       <%= link_to new_escola_ano_letivo_path(@escola),
-                  data: { turbo_frame: "modal" },
                   id: "botao-criar-ano-letivo",
+                  target: "_blank",
+                  rel: "noopener noreferrer",
                   class: "flex items-center gap-2 text-green-600 hover:bg-green-50 px-3 py-2 rounded cursor-pointer font-medium transition-colors duration-200 ease-in-out active:!bg-green-500 active:!text-white" do %>
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -74,9 +76,7 @@
     </div>
   </div>
 
-  <div class="flex justify-between mt-10">
-    <%= link_to "Adicionar Ano Letivo", new_escola_ano_letivo_path(@escola),
-                data: { turbo_frame: "modal" }, class: "btn btn-primary" %>
+  <div class="flex justify-end mt-10">
 
     <%= form.submit turma.persisted? ? "Atualizar" : "Criar Turma",
           class: "btn bg-green-500 hover:bg-green-600 text-white w-32" %>

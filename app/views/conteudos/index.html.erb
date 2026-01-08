@@ -14,7 +14,7 @@
             <p class="text-gray-600">Gerencie seus materiais pedagógicos de forma eficiente</p>
           </div>
         </div>
-        <%= link_to new_escola_conteudo_path(@escola), class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-300 gap-2 w-full md:w-auto" do %>
+        <%= link_to new_conteudo_path_for, class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-300 gap-2 w-full md:w-auto" do %>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-        <!-- Filtros -->
+    <!-- Filtros -->
     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
       <div class="flex items-center gap-3 mb-6">
         <div class="bg-green-600 p-2.5 rounded-lg shadow-md">
@@ -34,7 +34,7 @@
         <h2 class="text-xl font-bold text-gray-800">Filtros de Busca</h2>
       </div>
       
-      <%= form_with url: @escola ? escola_conteudos_path(@escola) : conteudos_path, method: :get, local: true, id: "filtros_form" do |f| %>
+      <%= form_with url: conteudos_index_path, method: :get, local: true, id: "filtros_form" do |f| %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <!-- Disciplina -->
           <div class="form-control">
@@ -47,7 +47,7 @@
               </span>
             </label>
             <%= f.select :disciplina_id, 
-                options_from_collection_for_select(@escola.disciplinas.order(:nome), :id, :nome, params[:disciplina_id]),
+                options_from_collection_for_select(@disciplinas.order(:nome), :id, :nome, params[:disciplina_id]),
                 { include_blank: "Todas" }, 
                 class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
           </div>
@@ -63,7 +63,7 @@
               </span>
             </label>
             <%= f.select :professor_id,
-                options_from_collection_for_select(@escola.professors.order(:nome), :id, :nome, params[:professor_id]),
+                options_from_collection_for_select(@professors.order(:nome), :id, :nome, params[:professor_id]),
                 { include_blank: "Todos" },
                 class: "select select-bordered w-full bg-gray-50 border-gray-200 hover:border-green-600 focus:border-green-600 focus:bg-white transition-all" %>
           </div>
@@ -153,7 +153,7 @@
         <!-- Botões de ação -->
         <div class="flex flex-col sm:flex-row gap-3">
           <%= f.submit "Aplicar Filtros", class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-md hover:shadow-lg transition-all duration-300 gap-2" %>
-          <%= link_to @escola ? escola_conteudos_path(@escola) : conteudos_path, class: "btn btn-outline border-gray-300 hover:border-green-600 hover:bg-green-50 hover:text-green-600 gap-2" do %>
+          <%= link_to conteudos_index_path, class: "btn btn-outline border-gray-300 hover:border-green-600 hover:bg-green-50 hover:text-green-600 gap-2" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
@@ -166,7 +166,7 @@
     <!-- Grid de Conteúdos -->
     <% if @conteudos.any? %>
       <div class="grid grid-cols-1 gap-4 mb-6">
-        <% @conteudos.includes(:disciplina, :professor, :turma).each do |conteudo| %>
+        <% @conteudos.each do |conteudo| %>
           <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
             <div class="p-6">
               <div class="flex flex-col lg:flex-row gap-6">
@@ -192,6 +192,15 @@
                     
                     <!-- Tags Info -->
                     <div class="flex flex-wrap gap-2">
+                      <% if current_user.is_a?(SuperAdmin) && conteudo.escola %>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-500 to-purple-700 text-white shadow-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                          </svg>
+                          <%= conteudo.escola.nome %>
+                        </span>
+                      <% end %>
+                      
                       <% if conteudo.disciplina %>
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-white shadow-sm" style="background: linear-gradient(135deg, <%= conteudo.disciplina.cor_nome || '#059669' %> 0%, <%= conteudo.disciplina.cor_nome || '#059669' %>ee 100%);">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -251,18 +260,18 @@
 
                   <!-- Ações -->
                   <div class="flex gap-2">
-                    <%= link_to escola_conteudo_path(@escola,conteudo), class: "btn btn-sm bg-green-600 hover:bg-green-700 text-white border-none shadow-md hover:shadow-lg transition-all tooltip", data: { tip: "Visualizar" } do %>
+                    <%= link_to conteudo_path_for(conteudo), class: "btn btn-sm bg-green-600 hover:bg-green-700 text-white border-none shadow-md hover:shadow-lg transition-all tooltip", data: { tip: "Visualizar" } do %>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     <% end %>
-                    <%= link_to edit_escola_conteudo_path(@escola,conteudo), class: "btn btn-sm bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md hover:shadow-lg transition-all tooltip", data: { tip: "Editar" } do %>
+                    <%= link_to edit_conteudo_path_for(conteudo), class: "btn btn-sm bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md hover:shadow-lg transition-all tooltip", data: { tip: "Editar" } do %>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                       </svg>
                     <% end %>
-                    <%= button_to escola_conteudo_path(@escola,conteudo),
+                    <%= button_to conteudo_path_for(conteudo),
                         method: :delete, 
                         data: { turbo_confirm: "Tem certeza que deseja excluir este conteúdo?" },
                         class: "btn btn-sm bg-red-600 hover:bg-red-700 text-white border-none shadow-md hover:shadow-lg transition-all tooltip",
@@ -301,7 +310,7 @@
               "Não encontramos conteúdos com os filtros aplicados. Tente ajustar os critérios de busca." :
               "Comece criando seu primeiro conteúdo pedagógico e organize seus materiais." %>
         </p>
-        <%= link_to new_escola_conteudo_path(@escola), class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-300 gap-2" do %>
+        <%= link_to new_conteudo_path_for, class: "btn bg-green-600 hover:bg-green-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-300 gap-2" do %>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>

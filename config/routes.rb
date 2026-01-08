@@ -36,6 +36,19 @@ Rails.application.routes.draw do
   # Página inicial (Rota raiz)
   root to: "home#index"
 
+  # Para criação admin (sem estado na URL)
+  get '/admin/cidades/new', to: 'cidades#admin_new', as: 'admin_new_cidade'
+  post '/admin/cidades', to: 'cidades#admin_create', as: 'admin_create_cidades'
+  get '/admin/cidades/:id', to: 'cidades#admin_show', as: :admin_cidade
+  get '/admin/cidades', to: 'cidades#admin_index', as: :admin_cidades
+
+
+  # Ou se preferir dentro de um namespace admin:
+  namespace :admin do
+    get 'cidades/new', to: 'cidades#admin_new'
+    post 'cidades', to: 'cidades#admin_create'
+  end
+
   # Estados e cidades
   resources :estados do
     member do
@@ -46,6 +59,12 @@ Rails.application.routes.draw do
       member do
         get :confirm_delete
       end
+    end
+  end
+
+  resources :cidades do
+    collection do
+      get :admin_new
     end
   end
 

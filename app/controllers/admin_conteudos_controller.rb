@@ -5,58 +5,21 @@ class AdminConteudosController < ApplicationController
   before_action :set_scope_objects, only: [:new, :create, :index, :show, :edit, :update, :destroy]
   before_action :set_conteudo, only: %i[show edit update destroy remove_material]
   before_action :set_disciplinas, only: [:new, :edit, :create, :update]
+  before_action :prepare_form_data, only: [:new, :create, :edit, :update]
+
 
 
   # GET /escolas/:escola_id/conteudos
   def index
-    @conteudos = if @escola
-                  @escola.conteudos
-                elsif current_user.is_a?(SuperAdmin)
-                  Conteudo.all
-                else
-                  Conteudo.where(escola_id: current_user.escolas.pluck(:id))
-                end
-
-    # Aplicar filtros
-    @conteudos = @conteudos.where(disciplina_id: params[:disciplina_id]) if params[:disciplina_id].present?
-    @conteudos = @conteudos.where(professor_id: params[:professor_id]) if params[:professor_id].present?
-    @conteudos = @conteudos.where(turma_id: params[:turma_id]) if params[:turma_id].present?
-    @conteudos = @conteudos.where(bimestre: params[:bimestre]) if params[:bimestre].present?
-    @conteudos = @conteudos.where(tipo: params[:tipo]) if params[:tipo].present?
-
-    # Busca por texto
-    if params[:search].present?
-      @conteudos = @conteudos.where("titulo ILIKE ? OR descricao ILIKE ?", 
-                                    "%#{params[:search]}%", 
-                                    "%#{params[:search]}%")
-    end
-
-    # Para popular os selects de filtro
-    @turmas = if @escola
-                @escola.turmas.order(:nome)
-              elsif current_user.is_a?(SuperAdmin)
-                Turma.all.order(:nome)
-              else
-                Turma.where(escola_id: current_user.escolas.pluck(:id)).order(:nome)
-              end
-
-    # Bimestres disponíveis baseados na turma selecionada
-    @bimestres_disponiveis = if params[:turma_id].present?
-                                turma = Turma.find_by(id: params[:turma_id])
-                                turma ? (1..turma.ano_letivo.numero_bimestre).to_a : []
-                              else
-                                []
-                              end
-
-    # Ordenação e paginação
-    @conteudos = @conteudos.order(created_at: :desc).page(params[:page])
-
-    render "conteudos/index"
+    load_context
+    load_collections
+    apply_filters
+    paginate_and_render
   end
+
 
   # GET /conteudos/1
   def show
-    puts "isso"
     render template: 'conteudos/show'
   end
 
@@ -115,7 +78,7 @@ class AdminConteudosController < ApplicationController
         format.json { render json: @conteudo.errors, status: :unprocessable_entity }
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace('conteudo_form', 
-                                                     partial: 'form', 
+                                                     partial: 'conteudos/form', 
                                                      locals: { conteudo: @conteudo }), 
                  status: :unprocessable_entity
         end
@@ -199,6 +162,81 @@ class AdminConteudosController < ApplicationController
   end
 
   private
+
+  def prepare_form_data
+    @turmas = @escola.turmas
+  end
+  
+
+  def load_context
+    if @escola
+      @context = :escola
+    elsif current_user.is_a?(SuperAdmin)
+      @context = :super_admin
+    else
+      @context = :multi_escola
+    end
+  end
+
+  def load_collections
+    @conteudos =
+      case @context
+      when :escola
+        @disciplinas = @escola.disciplinas
+        @professors = @escola.professors
+        @turmas      = @escola.turmas
+        @escola.conteudos
+      when :super_admin
+        @disciplinas = Disciplina.all
+        @professors = Professor.all
+        @turmas      = Turma.all
+        Conteudo.all
+      else
+        escolas_ids  = current_user.escolas.pluck(:id)
+        @disciplinas = Disciplina.where(escola_id: escolas_ids)
+        @professors = Professor.where(escola_id: escolas_ids)
+        @turmas      = Turma.where(escola_id: escolas_ids)
+        Conteudo.where(escola_id: escolas_ids)
+      end
+  end
+
+
+  def apply_filters
+    @conteudos = @conteudos.where(disciplina_id: params[:disciplina_id]) if params[:disciplina_id].present?
+    @conteudos = @conteudos.where(professor_id: params[:professor_id])   if params[:professor_id].present?
+    @conteudos = @conteudos.where(turma_id: params[:turma_id])           if params[:turma_id].present?
+    @conteudos = @conteudos.where(bimestre: params[:bimestre])           if params[:bimestre].present?
+    @conteudos = @conteudos.where(tipo: params[:tipo])                   if params[:tipo].present?
+
+    if params[:search].present?
+      @conteudos = @conteudos.where(
+        "titulo ILIKE :q OR descricao ILIKE :q",
+        q: "%#{params[:search]}%"
+      )
+    end
+
+    load_bimestres
+  end
+
+
+  def load_bimestres
+    return @bimestres_disponiveis = [] unless params[:turma_id].present?
+
+    turma = @turmas.find_by(id: params[:turma_id])
+    @bimestres_disponiveis = turma ? (1..turma.ano_letivo.numero_bimestre).to_a : []
+  end
+
+
+  def paginate_and_render
+    @conteudos = @conteudos
+                  .includes(:disciplina, :professor, :turma, :escola)
+                  .order(created_at: :desc)
+                  .page(params[:page])
+
+    render "conteudos/index"
+  end
+
+
 
   def authorize_admin_or_super_admin
     unless current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)
@@ -284,7 +322,7 @@ class AdminConteudosController < ApplicationController
   def conteudo_params
     params.require(:conteudo).permit(
       :titulo, :bimestre, :descricao, :markdown, 
-      :disciplina_id, :escola_id, :tipo, :professor_id,
+      :disciplina_id, :escola_id, :tipo, :turma_id, :professor_id,
       materiais: []
     )
   end

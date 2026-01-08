@@ -1,0 +1,399 @@
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-6 md:py-10 px-4">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Todas as Cidades</h1>
+            <p class="text-gray-600 mt-1">Visão geral organizada por região</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3">
+        <%= link_to admin_new_cidade_path, class: "btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none shadow-lg gap-2" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Nova Cidade
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="card bg-white shadow-lg border border-green-100">
+        <div class="card-body p-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-gray-800"><%= @cidades.count %></p>
+              <p class="text-sm text-gray-600">Total de Cidades</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white shadow-lg border border-blue-100">
+        <div class="card-body p-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-gray-800"><%= Estado.count %></p>
+              <p class="text-sm text-gray-600">Estados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white shadow-lg border border-purple-100">
+        <div class="card-body p-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-gray-800"><%= Estado.distinct.pluck(:regiao).count %></p>
+              <p class="text-sm text-gray-600">Regiões</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white shadow-lg border border-amber-100">
+        <div class="card-body p-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-bold text-gray-800">
+                <% if @cidades.any? %>
+                  <%= time_ago_in_words(@cidades.maximum(:updated_at)) %>
+                <% else %>
+                  --
+                <% end %>
+              </p>
+              <p class="text-sm text-gray-600">Última atualização</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card bg-white shadow-lg border border-green-100 mb-6">
+      <div class="card-body p-4">
+        <div class="flex flex-col lg:flex-row gap-3">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="search-cidade" 
+              placeholder="Buscar cidade por nome..." 
+              class="input input-bordered w-full pl-10 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <select id="filter-estado" class="select select-bordered w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">Todos os estados</option>
+            <% Estado.order(:nome).each do |estado| %>
+              <option value="<%= estado.sigla %>"><%= estado.nome %> (<%= estado.sigla %>)</option>
+            <% end %>
+          </select>
+
+          <select id="filter-regiao" class="select select-bordered w-full lg:w-64 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">Todas as regiões</option>
+            <% Estado.distinct.pluck(:regiao).sort.each do |regiao| %>
+              <option value="<%= regiao %>"><%= regiao %></option>
+            <% end %>
+          </select>
+
+          <div class="flex gap-2 lg:w-auto">
+            <button id="grid-view" class="btn btn-square btn-outline btn-active">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button id="list-view" class="btn btn-square btn-outline">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if @cidades.any? %>
+      <% cidades_por_regiao = @cidades.group_by { |c| c.estado.regiao } %>
+      
+      <!-- Grid View -->
+      <div id="cidades-grid" class="space-y-10">
+        <% cidades_por_regiao.sort.each do |regiao, cidades_regiao| %>
+          <div class="regiao-section" data-regiao="<%= regiao %>">
+            <!-- Header da Região -->
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-green-200">
+              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800"><%= regiao %></h2>
+                <p class="text-sm text-gray-600">
+                  <%= cidades_regiao.count %> <%= cidades_regiao.count == 1 ? 'cidade' : 'cidades' %> • 
+                  <%= cidades_regiao.map(&:estado).uniq.count %> <%= cidades_regiao.map(&:estado).uniq.count == 1 ? 'estado' : 'estados' %>
+                </p>
+              </div>
+            </div>
+
+            <!-- Grid de Cidades -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <% cidades_regiao.each do |cidade| %>
+                <div class="cidade-card card bg-white hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-green-200 group cursor-pointer" 
+                     data-cidade-nome="<%= cidade.nome.downcase %>"
+                     data-estado-sigla="<%= cidade.estado.sigla %>"
+                     data-regiao="<%= cidade.estado.regiao %>">
+                  <%= link_to admin_cidade_path(cidade), class: "card-body p-5" do %>
+                    <div class="flex items-start justify-between mb-4">
+                      <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-gray-800 group-hover:text-green-600 transition-colors mb-2 line-clamp-2">
+                          <%= cidade.nome %>
+                        </h3>
+                      </div>
+                      <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0 ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center font-bold text-blue-700 text-xs flex-shrink-0">
+                          <%= cidade.estado.sigla %>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="font-semibold text-gray-800 text-sm truncate"><%= cidade.estado.nome %></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs text-gray-600">
+                      <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-gray-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        <span><%= time_ago_in_words(cidade.updated_at) %> atrás</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-gray-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-mono">ID: #<%= cidade.id %></span>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100">
+                      <span class="badge badge-outline badge-sm gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                        </svg>
+                        Ver Detalhes
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- List View -->
+      <div id="cidades-list" class="hidden space-y-10">
+        <% cidades_por_regiao.sort.each do |regiao, cidades_regiao| %>
+          <div class="regiao-section" data-regiao="<%= regiao %>">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-green-200">
+              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800"><%= regiao %></h2>
+                <p class="text-sm text-gray-600">
+                  <%= cidades_regiao.count %> <%= cidades_regiao.count == 1 ? 'cidade' : 'cidades' %> • 
+                  <%= cidades_regiao.map(&:estado).uniq.count %> <%= cidades_regiao.map(&:estado).uniq.count == 1 ? 'estado' : 'estados' %>
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <% cidades_regiao.each do |cidade| %>
+                <div class="cidade-card card bg-white hover:shadow-xl transition-all duration-300 border border-green-100" 
+                     data-cidade-nome="<%= cidade.nome.downcase %>"
+                     data-estado-sigla="<%= cidade.estado.sigla %>"
+                     data-regiao="<%= cidade.estado.regiao %>">
+                  <%= link_to admin_cidade_path(cidade), class: "card-body p-4" do %>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div class="flex items-center gap-4 flex-1 min-w-0">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <h3 class="text-lg font-bold text-gray-800 hover:text-green-600 transition-colors mb-1 truncate">
+                            <%= cidade.nome %>
+                          </h3>
+                          <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                            <div class="flex items-center gap-1.5 bg-gradient-to-br from-blue-50 to-cyan-50 px-2 py-1 rounded-md border border-blue-100">
+                              <div class="w-5 h-5 rounded bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center font-bold text-blue-700 text-xs">
+                                <%= cidade.estado.sigla %>
+                              </div>
+                              <span class="font-medium text-xs"><%= cidade.estado.nome %></span>
+                            </div>
+                            <span class="text-xs">•</span>
+                            <span class="font-mono text-xs">ID: #<%= cidade.id %></span>
+                            <span class="text-xs">•</span>
+                            <span class="text-xs"><%= time_ago_in_words(cidade.updated_at) %> atrás</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3 flex-shrink-0">
+                        <span class="badge badge-outline gap-1 text-xs">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                          </svg>
+                          Ver Detalhes
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    <% else %>
+      <!-- Empty State -->
+      <div class="card bg-white shadow-lg border border-gray-200">
+        <div class="card-body py-20 text-center">
+          <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-700 mb-2">Nenhuma cidade cadastrada</h3>
+          <p class="text-gray-500 mb-6">Comece adicionando a primeira cidade do sistema</p>
+          <%= link_to admin_new_cidade_path, class: "btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none gap-2" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Adicionar Primeira Cidade
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-cidade');
+  const filterEstado = document.getElementById('filter-estado');
+  const filterRegiao = document.getElementById('filter-regiao');
+  const cidadeCards = document.querySelectorAll('.cidade-card');
+  const regiaoSections = document.querySelectorAll('.regiao-section');
+  const gridViewBtn = document.getElementById('grid-view');
+  const listViewBtn = document.getElementById('list-view');
+  const cidadesGrid = document.getElementById('cidades-grid');
+  const cidadesList = document.getElementById('cidades-list');
+
+  function filterCidades() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const estadoFilter = filterEstado ? filterEstado.value : '';
+    const regiaoFilter = filterRegiao ? filterRegiao.value : '';
+    
+    // Esconde todas as seções primeiro
+    regiaoSections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    cidadeCards.forEach(card => {
+      const cidadeNome = card.dataset.cidadeNome;
+      const estadoSigla = card.dataset.estadoSigla;
+      const regiao = card.dataset.regiao;
+      
+      const matchesSearch = cidadeNome.includes(searchTerm);
+      const matchesEstado = !estadoFilter || estadoSigla === estadoFilter;
+      const matchesRegiao = !regiaoFilter || regiao === regiaoFilter;
+      
+      if (matchesSearch && matchesEstado && matchesRegiao) {
+        card.style.display = '';
+        // Mostra a seção da região se pelo menos uma cidade é visível
+        const section = card.closest('.regiao-section');
+        if (section) {
+          section.style.display = 'block';
+        }
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener('input', filterCidades);
+  if (filterEstado) filterEstado.addEventListener('change', filterCidades);
+  if (filterRegiao) filterRegiao.addEventListener('change', filterCidades);
+
+  if (gridViewBtn && listViewBtn) {
+    gridViewBtn.addEventListener('click', function() {
+      cidadesGrid.classList.remove('hidden');
+      cidadesList.classList.add('hidden');
+      gridViewBtn.classList.add('btn-active');
+      listViewBtn.classList.remove('btn-active');
+    });
+
+    listViewBtn.addEventListener('click', function() {
+      cidadesGrid.classList.add('hidden');
+      cidadesList.classList.remove('hidden');
+      listViewBtn.classList.add('btn-active');
+      gridViewBtn.classList.remove('btn-active');
+    });
+  }
+});
+</script>

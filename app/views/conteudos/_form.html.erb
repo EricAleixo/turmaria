@@ -2,10 +2,6 @@
   if @escola.present?
     disciplinas = @escola.disciplinas
     scope = escola_conteudos_path(@escola)
-  else
-    # Fallback: Sem contexto específico
-    disciplinas = []
-    scope = conteudos_path
   end
 %>
 
@@ -38,9 +34,21 @@
 
           <!-- Seleção de Turma com Cards -->
           <div class="mt-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-4">
-              Selecione a Turma <span class="text-red-500">*</span>
-            </label>
+              <% if @turmas.presence %>
+                <label class="block text-sm font-semibold text-gray-700 mb-4">
+                  Selecione a Turma <span class="text-red-500">*</span>
+                </label>
+              <% else %>
+                <span class="flex items-center justify-center gap-3 rounded-lg bg-yellow-100 px-4 py-2 text-sm text-yellow-800 border border-yellow-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+                  <span>
+                    Esta escola ainda não possui nenhuma turma cadastrada.
+                  </span>
+                </span>
+
+              <% end %>
             
             <%= f.hidden_field :turma_id, 
                 data: { turma_selector_target: "turmaInput" } %>
@@ -64,11 +72,12 @@
       
       <% @turmas.each do |turma| %>
         <button type="button"
-                data-turma-id="<%= turma.id %>"
-                data-bimestres="<%= turma.ano_letivo.numero_bimestre %>"
-                data-action="click->turma-selector#selectTurma"
-                data-turma-selector-target="turmaCard"
-                class="flex-shrink-0 w-40 group relative flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-teal-400 hover:shadow-md transition-all duration-200 cursor-pointer min-h-[120px]">
+          data-turma-id="<%= turma.id %>"
+          data-bimestres="<%= turma.ano_letivo.numero_bimestre %>"
+          data-disciplinas="<%= turma.disciplinas.pluck(:id).to_json %>"
+          data-action="click->turma-selector#selectTurma"
+          data-turma-selector-target="turmaCard"
+          class="flex-shrink-0 w-40 group relative flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-teal-400 hover:shadow-md transition-all duration-200 cursor-pointer min-h-[120px]">
           
           <!-- Ícone de Check quando selecionado -->
           <div class="absolute top-2 right-2 w-6 h-6 bg-teal-500 rounded-full items-center justify-center hidden group-[.selected]:flex">
@@ -136,12 +145,13 @@
                   Disciplina <span class="text-red-500">*</span>
                 </label>
                 <%= f.select :disciplina_id,
-                    options_from_collection_for_select(@disciplinas, :id, :nome, conteudo.disciplina_id),
-                    { prompt: "Selecione a disciplina" },
-                    {
-                      class: "select select-bordered w-full bg-white font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all #{conteudo.errors[:disciplina_id].any? ? 'select-error border-red-500' : ''}",
-                      required: true
-                    } %>
+                  options_from_collection_for_select(@disciplinas, :id, :nome, conteudo.disciplina_id),
+                  { prompt: "Selecione a disciplina" },
+                  {
+                    data: { turma_selector_target: "disciplinaSelect" },
+                    class: "select select-bordered w-full bg-white font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all #{conteudo.errors[:disciplina_id].any? ? 'select-error border-red-500' : ''}",
+                    required: true
+                  } %>
                 <% if conteudo.errors[:disciplina_id].any? %>
                   <p class="mt-1 text-xs text-red-600">
                     <%= conteudo.errors[:disciplina_id].first %>
@@ -401,10 +411,12 @@
             </div>
           </div>
 
-          <div class="mt-8 flex justify-end">
-            <%= f.submit "Salvar Conteúdo",
-                  class: "group relative inline-flex items-center gap-2 px-8 py-3.5 text-base font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200" %>
-          </div>
+          <% if @turmas.presence %>
+            <div class="mt-8 flex justify-end">
+              <%= f.submit "Salvar Conteúdo",
+                    class: "group relative inline-flex items-center gap-2 px-8 py-3.5 text-base font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200" %>
+            </div>
+          <% end %>
         </div>
 
       <% end %>

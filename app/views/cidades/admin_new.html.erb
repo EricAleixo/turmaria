@@ -1,0 +1,268 @@
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 md:py-12 px-4">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8 md:mb-12">
+      <div class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-bold text-gray-800 mb-2">Nova Cidade</h1>
+      <p class="text-gray-600 text-sm md:text-base">Adicione uma nova cidade ao sistema</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card bg-white shadow-2xl border border-green-100">
+      <div class="card-body p-6 md:p-10">
+        <%= form_with model: @cidade, url: admin_cidades_path, local: true do |form| %>
+          
+          <!-- Nome da Cidade -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text text-lg font-semibold text-gray-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                Nome da Cidade
+              </span>
+            </label>
+            <%= form.text_field :nome, 
+                class: "input input-bordered input-lg w-full text-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200",
+                placeholder: "Digite o nome da cidade...",
+                required: true %>
+            <% if @cidade.errors[:nome].any? %>
+              <label class="label">
+                <span class="label-text-alt text-error flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <%= @cidade.errors[:nome].first %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+
+          <!-- Estado Dropdown Personalizado -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text text-lg font-semibold text-gray-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
+                Estado
+              </span>
+            </label>
+
+            <!-- Custom Dropdown Container -->
+            <div class="relative">
+              <!-- Hidden Real Select -->
+              <%= form.collection_select :estado_id, 
+                  Estado.order(:nome), 
+                  :id, 
+                  :nome, 
+                  { prompt: "Selecione um estado" },
+                  { class: "hidden", id: "estado-select", required: true } %>
+
+              <!-- Custom Dropdown Button -->
+              <button 
+                type="button" 
+                id="custom-dropdown-btn"
+                class="w-full input input-bordered input-lg text-lg text-left flex items-center justify-between px-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-green-50/50 cursor-pointer"
+              >
+                <span id="selected-estado-text" class="text-gray-400">Selecione um estado</span>
+                <svg xmlns="http://www.w3.org/2000/svg" id="dropdown-icon" class="h-5 w-5 text-green-600 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div 
+                id="custom-dropdown-menu" 
+                class="hidden absolute z-10 w-full mt-2 bg-white rounded-xl shadow-2xl border-2 border-green-100 max-h-80 overflow-hidden"
+              >
+                <!-- Search Input -->
+                <div class="p-3 border-b border-green-100 bg-gradient-to-r from-green-50 to-emerald-50">
+                  <div class="relative">
+                    <input 
+                      type="text" 
+                      id="dropdown-search" 
+                      placeholder="Buscar estado..."
+                      class="input input-sm w-full pl-10 focus:outline-none focus:ring-2 focus:ring-green-500 border-green-200"
+                      autocomplete="off"
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Estados List -->
+                <div class="overflow-y-auto max-h-64 custom-scrollbar">
+                  <% Estado.order(:nome).group_by(&:regiao).each do |regiao, estados| %>
+                    <!-- Região Header -->
+                    <div class="px-4 py-2 bg-green-50 text-xs font-bold text-green-700 uppercase tracking-wider sticky top-0 z-10">
+                      <%= regiao %>
+                    </div>
+                    
+                    <!-- Estados da Região -->
+                    <% estados.each do |estado| %>
+                      <button 
+                        type="button"
+                        class="estado-option w-full text-left px-4 py-3 hover:bg-green-50 transition-colors duration-150 flex items-center justify-between group border-b border-gray-100 last:border-b-0"
+                        data-estado-id="<%= estado.id %>"
+                        data-estado-nome="<%= estado.nome %>"
+                        data-estado-sigla="<%= estado.sigla %>"
+                        data-search-text="<%= "#{estado.nome} #{estado.sigla} #{regiao}".downcase %>"
+                      >
+                        <div class="flex items-center gap-3">
+                          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center font-bold text-green-700 text-sm group-hover:scale-110 transition-transform duration-200">
+                            <%= estado.sigla %>
+                          </div>
+                          <div>
+                            <div class="font-semibold text-gray-800 group-hover:text-green-700 transition-colors">
+                              <%= estado.nome %>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                              <%= regiao %>
+                            </div>
+                          </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 opacity-0 group-hover:opacity-100 transition-opacity" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                      </button>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <% if @cidade.errors[:estado_id].any? %>
+              <label class="label">
+                <span class="label-text-alt text-error flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <%= @cidade.errors[:estado_id].first %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6">
+            <%= link_to "Cancelar", 
+                cidades_path, 
+                class: "btn btn-outline btn-lg flex-1 order-2 sm:order-1" %>
+            <%= form.submit "Criar Cidade", 
+                class: "btn btn-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none flex-1 shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const dropdownBtn = document.getElementById('custom-dropdown-btn');
+  const dropdownMenu = document.getElementById('custom-dropdown-menu');
+  const dropdownIcon = document.getElementById('dropdown-icon');
+  const selectedText = document.getElementById('selected-estado-text');
+  const hiddenSelect = document.getElementById('estado-select');
+  const searchInput = document.getElementById('dropdown-search');
+  const estadoOptions = document.querySelectorAll('.estado-option');
+
+  // Toggle dropdown
+  dropdownBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const isHidden = dropdownMenu.classList.contains('hidden');
+    
+    if (isHidden) {
+      dropdownMenu.classList.remove('hidden');
+      dropdownIcon.style.transform = 'rotate(180deg)';
+      searchInput.focus();
+    } else {
+      dropdownMenu.classList.add('hidden');
+      dropdownIcon.style.transform = 'rotate(0deg)';
+    }
+  });
+
+  // Select estado
+  estadoOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      const estadoId = this.dataset.estadoId;
+      const estadoNome = this.dataset.estadoNome;
+      const estadoSigla = this.dataset.estadoSigla;
+      
+      // Update hidden select
+      hiddenSelect.value = estadoId;
+      
+      // Update display text
+      selectedText.textContent = `${estadoNome} (${estadoSigla})`;
+      selectedText.classList.remove('text-gray-400');
+      selectedText.classList.add('text-gray-800', 'font-medium');
+      
+      // Close dropdown
+      dropdownMenu.classList.add('hidden');
+      dropdownIcon.style.transform = 'rotate(0deg)';
+    });
+  });
+
+  // Search functionality
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    
+    estadoOptions.forEach(option => {
+      const searchText = option.dataset.searchText;
+      
+      if (searchText.includes(searchTerm)) {
+        option.style.display = 'flex';
+      } else {
+        option.style.display = 'none';
+      }
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      dropdownMenu.classList.add('hidden');
+      dropdownIcon.style.transform = 'rotate(0deg)';
+    }
+  });
+
+  // Pre-select if editing
+  const preSelectedId = hiddenSelect.value;
+  if (preSelectedId) {
+    const preSelectedOption = document.querySelector(`[data-estado-id="${preSelectedId}"]`);
+    if (preSelectedOption) {
+      selectedText.textContent = `${preSelectedOption.dataset.estadoNome} (${preSelectedOption.dataset.estadoSigla})`;
+      selectedText.classList.remove('text-gray-400');
+      selectedText.classList.add('text-gray-800', 'font-medium');
+    }
+  }
+});
+</script>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #10b981, #059669);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #059669, #047857);
+  }
+</style>
