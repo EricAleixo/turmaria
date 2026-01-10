@@ -8,7 +8,7 @@
           <div class="text-sm breadcrumbs mt-1">
             <ul>
               <li><%= link_to "Professores", professors_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-              <li><%= link_to @professor.nome, professor_path(@professor), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @professor.nome, escola_professor_path(@professor.escola,@professor), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li class="text-gray-600">Editar</li>
             </ul>
           </div>

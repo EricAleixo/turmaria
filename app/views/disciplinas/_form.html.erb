@@ -1,4 +1,7 @@
-<%= form_with(model: @disciplina, class: "bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
+<%= form_with model: [@escola, @disciplina],
+              class: "bg-white rounded-lg shadow-sm border border-gray-200",
+              local: true do |form| %>
+
   <% if @disciplina&.errors&.any? %>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div class="flex">
@@ -90,7 +93,6 @@
           <%= @disciplina.escola&.nome || "Selecione a Escola" %>
         </button>
         <p id="escola-selecionada" class="text-sm text-gray-600 mt-1"><%= @disciplina.escola&.nome %></p>
-        <%= form.hidden_field :escola_id, id: "escola_id" %>
       </div>
     <% end %>
   </div>
@@ -292,7 +294,7 @@ document.addEventListener("turbo:load", function() {
   const filtroNome = document.getElementById("filtro-nome-escola");
   const filtroTipo = document.getElementById("filtro-tipo-escola");
   const listaEscolas = document.getElementById("lista-escolas");
-  const escolaHidden = document.getElementById("escola_id");
+
 
   if (btnAbrirEscola && modalEscola) {
     btnAbrirEscola.addEventListener("click", () => {
@@ -337,7 +339,6 @@ document.addEventListener("turbo:load", function() {
               </div>
             `;
             card.addEventListener("click", () => {
-              if (escolaHidden) escolaHidden.value = e.id;
               if (btnAbrirEscola) btnAbrirEscola.textContent = e.nome;
               if (modalEscola) modalEscola.close();
             });
@@ -634,7 +635,6 @@ document.addEventListener("turbo:load", function() {
       console.log("Cor Nome:", hiddenCorNome?.value);
       console.log("Área Nome Temp:", areaNomeTempField?.value);
       console.log("Área Cor Temp:", areaCorTempField?.value);
-      console.log("Escola ID:", escolaHidden?.value);
       
       if (!hiddenNome?.value) {
         e.preventDefault();

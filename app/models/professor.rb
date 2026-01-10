@@ -24,9 +24,6 @@ class Professor < ApplicationRecord
   has_many :disciplinas, through: :professor_disciplinas
   has_many :frequencias, dependent: :destroy
   has_many :conteudos, dependent: :destroy
-  # Nota: Se coordenador_id for uma chave para professor, a associação está correta acima.
-  # Se for para outra tabela (ex: Coordenador), o belongs_to deve ser ajustado.
-  # Assumi que Professor pode ser coordenador de outro professor/equipe (uso do coordenador_id).
 
   accepts_nested_attributes_for :endereco
 
@@ -38,7 +35,14 @@ class Professor < ApplicationRecord
   validates :nome, :cpf, presence: true
   validates :cpf, uniqueness: true
 
-  # === Scopes de Filtros (Ajustados para o Modal) ===
+  # === Callbacks ===
+  # Remove a foto antiga do S3 antes de anexar uma nova
+  before_save :purge_old_foto, if: -> { foto.attached? && foto_attachment_changed? }
+  
+  # Remove a foto do S3 quando o professor for excluído
+  before_destroy :purge_foto_on_destroy
+
+  # === Scopes de Filtros ===
   
   # Busca por nome (usando ILIKE para case-insensitivity)
   scope :por_nome, ->(busca) { 
@@ -46,7 +50,6 @@ class Professor < ApplicationRecord
   }
 
   # Filtro por formação (Ajustado para receber Array - compatível com o modal)
-  # Ex: Professor.por_formacao(["mestrado", "doutorado"]) -> WHERE (formacao IN ('mestrado', 'doutorado'))
   scope :por_formacao, ->(formacoes) { 
     where(formacao: formacoes) if formacoes.present? 
   }
@@ -77,7 +80,6 @@ class Professor < ApplicationRecord
 
   # 1. Total de Turmas Ativas
   def total_turmas_ativas
-    # Assumindo que o Turma.count é suficiente
     turmas.count 
   end
 
@@ -99,7 +101,6 @@ class Professor < ApplicationRecord
                             .where(disciplina_id: disciplina_ids)
                             .pluck(:id)
                             
-    # Nota: Assumi a existência do model RegistroDeNota
     media = RegistroDeNota.where(avaliacao_configuracao_id: avaliacao_config_ids).average(:valor)
 
     media.present? ? media.round(2) : 0.0
@@ -186,7 +187,32 @@ class Professor < ApplicationRecord
   
   # 3. Total de Frequências Cadastradas (MOCK)
   def total_frequencias_cadastradas
-    # Simulação: Conta todos os registros de frequência que o professor criou/lançou.
     rand(50..300) 
+  end
+
+  private
+
+  # Remove a foto antiga do S3 quando uma nova foto é anexada
+  def purge_old_foto
+    return unless foto.attached?
+    
+    # Verifica se existe uma foto antiga anexada
+    old_foto = foto.attachment
+    
+    # Se houver mudança no attachment (nova foto sendo enviada)
+    if old_foto && foto.changed?
+      # Agenda a remoção da foto antiga do S3
+      old_foto.purge_later
+    end
+  end
+
+  # Método auxiliar para verificar se o attachment mudou
+  def foto_attachment_changed?
+    foto.changed?
+  end
+
+  # Remove a foto do S3 quando o professor for excluído do banco
+  def purge_foto_on_destroy
+    foto.purge_later if foto.attached?
   end
 end

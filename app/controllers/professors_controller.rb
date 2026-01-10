@@ -5,35 +5,52 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-    if(current_user.is_a?(Admin))
+  # =========================
+  # 1. Definição do escopo base
+  # =========================
+  professors =
+    if current_user.is_a?(Admin)
       @escola = Escola.find(params[:escola_id])
-    end
-    professors = Professor.all
-    professors = professors.por_nome(params[:busca])
-
-    # 3. Aplicar os filtros do Modal (Tipo e Formação)
-    if params[:filtros].present?
-      # Opções baseadas nos ENUMs do Professor.rb (precisa estar alinhado com a view)
-      formacao_options = %w[mestrado doutorado pos_graduado graduado]
-      tipo_options     = %w[concursado contratado]
-
-      # Intersecção: Seleciona apenas as opções válidas que vieram no array de filtros
-      formacoes_selecionadas = formacao_options & params[:filtros]
-      tipos_selecionados     = tipo_options & params[:filtros]
-
-      # Aplica o scope por_formacao
-      professors = professors.por_formacao(formacoes_selecionadas) if formacoes_selecionadas.any?
-      
-      # Aplica o scope por_tipo (que usa a coluna tipo_professor)
-      professors = professors.por_tipo(tipos_selecionados) if tipos_selecionados.any?
+      @escola.professors
+    elsif current_user.is_a?(SuperAdmin)
+      if params[:escola_id].present?
+        @escola = Escola.find(params[:escola_id])
+        @escola.professors
+      else
+        Professor.all
+      end
+    else
+      Professor.none
     end
 
-    # 4. Atribuição final, ordenação E PAGINAÇÃO
-    professors = professors.order(nome: :asc)
-    
-    # Adiciona a paginação: 15 itens por página.
-    @professores = professors.page(params[:page]).per(15) 
+  # =========================
+  # 2. Busca por nome
+  # =========================
+  professors = professors.por_nome(params[:busca]) if params[:busca].present?
+
+  # =========================
+  # 3. Filtros do modal
+  # =========================
+  if params[:filtros].present?
+    formacao_options = %w[mestrado doutorado pos_graduado graduado]
+    tipo_options     = %w[concursado contratado]
+
+    formacoes_selecionadas = formacao_options & params[:filtros]
+    tipos_selecionados     = tipo_options & params[:filtros]
+
+    professors = professors.por_formacao(formacoes_selecionadas) if formacoes_selecionadas.any?
+    professors = professors.por_tipo(tipos_selecionados) if tipos_selecionados.any?
   end
+
+  # =========================
+  # 4. Ordenação e paginação
+  # =========================
+  @professores = professors
+                   .order(nome: :asc)
+                   .page(params[:page])
+                   .per(15)
+  end
+
 
   def selecionar_escola
     @escolas = current_admin.escolas

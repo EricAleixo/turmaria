@@ -15,7 +15,7 @@
           <%= link_to minhas_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
             Voltar para Turmas
           <% end %>
-          <%= link_to edit_frequencia_path(@frequencia), class: "w-full sm:w-auto text-center bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
+          <%= link_to edit_professor_turma_frequencia_path(@frequencia.turma,@frequencia), class: "w-full sm:w-auto text-center bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
             Editar Frequência
           <% end %>
         </div>
@@ -127,7 +127,7 @@
         </div>
 
         <!-- Quick Edit Form -->
-        <%= form_with url: update_presencas_frequencia_path(@frequencia), method: :patch, local: true, id: "presencas-form" do |form| %>
+        <%= form_with url: update_presencas_professor_turma_frequencia_path(@frequencia.turma,@frequencia), method: :patch, local: true, id: "presencas-form" do |form| %>
           
           <!-- Usando o Partial -->
           <%= render 'tabela_alunos_show', frequencia: @frequencia, frequencia_alunos: @frequencia_alunos %>

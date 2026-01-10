@@ -1,4 +1,21 @@
 pt-BR:
+  date:
+    formats:
+      longs: "%d de %B de %Y"
+    month_names:
+      - ~
+      - Janeiro
+      - Fevereiro
+      - Março
+      - Abril
+      - Maio
+      - Junho
+      - Julho
+      - Agosto
+      - Setembro
+      - Outubro
+      - Novembro
+      - Dezembro
   time:
     formats:
       short: "%d/%m/%Y %H:%M"

@@ -76,94 +76,96 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @turmas.each do |turma| %>
-        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-gray-900"><%= turma.nome %></h3>
-              <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                <%= turma.turno.humanize %>
+        <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+          <!-- Card Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-bold text-white"><%= turma.nome %></h3>
+              <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white/30">
+                <%= turma.turno_humanizado %>
               </span>
             </div>
+          </div>
 
-            <div class="space-y-2 mb-4">
-              <p class="text-sm text-gray-600">
-                <span class="font-medium">Escola:</span> <%= turma.escola.nome %>
-              </p>
-              <p class="text-sm text-gray-600">
-                <span class="font-medium">Série:</span> <%= turma.serie %>º ano
-              </p>
-              <p class="text-sm text-gray-600">
-                <span class="font-medium">Alunos:</span> <%= turma.alunos.count %>
-              </p>
-              <p class="text-sm text-gray-600">
-                <span class="font-medium">Frequências:</span> <%= turma.frequencias.count %>
-              </p>
+          <!-- Card Body -->
+          <div class="p-6">
+            <!-- Info Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-5">
+              <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-xs text-gray-500 font-medium mb-1">Série</p>
+                <p class="text-lg font-bold text-gray-900"><%= turma.serie %>º ano</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-xs text-gray-500 font-medium mb-1">Alunos</p>
+                <p class="text-lg font-bold text-gray-900"><%= turma.alunos.count %></p>
+              </div>
             </div>
 
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-5">
+              <p class="text-xs text-blue-600 font-medium mb-1">Escola</p>
+              <p class="text-sm font-semibold text-blue-900 truncate"><%= turma.escola.nome %></p>
+            </div>
+
+            <!-- Status Badge -->
             <% frequencia_hoje = turma.frequencias.where(data_aula: Date.current).first %>
-            <div class="mb-4">
+            <div class="mb-5">
               <% if frequencia_hoje %>
-                <div class="flex items-center text-green-600">
-                  <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <div class="flex items-center justify-center bg-green-50 border border-green-200 rounded-lg p-3">
+                  <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                   </svg>
-                  <span class="text-sm font-medium">Frequência registrada hoje</span>
+                  <span class="text-sm font-semibold text-green-700">Frequência registrada hoje</span>
                 </div>
               <% else %>
-                <div class="flex items-center text-orange-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2">
-                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+                <div class="flex items-center justify-center bg-orange-50 border border-orange-200 rounded-lg p-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 mr-2 text-orange-600">
+                    <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clip-rule="evenodd" />
                   </svg>
-                  <span class="text-sm font-medium">Frequência não registrada hoje</span>
+                  <span class="text-sm font-semibold text-orange-700">Frequência pendente</span>
                 </div>
               <% end %>
             </div>
 
-            <div class="flex flex-col space-y-2">
+            <!-- Action Buttons -->
+            <div class="space-y-3">
               <% if frequencia_hoje %>
-                <%= link_to frequencia_path(frequencia_hoje), class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors" do %>
-                  Ver Frequência
+                <!-- Ver Frequências Lançadas -->
+                <%= link_to historico_professor_turma_path(turma), 
+                  class: "w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-[1.02]" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                  </svg>
+                  Ver Frequências Lançadas
                 <% end %>
               <% else %>
-                <% if current_professor.disciplinas.count == 1 %>
-                  <%= link_to new_professor_turma_disciplina_frequencia_path(turma, current_professor.disciplinas.first.id), 
-                    class: "w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
-                    Registrar Frequência
-                  <% end %>
-                <% else %>
-                  <div class="relative dropdown-frequencia">
-                    <button type="button" class="dropdown-toggle w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
-                      Registrar Frequência
-                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                      </svg>
-                    </button>
-                    <div class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200">
-                      <% current_professor.disciplinas.each do |disciplina| %>
-                        <%= link_to new_professor_turma_disciplina_frequencia_path(turma, disciplina.id), 
-                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 first:rounded-t-lg last:rounded-b-lg transition-colors" do %>
-                          <%= disciplina.nome %>
-                        <% end %>
-                      <% end %>
-                    </div>
-                  </div>
+                <!-- Registrar Frequência -->
+                <%= link_to new_professor_turma_frequencia_path(turma), 
+                  class: "w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-[1.02]" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Registrar Frequência
                 <% end %>
-              <% end %>
-              
-              <%# Verifica se há disciplinas antes de criar o link, evitando erros. %>
-              <% if current_professor.disciplinas.any? %>
-                <%= link_to professor_turma_disciplinas_path(turma, disciplina_id: current_professor.disciplinas.first.id, target: :nota), 
-                  class: "w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
-                  Lançar Notas
+                
+                <!-- Ver Frequências Lançadas -->
+                <%= link_to historico_professor_turma_path(turma), 
+                  class: "w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-[1.02]" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                  </svg>
+                  Ver Frequências Lançadas
                 <% end %>
               <% end %>
 
-              <%= link_to historico_professor_turma_path(turma), 
-                class: "w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-                </svg>
-                Ver Histórico
+              <!-- Lançar Notas -->
+              <% if current_professor.disciplinas.any? %>
+                <%= link_to professor_turma_disciplinas_path(turma, disciplina_id: current_professor.disciplinas.first.id, target: :nota), 
+                  class: "w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-[1.02]" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                  </svg>
+                  Lançar Notas
+                <% end %>
               <% end %>
             </div>
           </div>
@@ -172,81 +174,17 @@
     </div>
 
     <% if @turmas.empty? %>
-      <div class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma turma encontrada</h3>
-        <p class="mt-1 text-sm text-gray-500">Você ainda não foi associado a nenhuma turma.</p>
+      <div class="bg-white rounded-xl shadow-md p-12 text-center">
+        <div class="max-w-md mx-auto">
+          <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Nenhuma turma encontrada</h3>
+          <p class="text-gray-600">Você ainda não foi associado a nenhuma turma. Entre em contato com a coordenação.</p>
+        </div>
       </div>
     <% end %>
   <% end %>
 </div>
-
-<script>
-// A função JavaScript foi mantida e ajustada para remover o .dropdown-notas do seu escopo,
-// garantindo que não haja erros ao tentar inicializar elementos que não existem mais.
-
-function initDropdowns() {
-  // Seleciona APENAS o dropdown de Frequência, já que o de Notas foi removido
-  const dropdowns = document.querySelectorAll('.dropdown-frequencia');
-  
-  dropdowns.forEach(dropdown => {
-    const toggle = dropdown.querySelector('.dropdown-toggle');
-    const menu = dropdown.querySelector('.dropdown-menu');
-    
-    // Verifica se os elementos existem e se o event listener já foi anexado
-    if (toggle && menu && !toggle.hasAttribute('data-dropdown-initialized')) {
-      // Marca como inicializado para evitar anexar múltiplos listeners
-      toggle.setAttribute('data-dropdown-initialized', 'true');
-
-      // 1. Lógica de Toggle (Abrir/Fechar)
-      toggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Fecha outros dropdowns abertos, exceto o menu atual
-        document.querySelectorAll('.dropdown-menu').forEach(m => {
-          if (m !== menu) {
-            m.classList.add('hidden');
-          }
-        });
-        
-        // Alterna o menu atual
-        menu.classList.toggle('hidden');
-      });
-    }
-  });
-
-  // 2. Lógica de Fechamento Global (Anexada apenas uma vez ao documento)
-  if (!document.body.hasAttribute('data-global-click-initialized')) {
-    document.body.setAttribute('data-global-click-initialized', 'true');
-    
-    document.addEventListener('click', function(e) {
-      // Ajustado para checar APENAS o dropdown-frequencia
-      const isDropdownClick = e.target.closest('.dropdown-frequencia');
-      
-      // Se o clique não foi dentro do dropdown, feche todos os menus
-      if (!isDropdownClick) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-          menu.classList.add('hidden');
-        });
-      }
-    });
-
-    // 3. Listener para o evento 'pageshow' para corrigir o BFCache (Mantido)
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-          menu.classList.add('hidden');
-        });
-      }
-    });
-  }
-}
-
-// Inicializa a função em todos os principais eventos de carregamento e navegação do Turbo
-document.addEventListener('DOMContentLoaded', initDropdowns);
-document.addEventListener('turbo:load', initDropdowns);
-document.addEventListener('turbo:frame-load', initDropdowns);
-</script>

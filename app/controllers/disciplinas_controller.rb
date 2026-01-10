@@ -72,17 +72,16 @@ class DisciplinasController < ApplicationController
   # NEW
   # ---------------------------
   def new
-    @disciplina = Disciplina.new
+    @escola = Escola.find(params[:escola_id])
+
+    @disciplina = @escola.disciplinas.build
     authorize @disciplina
 
     @disciplinas_areas = AreaDisciplina.all.order(:nome)
-
-    # SuperAdmin pode escolher qualquer escola
-    @escolas = Escola.all if current_user.is_a?(SuperAdmin)
-
     load_professores
-    respond_to_json_if_needed
   end
+
+
 
   # ---------------------------
   # EDIT
@@ -97,27 +96,26 @@ class DisciplinasController < ApplicationController
   # ---------------------------
   # CREATE
   # ---------------------------
-  def create
-    # Escola vinculada ao admin ou escolhida pelo SuperAdmin
-    @escola =
-      if current_user.is_a?(Admin)
-        current_user.escolas.first
-      elsif current_user.is_a?(SuperAdmin)
-        Escola.find(params[:disciplina][:escola_id])
+    def create
+      @escola = Escola.find(params[:escola_id])
+
+      @disciplina = @escola.disciplinas.build(
+        disciplina_params.except(:professor_ids)
+      )
+      authorize @disciplina
+
+      assign_professores
+
+      if @disciplina.save
+        redirect_to escola_disciplinas_path(@escola),
+                    notice: "Disciplina criada com sucesso!"
+      else
+        @disciplinas_areas = AreaDisciplina.all.order(:nome)
+        load_professores
+        render :new, status: :unprocessable_entity
       end
-
-    @disciplina = @escola.disciplinas.new(disciplina_params.except(:professor_ids))
-    authorize @disciplina
-
-    assign_professores
-
-    if @disciplina.save
-      redirect_to escola_disciplinas_path(@escola), notice: "Disciplina criada com sucesso!"
-    else
-      @disciplinas_areas = AreaDisciplina.all.order(:nome)
-      render :new, status: :unprocessable_entity
     end
-  end
+
 
   # ---------------------------
   # UPDATE

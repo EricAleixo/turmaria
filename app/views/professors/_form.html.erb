@@ -1,4 +1,68 @@
-<%= form_with(model: @professor, class: "bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
+<dialog id="foto-modal" class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Anexar Foto do Professor</h3>
+    
+    <div id="foto-upload-area" class="upload-area border-2 border-dashed rounded-lg p-6 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-gray-400">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+      </svg>
+      <p class="text-gray-500 mb-2">Arraste e solte a foto aqui ou</p>
+      <label for="foto-upload" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg cursor-pointer inline-block transition-colors">Escolher arquivo</label>
+    </div>
+
+    <div id="foto-crop-area" class="hidden mt-4">
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-3 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-500">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+          <strong>Ajuste a área circular para enquadrar a foto</strong>
+        </p>
+        <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="max-height: 450px;">
+          <img id="foto-preview" src="" alt="Preview" class="max-w-full">
+        </div>
+        <div class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+          </svg>
+          Clique e arraste para mover a imagem • Use a roda do mouse para zoom
+        </div>
+      </div>
+      <div class="flex gap-2 justify-end">
+        <div class="modal-action">
+          <button type="button" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors" onclick="closeFotoModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+            Fechar
+          </button>
+        </div>
+        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors" onclick="resetFotoModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          Trocar foto
+        </button>
+        <button type="button" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors" onclick="confirmFotoCrop()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+          Confirmar recorte
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button type="button" onclick="closeFotoModal()">close</button>
+  </form>
+</dialog>
+
+<!-- Toast Container -->
+<div class="toast toast-end z-[99]">
+  <div id="alert-container"></div>
+</div>
+<%= form_with(model: @professor, class: "bg-white rounded-lg shadow-sm border border-gray-200", html: { multipart: true }) do |form| %>
 <%= hidden_field_tag :escola_id, params[:escola_id] %>
   <% if @professor.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -30,10 +94,10 @@
   </div>
 
   <div class="px-6 py-6">
+    <!-- Informações Básicas -->
     <div class="mb-8">
       <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Campos de texto -->
         <div>
           <%= form.label :nome, "Nome *", class: "block text-sm font-medium text-gray-700 mb-2" %>
           <%= form.text_field :nome, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "Ex: João da Silva", required: true %>
@@ -59,19 +123,31 @@
           <%= form.text_field :telefone, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500", placeholder: "(00) 90000-0000" %>
         </div>
 
-        <!-- Dropdown Tipo de Professor -->
         <div>
           <%= dropdown(form: form, method: :tipo_professor, select_id: "tipo_professor_select", collection: [["Contratado","contratado"],["Concursado","concursado"]], placeholder: "Selecione o Tipo", hidden_field_id: "tipo_hidden") %>
-
         </div>
-
-          <%= dropdown(form: form, method: :formacao, select_id: "formacao_select", collection: [["Doutorado","doutorado"],["Mestrado","mestrado"],["Pós graduado","pos_graduado"],["Graduado","graduado"]], placeholder: "Selecione a Formação", hidden_field_id: "formacao_hidden ") %>
-
 
         <div>
-
+          <%= dropdown(form: form, method: :formacao, select_id: "formacao_select", collection: [["Doutorado","doutorado"],["Mestrado","mestrado"],["Pós graduado","pos_graduado"],["Graduado","graduado"]], placeholder: "Selecione a Formação", hidden_field_id: "formacao_hidden") %>
         </div>
+        <!-- Seção de Foto -->
       </div>
+        <div class="my-8">
+          <h3 class="text-base font-medium text-gray-900 mb-4">Foto do Professor</h3>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-sm text-gray-600">Adicione uma foto de perfil (opcional)</p>
+              <button type="button" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm" onclick="openFotoModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                </svg>
+                Anexar Foto
+              </button>
+            </div>
+            <%= form.file_field :foto, class: "hidden", id: "foto-upload", accept: "image/*" %>
+            <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
+          </div>
+        </div>
     </div>
   </div>
 
@@ -82,6 +158,87 @@
     </div>
   </div>
 <% end %>
+
+<!-- Modal de Foto com Crop -->
+
+<!-- Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<style>
+  /* Estilo customizado para crop circular */
+  .cropper-view-box,
+  .cropper-face {
+    border-radius: 50%;
+  }
+  
+  .cropper-view-box {
+    box-shadow: 0 0 0 1px #39f;
+    outline: 0;
+  }
+  
+  .cropper-face {
+    background-color: inherit !important;
+  }
+  
+  .cropper-dashed,
+  .cropper-line {
+    display: none !important;
+  }
+  
+  .cropper-point {
+    background-color: #39f;
+    opacity: 0.8;
+  }
+  
+  .cropper-point.point-se {
+    width: 12px !important;
+    height: 12px !important;
+    opacity: 1;
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+  }
+  
+  .modal[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .modal-box {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 42rem;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .modal-action {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -111,4 +268,260 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+// === FUNÇÕES DE FOTO COM CROP ===
+let cropper = null;
+
+function openFotoModal() {
+  document.getElementById('foto-modal').showModal();
+}
+
+function closeFotoModal() {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  document.getElementById('foto-modal').close();
+}
+
+function resetFotoModal() {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  document.getElementById('foto-upload').value = '';
+  document.getElementById('foto-files-list').innerHTML = '';
+}
+
+document.getElementById('foto-upload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  
+  if (!file) return;
+  
+  if (!file.type.startsWith('image/')) {
+    showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+    this.value = '';
+    return;
+  }
+  
+  // Validar tamanho (máximo 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('A imagem deve ter no máximo 5MB', 'error');
+    this.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = document.getElementById('foto-preview');
+    img.src = event.target.result;
+    
+    document.getElementById('foto-upload-area').classList.add('hidden');
+    document.getElementById('foto-crop-area').classList.remove('hidden');
+    
+    if (cropper) {
+      cropper.destroy();
+    }
+    
+    // Aguardar imagem carregar antes de inicializar o Cropper
+    img.onload = function() {
+      cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 2,
+        autoCropArea: 0.65,
+        responsive: true,
+        guides: false,
+        center: true,
+        highlight: true,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+        dragMode: 'move',
+        background: true,
+        modal: true,
+        minCropBoxWidth: 200,
+        minCropBoxHeight: 200,
+        ready: function() {
+          const cropBox = document.querySelector('.cropper-crop-box');
+          const face = document.querySelector('.cropper-face');
+          if (cropBox && face) {
+            cropBox.style.borderRadius = '50%';
+            face.style.borderRadius = '50%';
+          }
+        },
+        crop: function() {
+          const face = document.querySelector('.cropper-face');
+          if (face) {
+            face.style.borderRadius = '50%';
+          }
+        }
+      });
+    };
+  };
+  reader.readAsDataURL(file);
+});
+
+function confirmFotoCrop() {
+  if (!cropper) return;
+  
+  console.log('🔍 Iniciando crop da foto...');
+  
+  const canvas = cropper.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  });
+  
+  // Criar canvas circular
+  const circularCanvas = document.createElement('canvas');
+  const ctx = circularCanvas.getContext('2d');
+  circularCanvas.width = 400;
+  circularCanvas.height = 400;
+  
+  // Desenhar círculo como máscara
+  ctx.beginPath();
+  ctx.arc(200, 200, 200, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+  
+  // Desenhar imagem recortada dentro do círculo
+  ctx.drawImage(canvas, 0, 0, 400, 400);
+  
+  circularCanvas.toBlob(function(blob) {
+    console.log('📸 Blob criado:', blob);
+    console.log('📦 Tamanho do blob:', blob.size, 'bytes');
+    
+    const file = new File([blob], 'foto_professor.png', { type: 'image/png' });
+    console.log('📄 Arquivo criado:', file);
+    
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    
+    const fotoInput = document.getElementById('foto-upload');
+    fotoInput.files = dataTransfer.files;
+    
+    console.log('✅ Arquivo anexado ao input:', fotoInput.files[0]);
+    
+    updateFileList('foto-files-list', [file]);
+    closeFotoModal();
+    
+    showToast('Foto recortada e anexada com sucesso!', 'success');
+  }, 'image/png', 0.95);
+}
+
+// Drag and Drop para área de upload de foto
+const fotoUploadArea = document.getElementById('foto-upload-area');
+const fotoInput = document.getElementById('foto-upload');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, false);
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, () => {
+    fotoUploadArea.classList.add('border-green-500', 'bg-green-50');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  fotoUploadArea.addEventListener(eventName, () => {
+    fotoUploadArea.classList.remove('border-green-500', 'bg-green-50');
+  }, false);
+});
+
+fotoUploadArea.addEventListener('drop', (e) => {
+  const files = e.dataTransfer.files;
+  
+  if (files.length > 1) {
+    showToast('Selecione apenas 1 arquivo de foto', 'error');
+    return;
+  }
+  
+  if (files.length > 0) {
+    if (!files[0].type.startsWith('image/')) {
+      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+      return;
+    }
+    
+    fotoInput.files = files;
+    fotoInput.dispatchEvent(new Event('change'));
+  }
+}, false);
+
+// Função auxiliar para atualizar lista de arquivos
+function updateFileList(listId, files) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  
+  if (files.length === 0) return;
+  
+  files.forEach((file) => {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'flex items-center gap-3';
+    
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('stroke-width', '1.5');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('class', 'w-5 h-5 text-green-500');
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />';
+    
+    const fileName = document.createElement('span');
+    fileName.className = 'text-sm';
+    fileName.textContent = file.name;
+    
+    fileInfo.appendChild(icon);
+    fileInfo.appendChild(fileName);
+    fileItem.appendChild(fileInfo);
+    list.appendChild(fileItem);
+  });
+}
+
+// Função para mostrar toast
+function showToast(message, type = 'info') {
+  const container = document.getElementById('alert-container');
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type} shadow-lg mb-2`;
+  
+  const iconMap = {
+    success: '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />',
+    error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />',
+    info: '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />'
+  };
+  
+  const colorMap = {
+    success: 'bg-green-100 border-green-500 text-green-800',
+    error: 'bg-red-100 border-red-500 text-red-800',
+    info: 'bg-blue-100 border-blue-500 text-blue-800'
+  };
+  
+  alert.className = `${colorMap[type] || colorMap.info} border-l-4 p-4 rounded shadow-lg mb-2 flex items-center gap-3`;
+  
+  alert.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      ${iconMap[type] || iconMap.info}
+    </svg>
+    <span class="font-medium">${message}</span>
+  `;
+  
+  container.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.style.transition = 'opacity 0.3s';
+    alert.style.opacity = '0';
+    setTimeout(() => alert.remove(), 300);
+  }, 3000);
+}
 </script>

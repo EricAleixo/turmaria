@@ -17,9 +17,11 @@
 
     <!-- Formulário -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <%= form_with model: @frequencia, url: frequencias_path, local: true, class: "p-4 sm:p-6" do |form| %>
-        <%= hidden_field_tag :turma_id, @turma.id %>
-        <%= hidden_field_tag :disciplina_id, @disciplina.id %>
+      <%= form_with model: @frequencia,
+              class: "py-4 sm:p-6",
+              url: professor_turma_frequencias_path(@turma),
+              method: :post,
+              local: true do |form| %>
         
         <!-- Data e Turma -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -30,8 +32,23 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Turma</label>
             <div class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-600 text-sm sm:text-base">
-              <%= @turma.nome %> - <%= @turma.serie %>º ano (<%= @turma.turno.humanize %>)
+              <%= @turma.nome %> - <%= @turma.serie %>º ano (<%= @turma.turno_humanizado %>)
             </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div>
+            <%= dropdown(
+                form: form,
+                method: :disciplina_id,
+                collection: @disciplinas.all.map { |d| 
+                  disabled = !@turma.disciplinas.include?(d)
+                  [d.nome, d.id, { disabled: disabled }] 
+                },
+                placeholder: "Selecione a disciplina",
+                label: "Disciplina *"
+              ) %>
           </div>
         </div>
 

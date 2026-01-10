@@ -8,50 +8,76 @@ class Professor::TurmasController < Professor::BaseController
   end
 
   def historico
-    # 1. Encontra a turma garantindo que o professor a leciona
-    @turma = current_professor.turmas.find(params[:id])
-    
-    # 2. Parâmetros de data para o calendário
+    # ============================
+    # 0. Turma (aceita :id ou :turma_id)
+    # ============================
+    turma_id = params[:id] || params[:turma_id]
+
+    @turma = current_professor.turmas.find_by(id: turma_id)
+    unless @turma
+      redirect_to professor_turmas_path, alert: "Você não tem acesso a essa turma."
+      return
+    end
+
+    # ============================
+    # 1. Disciplinas do professor
+    # ============================
+    disciplinas_professor = current_professor.disciplinas
+    disciplinas_professor_ids = disciplinas_professor.pluck(:id)
+
+    # ============================
+    # 2. Disciplina ativa (SEGURA)
+    # ============================
+    if params[:disciplina_id].present? &&
+      disciplinas_professor_ids.include?(params[:disciplina_id].to_i)
+
+      @disciplina_ativa = disciplinas_professor.find(params[:disciplina_id])
+    else
+      @disciplina_ativa = disciplinas_professor.first
+    end
+
+    # ============================
+    # 3. Parâmetros de data
+    # ============================
     @mes = params[:mes]&.to_i || Date.current.month
     @ano = params[:ano]&.to_i || Date.current.year
-    
-    # 3. Datas do mês
+
     @data_inicio = Date.new(@ano, @mes, 1)
     @data_fim = @data_inicio.end_of_month
-    
-    # 4. Pega os IDs das disciplinas que o professor leciona
-    disciplinas_professor_ids = current_professor.disciplinas.pluck(:id)
-    
-    # 5. Base query para frequências do mês (apenas disciplinas que o professor leciona)
+
+    # ============================
+    # 4. Base query de frequências
+    # ============================
     frequencias_query = Frequencia
       .where(turma: @turma)
       .where(disciplina_id: disciplinas_professor_ids)
       .where(data_aula: @data_inicio..@data_fim)
-    
-    # 6. Filtro por disciplina (se selecionado)
-    if params[:disciplina_id].present?
-      disciplina_id = params[:disciplina_id].to_i
-      # Verifica se a disciplina pertence ao professor atual
-      if disciplinas_professor_ids.include?(disciplina_id)
-        frequencias_query = frequencias_query.where(disciplina_id: disciplina_id)
-        @disciplina_filtrada = current_professor.disciplinas.find(disciplina_id)
-      end
+
+    # ============================
+    # 5. Aplica filtro APENAS se for válido
+    # ============================
+    if @disciplina_ativa
+      frequencias_query = frequencias_query.where(disciplina_id: @disciplina_ativa.id)
     end
-    
-    # 7. Buscar frequências ordenadas
+
+    # ============================
+    # 6. Buscar frequências
+    # ============================
     @frequencias = frequencias_query
       .includes(:disciplina, :frequencia_alunos)
       .order(:data_aula)
-    
-    # 8. Datas que têm frequência registrada
-    @datas_com_frequencia = @frequencias.map(&:data_aula).uniq
-    
-    # 9. Calcular estatísticas do mês (com filtro aplicado)
-    @estatisticas_mes = calcular_estatisticas_mes(@frequencias)
 
-  rescue ActiveRecord::RecordNotFound
-    redirect_to professor_turmas_path, alert: 'Turma não encontrada ou você não tem permissão.'
+    # ============================
+    # 7. Datas com frequência
+    # ============================
+    @datas_com_frequencia = @frequencias.map(&:data_aula).uniq
+
+    # ============================
+    # 8. Estatísticas
+    # ============================
+    @estatisticas_mes = calcular_estatisticas_mes(@frequencias)
   end
+
 
   private
 

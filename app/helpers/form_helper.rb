@@ -32,7 +32,7 @@ module FormHelper
         obj = collection.find { |item| item.send(value_field).to_s == selected_value.to_s }
         obj ? obj.send(label_field) : placeholder
       else
-        pair = collection.find { |label, value| value.to_s == selected_value.to_s }
+        pair = collection.find { |label, value, *_| value.to_s == selected_value.to_s }
         pair ? pair.first : placeholder
       end
 
@@ -108,31 +108,32 @@ module FormHelper
             ) do
               collection.map do |item|
 
-                option_label =
-                  if label_field && value_field
-                    item.send(label_field)
-                  else
-                    item.first
+                # Detecta se é um array com options hash
+                option_disabled = false
+                
+                if label_field && value_field
+                  option_label = item.send(label_field)
+                  option_value = item.send(value_field)
+                else
+                  option_label = item.first
+                  option_value = item[1]
+                  # Verifica se há um terceiro elemento (hash de opções)
+                  if item.is_a?(Array) && item.length > 2 && item[2].is_a?(Hash)
+                    option_disabled = item[2][:disabled] == true
                   end
-
-                option_value =
-                  if label_field && value_field
-                    item.send(value_field)
-                  else
-                    item.last
-                  end
+                end
 
                 content_tag(:li) do
                   tag.a(
                     option_label,
-                    href: disabled ? nil : "#",
+                    href: (disabled || option_disabled) ? nil : "#",
                     class: [
                       "dropdown-option px-3 py-2 rounded",
-                      disabled ?
-                        "text-gray-400 cursor-not-allowed" :
+                      (disabled || option_disabled) ?
+                        "text-gray-400 cursor-not-allowed opacity-50" :
                         "cursor-pointer hover:bg-green-100 active:!bg-green-500 active:!text-white"
                     ].join(" "),
-                    data: disabled ? {} : { value: option_value }
+                    data: (disabled || option_disabled) ? { disabled: true } : { value: option_value }
                   )
                 end
 

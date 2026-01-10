@@ -122,6 +122,11 @@ Rails.application.routes.draw do
         get :search
       end
 
+      # FREQUÊNCIAS ANINHADAS EM ESCOLAS
+      # URL: /escolas/:escola_id/frequencias
+      # Helper: escola_frequencias_path(@escola)
+      resources :frequencias, controller: 'admin_frequencia'
+
       resources :conteudos, controller: 'admin_conteudos'
       resources :disciplinas
 
@@ -190,38 +195,36 @@ Rails.application.routes.draw do
     get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
 
-    # Frequências gerais
-    resources :frequencias, controller: 'professor/frequencias' do
-      member do
-        patch :update_presencas
-      end
-    end
-
     # Estrutura aninhada de turmas -> disciplinas -> funcionalidades
     namespace :professor do
       get "selecionar_turma", to: "conteudos#selecionar_turma"
+      
+      scope :turmas do
+        resources :frequencias, only: [:index]
+      end
+
       # Turmas principais
       resources :turmas, only: [:index] do
         member do
           get :historico # /professor/turmas/:id/historico
         end
 
-        # **ADICIONE AQUI: Conteúdos aninhados em turmas**
+        # **Frequências aninhadas diretamente em turmas (CRUD completo)**
+        resources :frequencias, except: [:index] do
+          member do
+            patch :update_presencas
+          end
+        end
+
+        # **Conteúdos aninhados em turmas**
         resources :conteudos, only: [:index, :show, :new, :create, :edit, :update, :destroy]
 
         # Disciplinas dentro da turma
         resources :disciplinas, only: [:index] do
           # Visualização de resultados
           resource :resultados, controller: 'notas/resultados', only: [:show] do
-              member do
-              get :detalhes
-            end
-          end
-
-          # Frequências aninhadas
-          resources :frequencias, controller: 'frequencias', only: [:new, :create, :index] do
             member do
-              patch :update_presencas
+              get :detalhes
             end
           end
 
@@ -238,8 +241,8 @@ Rails.application.routes.draw do
       end
 
       get 'minhas_disciplinas/:disciplina_id/todos_alunos', 
-      to: 'notas/resultados#todos_alunos', 
-      as: :disciplina_todos_alunos
+          to: 'notas/resultados#todos_alunos', 
+          as: :disciplina_todos_alunos
 
       # Outros recursos do namespace professor
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
@@ -247,7 +250,6 @@ Rails.application.routes.draw do
       resources :disciplinas
       resources :conteudos, as: :painel_conteudos
     end
-    
   end
 
   # Rota de Perfil

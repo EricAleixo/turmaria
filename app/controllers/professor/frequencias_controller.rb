@@ -1,9 +1,8 @@
 class Professor::FrequenciasController < Professor::BaseController
   layout 'dashboard'
   before_action :authenticate_professor!
-  before_action :verificar_disciplinas, except: [:show, :index]
   before_action :set_frequencia, only: [:show, :edit, :update, :destroy, :update_presencas]
-  before_action :set_turma_e_disciplina, only: [:new, :create]
+  before_action :set_turma, only: [:new, :create, :edit, :update, :update_presencas]
 
   def index
     # 1. Carregamento da Tabela (O seu código original)
@@ -65,10 +64,13 @@ class Professor::FrequenciasController < Professor::BaseController
     # ----------------------------------------------------
   end
 
-  def set_turma_e_disciplina
-    @turma = current_professor.turmas.find(params[:turma_id]) # Exige params[:turma_id]
-    @disciplina = current_professor.disciplinas.find(params[:disciplina_id]) # Exige params
+  def set_turma
+    @turma = current_professor.turmas.find(params[:turma_id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to professor_turmas_path,
+               alert: 'Turma não encontrada ou você não tem permissão.'
   end
+
 
   def show
     @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
@@ -77,19 +79,25 @@ class Professor::FrequenciasController < Professor::BaseController
   def new
     @frequencia = @turma.frequencias.build(
       professor: current_professor,
-      disciplina: @disciplina,
       data_aula: Date.current
     )
+
     @alunos = @turma.alunos.order(:nome)
+    @disciplinas = current_professor.disciplinas.order(:nome)
   end
 
   def create
     @frequencia = @turma.frequencias.build(frequencia_params)
     @frequencia.professor = current_professor
-    @frequencia.disciplina = @disciplina
+
+    # 🔐 Garantia de segurança
+    unless current_professor.disciplinas.exists?(@frequencia.disciplina_id)
+      redirect_to professor_turmas_path,
+                  alert: 'Disciplina inválida.'
+      return
+    end
 
     if @frequencia.save
-      # Processar dados dos alunos enviados do formulário
       if params[:alunos].present?
         params[:alunos].each do |aluno_id, dados|
           @frequencia.frequencia_alunos.create!(
@@ -99,7 +107,6 @@ class Professor::FrequenciasController < Professor::BaseController
           )
         end
       else
-        # Fallback: criar registros para todos os alunos como presente
         @turma.alunos.each do |aluno|
           @frequencia.frequencia_alunos.create!(
             aluno: aluno,
@@ -108,13 +115,15 @@ class Professor::FrequenciasController < Professor::BaseController
         end
       end
 
-      redirect_to frequencia_path(@frequencia), 
-                  notice: "Frequência de #{@disciplina.nome} registrada com sucesso!"
+      redirect_to professor_turma_frequencias_path(@turma),
+                  notice: "Frequência registrada com sucesso!"
     else
       @alunos = @turma.alunos.order(:nome)
+      @disciplinas = current_professor.disciplinas.order(:nome)
       render :new, status: :unprocessable_entity
     end
   end
+
 
   def edit
     @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
@@ -124,7 +133,7 @@ class Professor::FrequenciasController < Professor::BaseController
 
   def update
     if @frequencia.update(frequencia_params)
-      redirect_to frequencia_path(@frequencia), 
+      redirect_to professor_turma_frequencias_path(@turma), 
                   notice: 'Frequência atualizada com sucesso!'
     else
       @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
@@ -140,10 +149,10 @@ class Professor::FrequenciasController < Professor::BaseController
         frequencia_aluno = @frequencia.frequencia_alunos.find(id)
         frequencia_aluno.update(attrs.permit(:status, :observacoes))
       end
-      redirect_to frequencia_path(@frequencia), 
+      redirect_to professor_turma_frequencias_path(@turma), 
                   notice: 'Presenças atualizadas com sucesso!'
     else
-      redirect_to frequencia_path(@frequencia), 
+      redirect_to professor_turma_frequencias_path(@turma), 
                   alert: 'Nenhuma alteração foi feita.'
     end
   end
@@ -186,6 +195,8 @@ class Professor::FrequenciasController < Professor::BaseController
   end
 
   def frequencia_params
-    params.require(:frequencia).permit(:data_aula, :conteudo_trabalhado, :observacoes)
+    params.require(:frequencia)
+          .permit(:data_aula, :conteudo_trabalhado, :observacoes, :disciplina_id)
   end
+
 end

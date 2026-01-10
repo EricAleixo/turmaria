@@ -37,7 +37,7 @@
           <!-- Badge Section -->
           <div class="flex gap-3 absolute -top-6 left-10">
             <span class="badge badge-lg bg-green-600 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.serie %>º ano</span>
-            <span class="badge badge-lg bg-blue-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.turno.humanize %></span>
+            <span class="badge badge-lg bg-blue-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.turno_humanizado %></span>
           </div>
 
           <!-- Action Buttons -->
@@ -63,10 +63,9 @@
             <%= link_to assign_professors_escola_turma_path(@escola, @turma),
               class: "btn btn-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105",
               title: "Ver disciplinas" do %>
-
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-            </svg>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+              </svg>
               Associar Professores
             <% end %>
             <%= link_to escola_turma_disciplinas_path(@escola, @turma), class: "btn btn-sm bg-gradient-to-r from-pink-600 to-purple-500 hover:from-pink-700 hover:to-purple-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105", title: "Ver disciplinas" do %>
@@ -78,8 +77,8 @@
           </div>
 
           <!-- Stats Cards -->
-          <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="p-8 border-b border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="stat bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 shadow-lg border border-blue-200 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group">
                 <div class="flex items-center mb-3">
                   <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
@@ -87,26 +86,137 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                     </svg>
                   </div>
-                  <div class="stat-title text-blue-700 font-medium text-lg">Total de Alunos</div>
+                  <div class="stat-title text-blue-700 font-medium text-lg">Alunos</div>
                 </div>
-                <div class="stat-value text-blue-800 text-5xl font-bold ml-16"><%= @turma.alunos.count %></div>
-                <div class="stat-desc text-blue-600 mt-3 ml-16 text-sm">Alunos matriculados nesta turma</div>
+                <div class="stat-value text-blue-800 text-4xl font-bold ml-16"><%= @turma.alunos.count %></div>
               </div>
               
-              <div class="stat bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 shadow-lg border border-green-200 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group">
+              <div class="stat bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 shadow-lg border border-purple-200 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group">
                 <div class="flex items-center mb-3">
-                  <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
+                  <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                   </div>
-                  <div class="stat-title text-green-700 font-medium text-lg">Escola</div>
+                  <div class="stat-title text-purple-700 font-medium text-lg">Disciplinas</div>
                 </div>
-                <div class="stat-value text-green-800 text-2xl font-bold ml-16"><%= @escola.nome %></div>
-                <div class="stat-desc text-green-600 mt-3 ml-16 text-sm">Instituição de ensino</div>
+                <div class="stat-value text-purple-800 text-4xl font-bold ml-16"><%= @turma.disciplinas.count %></div>
+              </div>
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 shadow-lg border border-green-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 h-auto min-h-0 group">
+                <div class="flex items-center mb-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl
+                              flex items-center justify-center mr-4 shadow-md
+                              group-hover:shadow-lg transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor"
+                        class="w-6 h-6 text-white">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332
+                          A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056-.2-7.5-.582V21M3 21h18
+                          M12 6.75h.008v.008H12V6.75Z" />
+                    </svg>
+                  </div>
+
+                  <div class="text-green-700 font-medium text-lg">
+                    Escola
+                  </div>
+                </div>
+                <div class="text-green-800 text-xl font-bold break-words leading-snug">
+                  <%= @escola.nome %>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Disciplinas Section -->
+          <% if @turma.disciplinas.any? %>
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 mr-3 text-purple-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                  Disciplinas da Turma
+                </h2>
+              </div>
+
+              <% disciplinas_por_area = @turma.disciplinas.includes(:area_disciplina).group_by(&:area_disciplina) %>
+              
+              <% disciplinas_por_area.each do |area, disciplinas| %>
+                <div class="mb-8 last:mb-0">
+                  <!-- Area Header -->
+                  <div class="flex items-center mb-4">
+                    <div class="w-1 h-8 rounded-full mr-3" style="background-color: <%= area&.cor || '#6B7280' %>;"></div>
+                    <h3 class="text-xl font-bold" style="color: <%= area&.cor || '#6B7280' %>;">
+                      <%= area&.nome || 'Sem Área' %>
+                    </h3>
+                    <span class="ml-3 px-3 py-1 rounded-full text-xs font-medium text-white" style="background-color: <%= area&.cor || '#6B7280' %>;">
+                      <%= disciplinas.count %> <%= disciplinas.count == 1 ? 'disciplina' : 'disciplinas' %>
+                    </span>
+                  </div>
+
+                  <!-- Disciplinas Grid -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <% disciplinas.each do |disciplina| %>
+                      <div class="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-l-4 hover:translate-y-[-4px]" style="border-left-color: <%= disciplina.cor_nome %>;">
+                        <!-- Disciplina Card -->
+                        <div class="p-5">
+                          <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center flex-1">
+                              <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3 shadow-sm" style="background-color: <%= disciplina.cor_nome %>20;">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" style="color: <%= disciplina.cor_nome %>;">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                                </svg>
+                              </div>
+                              <h4 class="font-bold text-gray-800 text-lg leading-tight"><%= disciplina.nome %></h4>
+                            </div>
+                          </div>
+
+                          <div class="space-y-2 mt-4">
+                            <% if disciplina.respond_to?(:professor) && disciplina.professor.present? %>
+                              <div class="flex items-center text-sm text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2 text-gray-400">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                </svg>
+                                <span class="truncate"><%= disciplina.professor %></span>
+                              </div>
+                            <% end %>
+                          </div>
+
+                          <!-- Color indicator at bottom -->
+                          <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                              <div class="w-3 h-3 rounded-full" style="background-color: <%= disciplina.cor_nome %>;"></div>
+                              <span class="text-xs font-medium text-gray-500">Cor da disciplina</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Hover effect overlay -->
+                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style="background: linear-gradient(135deg, <%= disciplina.cor_nome %>08 0%, transparent 100%);"></div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="p-8">
+              <div class="bg-gray-50 rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Nenhuma disciplina associada</h3>
+                <p class="text-gray-500 mb-6">Esta turma ainda não possui disciplinas cadastradas.</p>
+                <%= link_to escola_turma_disciplinas_path(@escola, @turma), class: "btn bg-purple-500 hover:bg-purple-600 text-white" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Adicionar Disciplinas
+                <% end %>
+              </div>
+            </div>
+          <% end %>
 
           <!-- Action Footer -->
           <div class="flex justify-between p-8 bg-gradient-to-b from-white to-gray-50 rounded-b-xl border-t border-gray-100">
