@@ -68,6 +68,10 @@ class EscolasController < ApplicationController
     @alunos = @escola.alunos.includes(:turma)
     @professores = @escola.professors.includes(:disciplinas).order(:nome)
     @disciplinas = @escola.disciplinas
+    @frequencias = Frequencia.da_escola(@escola.id)
+                        .includes(:turma, :disciplina, :professor)
+                        .order(data_aula: :desc)
+                        .limit(10)
   end
 
   # --------------------------

@@ -160,7 +160,7 @@
               <% 
                 frequencia_dia = @frequencias.find { |f| f.data_aula == data }
                 eh_hoje = data == Date.current
-                eh_passado = data < Date.current
+                eh_passado = data <= Date.current
               %>
               
               <div class="relative aspect-square">
@@ -172,9 +172,9 @@
                           data-data="<%= frequencia_dia.data_aula.strftime('%d de %B de %Y') %>"
                           data-disciplina="<%= frequencia_dia.disciplina.nome %>"
                           data-total="<%= @turma.alunos.count %>"
-                          data-presentes="<%= frequencia_dia.frequencia_alunos.where(presente: true).count %>"
-                          data-faltas="<%= frequencia_dia.frequencia_alunos.where(presente: false, justificado: false).count %>"
-                          data-justificadas="<%= frequencia_dia.frequencia_alunos.where(justificado: true).count %>"
+                          data-presentes="<%= frequencia_dia.total_presentes %>"
+                          data-faltas="<%= frequencia_dia.total_faltas %>"
+                          data-justificadas="<%= frequencia_dia.total_justificadas %>"
                           data-conteudo="<%= frequencia_dia.conteudo_trabalhado %>"
                           data-observacoes="<%= frequencia_dia.observacoes %>"
                           data-edit-url="<%= edit_professor_turma_frequencia_path(@turma, frequencia_dia) %>"
@@ -291,35 +291,73 @@
           <!-- Formulário de nova frequência -->
           <div id="painel-nova-frequencia" class="hidden">
             <div class="p-6">
-              <div class="mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Nova Frequência</h3>
-                <p class="text-sm text-gray-600 mt-1" id="nova-freq-data"></p>
-              </div>
-
-              <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Selecione a disciplina para registrar a frequência:
-                </label>
+              <!-- Cabeçalho com ícone -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-5 mb-6 border border-blue-100">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">Nova Frequência</h3>
+                    <p class="text-sm text-gray-600">Registrar presença</p>
+                  </div>
+                </div>
                 
-                <div class="space-y-2" id="disciplinas-list">
-                  <% current_professor.disciplinas.each do |disciplina| %>
-                    <a href="<%= new_professor_turma_frequencia_path(@turma, data_aula: '', disciplina_id: disciplina.id) %>" 
-                       class="nova-freq-disciplina-link block p-3 bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-300 rounded-lg transition-all"
-                       data-disciplina-id="<%= disciplina.id %>">
-                      <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        <span class="font-medium text-gray-900"><%= disciplina.nome %></span>
-                      </div>
-                    </a>
-                  <% end %>
+                <!-- Data selecionada -->
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Data selecionada</p>
+                  <p class="text-xl font-bold text-gray-800" id="nova-freq-data"></p>
                 </div>
               </div>
 
-              <button type="button" id="btn-cancelar-nova" class="w-full px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors text-sm">
-                Cancelar
-              </button>
+              <!-- Informações adicionais -->
+              <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <div class="flex gap-3">
+                  <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-amber-800">
+                      Certifique-se de estar no local correto antes de registrar sua frequência.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botões de ação -->
+              <div class="flex flex-col gap-3">
+                <%= link_to "#",
+                id: "btn-registrar-frequencia",
+                class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                        bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
+                        shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40
+                        hover:from-green-700 hover:to-green-800
+                        transform hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Registrar frequências</span>
+                <% end %>
+                
+                <button
+                  type="button"
+                  id="btn-cancelar-nova"
+                  class="cursor-pointer flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                          bg-white text-gray-700 font-semibold border-2 border-gray-200
+                          hover:bg-gray-50 hover:border-gray-300
+                          transform hover:scale-[1.02] active:scale-[0.98]
+                          transition-all duration-200">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <span>Cancelar</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -387,30 +425,73 @@
 
           <!-- Formulário nova frequência mobile -->
           <div id="mobile-nova-frequencia" class="hidden">
-            <p class="text-sm text-gray-600 mb-4" id="mobile-nova-freq-data"></p>
-            
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Selecione a disciplina:
-            </label>
-            
-            <div class="space-y-2 mb-4" id="mobile-disciplinas-list">
-              <% current_professor.disciplinas.each do |disciplina| %>
-                <a href="<%= new_professor_turma_frequencia_path(@turma, data_aula: '', disciplina_id: disciplina.id) %>" 
-                   class="mobile-nova-freq-link block p-3 bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-300 rounded-lg transition-all"
-                   data-disciplina-id="<%= disciplina.id %>">
-                  <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    <span class="font-medium text-gray-900"><%= disciplina.nome %></span>
-                  </div>
-                </a>
-              <% end %>
+            <!-- Cabeçalho com ícone -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6 border border-blue-100">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-800">Nova Frequência</h3>
+                  <p class="text-sm text-gray-600">Registrar presença</p>
+                </div>
+              </div>
+              
+              <!-- Data selecionada -->
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <p class="text-sm text-gray-500 mb-1">Data selecionada</p>
+                <p class="text-2xl font-bold text-gray-800" id="mobile-nova-freq-data"></p>
+              </div>
             </div>
 
-            <button type="button" id="mobile-btn-cancelar-nova" class="w-full px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors text-sm">
-              Cancelar
-            </button>
+            <!-- Informações adicionais (opcional) -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <div class="flex gap-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-amber-800">
+                    Certifique-se de estar no local correto antes de registrar sua frequência.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <%= link_to "#",
+              id: "btn-registrar-frequencia",
+              class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                      bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
+                      shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40
+                      hover:from-green-700 hover:to-green-800
+                      transform hover:scale-[1.02] active:scale-[0.98]
+                      transition-all duration-200 cursor-pointer" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Registrar frequências</span>
+              <% end %>
+              
+              <button
+                type="button"
+                id="btn-cancelar-nova"
+                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                        bg-white text-gray-700 font-semibold border-2 border-gray-200
+                        hover:bg-gray-50 hover:border-gray-300
+                        transform hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>Cancelar</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

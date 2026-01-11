@@ -1,0 +1,189 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Gerenciar Frequências</h1>
+      <p class="text-gray-600">Selecione uma escola para visualizar e gerenciar as frequências</p>
+    </div>
+
+    <!-- Grid de Cards de Escolas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @escolas.each do |escola| %>
+        <% 
+          # Buscar frequências da escola
+          frequencias_escola = Frequencia.joins(:turma)
+                                         .where(turmas: { escola_id: escola.id })
+                                         .order(data_aula: :desc)
+          
+          total_frequencias = frequencias_escola.count
+          frequencias_recentes = frequencias_escola.limit(3)
+          
+          # Estatísticas
+          frequencias_hoje = frequencias_escola.where(data_aula: Date.today).count
+          frequencias_mes = frequencias_escola.where('data_aula >= ?', Date.today.beginning_of_month).count
+        %>
+        
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <!-- Header do Card -->
+          <div class="p-6 border-b border-gray-200">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 text-lg mb-1"><%= escola.nome %></h3>
+                <span class="inline-block px-3 py-1 text-xs rounded-full <%= escola.tipo == 'publica' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                  <%= escola.tipo_humanizado %>
+                </span>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 ml-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Estatísticas Rápidas -->
+            <div class="grid grid-cols-2 gap-3 mt-4">
+              <div class="bg-blue-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-blue-600"><%= frequencias_hoje %></div>
+                <div class="text-xs text-gray-600">Hoje</div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-green-600"><%= frequencias_mes %></div>
+                <div class="text-xs text-gray-600">Este mês</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Frequências Recentes -->
+          <div class="p-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Frequências Recentes:
+            </h4>
+            
+            <% if frequencias_recentes.any? %>
+              <div class="space-y-2">
+                <% frequencias_recentes.each do |frequencia| %>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-gray-800 text-sm truncate">
+                        <%= frequencia.turma.nome %>
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                        <span class="flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                          </svg>
+                          <%= frequencia.data_aula.strftime("%d/%m/%Y") %>
+                        </span>
+                        <% if frequencia.disciplina %>
+                          <span class="truncate">• <%= frequencia.disciplina.nome %></span>
+                        <% end %>
+                      </div>
+                      <div class="text-xs text-gray-400 mt-1">
+                        <span class="text-green-600 font-medium"><%= frequencia.total_presentes %></span> presentes • 
+                        <span class="text-red-600 font-medium"><%= frequencia.total_faltas %></span> faltas
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Card Total de Frequências -->
+                <div class="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-200 mt-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-800">Total de Registros</div>
+                        <div class="text-xs text-gray-600">Todas as frequências</div>
+                      </div>
+                    </div>
+                    <div class="text-2xl font-bold text-green-600">
+                      <%= total_frequencias %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botão Ver Todas as Frequências -->
+                <% if total_frequencias > 3 %>
+                  <%= link_to escola_frequencias_path(escola), class: "block mt-2" do %>
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 group">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div class="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                              Ver todas as frequências
+                            </div>
+                            <div class="text-xs text-gray-600">Mais <%= total_frequencias - 3 %> registros</div>
+                          </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-8">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-300 mx-auto mb-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                </svg>
+                <p class="text-gray-500 text-sm mb-3">Nenhuma frequência registrada</p>
+                <p class="text-xs text-gray-400">Comece registrando frequências para esta escola</p>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Footer do Card -->
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+            <%= link_to escola_frequencias_path(escola), class: "text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-center gap-1 group" do %>
+              <span>Gerenciar frequências desta escola</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 group-hover:translate-x-1 transition-transform">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Mensagem quando não há escolas -->
+    <% if @escolas.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhuma escola cadastrada</h3>
+        <p class="text-gray-600 mb-6">Comece criando sua primeira escola no sistema</p>
+        <%= link_to new_escola_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Criar Primeira Escola</span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Botão de Voltar -->
+    <div class="mt-8 text-center">
+      <%= link_to dashboard_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        <span>Voltar ao Dashboard</span>
+      <% end %>
+    </div>
+  </div>
+</div>

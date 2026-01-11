@@ -1,5 +1,4 @@
 <%= content_for :page_title, @titulo_pagina %>
-
 <div class="bg-gradient-to-br from-indigo-50 via-gray-50 to-gray-100 min-h-screen p-4 sm:p-8">
   <div class="w-full max-w-7xl mx-auto">
     <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-indigo-100">
@@ -10,15 +9,21 @@
           <svg class="w-8 h-8 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           Minha Frequência
         </h1>
-        <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
-          Turma Atual: 
-          <%= if @turma_atual
-              "#{@turma_atual.serie} ° #{@turma_atual.nome}"
-            else
-              'Nenhuma'
-            end
-          %>
-        </span>
+        <div class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
+          <div>
+            <span class="text-gray-500">Série:</span>
+            <span>
+              <%= @turma_atual ? "#{@turma_atual.serie}°" : 'Nenhuma' %>
+            </span>
+          </div>
+
+          <div>
+            <span class="text-gray-500">Turma:</span>
+            <span>
+              <%= @turma_atual ? @turma_atual.nome : 'Nenhuma' %>
+            </span>
+          </div>
+        </div>
       </div>
 
       <%# --- Lógica para Ausência de Dados vs. Tabela --- %>

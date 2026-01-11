@@ -8,20 +8,16 @@ class Professor::DisciplinasController < Professor::BaseController
   # GET /professor/turmas/:turma_id/disciplinas
   def index
     if params[:turma_id].present?
-      # 1. Tenta definir @turma. Se falhar, redireciona.
       set_turma 
       
-      # 2. Define @disciplinas como a INTERSEÇÃO (Turma + Professor)
       disciplina_ids_do_professor = current_professor.disciplinas.pluck(:id)
       @disciplinas = @turma.disciplinas
                            .where(id: disciplina_ids_do_professor)
                            .order(:nome)
       
-      # Adicionei um indicador para a view saber que é um contexto de Turma
       @contexto_turma = true 
     else
-      # Contexto Geral: /professor/disciplinas (Sidebar)
-      @turma = nil # Garantimos que @turma é nil (opcional, mas bom para clareza)
+      @turma = nil 
       @disciplinas = current_professor.disciplinas.order(:nome)
       @contexto_turma = false
     end

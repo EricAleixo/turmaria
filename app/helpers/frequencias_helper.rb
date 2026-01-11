@@ -1,5 +1,6 @@
 module FrequenciasHelper
   def frequencias_section_path?
-    controller_path.include?("frequencias")
+    puts "NOME AQUI: ", controller_name
+    controller_path.include?("frequencias") || controller_path.include?("frequencia")
   end
 end

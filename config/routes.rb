@@ -87,6 +87,7 @@ Rails.application.routes.draw do
     get "/escolas/disciplinas", to: "disciplinas#selecionar_escola", as: :selecionar_escola_disciplinas
     get "/escolas/professores", to: "professors#selecionar_escola", as: :selecionar_escola_professores
     get "/escolas/conteudos", to: "conteudos#selecionar_escola", as: :selecionar_escola_conteudos
+    get "/escolas/frequencias", to: "admin_frequencia#selecionar_escola", as: :selecionar_escola_frequencias
 
     #Rota para minhas escolas(ADMINISTRADOR)
     get "/minhas_escolas", to: "administradores#minhas_escolas", as: :minhas_escolas_admin

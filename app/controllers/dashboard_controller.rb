@@ -45,7 +45,7 @@ class DashboardController < ApplicationController
   end
   
   def minha_frequencia
-  load_aluno_data_for_pages
+    load_aluno_data_for_pages
   return if performed? 
   
   # 1. Carrega o HISTÓRICO (Consulta Limpa, sem o GROUP BY que falhava)
@@ -67,13 +67,15 @@ class DashboardController < ApplicationController
   frequencia_agrupada = FrequenciaAluno
     .joins(frequencia: :disciplina)
     .where(aluno_id: aluno_id)
-    .group('disciplinas.nome', 'disciplinas.id')
+    .group('disciplinas.id', 'disciplinas.nome', 'disciplinas.cor_nome')
     .select(
-      'disciplinas.id AS disciplina_id', # Usamos o ID para buscar a cor
-      'disciplinas.cor_nome AS nome',
+      'disciplinas.id AS disciplina_id',
+      'disciplinas.nome AS nome',
+      'disciplinas.cor_nome AS cor',
       'COUNT(frequencia_alunos.id) AS total_aulas',
       "SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END) AS total_presencas"
     )
+
 
   # 2. Calcular o percentual e formatar para a View (melhoramos a busca por cor)
   @frequencia_por_disciplina = frequencia_agrupada.map do |item|
@@ -104,7 +106,7 @@ class DashboardController < ApplicationController
   
   @titulo_pagina = "Minha Frequência | #{@aluno.nome}"
   render 'aluno/minha_frequencia'
-end
+  end
 
   def minhas_atividades
     load_aluno_data_for_pages
@@ -175,7 +177,6 @@ end
 
     # Consulta Validada e Confirmada pelas suas Associações
     @professores_da_turma = @turma_atual.professores.includes(disciplinas: :turmas)
-    puts "Disciplinas: ", @professores_da_turma[0].disciplinas[0].nome
   end
 
 
@@ -198,10 +199,6 @@ end
   end
 
   
-
-  # ===================================================================
-  # 🛑 MÉTODO DO ALUNO CORRIGIDO (Substitui o mockado) 🛑
-  # ===================================================================
   def load_aluno_dashboard_data
   # 1. Garante que @aluno é o objeto e carrega associações
   @aluno = Aluno.includes(turma: [:ano_letivo]) 

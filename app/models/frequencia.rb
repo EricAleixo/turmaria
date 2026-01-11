@@ -14,6 +14,9 @@ class Frequencia < ApplicationRecord
 
   scope :por_data, -> { order(data_aula: :desc) }
   scope :por_turma, ->(turma_id) { where(turma_id: turma_id) }
+  scope :da_escola, -> (escola_id) { 
+    joins(:turma).where(turmas: { escola_id: escola_id })
+   }
 
   def total_alunos
     frequencia_alunos.count
