@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_30_153742) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_11_144452) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -135,6 +135,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_30_153742) do
     t.string "cor", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "escola_id", null: false
+    t.index ["escola_id"], name: "index_area_disciplinas_on_escola_id"
   end
 
   create_table "avaliacao_bimestrals", force: :cascade do |t|
@@ -438,6 +440,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_30_153742) do
   add_foreign_key "alunos", "escolas"
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
+  add_foreign_key "area_disciplinas", "escolas"
   add_foreign_key "avaliacoes_bimestrais", "alunos"
   add_foreign_key "avaliacoes_bimestrais", "disciplinas"
   add_foreign_key "avaliacoes_bimestrais", "turmas"

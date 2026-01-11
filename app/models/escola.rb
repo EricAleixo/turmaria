@@ -8,6 +8,7 @@ class Escola < ApplicationRecord
   belongs_to :admin, optional: true
   has_many :materias
   has_many :disciplinas
+  has_many :area_disciplinas, dependent: :destroy
   has_many :professors
   has_many :conteudos
 

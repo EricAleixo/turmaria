@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background-color: #f3f4f6;
+      padding: 20px;
+    }
+    
+    .email-wrapper {
+      max-width: 650px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .brand-name {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: -0.5px;
+    }
+    
+    .header-subtitle {
+      font-size: 16px;
+      opacity: 0.95;
+      font-weight: 300;
+    }
+    
+    .content {
+      padding: 30px 25px;
+    }
+    
+    .greeting {
+      font-size: 18px;
+      color: #1f2937;
+      margin-bottom: 20px;
+    }
+    
+    .intro-text {
+      color: #4b5563;
+      margin-bottom: 25px;
+      line-height: 1.7;
+    }
+    
+    .info-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border-left: 4px solid #10b981;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .info-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #047857;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: #065f46;
+      min-width: 120px;
+    }
+    
+    .info-value {
+      color: #1f2937;
+    }
+    
+    .grades-section {
+      margin-top: 30px;
+      border-top: 2px solid #e5e7eb;
+      padding-top: 25px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #047857;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .grades-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .grades-table thead {
+      background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+      color: white;
+    }
+    
+    .grades-table th {
+      padding: 12px 8px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .grades-table th.center {
+      text-align: center;
+    }
+    
+    .grades-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    
+    .grades-table tbody tr:hover {
+      background-color: #f9fafb;
+    }
+    
+    .grades-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .grade-approved {
+      color: #047857;
+      font-weight: 600;
+    }
+    
+    .grade-failed {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .final-result {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 25px;
+    }
+    
+    .final-result.failed {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border-color: #dc2626;
+    }
+    
+    .final-result-label {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .final-result-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .attachment-notice {
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .attachment-icon {
+      width: 24px;
+      height: 24px;
+      color: #3b82f6;
+      flex-shrink: 0;
+    }
+    
+    .attachment-text {
+      font-size: 14px;
+      color: #1e40af;
+    }
+    
+    .footer {
+      background-color: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 25px 20px;
+      text-align: center;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .footer-logo svg {
+      width: 24px;
+      height: 24px;
+      color: #059669;
+    }
+    
+    .footer-brand {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1f2937;
+    }
+    
+    .footer-text {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.8;
+      margin-bottom: 8px;
+    }
+    
+    .footer-school {
+      font-size: 14px;
+      color: #047857;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    
+    @media only screen and (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      .content {
+        padding: 20px 15px;
+      }
+      
+      .info-label {
+        min-width: 100px;
+      }
+      
+      .grades-table {
+        font-size: 12px;
+      }
+      
+      .grades-table th,
+      .grades-table td {
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-container">
+        <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+          <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+        </svg>
+        <span class="brand-name">Turmaria</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="greeting">Prezado(a) Responsável,</div>
+      
+      <p class="intro-text">
+        Informamos que o boletim escolar de <strong><%= @aluno.nome %></strong> referente ao 
+        ano letivo de <strong><%= @ano_letivo.ano %></strong> já está disponível.
+      </p>
+
+      <!-- Student Information Card -->
+      <div class="info-card">
+        <div class="info-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Informações do Aluno
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Nome:</span>
+            <span class="info-value"><%= @aluno.nome.upcase %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Matrícula:</span>
+            <span class="info-value"><%= @aluno.matricula %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Escola:</span>
+            <span class="info-value"><%= @aluno.escola.nome.upcase %></span>
+          </div>
+          <% if @turma.present? %>
+          <div class="info-item">
+            <span class="info-label">Série/Turma:</span>
+            <span class="info-value"><%= @turma.serie %>º Ano - <%= @turma.nome %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Turno:</span>
+            <span class="info-value"><%= @turma.turno.capitalize %></span>
+          </div>
+          <% end %>
+          <div class="info-item">
+            <span class="info-label">Ano Letivo:</span>
+            <span class="info-value"><%= @ano_letivo.ano %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grades Section -->
+      <% if @boletim_disciplinas.present? %>
+      <div class="grades-section">
+        <div class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Resumo de Desempenho Acadêmico
+        </div>
+
+        <table class="grades-table">
+          <thead>
+            <tr>
+              <th>Disciplina</th>
+              <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+                <th class="center"><%= i + 1 %>º Bim</th>
+              <% end %>
+              <th class="center">Média Final</th>
+              <th class="center">Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% 
+            reprovado_em_alguma = false
+            @boletim_disciplinas.each do |disciplina, avaliacoes| 
+              notas_bimestrais = {}
+              avaliacoes.each { |av| notas_bimestrais[av.bimestre] = av.nota_bimestre_final }
+              
+              notas_validas = notas_bimestrais.values.compact
+              media_simples = notas_validas.any? ? (notas_validas.sum.to_f / notas_validas.size).round(2) : nil
+              
+              media_final_ano = media_simples&.round(1)
+              
+              freq_data = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+              total_faltas = freq_data[:total_faltas]
+              frequencia_percentual = freq_data[:total_aulas] > 0 ? ((freq_data[:total_aulas] - total_faltas).to_f / freq_data[:total_aulas]) * 100 : nil
+              
+              # Determinar situação (aprovado >= 6.0 e frequência >= 75%)
+              aprovado = media_final_ano.present? && media_final_ano >= 6.0 && (frequencia_percentual.nil? || frequencia_percentual >= 75)
+              situacao = aprovado ? 'Aprovado' : 'Reprovado'
+              reprovado_em_alguma = true unless aprovado
+            %>
+            <tr>
+              <td><strong><%= disciplina.nome %></strong></td>
+              <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+                <% nota = notas_bimestrais[i + 1] %>
+                <td class="text-center">
+                  <% if nota.present? %>
+                    <span class="<%= nota >= 6.0 ? 'grade-approved' : 'grade-failed' %>">
+                      <%= '%.1f' % nota %>
+                    </span>
+                  <% else %>
+                    <span style="color: #9ca3af;">-</span>
+                  <% end %>
+                </td>
+              <% end %>
+              <td class="text-center">
+                <% if media_final_ano.present? %>
+                  <strong class="<%= media_final_ano >= 6.0 ? 'grade-approved' : 'grade-failed' %>">
+                    <%= '%.1f' % media_final_ano %>
+                  </strong>
+                <% else %>
+                  <span style="color: #9ca3af;">-</span>
+                <% end %>
+              </td>
+              <td class="text-center">
+                <span class="<%= aprovado ? 'grade-approved' : 'grade-failed' %>">
+                  <%= situacao %>
+                </span>
+              </td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <!-- Final Result -->
+        <div class="final-result <%= reprovado_em_alguma ? 'failed' : '' %>">
+          <div class="final-result-label">Resultado Final do Ano Letivo</div>
+          <div class="final-result-value" style="color: <%= reprovado_em_alguma ? '#dc2626' : '#047857' %>">
+            <%= reprovado_em_alguma ? 'REPROVADO' : 'APROVADO' %>
+          </div>
+        </div>
+      </div>
+      <% end %>
+
+      <!-- Attachment Notice -->
+      <div class="attachment-notice">
+        <svg class="attachment-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+        </svg>
+        <div class="attachment-text">
+          <strong>Boletim Completo em Anexo:</strong> O documento em PDF contém todas as informações detalhadas sobre o desempenho acadêmico, incluindo frequência e observações adicionais.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+          <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+        </svg>
+        <span class="footer-brand">Turmaria</span>
+      </div>
+      <p class="footer-text">
+        Este é um e-mail automático do sistema Turmaria.<br>
+        Por favor, não responda esta mensagem.
+      </p>
+      <p class="footer-text">
+        Em caso de dúvidas, entre em contato com a secretaria da escola.
+      </p>
+      <p class="footer-school"><%= @aluno.escola.nome.upcase %></p>
+      <p class="footer-text" style="margin-top: 15px; font-size: 12px;">
+        © <%= Time.current.year %> Turmaria. Todos os direitos reservados.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -19,8 +19,6 @@ class DisciplinasController < ApplicationController
     end
   end
 
-
-
   def selecionar_escola 
     @escolas = current_user.escolas
   end
@@ -29,8 +27,6 @@ class DisciplinasController < ApplicationController
   # BUSCAR ESCOLAS (NOVA ACTION)
   # ---------------------------
   def buscar_escolas
-    # SuperAdmin pode buscar qualquer escola
-    # Admin só pode buscar suas próprias escolas
     authorize Disciplina, :buscar_escolas?
     
     escolas = if current_user.is_a?(SuperAdmin)
@@ -41,7 +37,6 @@ class DisciplinasController < ApplicationController
       Escola.none
     end
 
-    # Filtros opcionais
     if params[:escola_busca].present?
       escolas = escolas.where("nome ILIKE ?", "%#{params[:escola_busca]}%")
     end
@@ -73,15 +68,12 @@ class DisciplinasController < ApplicationController
   # ---------------------------
   def new
     @escola = Escola.find(params[:escola_id])
-
     @disciplina = @escola.disciplinas.build
     authorize @disciplina
 
-    @disciplinas_areas = AreaDisciplina.all.order(:nome)
+    @area_disciplinas = @escola.area_disciplinas.order(:nome)
     load_professores
   end
-
-
 
   # ---------------------------
   # EDIT
@@ -89,45 +81,55 @@ class DisciplinasController < ApplicationController
   def edit
     authorize @disciplina
 
-    @disciplinas_areas = AreaDisciplina.all.order(:nome)
+    @escola = @disciplina.escola
+    @area_disciplinas = @escola.area_disciplinas.order(:nome)
     @escolas = Escola.all if current_user.is_a?(SuperAdmin)
   end
 
   # ---------------------------
   # CREATE
   # ---------------------------
-    def create
-      @escola = Escola.find(params[:escola_id])
+  def create
+    @escola = Escola.find(params[:escola_id])
+    
+    # Processa a área antes de criar a disciplina
+    area_disciplina = processar_area_disciplina(@escola)
+    
+    @disciplina = @escola.disciplinas.build(
+      disciplina_params.except(:professor_ids, :area_nome_temp, :area_cor_temp)
+    )
+    
+    @disciplina.area_disciplina = area_disciplina if area_disciplina
+    
+    authorize @disciplina
+    assign_professores
 
-      @disciplina = @escola.disciplinas.build(
-        disciplina_params.except(:professor_ids)
-      )
-      authorize @disciplina
-
-      assign_professores
-
-      if @disciplina.save
-        redirect_to escola_disciplinas_path(@escola),
-                    notice: "Disciplina criada com sucesso!"
-      else
-        @disciplinas_areas = AreaDisciplina.all.order(:nome)
-        load_professores
-        render :new, status: :unprocessable_entity
-      end
+    if @disciplina.save
+      redirect_to escola_disciplinas_path(@escola),
+                  notice: "Disciplina criada com sucesso!"
+    else
+      @area_disciplinas = @escola.area_disciplinas.order(:nome)
+      load_professores
+      render :new, status: :unprocessable_entity
     end
-
+  end
 
   # ---------------------------
   # UPDATE
   # ---------------------------
   def update
     authorize @disciplina
+    
+    # Processa a área antes de atualizar a disciplina
+    area_disciplina = processar_area_disciplina(@disciplina.escola)
 
-    if @disciplina.update(disciplina_params.except(:professor_ids))
+    if @disciplina.update(disciplina_params.except(:professor_ids, :area_nome_temp, :area_cor_temp))
+      @disciplina.update(area_disciplina: area_disciplina) if area_disciplina
       assign_professores
       redirect_to @disciplina, notice: "Disciplina atualizada com sucesso."
     else
-      @disciplinas_areas = AreaDisciplina.all.order(:nome)
+      @escola = @disciplina.escola
+      @area_disciplinas = @escola.area_disciplinas.order(:nome)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -150,6 +152,42 @@ class DisciplinasController < ApplicationController
 
   def set_disciplina
     @disciplina = Disciplina.find(params[:id])
+  end
+
+  def processar_area_disciplina(escola)
+    # Se veio area_disciplina_id, usa ela diretamente (área existente)
+    if disciplina_params[:area_disciplina_id].present?
+      return AreaDisciplina.find_by(id: disciplina_params[:area_disciplina_id], escola: escola)
+    end
+    
+    # Se veio area_nome_temp, cria ou busca a área (nova área)
+    if disciplina_params[:area_nome_temp].present?
+      nome_limpo = disciplina_params[:area_nome_temp].strip
+      cor = disciplina_params[:area_cor_temp].presence || "#6B7280"
+      
+      # Busca área existente na escola (case insensitive)
+      area = escola.area_disciplinas.where("LOWER(nome) = ?", nome_limpo.downcase).first
+      
+      # Se não encontrou, cria nova área
+      unless area
+        area = escola.area_disciplinas.create(
+          nome: nome_limpo,
+          cor: cor
+        )
+        
+        Rails.logger.info "✅ Nova área criada: #{area.nome} (ID: #{area.id})"
+      else
+        # Se encontrou mas a cor é diferente, atualiza
+        if area.cor != cor
+          area.update(cor: cor)
+          Rails.logger.info "🎨 Cor da área atualizada: #{area.nome}"
+        end
+      end
+      
+      return area
+    end
+    
+    nil
   end
 
   def assign_professores
@@ -188,9 +226,9 @@ class DisciplinasController < ApplicationController
       :nome,
       :escola_id,
       :cor_nome,
+      :area_disciplina_id,
       :area_nome_temp,
       :area_cor_temp,
-      :area_disciplina_id,
       professor_ids: []
     )
   end

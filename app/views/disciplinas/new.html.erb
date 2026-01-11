@@ -7,6 +7,7 @@
           <h1 class="text-2xl font-bold text-gray-900">Nova Disciplina</h1>
           <div class="text-sm breadcrumbs mt-1">
             <ul>
+              <li><%= link_to @escola.nome,disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li><%= link_to "Disciplinas",disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li class="text-gray-600">Nova disciplina</li>
             </ul>

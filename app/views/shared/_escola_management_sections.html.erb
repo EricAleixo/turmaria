@@ -763,12 +763,11 @@
 </div>
 <!-- ADICIONE AQUI A TABELA DE FREQUÊNCIAS -->
 <div class="hidden md:block mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
-  <div class="hidden md:block mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
   <div class="flex items-center justify-between border-b border-gray-200 p-6">
     <h3 class="text-2xl font-bold text-gray-800">Frequências da Escola</h3>
 
     <!-- Ações desktop -->
-    <div class="flex w-80 gap-3">
+    <div class="flex justify-end w-80 gap-3">
       <%= link_to "Ver Frequências", escola_frequencias_path(escola), class: "btn w-1/2 border-blue-500 bg-blue-500 text-white hover:border-blue-600 hover:bg-blue-600" %>
     </div>
   </div>
@@ -903,7 +902,7 @@
       </div>
     </div>
   <% end %>
-</div>
+
 </div>
 
 <%= render 'escolas/mobile_cards', disciplinas: @escola.disciplinas, professores: @escola.professors, anos_letivos: @escola.ano_letivos, turmas:@escola.turmas, alunos: @alunos, conteudos: @escola.conteudos, frequencias: @frequencias %>

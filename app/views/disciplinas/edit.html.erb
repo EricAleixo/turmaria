@@ -7,7 +7,8 @@
           <h1 class="text-2xl font-bold text-gray-900">Editar disciplina</h1>
           <div class="text-sm breadcrumbs mt-1">
             <ul>
-              <li><%= link_to "disciplinaes", disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to "disciplinas", disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li><%= link_to @disciplina.nome, disciplina_path(@disciplina), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
               <li class="text-gray-600">Editar</li>
             </ul>

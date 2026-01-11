@@ -149,7 +149,7 @@ class EscolasController < ApplicationController
 
   def escola_params
     params.require(:escola).permit(
-      :nome, :cnpj, :telefone, :email, :site, :tipo,
+      :nome, :cnpj, :telefone, :email, :site, :tipo, :admin_id,
       endereco_attributes: [
         :id, :logradouro, :numero, :complemento, 
         :bairro, :cidade_id, :cep, :_destroy

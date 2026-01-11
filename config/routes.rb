@@ -12,26 +12,31 @@ Rails.application.routes.draw do
   get 'dashboard', to: 'dashboard#index'
 
   constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
-    scope :aluno, as: :aluno do
-      get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
-      get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
-      get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
-
-      get 'atividades', to: 'aluno/contents#atividades', as: :minhas_atividades_e 
-      get 'materiais', to: 'aluno/contents#materiais', as: :meus_materiais
-
-      # Rota para ver o detalhe de um conteúdo
-      resources :conteudos, only: [:show], controller: 'aluno/contents'
-
-      resources :boletins, only: [:index], controller: 'aluno/boletins' do
-        
-        # 2. Show: Exibe o boletim detalhado para o Ano Letivo específico
-        # Helper: aluno_boletim_por_ano_path(ano_letivo)
+  scope :aluno, as: :aluno do
+    get 'dashboard', to: 'aluno_dashboard#index', as: :aluno_dashboard
+    get 'notas', to: 'dashboard#minhas_notas', as: :minhas_notas
+    get 'frequencia', to: 'dashboard#minha_frequencia', as: :minha_frequencia
+    get 'professores', to: 'dashboard#professores_da_turma', as: :meus_professores
+    get 'atividades', to: 'aluno/contents#atividades', as: :minhas_atividades_e 
+    get 'materiais', to: 'aluno/contents#materiais', as: :meus_materiais
+    
+    resources :conteudos, only: [:show], controller: 'aluno/contents'
+    
+    resources :boletins, only: [:index], controller: 'aluno/boletins' do
+      collection do
+        # Show: Exibe o boletim detalhado para o Ano Letivo específico
+        # Helper: aluno_por_ano_boletins_path(ano_letivo_id: X)
         # URL: /aluno/boletins/show_por_ano/:id
-        get 'show_por_ano/:id', on: :collection, to: 'aluno/boletins#show_por_ano', as: :por_ano
+        get 'show_por_ano/:id', to: 'aluno/boletins#show_por_ano', as: :por_ano
+        
+        # Enviar Email: Envia o boletim por email
+        # Helper: enviar_email_aluno_boletins_path(ano_letivo_id: X)
+        # URL: /aluno/boletins/enviar_email/:id
+        post 'enviar_email/:id', to: 'aluno/boletins#enviar_email', as: :enviar_email
       end
     end
   end
+end
   
   # Página inicial (Rota raiz)
   root to: "home#index"

@@ -51,6 +51,54 @@ class Aluno::BoletinsController < ApplicationController
     end
   end
 
+  def enviar_email
+    @aluno = current_aluno
+    @ano_letivo = AnoLetivo.find(params[:id])
+    @turma = @aluno.turma
+    
+    # Validação: verificar se a turma existe
+    unless @turma
+      redirect_back fallback_location: root_path, 
+                    alert: "Turma não encontrada para o ano letivo #{@ano_letivo.ano}"
+      return
+    end
+    
+    # Carregar os mesmos dados que você carrega no show_por_ano
+    avaliacoes = AvaliacaoBimestral
+      .includes(:disciplina)
+      .where(aluno_id: @aluno.id, turma_id: @turma.id)
+      .order('disciplinas.nome', :bimestre)
+    
+    @boletim_disciplinas = avaliacoes.group_by(&:disciplina)
+    @frequencia_por_disciplina = calcular_frequencia_por_disciplina(@turma, @aluno)
+    
+    # Determinar email de destino
+    email_destino = if params[:usar_email_aluno] == 'true'
+      @aluno.email
+    else
+      params[:email_destino]
+    end
+    
+    if email_destino.blank?
+      redirect_back fallback_location: root_path, 
+                    alert: 'Email de destino não informado'
+      return
+    end
+    
+    # Gerar o PDF usando a mesma classe da view
+    pdf = BoletimPdf.new(@aluno, @turma, @ano_letivo, @boletim_disciplinas, @frequencia_por_disciplina, view_context)
+    pdf_content = pdf.render
+    
+    # Enviar o email com o PDF anexado
+    BoletimMailer.enviar_boletim(@aluno, email_destino, @ano_letivo, pdf_content).deliver_later
+    
+    redirect_back fallback_location: root_path,
+                  notice: "Boletim enviado com sucesso para #{email_destino}"
+  rescue StandardError => e
+    redirect_back fallback_location: root_path,
+                  alert: "Erro ao enviar email: #{e.message}"
+  end
+
   private
 
   # Método para calcular Frequência: Total de Aulas e Total de Faltas por Disciplina

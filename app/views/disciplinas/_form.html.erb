@@ -100,7 +100,7 @@
   <!-- Actions -->
   <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
     <div class="flex justify-between">
-      <%= link_to "Cancelar", disciplinas_path, class: "btn btn-ghost" %>
+      <%= link_to "Cancelar", escola_disciplinas_path(@disciplina.escola), class: "btn btn-ghost" %>
       <%= form.submit @disciplina&.persisted? ? "Atualizar disciplina" : "Criar disciplina", class: "btn btn-success text-white" %>
     </div>
   </div>

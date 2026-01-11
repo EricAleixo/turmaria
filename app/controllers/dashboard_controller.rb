@@ -6,7 +6,6 @@ class DashboardController < ApplicationController
   
   def index
     if current_super_admin
-      puts "É ADMIN"
       load_super_admin_dashboard_data
     elsif current_admin
       load_admin_dashboard_data 
