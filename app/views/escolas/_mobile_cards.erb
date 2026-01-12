@@ -75,10 +75,10 @@
             <div>
               <h2 class="card-title text-slate-700"><%= professor.nome %></h2>
               <div class="flex flex-wrap gap-1 mt-1">
-                <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-green-400 text-white border-0 font-bold">
+                <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-green-400 text-white border-0 font-bold whitespace-nowrap">
                   <%= professor.tipo_professor&.titleize || "Tipo não informado" %>
                 </span>
-                <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold">
+                <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold whitespace-nowrap">
                   <%= professor.formacao&.titleize || "Formação não informada" %>
                 </span>
               </div>
@@ -1158,7 +1158,7 @@ else
     <% if frequencias.any? %>
       <% frequencias.each do |frequencia| %>
         <div class="shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg relative bg-gradient-to-br from-white via-green-50 to-green-100 border border-green-200/50">
-          <div class="card-body p-4 relative z-10">
+          <div class="card-body p-4 relative z-10 px-3">
             <!-- Header -->
             <div class="flex justify-between items-start">
               <div class="flex items-center gap-3">
@@ -1178,7 +1178,7 @@ else
                       <%= frequencia.turma.nome %>
                     </span>
                     <% if frequencia.disciplina.present? %>
-                      <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-cyan-400 text-white border-0 font-bold">
+                      <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-cyan-400 text-white border-0 font-bold whitespace-nowrap">
                         <%= frequencia.disciplina.nome %>
                       </span>
                     <% end %>
