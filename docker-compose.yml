@@ -1,7 +1,6 @@
 services:
   web:
     build: .
-    container_name: rails_app
     command: bundle exec rails server -b 0.0.0.0
     ports:
       - "3000:3000"
@@ -17,7 +16,6 @@ services:
 
   db:
     image: postgres:18
-    container_name: banco-postgres
     restart: always
     environment:
       POSTGRES_USER: ipdesenvolvimento
@@ -26,7 +24,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - turmaria_pgdata:/var/lib/postgresql/data
+      - turmaria_pgdata:/var/lib/postgresql
 
 volumes:
   turmaria_pgdata:

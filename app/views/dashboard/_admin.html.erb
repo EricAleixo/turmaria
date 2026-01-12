@@ -60,60 +60,6 @@
           </div>
         </div>
 
-        <!-- Cartões de Estatísticas Secundárias -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <!-- Média de Alunos por Escola -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-teal-600 mb-2"><%= @media_alunos_escola %></div>
-              <div class="text-gray-600 font-medium">Média Alunos/Escola</div>
-            </div>
-          </div>
-          
-          <!-- Média de Turmas por Escola -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @media_turmas_escola %></div>
-              <div class="text-gray-600 font-medium">Média Turmas/Escola</div>
-            </div>
-          </div>
-          
-          <!-- Média de Alunos por Turma -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-pink-600 mb-2"><%= @media_alunos_turma %></div>
-              <div class="text-gray-600 font-medium">Média Alunos/Turma</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Seção de Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <!-- Gráfico de Distribuição de Escolas -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribuição de Escolas</h3>
-            <div class="h-64">
-              <canvas id="escolasChart"></canvas>
-            </div>
-          </div>
-          
-          <!-- Gráfico de Crescimento -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Crescimento Mensal</h3>
-            <div class="h-64">
-              <canvas id="crescimentoChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráfico de Alunos por Escola - Largura Completa -->
-        <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Alunos por Escola</h3>
-          <div class="h-64">
-            <canvas id="alunosPorEscolaChart"></canvas>
-          </div>
-        </div>
-
         <!-- Seções de Gerenciamento -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <!-- Minhas Maiores Escolas -->
