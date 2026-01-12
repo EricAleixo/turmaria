@@ -62,11 +62,8 @@ class Aluno < ApplicationRecord
   before_validation :set_default_email, on: :create
   before_validation :set_default_password, on: :create
   
-  # Remove arquivos antigos do S3 antes de anexar novos
-  before_save :purge_old_foto, if: -> { foto.attached? && foto_attachment_changed?(:foto) }
-  before_save :purge_old_historico, if: -> { historico_academico.attached? && foto_attachment_changed?(:historico_academico) }
-  before_save :purge_old_cpf_documentos, if: -> { cpf_documento.attached? && many_attachments_changed?(:cpf_documento) }
-  before_save :purge_old_comprovantes, if: -> { comprovante_residencia.attached? && many_attachments_changed?(:comprovante_residencia) }
+  # CORRIGIDO: Remove arquivos antigos do S3 apenas quando necessário
+  before_save :purge_old_attachments_if_changed
   
   # Remove todos os arquivos do S3 quando o aluno for excluído
   before_destroy :purge_all_attachments
@@ -74,7 +71,6 @@ class Aluno < ApplicationRecord
   def self.authentication_keys
     [:matricula]
   end
-
 
   def idade
     return nil unless data_nascimento
@@ -171,43 +167,44 @@ class Aluno < ApplicationRecord
     end
   end
 
-  # === Métodos de Limpeza do S3 ===
-
-  # Remove foto antiga do S3 quando uma nova é anexada
-  def purge_old_foto
-    return unless foto.attached?
-    
-    old_foto = foto.attachment
-    old_foto.purge_later if old_foto && attachment_changed_for?(:foto)
-  end
-
-  # Remove histórico acadêmico antigo do S3 quando um novo é anexado
-  def purge_old_historico
-    return unless historico_academico.attached?
-    
-    old_historico = historico_academico.attachment
-    old_historico.purge_later if old_historico && attachment_changed_for?(:historico_academico)
-  end
-
-  # Remove documentos CPF antigos do S3 quando novos são anexados
-  def purge_old_cpf_documentos
-    return unless cpf_documento.attached?
-    
-    # Para has_many_attached, remove todos os anexos antigos
-    cpf_documento.attachments.each do |attachment|
-      # Verifica se não está na lista de novos anexos
-      attachment.purge_later if attachment.persisted? && many_attachments_changed?(:cpf_documento)
+  # === CORRIGIDO: Método único para limpar attachments antigos ===
+  def purge_old_attachments_if_changed
+    # Foto (has_one_attached)
+    if foto.attached? && will_save_change_to_attribute?(:foto)
+      old_blob_id = foto.blob_id
+      if old_blob_id && foto.blob_id != old_blob_id
+        ActiveStorage::Blob.find_by(id: old_blob_id)&.purge_later
+      end
     end
+
+    # Histórico (has_one_attached)
+    if historico_academico.attached? && will_save_change_to_attribute?(:historico_academico)
+      old_blob_id = historico_academico.blob_id
+      if old_blob_id && historico_academico.blob_id != old_blob_id
+        ActiveStorage::Blob.find_by(id: old_blob_id)&.purge_later
+      end
+    end
+
+    # CPF Documentos (has_many_attached)
+    purge_detached_blobs_for(:cpf_documento)
+
+    # Comprovantes (has_many_attached)
+    purge_detached_blobs_for(:comprovante_residencia)
   end
 
-  # Remove comprovantes antigos do S3 quando novos são anexados
-  def purge_old_comprovantes
-    return unless comprovante_residencia.attached?
+  # Remove blobs que não estão mais anexados (para has_many_attached)
+  def purge_detached_blobs_for(attachment_name)
+    return unless send(attachment_name).attached?
+
+    current_blob_ids = send(attachment_name).blobs.pluck(:id)
     
-    # Para has_many_attached, remove todos os anexos antigos
-    comprovante_residencia.attachments.each do |attachment|
-      # Verifica se não está na lista de novos anexos
-      attachment.purge_later if attachment.persisted? && many_attachments_changed?(:comprovante_residencia)
+    # Busca blobs anteriormente anexados
+    old_blob_ids = send(attachment_name).attachments
+                                        .where.not(blob_id: current_blob_ids)
+                                        .pluck(:blob_id)
+
+    old_blob_ids.each do |blob_id|
+      ActiveStorage::Blob.find_by(id: blob_id)&.purge_later
     end
   end
 
@@ -217,33 +214,5 @@ class Aluno < ApplicationRecord
     historico_academico.purge_later if historico_academico.attached?
     cpf_documento.purge_later if cpf_documento.attached?
     comprovante_residencia.purge_later if comprovante_residencia.attached?
-  end
-
-  # Verifica se um attachment único mudou
-  def attachment_changed_for?(attachment_name)
-    send(attachment_name).changed?
-  rescue
-    # Fallback caso o método changed? não esteja disponível
-    true
-  end
-
-  # Verifica se houve mudança no attachment único
-  def foto_attachment_changed?(attachment_name)
-    send(attachment_name).changed?
-  rescue
-    # Se não conseguir verificar, assume que mudou (mais seguro)
-    true
-  end
-
-  # Verifica se houve mudança em attachments múltiplos
-  def many_attachments_changed?(attachment_name)
-    attachments = send(attachment_name)
-    return false unless attachments.attached?
-    
-    # Se há anexos novos (não persistidos), houve mudança
-    attachments.attachments.any? { |a| !a.persisted? }
-  rescue
-    # Fallback: assume que mudou
-    true
   end
 end

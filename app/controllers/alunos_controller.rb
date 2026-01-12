@@ -248,47 +248,53 @@ class AlunosController < ApplicationController
     end
 
     # Parâmetros permitidos (inalterados)
+    # ADICIONE ESTE MÉTODO AO SEU CONTROLLER (substituindo o aluno_params existente)
+
     def aluno_params
-        params.require(:aluno).permit(
-            :escola_id,
-            :turma_id,
-            :cidade_id,
-            :nome,
-            :data_nascimento,
-            :cpf,
-            :rg,
-            :telefone,
-            :email,
-            :sexo,
-            :cor,
-            :tipo_sanguinio,
-            :observacoes_pcd,
-            :responsavel_1,
-            :responsavel_2,
-            :telefone_responsavel_1,
-            :telefone_responsavel_2,
-            :foto_url,
-            :cpf_url,
-            :comprovante_residencia_url,
-            :historico_academico_url,
-            :matricula,
+    params.require(:aluno).permit(
+        :escola_id,
+        :turma_id,
+        :cidade_id,
+        :nome,
+        :data_nascimento,
+        :cpf,
+        :rg,
+        :telefone,
+        :email,
+        :sexo,
+        :cor,
+        :tipo_sanguinio,
+        :observacoes_pcd,
+        :responsavel_1,
+        :responsavel_2,
+        :telefone_responsavel_1,
+        :telefone_responsavel_2,
+        :matricula,
+        :password,
+        :password_confirmation,
+        
+        # ✅ CORRIGIDO: Adicionar os campos de Active Storage
+        :foto,
+        :historico_academico,
+        necessidades_especiais_tipo: [],
+        cpf_documento: [],
+        comprovante_residencia: []
+    ).tap do |whitelisted_params|
+        whitelisted_params[:cidade_id] = nil if whitelisted_params[:cidade_id].blank?
 
-            # ✅ DEVise
-            :password,
-            :password_confirmation,
-
-            necessidades_especiais_tipo: [],
-            cpf_documento: []
-        ).tap do |whitelisted_params|
-            whitelisted_params[:cidade_id] = nil if whitelisted_params[:cidade_id].blank?
-
-            if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-            whitelisted_params[:necessidades_especiais_tipo] =
-                whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
-            end
-
-            whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"] if whitelisted_params[:necessidades_especiais_tipo].blank?
+        if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
+        whitelisted_params[:necessidades_especiais_tipo] =
+            whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
         end
+
+        whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"] if whitelisted_params[:necessidades_especiais_tipo].blank?
+        
+        # ✅ DEBUG: Log dos arquivos recebidos
+        Rails.logger.info "📸 FOTO recebida: #{whitelisted_params[:foto].present? ? whitelisted_params[:foto].original_filename : 'Nenhuma'}"
+        Rails.logger.info "📄 Histórico recebido: #{whitelisted_params[:historico_academico].present? ? 'Sim' : 'Não'}"
+        Rails.logger.info "📋 CPF documentos: #{whitelisted_params[:cpf_documento]&.size || 0} arquivo(s)"
+        Rails.logger.info "🏠 Comprovantes: #{whitelisted_params[:comprovante_residencia]&.size || 0} arquivo(s)"
+    end
     end
 
 end

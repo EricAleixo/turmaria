@@ -1,310 +1,324 @@
-function initializeForm() {
-  const nextStep1Btn = document.getElementById('next-step-1');
-  const nextStep2Btn = document.getElementById('next-step-2');
-  const prevStep2Btn = document.getElementById('prev-step-2');
-  const prevStep3Btn = document.getElementById('prev-step-3');
-  const studentForm = document.getElementById('student-form');
-  const submitBtn = document.getElementById('submit-btn');
-  const errorAlert = document.getElementById('error-alert');
-  const errorList = document.getElementById('error-list');
-  const step1 = document.getElementById('step-1');
-  const step2 = document.getElementById('step-2');
-  const step3 = document.getElementById('step-3');
+// ============================================
+// CORRIGIDO: Upload de Foto com Crop
+// ============================================
 
-  // --- Funções Auxiliares (Mantenha-as como estão) ---
-  function showDaisyAlert(message, type) {
-    const alertContainer = document.getElementById('alert-container');
-    const alertDiv = document.createElement('div');
-    alertDiv.classList.add('alert', `alert-${type}`);
-    alertDiv.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>${message}</span>
-    `;
-    if (alertContainer) {
-      alertContainer.appendChild(alertDiv);
-      setTimeout(() => {
-        alertDiv.remove();
-      }, 5000);
-    }
+let cropper = null;
+let currentDocumentType = null;
+let tempDocumentFiles = [];
+
+// Funções para Modal de Foto
+function openFotoModal() {
+  document.getElementById('foto-modal').showModal();
+}
+
+function closeFotoModal() {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
   }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  document.getElementById('foto-modal').close();
+}
 
-  function showCorrectStep(errors) {
-    if (!errors) return;
-    const stepFields = {
-      'step-1': ['nome', 'data_nascimento', 'cpf', 'rg', 'telefone', 'email'],
-      'step-2': ['responsavel_1', 'telefone_responsavel_1'],
-    };
-    let stepToShow = 'step-1';
-    for (const field in errors) {
-      if (stepFields['step-1'].includes(field)) {
-        stepToShow = 'step-1';
-        break;
-      }
-      if (stepFields['step-2'].includes(field)) {
-        stepToShow = 'step-2';
-        break;
-      }
-    }
-    if (step1) step1.classList.add('hidden');
-    if (step2) step2.classList.add('hidden');
-    if (step3) step3.classList.add('hidden');
-    const targetStep = document.getElementById(stepToShow);
-    if (targetStep) targetStep.classList.remove('hidden');
-    if (errorList) {
-      errorList.innerHTML = '';
-      for (const field in errors) {
-        errors[field].forEach(message => {
-          const li = document.createElement('li');
-          li.textContent = `${field.replace('_', ' ').replace(/aluno/g, 'Aluno')}: ${message}`;
-          errorList.appendChild(li);
-        });
-      }
-    }
-    if (errorAlert) errorAlert.classList.remove('hidden');
+function resetFotoModal() {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('foto-upload-area').classList.remove('hidden');
+  document.getElementById('foto-crop-area').classList.add('hidden');
+  document.getElementById('foto-upload').value = '';
+  document.getElementById('foto-files-list').innerHTML = '';
+}
+
+// CORRIGIDO: Event listener do input de foto
+document.getElementById('foto-upload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  
+  if (!file) return;
+  
+  console.log('📸 Arquivo selecionado:', file.name, file.size, 'bytes');
+  
+  if (!file.type.startsWith('image/')) {
+    showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+    this.value = '';
+    return;
   }
   
-  function handleFiles(files, fileInput) {
-    const filesArray = Array.from(files);
-    const fileType = fileInput.id.replace('-upload', '');
-    let maxFiles;
-    const MAX_FILES_CPF = 2;
-    const MAX_FILES_COMPROVANTE = 2;
-    const MAX_FILES_HISTORICO = 1;
-    const FILE_SIZE_LIMIT_BYTES = 716800; // 700 KB
-
-    if (fileType === 'cpf') maxFiles = MAX_FILES_CPF;
-    else if (fileType === 'comprovante') maxFiles = MAX_FILES_COMPROVANTE;
-    else if (fileType === 'historico') maxFiles = MAX_FILES_HISTORICO;
-
-    const uploadedFilesList = document.getElementById(fileInput.id.replace('-upload', '-files-list'));
-    const currentFilesCount = uploadedFilesList.childElementCount;
-    const dataTransfer = new DataTransfer();
-
-    if (currentFilesCount + filesArray.length > maxFiles) {
-      showDaisyAlert(`Limite de ${maxFiles} arquivos para este tipo de documento atingido.`, 'warning');
-      return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('A imagem deve ter no máximo 5MB', 'error');
+    this.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = document.getElementById('foto-preview');
+    img.src = event.target.result;
+    
+    document.getElementById('foto-upload-area').classList.add('hidden');
+    document.getElementById('foto-crop-area').classList.remove('hidden');
+    
+    if (cropper) {
+      cropper.destroy();
     }
-
-    const existingFiles = Array.from(fileInput.files);
-    existingFiles.forEach(f => dataTransfer.items.add(f));
-
-    filesArray.forEach(file => {
-      if (file.size > FILE_SIZE_LIMIT_BYTES) {
-        showDaisyAlert(`O arquivo "${file.name}" excede o tamanho máximo de 700 KB.`, 'error');
-        return;
-      }
-      dataTransfer.items.add(file);
-      addFileToList(file, uploadedFilesList, fileInput);
-    });
-
-    fileInput.files = dataTransfer.files;
-
-    if (filesArray.length > 0) {
-      showDaisyAlert(`Arquivo(s) selecionado(s) com sucesso!`, 'success');
-    }
-  }
-
-  function addFileToList(file, listElement, fileInput) {
-    const listItem = document.createElement('li');
-    listItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'border-b', 'last:border-b-0');
-    const fileInfo = document.createElement('div');
-    fileInfo.classList.add('flex', 'items-center', 'gap-4');
-    const fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-500"><path fill-rule="evenodd" d="M19.5 7.5a3 3 0 00-3-3h-8.25a3 3 0 00-3 3v9a3 3 0 003 3h8.25a3 3 0 003-3v-9zM15 11.25a.75.75 0 00-1.5 0v3.75a.75.75 0 001.5 0v-3.75z" clip-rule="evenodd" /></svg>`;
-    fileInfo.innerHTML = `
-      <div class="flex items-center gap-2">
-        ${fileIcon}
-        <div>
-          <p class="text-sm font-semibold">${file.name}</p>
-          <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
-        </div>
-      </div>
-    `;
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.classList.add('text-red-500', 'hover:text-red-700', 'transition', 'p-2', 'rounded-full', 'hover:bg-gray-200');
-    deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>`;
-    deleteButton.onclick = () => {
-      const dataTransfer = new DataTransfer();
-      const files = Array.from(fileInput.files).filter(f => f !== file);
-      files.forEach(f => dataTransfer.items.add(f));
-      fileInput.files = dataTransfer.files;
-      listItem.remove();
-      showDaisyAlert('Arquivo removido.', 'info');
-    };
-    listItem.appendChild(fileInfo);
-    listItem.appendChild(deleteButton);
-    listElement.appendChild(listItem);
-  }
-
-  // --- LÓGICA DO BOTÃO ---
-  if (nextStep1Btn) {
-    nextStep1Btn.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (step1) step1.classList.add('hidden');
-      if (step2) step2.classList.remove('hidden');
-    });
-  }
-
-  if (nextStep2Btn) {
-    nextStep2Btn.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (step2) step2.classList.add('hidden');
-      if (step3) step3.classList.remove('hidden');
-    });
-  }
-
-  if (prevStep2Btn) {
-    prevStep2Btn.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (step2) step2.classList.add('hidden');
-      if (step1) step1.classList.remove('hidden');
-    });
-  }
-
-  if (prevStep3Btn) {
-    prevStep3Btn.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (step3) step3.classList.add('hidden');
-      if (step2) step2.classList.remove('hidden');
-    });
-  }
-
-  // --- FIM DA LÓGICA DO BOTÃO ---
-
-  // Lógica de submissão do formulário
-  if (studentForm) {
-    studentForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (errorAlert) errorAlert.classList.add('hidden');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="loading loading-spinner"></span> Enviando...`;
-      }
-
-      const formData = new FormData(studentForm);
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-      try {
-        const response = await fetch(studentForm.action, {
-          method: studentForm.method,
-          body: formData,
-          headers: {
-            'X-CSRF-Token': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-          },
-        });
-        if (!response.ok) {
-          const result = await response.json();
-          showCorrectStep(result.errors);
-        } else {
-          const successMessage = document.getElementById('success-message');
-          const successModal = document.getElementById('success-modal');
-          if (successMessage) successMessage.textContent = "Aluno salvo com sucesso!";
-          if (successModal) successModal.showModal();
-          studentForm.reset();
-          const step3 = document.getElementById('step-3');
-          const step1 = document.getElementById('step-1');
-          if (step3) step3.classList.add('hidden');
-          if (step1) step1.classList.remove('hidden');
-        }
-      } catch (error) {
-        showDaisyAlert('Ocorreu um erro ao enviar o formulário. Tente novamente.', 'error');
-        console.error('Erro:', error);
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `Criar Aluno`;
-        }
-      }
-    });
-  }
-
-  // Lógica para os campos de Necessidades Especiais (PCD)
-  const outroCheckbox = document.getElementById('outro-checkbox');
-  const outraNecessidadeField = document.getElementById('outra-necessidade-field');
-  const checkboxes = document.querySelectorAll('.necessidade-checkbox');
-  const nenhumaCheckbox = document.querySelector('input[value="Nenhuma"]');
-
-  const toggleObservacoesField = () => {
-    if (outroCheckbox && outraNecessidadeField) {
-      outraNecessidadeField.classList.toggle('hidden', !outroCheckbox.checked);
-    }
-  };
-
-  if (nenhumaCheckbox) {
-    nenhumaCheckbox.addEventListener('change', () => {
-      if (nenhumaCheckbox.checked) {
-        checkboxes.forEach(otherCb => {
-          if (otherCb.value !== 'Nenhuma') {
-            otherCb.checked = false;
+    
+    img.onload = function() {
+      cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 2,
+        autoCropArea: 0.65,
+        responsive: true,
+        guides: false,
+        center: true,
+        highlight: true,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+        dragMode: 'move',
+        background: true,
+        modal: true,
+        minCropBoxWidth: 200,
+        minCropBoxHeight: 200,
+        ready: function() {
+          const cropBox = document.querySelector('.cropper-crop-box');
+          const face = document.querySelector('.cropper-face');
+          if (cropBox && face) {
+            cropBox.style.borderRadius = '50%';
+            face.style.borderRadius = '50%';
           }
-        });
-      }
-      toggleObservacoesField();
-    });
-  }
-
-  if (outroCheckbox) {
-    outroCheckbox.addEventListener('change', () => {
-      if (outroCheckbox.checked && nenhumaCheckbox) {
-        nenhumaCheckbox.checked = false;
-      }
-      toggleObservacoesField();
-    });
-  }
-
-  checkboxes.forEach(cb => {
-    if (cb.value !== 'Nenhuma' && cb.value !== 'Outro(a)') {
-      cb.addEventListener('change', () => {
-        if (cb.checked && nenhumaCheckbox) {
-          nenhumaCheckbox.checked = false;
+        },
+        crop: function() {
+          const face = document.querySelector('.cropper-face');
+          if (face) {
+            face.style.borderRadius = '50%';
+          }
         }
       });
+    };
+  };
+  reader.readAsDataURL(file);
+});
+
+// CORRIGIDO: Confirmação do crop
+function confirmFotoCrop() {
+  if (!cropper) {
+    console.error('❌ Cropper não inicializado');
+    return;
+  }
+  
+  console.log('🔍 Iniciando crop da foto...');
+  
+  const canvas = cropper.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  });
+  
+  if (!canvas) {
+    console.error('❌ Erro ao gerar canvas');
+    showToast('Erro ao processar imagem', 'error');
+    return;
+  }
+  
+  // Criar canvas circular
+  const circularCanvas = document.createElement('canvas');
+  const ctx = circularCanvas.getContext('2d');
+  circularCanvas.width = 400;
+  circularCanvas.height = 400;
+  
+  ctx.beginPath();
+  ctx.arc(200, 200, 200, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(canvas, 0, 0, 400, 400);
+  
+  circularCanvas.toBlob(function(blob) {
+    if (!blob) {
+      console.error('❌ Erro ao criar blob');
+      showToast('Erro ao processar imagem', 'error');
+      return;
     }
-  });
-
-  toggleObservacoesField();
-
-  // Lógica de upload e notificações
-  const uploadAreas = document.querySelectorAll('.upload-area');
-  const uploadInputs = document.querySelectorAll('input[type="file"]');
-  const FILE_SIZE_LIMIT_BYTES = 716800;
-  const MAX_FILES_FOTO = 1;
-  const MAX_FILES_CPF = 2;
-  const MAX_FILES_COMPROVANTE = 2;
-  const MAX_FILES_HISTORICO = 1;
-
-  uploadAreas.forEach(area => {
-    const inputId = area.dataset.inputId;
-    const fileInput = document.getElementById(inputId);
-    if (!fileInput) return;
-    area.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      area.classList.add('border-blue-500');
+    
+    console.log('📸 Blob criado:', blob.size, 'bytes');
+    
+    // CORRIGIDO: Criar arquivo com nome único e timestamp
+    const timestamp = Date.now();
+    const file = new File([blob], `foto_aluno_${timestamp}.png`, { 
+      type: 'image/png',
+      lastModified: timestamp
     });
-    area.addEventListener('dragleave', () => {
-      area.classList.remove('border-blue-500');
-    });
-    area.addEventListener('drop', (event) => {
-      event.preventDefault();
-      area.classList.remove('border-blue-500');
-      const files = event.dataTransfer.files;
-      handleFiles(files, fileInput);
-    });
-  });
+    
+    console.log('📄 Arquivo criado:', file.name, file.size, 'bytes');
+    
+    // CORRIGIDO: Usar DataTransfer para garantir compatibilidade
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    
+    const fotoInput = document.getElementById('foto-upload');
+    fotoInput.files = dataTransfer.files;
+    
+    console.log('✅ Arquivo anexado ao input');
+    console.log('📋 Files no input:', fotoInput.files.length);
+    console.log('📋 Primeiro arquivo:', fotoInput.files[0]?.name);
+    
+    // Atualizar lista visual
+    updateFileList('foto-files-list', [file]);
+    
+    // Fechar modal
+    closeFotoModal();
+    
+    showToast('Foto recortada e anexada com sucesso!', 'success');
+  }, 'image/png', 0.95);
+}
 
-  uploadInputs.forEach(fileInput => {
-    fileInput.addEventListener('change', (event) => {
-      const files = event.target.files;
-      handleFiles(files, fileInput);
-    });
+// CORRIGIDO: Atualizar lista de arquivos visualmente
+function updateFileList(listId, files) {
+  const list = document.getElementById(listId);
+  if (!list) {
+    console.error('❌ Lista não encontrada:', listId);
+    return;
+  }
+  
+  list.innerHTML = '';
+  
+  if (files.length === 0) return;
+  
+  files.forEach((file, index) => {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'flex items-center gap-3';
+    
+    const icon = document.createElement('svg');
+    icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('stroke-width', '1.5');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.className = 'w-5 h-5 text-success';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />';
+    
+    const fileName = document.createElement('span');
+    fileName.className = 'text-sm';
+    fileName.textContent = file.name;
+    
+    const fileSize = document.createElement('span');
+    fileSize.className = 'text-xs text-gray-500 ml-2';
+    fileSize.textContent = `(${formatFileSize(file.size)})`;
+    
+    fileInfo.appendChild(icon);
+    fileInfo.appendChild(fileName);
+    fileInfo.appendChild(fileSize);
+    fileItem.appendChild(fileInfo);
+    list.appendChild(fileItem);
   });
 }
 
-// O ponto de entrada principal para a inicialização do formulário
-// Removendo o `setTimeout` e usando os eventos do Turbo diretamente.
-document.addEventListener('turbo:load', initializeForm);
-document.addEventListener('turbo:render', initializeForm);
+// Função auxiliar para formatar tamanho
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Função para mostrar toast
+function showToast(message, type = 'info') {
+  const container = document.getElementById('alert-container');
+  if (!container) return;
+  
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type} shadow-lg mb-2`;
+  
+  const iconMap = {
+    success: '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />',
+    error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />',
+    info: '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />'
+  };
+  
+  alert.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      ${iconMap[type] || iconMap.info}
+    </svg>
+    <span>${message}</span>
+  `;
+  
+  container.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.style.transition = 'opacity 0.3s';
+    alert.style.opacity = '0';
+    setTimeout(() => alert.remove(), 300);
+  }, 3000);
+}
+
+// CORRIGIDO: Drag and Drop para foto
+const fotoUploadArea = document.getElementById('foto-upload-area');
+const fotoInput = document.getElementById('foto-upload');
+
+if (fotoUploadArea && fotoInput) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
+
+  fotoUploadArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    
+    if (files.length > 1) {
+      showToast('Selecione apenas 1 arquivo de foto', 'error');
+      return;
+    }
+    
+    if (files.length > 0) {
+      if (!files[0].type.startsWith('image/')) {
+        showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+        return;
+      }
+      
+      fotoInput.files = files;
+      fotoInput.dispatchEvent(new Event('change'));
+    }
+  }, false);
+}
+
+// CORRIGIDO: Debug no submit do formulário
+const studentForm = document.getElementById('student-form');
+if (studentForm) {
+  studentForm.addEventListener('submit', function(e) {
+    const fotoInput = document.getElementById('foto-upload');
+    console.log('=== 🚀 DEBUG FORM SUBMIT ===');
+    console.log('📸 Foto input:', fotoInput);
+    console.log('📸 Foto files:', fotoInput?.files);
+    console.log('📸 Quantidade:', fotoInput?.files?.length || 0);
+    
+    if (fotoInput?.files?.length > 0) {
+      console.log('📸 Arquivo:', fotoInput.files[0]);
+      console.log('📸 Nome:', fotoInput.files[0].name);
+      console.log('📸 Tamanho:', fotoInput.files[0].size, 'bytes');
+      console.log('📸 Tipo:', fotoInput.files[0].type);
+    } else {
+      console.log('⚠️ Nenhum arquivo de foto anexado');
+    }
+    console.log('========================');
+  });
+}

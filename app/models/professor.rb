@@ -13,6 +13,7 @@ class Professor < ApplicationRecord
   # === Associações ===
   belongs_to :escola, optional: true
   belongs_to :coordenador, class_name: 'Professor', foreign_key: 'coordenador_id', optional: true
+  
   has_many :professor_turmas, dependent: :destroy
   has_many :turmas, through: :professor_turmas
   has_one :endereco, dependent: :destroy
@@ -21,8 +22,7 @@ class Professor < ApplicationRecord
   has_many :disciplinas, through: :professor_disciplinas
   has_many :frequencias, dependent: :nullify
   has_many :conteudos, dependent: :nullify
-
-
+  
   accepts_nested_attributes_for :endereco
 
   # === Enums ===
@@ -34,10 +34,7 @@ class Professor < ApplicationRecord
   validates :cpf, uniqueness: true
   validate :foto_format_and_size, if: -> { foto.attached? && foto.blob.present? }
 
-  # === Callbacks ===
-  # Remove a foto antiga antes de anexar uma nova (só para update)
-  before_update :purge_old_foto, if: -> { foto_attaching_replacement? }
-
+  
   # Remove a foto do S3 ao destruir o registro
   before_destroy :purge_foto_on_destroy
 
@@ -55,22 +52,8 @@ class Professor < ApplicationRecord
 
   private
 
-  # Verifica se estamos substituindo a foto antiga por uma nova
-  def foto_attaching_replacement?
-    return false unless foto.attached?
-    
-    old_attachment = ActiveStorage::Attachment.find_by(record: self, name: "foto")
-    old_attachment.present? && old_attachment.id != foto.attachment&.id
-  end
-
-  # Purga a foto antiga do S3 (chamado antes do update)
-  def purge_old_foto
-    old_attachment = ActiveStorage::Attachment.find_by(record: self, name: "foto")
-    old_attachment.purge if old_attachment
-  end
-
   # Remove a foto do S3 ao destruir o registro
   def purge_foto_on_destroy
-    foto.purge if foto.attached?
+    foto.purge_later if foto.attached?
   end
 end

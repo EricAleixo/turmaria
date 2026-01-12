@@ -270,13 +270,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === FUNÇÕES DE FOTO COM CROP ===
+// === FUNÇÕES DE FOTO COM CROP ===
 let cropper = null;
 
 function openFotoModal() {
+  console.log('🎬 Abrindo modal de foto');
   document.getElementById('foto-modal').showModal();
 }
 
 function closeFotoModal() {
+  console.log('🚪 Fechando modal de foto');
   if (cropper) {
     cropper.destroy();
     cropper = null;
@@ -287,6 +290,7 @@ function closeFotoModal() {
 }
 
 function resetFotoModal() {
+  console.log('🔄 Resetando modal de foto');
   if (cropper) {
     cropper.destroy();
     cropper = null;
@@ -295,12 +299,24 @@ function resetFotoModal() {
   document.getElementById('foto-crop-area').classList.add('hidden');
   document.getElementById('foto-upload').value = '';
   document.getElementById('foto-files-list').innerHTML = '';
+  
+  // Remove input hidden de Base64 se existir
+  const hiddenInput = document.getElementById('foto_base64_input');
+  if (hiddenInput) {
+    hiddenInput.remove();
+    console.log('🗑️ Input Base64 removido');
+  }
 }
 
 document.getElementById('foto-upload').addEventListener('change', function(e) {
   const file = e.target.files[0];
   
-  if (!file) return;
+  if (!file) {
+    console.log('⚠️ Nenhum arquivo selecionado');
+    return;
+  }
+  
+  console.log('📸 Arquivo selecionado:', file.name, file.size, 'bytes');
   
   if (!file.type.startsWith('image/')) {
     showToast('Por favor, selecione apenas arquivos de imagem', 'error');
@@ -317,6 +333,7 @@ document.getElementById('foto-upload').addEventListener('change', function(e) {
   
   const reader = new FileReader();
   reader.onload = function(event) {
+    console.log('✅ Imagem carregada em Base64');
     const img = document.getElementById('foto-preview');
     img.src = event.target.result;
     
@@ -329,6 +346,7 @@ document.getElementById('foto-upload').addEventListener('change', function(e) {
     
     // Aguardar imagem carregar antes de inicializar o Cropper
     img.onload = function() {
+      console.log('🖼️ Inicializando Cropper...');
       cropper = new Cropper(img, {
         aspectRatio: 1,
         viewMode: 2,
@@ -346,6 +364,7 @@ document.getElementById('foto-upload').addEventListener('change', function(e) {
         minCropBoxWidth: 200,
         minCropBoxHeight: 200,
         ready: function() {
+          console.log('✅ Cropper pronto');
           const cropBox = document.querySelector('.cropper-crop-box');
           const face = document.querySelector('.cropper-face');
           if (cropBox && face) {
@@ -366,85 +385,144 @@ document.getElementById('foto-upload').addEventListener('change', function(e) {
 });
 
 function confirmFotoCrop() {
-  if (!cropper) return;
+  if (!cropper) {
+    console.error('❌ Cropper não inicializado');
+    return;
+  }
 
+  console.log('✂️ Iniciando crop...');
+  
   const canvas = cropper.getCroppedCanvas({
     width: 400,
     height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
   });
+
+  if (!canvas) {
+    console.error('❌ Erro ao gerar canvas');
+    showToast('Erro ao processar imagem', 'error');
+    return;
+  }
 
   // Converter para Base64
   const base64 = canvas.toDataURL('image/png');
+  console.log('📊 Base64 gerado, tamanho:', base64.length, 'caracteres');
 
-  // Criar input hidden (ou atualizar se já existir)
+  // Criar ou atualizar input hidden
   let hiddenInput = document.getElementById('foto_base64_input');
   if (!hiddenInput) {
+    console.log('➕ Criando input hidden para Base64');
     hiddenInput = document.createElement('input');
     hiddenInput.type = 'hidden';
     hiddenInput.name = 'professor[foto_base64]';
     hiddenInput.id = 'foto_base64_input';
     document.querySelector('form').appendChild(hiddenInput);
+  } else {
+    console.log('🔄 Atualizando input hidden existente');
   }
 
   hiddenInput.value = base64;
+  console.log('✅ Base64 anexado ao formulário');
+
+  // Atualizar lista visual
+  updateFileList('foto-files-list', [{
+    name: 'foto_professor.png',
+    size: Math.round(base64.length * 0.75) // Estimativa do tamanho real
+  }]);
 
   closeFotoModal();
   showToast('Foto recortada pronta para envio!', 'success');
 }
 
-
 // Drag and Drop para área de upload de foto
 const fotoUploadArea = document.getElementById('foto-upload-area');
 const fotoInput = document.getElementById('foto-upload');
 
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, false);
-});
+if (fotoUploadArea && fotoInput) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
 
-['dragenter', 'dragover'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, () => {
-    fotoUploadArea.classList.add('border-green-500', 'bg-green-50');
-  }, false);
-});
+  ['dragenter', 'dragover'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.add('border-green-500', 'bg-green-50');
+    }, false);
+  });
 
-['dragleave', 'drop'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, () => {
-    fotoUploadArea.classList.remove('border-green-500', 'bg-green-50');
-  }, false);
-});
+  ['dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.remove('border-green-500', 'bg-green-50');
+    }, false);
+  });
 
-fotoUploadArea.addEventListener('drop', (e) => {
-  const files = e.dataTransfer.files;
-  
-  if (files.length > 1) {
-    showToast('Selecione apenas 1 arquivo de foto', 'error');
-    return;
-  }
-  
-  if (files.length > 0) {
-    if (!files[0].type.startsWith('image/')) {
-      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+  fotoUploadArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    
+    if (files.length > 1) {
+      showToast('Selecione apenas 1 arquivo de foto', 'error');
       return;
     }
     
-    fotoInput.files = files;
-    fotoInput.dispatchEvent(new Event('change'));
+    if (files.length > 0) {
+      if (!files[0].type.startsWith('image/')) {
+        showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+        return;
+      }
+      
+      fotoInput.files = files;
+      fotoInput.dispatchEvent(new Event('change'));
+    }
+  }, false);
+}
+
+// DEBUG: Verificar formulário antes de enviar
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      console.log('=== 🚀 ENVIANDO FORMULÁRIO ===');
+      
+      const hiddenInput = document.getElementById('foto_base64_input');
+      if (hiddenInput) {
+        console.log('✅ Input Base64 encontrado');
+        console.log('📏 Tamanho:', hiddenInput.value.length, 'caracteres');
+        console.log('🔑 Nome do campo:', hiddenInput.name);
+      } else {
+        console.log('⚠️ Nenhuma foto Base64 para enviar (pode ser update sem nova foto)');
+      }
+      
+      // Listar todos os campos do formulário
+      const formData = new FormData(form);
+      console.log('📋 Campos do formulário:');
+      for (let [key, value] of formData.entries()) {
+        if (key.includes('foto')) {
+          console.log(`  - ${key}: ${typeof value === 'string' ? value.substring(0, 50) + '...' : value}`);
+        } else {
+          console.log(`  - ${key}: ${value}`);
+        }
+      }
+      
+      console.log('========================');
+    });
   }
-}, false);
+});
 
 // Função auxiliar para atualizar lista de arquivos
 function updateFileList(listId, files) {
   const list = document.getElementById(listId);
+  if (!list) return;
+  
   list.innerHTML = '';
   
   if (files.length === 0) return;
   
   files.forEach((file) => {
     const fileItem = document.createElement('div');
-    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0';
+    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0 bg-green-50';
     
     const fileInfo = document.createElement('div');
     fileInfo.className = 'flex items-center gap-3';
@@ -458,21 +536,36 @@ function updateFileList(listId, files) {
     icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />';
     
     const fileName = document.createElement('span');
-    fileName.className = 'text-sm';
+    fileName.className = 'text-sm font-medium text-green-700';
     fileName.textContent = file.name;
+    
+    const fileSize = document.createElement('span');
+    fileSize.className = 'text-xs text-green-600 ml-2';
+    fileSize.textContent = `(${formatFileSize(file.size)})`;
     
     fileInfo.appendChild(icon);
     fileInfo.appendChild(fileName);
+    fileInfo.appendChild(fileSize);
     fileItem.appendChild(fileInfo);
     list.appendChild(fileItem);
   });
 }
 
+// Formatar tamanho de arquivo
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
 // Função para mostrar toast
 function showToast(message, type = 'info') {
   const container = document.getElementById('alert-container');
+  if (!container) return;
+  
   const alert = document.createElement('div');
-  alert.className = `alert alert-${type} shadow-lg mb-2`;
   
   const iconMap = {
     success: '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />',

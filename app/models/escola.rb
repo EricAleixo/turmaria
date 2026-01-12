@@ -1,4 +1,6 @@
 class Escola < ApplicationRecord
+  before_validation :normalize_cnpj
+
   # Relacionamentos
   has_many :alunos, dependent: :destroy
   has_many :turmas, dependent: :destroy
@@ -35,6 +37,10 @@ class Escola < ApplicationRecord
   def tipo_humanizado
     tipo == 'publica' ? 'Pública' : 'Privada'
   end
+
+  def normalize_cnpj
+    self.cnpj = nil if cnpj.blank?
+  end 
 
   def endereco_completo
     return "Endereço não cadastrado" unless endereco.present?

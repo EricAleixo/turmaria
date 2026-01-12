@@ -5,68 +5,61 @@ class ProfessorsController < ApplicationController
   before_action :set_professor, only: [:show, :edit, :update, :destroy]
 
   def index
-  # =========================
-  # 1. Definição do escopo base
-  # =========================
-  professors =
-    if current_user.is_a?(Admin)
-      @escola = Escola.find(params[:escola_id])
-      @escola.professors
-    elsif current_user.is_a?(SuperAdmin)
-      if params[:escola_id].present?
+    # =========================
+    # 1. Definição do escopo base
+    # =========================
+    professors =
+      if current_user.is_a?(Admin)
         @escola = Escola.find(params[:escola_id])
         @escola.professors
+      elsif current_user.is_a?(SuperAdmin)
+        if params[:escola_id].present?
+          @escola = Escola.find(params[:escola_id])
+          @escola.professors
+        else
+          Professor.all
+        end
       else
-        Professor.all
+        Professor.none
       end
-    else
-      Professor.none
+
+    # =========================
+    # 2. Busca por nome
+    # =========================
+    professors = professors.por_nome(params[:busca]) if params[:busca].present?
+
+    # =========================
+    # 3. Filtros do modal
+    # =========================
+    if params[:filtros].present?
+      formacao_options = %w[mestrado doutorado pos_graduado graduado]
+      tipo_options     = %w[concursado contratado]
+
+      formacoes_selecionadas = formacao_options & params[:filtros]
+      tipos_selecionados     = tipo_options & params[:filtros]
+
+      professors = professors.por_formacao(formacoes_selecionadas) if formacoes_selecionadas.any?
+      professors = professors.por_tipo(tipos_selecionados) if tipos_selecionados.any?
     end
 
-  # =========================
-  # 2. Busca por nome
-  # =========================
-  professors = professors.por_nome(params[:busca]) if params[:busca].present?
-
-  # =========================
-  # 3. Filtros do modal
-  # =========================
-  if params[:filtros].present?
-    formacao_options = %w[mestrado doutorado pos_graduado graduado]
-    tipo_options     = %w[concursado contratado]
-
-    formacoes_selecionadas = formacao_options & params[:filtros]
-    tipos_selecionados     = tipo_options & params[:filtros]
-
-    professors = professors.por_formacao(formacoes_selecionadas) if formacoes_selecionadas.any?
-    professors = professors.por_tipo(tipos_selecionados) if tipos_selecionados.any?
+    # =========================
+    # 4. Ordenação e paginação
+    # =========================
+    @professores = professors
+                     .order(nome: :asc)
+                     .page(params[:page])
+                     .per(15)
   end
-
-  # =========================
-  # 4. Ordenação e paginação
-  # =========================
-  @professores = professors
-                   .order(nome: :asc)
-                   .page(params[:page])
-                   .per(15)
-  end
-
 
   def selecionar_escola
     @escolas = current_admin.escolas
   end
 
-  # ---
-
   def show
     @escola = Escola.find(params[:escola_id])
-
-    # @professor é definido por set_professor
     @disciplinas = @escola.disciplinas
     @disciplinas_por_area = @disciplinas.group_by { |d| d.area_disciplina }
-
     @conteudos = @professor.conteudos
-
   end
 
   def update_conteudos
@@ -75,7 +68,6 @@ class ProfessorsController < ApplicationController
     redirect_to @professor, notice: "Conteúdos atualizados com sucesso!"
   end
 
-
   def new
     @escola = Escola.find(params[:escola_id])
     @professor = Professor.new
@@ -83,12 +75,12 @@ class ProfessorsController < ApplicationController
 
   def create
     @professor = Professor.new(professor_params)
-
     @escola = Escola.find(params[:escola_id])
     @professor.escola = @escola
-
-    # Preenche confirmed_at para que o Devise permita o login imediato.
     @professor.confirmed_at = Time.current
+    
+    # Processa foto em Base64
+    process_base64_foto(@professor)
     
     if @professor.save
       redirect_to @professor, notice: "Professor criado com sucesso!"
@@ -108,6 +100,14 @@ class ProfessorsController < ApplicationController
     if update_params[:password].blank?
       update_params = update_params.except(:password, :password_confirmation)
     end
+    
+    # CORRIGIDO: Processa foto Base64 ANTES de tentar atualizar
+    if params[:professor][:foto_base64].present?
+      process_base64_foto(@professor)
+    end
+    
+    # Remove foto_base64 dos params para não dar erro
+    update_params = update_params.except(:foto_base64)
     
     if @professor.update(update_params)
       redirect_to @professor, notice: "Professor atualizado com sucesso!"
@@ -137,26 +137,56 @@ class ProfessorsController < ApplicationController
     @professor = Professor.find(params[:id])
   end
 
-  def professor_params
-    permitted = params.require(:professor).permit(
-      :nome, :email, :password, :password_confirmation, :cpf,
-      :telefone, :escola_id, :tipo_professor, :formacao,
-      :data_nascimento, :foto
-    )
-
-    # Converte Base64 para ActiveStorage
-    if params[:professor][:foto_base64].present?
-      data_uri = params[:professor].delete(:foto_base64)
+  # CORRIGIDO: Método separado para processar Base64
+  def process_base64_foto(professor)
+    return unless params[:professor][:foto_base64].present?
+    
+    begin
+      data_uri = params[:professor][:foto_base64]
+      
+      # Extrai tipo de conteúdo e dados
       content_type = data_uri[%r{data:(.*?);base64}, 1]
       encoded_image = data_uri.split(',')[1]
-      io = StringIO.new(Base64.decode64(encoded_image))
-      io.class.class_eval { attr_accessor :original_filename, :content_type }
-      io.original_filename = "foto.png"
-      io.content_type = content_type
-      permitted[:foto] = io
+      
+      # Decodifica Base64
+      decoded_image = Base64.decode64(encoded_image)
+      
+      # Cria arquivo temporário
+      tempfile = Tempfile.new(['foto', '.png'])
+      tempfile.binmode
+      tempfile.write(decoded_image)
+      tempfile.rewind
+      
+      # Anexa ao professor
+      professor.foto.attach(
+        io: tempfile,
+        filename: "foto_professor_#{Time.current.to_i}.png",
+        content_type: content_type || 'image/png'
+      )
+      
+      tempfile.close
+      tempfile.unlink
+      
+      Rails.logger.info "📸 Foto anexada com sucesso via Base64"
+    rescue => e
+      Rails.logger.error "❌ Erro ao processar foto Base64: #{e.message}"
     end
-
-    permitted
   end
 
+  def professor_params
+    params.require(:professor).permit(
+      :nome, 
+      :email, 
+      :password, 
+      :password_confirmation, 
+      :cpf,
+      :telefone, 
+      :escola_id, 
+      :tipo_professor, 
+      :formacao,
+      :data_nascimento,
+      :foto,
+      :foto_base64  # Permitir mas não processar aqui
+    )
+  end
 end
