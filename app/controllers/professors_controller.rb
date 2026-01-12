@@ -77,6 +77,7 @@ class ProfessorsController < ApplicationController
 
 
   def new
+    @escola = Escola.find(params[:escola_id])
     @professor = Professor.new
   end
 
@@ -137,18 +138,25 @@ class ProfessorsController < ApplicationController
   end
 
   def professor_params
-    params.require(:professor).permit(
-      :nome, 
-      :email, 
-      :password, 
-      :password_confirmation, 
-      :cpf, 
-      :telefone, 
-      :escola_id, 
-      :tipo_professor, 
-      :formacao,
-      :data_nascimento,
-      :foto
+    permitted = params.require(:professor).permit(
+      :nome, :email, :password, :password_confirmation, :cpf,
+      :telefone, :escola_id, :tipo_professor, :formacao,
+      :data_nascimento, :foto
     )
+
+    # Converte Base64 para ActiveStorage
+    if params[:professor][:foto_base64].present?
+      data_uri = params[:professor].delete(:foto_base64)
+      content_type = data_uri[%r{data:(.*?);base64}, 1]
+      encoded_image = data_uri.split(',')[1]
+      io = StringIO.new(Base64.decode64(encoded_image))
+      io.class.class_eval { attr_accessor :original_filename, :content_type }
+      io.original_filename = "foto.png"
+      io.content_type = content_type
+      permitted[:foto] = io
+    end
+
+    permitted
   end
+
 end

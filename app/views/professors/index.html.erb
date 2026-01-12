@@ -85,22 +85,24 @@
 
                 
                 <%# BOTÃO "NOVO PROFESSOR" %>
-                <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
-                    class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm" do %>
+                <% if @escola %>
+                  <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
+                      class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm" do %>
 
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="w-4 h-4 mr-1">
-                    <path d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 mr-1">
+                      <path d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
 
-                  <span class="hidden sm:inline">Novo Professor</span>
-                  <span class="sm:hidden">Novo</span>
+                    <span class="hidden sm:inline">Novo Professor</span>
+                    <span class="sm:hidden">Novo</span>
+                  <% end %>
                 <% end %>
 
 
@@ -117,27 +119,12 @@
             </div>
           </div>
           
-        
-          <%# ---------------------------------------------------------------------- %>
-          <%# --- SEÇÃO 3: LISTAGEM DE PROFESSORES (Turbo Frame) --- %>
-          <%# ---------------------------------------------------------------------- %>
 
           <!-- Search & Filters -->
           <div class="mb-6">
             <%= form_with url: professors_path, method: :get, data: { turbo_frame: "professors" }, class: 'flex flex-col sm:flex-row gap-3 items-stretch sm:items-end' do |form| %>
               <div class="flex-1 min-w-0">
                 <%= form.text_field :busca, placeholder: "Buscar por nome do professor...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-600 focus:ring-green-600" %>
-              </div>
-
-              <div class="flex gap-3 flex-shrink-0">
-                <label for="filtro-modal" class="btn bg-gray-50 border-gray-300 text-gray-700 hover:bg-green-600 hover:text-white flex-1 sm:flex-initial sm:w-32 justify-center">
-                  Filtros
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </label>
-
-                <%= link_to "Limpar", professors_path, class: "bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors" %>
               </div>
             <% end %>
           </div>
@@ -210,20 +197,22 @@
                   <p class="text-slate-500 mb-6">Ajuste os filtros ou adicione um novo professor.</p>
                   
                   <%# Links para adicionar professor %>
-                  <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
-                      class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
+                  <% if @professor %>
+                    <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
+                        class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
 
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="w-5 h-5 mr-2">
-                      <path d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    Adicionar Professor
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="w-5 h-5 mr-2">
+                        <path d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      Adicionar Professor
+                    <% end %>
                   <% end %>
                 </div>
               </div>

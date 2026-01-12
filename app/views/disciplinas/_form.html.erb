@@ -80,21 +80,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Escola -->
-    <% if current_user.is_a?(SuperAdmin) %>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Escola *</label>
-        <button 
-          type="button" 
-          id="abrir-modal-escola-btn"
-          class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none"
-        >
-          <%= @disciplina.escola&.nome || "Selecione a Escola" %>
-        </button>
-        <p id="escola-selecionada" class="text-sm text-gray-600 mt-1"><%= @disciplina.escola&.nome %></p>
-      </div>
-    <% end %>
   </div>
 
   <!-- Actions -->
@@ -287,71 +272,6 @@ document.addEventListener("turbo:load", function() {
     areaCorTempField: areaCorTempField ? "✓" : "✗"
   });
 
-  // MODAL ESCOLA
-  const btnAbrirEscola = document.getElementById("abrir-modal-escola-btn");
-  const modalEscola = document.getElementById("modal-escola");
-  const btnFecharEscola = document.getElementById("fechar-modal-escola");
-  const filtroNome = document.getElementById("filtro-nome-escola");
-  const filtroTipo = document.getElementById("filtro-tipo-escola");
-  const listaEscolas = document.getElementById("lista-escolas");
-
-
-  if (btnAbrirEscola && modalEscola) {
-    btnAbrirEscola.addEventListener("click", () => {
-      modalEscola.showModal();
-      buscarEscolas();
-    });
-
-    if (btnFecharEscola) btnFecharEscola.addEventListener("click", () => modalEscola.close());
-
-    modalEscola.addEventListener("click", (event) => {
-      const rect = modalEscola.querySelector(".modal-box").getBoundingClientRect();
-      if (!(event.clientX >= rect.left && event.clientX <= rect.right &&
-            event.clientY >= rect.top && event.clientY <= rect.bottom)) {
-        modalEscola.close();
-      }
-    });
-  }
-
-  let timeoutBusca = null;
-  function buscarEscolas() {
-    const nome = filtroNome ? filtroNome.value.trim().toLowerCase() : "";
-    const tipo = filtroTipo ? filtroTipo.value.toLowerCase() : "";
-    clearTimeout(timeoutBusca);
-    timeoutBusca = setTimeout(() => {
-      fetch(`/disciplinas/buscar_escolas.json?escola_busca=${nome}&tipo=${tipo}`, { headers: { "Accept": "application/json" } })
-        .then(res => res.json())
-        .then(data => {
-          if (!listaEscolas) return;
-          listaEscolas.innerHTML = "";
-          const escolas = data.escolas || [];
-          if (escolas.length === 0) {
-            listaEscolas.innerHTML = "<p class='px-3 py-2 text-gray-500 text-center'>Nenhuma escola encontrada</p>";
-            return;
-          }
-          escolas.forEach(e => {
-            const card = document.createElement("div");
-            card.className = "p-3 mb-2 rounded-lg shadow hover:shadow-lg cursor-pointer flex justify-between items-center transition bg-white border border-gray-200 hover:bg-green-50";
-            card.innerHTML = `
-              <div>
-                <p class="font-semibold text-gray-800 border-b-2 border-green-500 pb-1 mb-1">${e.nome}</p>
-                <p class="text-sm text-gray-500">${e.tipo ? e.tipo.charAt(0).toUpperCase() + e.tipo.slice(1) : ''}</p>
-              </div>
-            `;
-            card.addEventListener("click", () => {
-              if (btnAbrirEscola) btnAbrirEscola.textContent = e.nome;
-              if (modalEscola) modalEscola.close();
-            });
-            listaEscolas.appendChild(card);
-          });
-        })
-        .catch(() => {
-          if (listaEscolas) listaEscolas.innerHTML = "<p class='px-3 py-2 text-red-500 text-center'>Erro ao buscar escolas</p>";
-        });
-    }, 300);
-  }
-  if (filtroNome) filtroNome.addEventListener("input", buscarEscolas);
-  if (filtroTipo) filtroTipo.addEventListener("change", buscarEscolas);
 
   // DROPDOWN ÁREA
   const areaDropdownBtn = document.getElementById("area-dropdown-btn");

@@ -15,37 +15,40 @@ class Devise::UnifiedSessionsController < Devise::SessionsController
 
     registro = EmailCadastro.find_by(email: email)
 
-    if registro
-      # 🚨 Linha corrigida: use .find_by(id: ...) em vez de .find(...)
-      user = registro.user_type.constantize.find_by(id: registro.user_id) 
-
-      if user # Verifica se o usuário foi encontrado
-        if user.valid_password?(password)
-          # ... (Resto da lógica de login bem-sucedido)
-          sign_in(user)
-          UserMailer.login_alert(user).deliver_later
-          flash[:notice] = "#{registro.user_type} logado com sucesso!"
-
-          redirect_to after_sign_in_path_for(user)
-          return
-
-        else
-          flash.now[:alert] = "Senha inválida"
-          render :new
-          return
-        end
-      else
-        # Novo tratamento: O EmailCadastro existe, mas o usuário (SuperAdmin, Professor, etc.) não.
-        flash.now[:alert] = "Dados inconsistentes. Usuário não encontrado."
-        render :new
-        return
-      end
-    else
+    unless registro
       flash.now[:alert] = "Email não encontrado"
       render :new
       return
     end
+
+    # 🚫 BLOQUEIO TOTAL: aluno NÃO loga por email
+    if registro.user_type == "Aluno"
+      flash.now[:alert] = "Não é possível logar com email. Use sua matrícula."
+      render :new
+      return
+    end
+
+    user = registro.user_type.constantize.find_by(id: registro.user_id)
+
+    unless user
+      flash.now[:alert] = "Dados inconsistentes. Usuário não encontrado."
+      render :new
+      return
+    end
+
+    unless user.valid_password?(password)
+      flash.now[:alert] = "Senha inválida"
+      render :new
+      return
+    end
+
+    # ✅ LOGIN PERMITIDO (Professor / Admin / etc)
+    sign_in(user)
+    UserMailer.login_alert(user).deliver_later
+    flash[:notice] = "#{registro.user_type} logado com sucesso!"
+    redirect_to after_sign_in_path_for(user)
   end
+
  
 
   # Devise::UnifiedSessionsController#destroy

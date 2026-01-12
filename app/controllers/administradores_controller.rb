@@ -15,27 +15,31 @@ class AdministradoresController < ApplicationController
   # Confirma upload, processa imagem e anexa ao ActiveStorage
   def confirm_upload
     key = params[:key]
-    return render json: { error: 'Chave ausente' }, status: :unprocessable_entity unless key
+    return render json: { error: 'Chave ausente' }, status: :unprocessable_entity
 
     s3 = Aws::S3::Client.new(region: ENV['AWS_REGION'])
-    tempfile = Tempfile.new
-    s3.get_object(bucket: ENV['AWS_BUCKET'], key: key, response_target: tempfile.path)
 
-    processed = ImageProcessing::MiniMagick
-                  .source(tempfile.path)
-                  .resize_to_limit(800, 800)
-                  .convert('png')
-                  .call
+    tempfile = Tempfile.new(["admin", ".png"])
 
-    current_administrador.foto.attach(
-      io: File.open(processed.path),
-      filename: "admin_foto_#{SecureRandom.hex}.png"
+    s3.get_object(
+      bucket: ENV['AWS_BUCKET'],
+      key: key,
+      response_target: tempfile.path
     )
+
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(tempfile.path),
+      filename: File.basename(key),
+      content_type: "image/png"
+    )
+
+    current_administrador.update!(foto: blob)
 
     s3.delete_object(bucket: ENV['AWS_BUCKET'], key: key)
 
     render json: { url: url_for(current_administrador.foto) }
   end
+
 
   def index
     @administradores = Admin.all
@@ -55,25 +59,29 @@ class AdministradoresController < ApplicationController
     @admin = Admin.new(admin_params.except(:foto))
 
     if @admin.save
-      attach_foto(@admin, admin_params[:foto])
+      @admin.foto.attach(admin_params[:foto]) if admin_params[:foto].present?
       redirect_to administradore_path(@admin), notice: "Administrador criado com sucesso!"
     else
-      flash.now[:alert] = @admin.errors.full_messages.join(", ")
       render :new, status: :unprocessable_entity
     end
   end
+
 
   def edit; end
 
   def update
     if @admin.update(admin_params_for_update.except(:foto))
-      attach_foto(@admin, admin_params_for_update[:foto])
+      if admin_params_for_update[:foto].present?
+        @admin.foto.purge if @admin.foto.attached?
+        @admin.foto.attach(admin_params_for_update[:foto])
+      end
+
       redirect_to administradore_path(@admin), notice: "Administrador atualizado com sucesso!"
     else
-      flash.now[:alert] = @admin.errors.full_messages.join(", ")
       render :edit, status: :unprocessable_entity
     end
   end
+
 
   def destroy
     @admin.destroy
@@ -87,15 +95,16 @@ class AdministradoresController < ApplicationController
   end
 
   def admin_params
-    params.require(:admin).permit(:email, :nome, :password, :password_confirmation, :foto)
+    params.require(:admin)
+          .permit(:email, :nome, :password, :password_confirmation, :foto)
   end
 
   def admin_params_for_update
-    permitted_params = [:email, :nome]
+    permitted = [:email, :nome, :foto]
     if params[:admin][:password].present?
-      permitted_params += [:password, :password_confirmation]
+      permitted += [:password, :password_confirmation]
     end
-    params.require(:admin).permit(permitted_params, :foto)
+    params.require(:admin).permit(permitted)
   end
 
   # --- helper para attach de foto com purge da anterior ---

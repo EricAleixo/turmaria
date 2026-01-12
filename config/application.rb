@@ -2,36 +2,27 @@ require_relative "boot"
 
 require "rails/all"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module SistemaAcademico
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
 
+    # UUID como padrão
+    config.active_record.primary_key = :uuid
+
+    # 🚨 ESSENCIAL PARA MIGRATIONS (ActiveStorage, Devise, etc)
+    config.generators do |g|
+      g.orm :active_record, primary_key_type: :uuid
+    end
 
     # devise em portugues pt-BR
     config.i18n.default_locale = :"pt-BR"
 
-
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    # Autoload
     config.autoload_lib(ignore: %w(assets tasks))
-
-    # Força o carregamento das policies
     config.autoload_paths += %W(#{config.root}/app/policies)
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
-    # 
     config.autoload_paths << Rails.root.join('app', 'services')
     config.eager_load_paths << Rails.root.join('app', 'services')
   end

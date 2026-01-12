@@ -4,7 +4,11 @@ module EmailCadastroUser
   included do
     has_one :email_cadastro, as: :user, dependent: :destroy
 
-    after_commit :sync_email_cadastro, if: :saved_change_to_email?
+    # Sincroniza após criar ou atualizar o email
+    after_commit :sync_email_cadastro, on: [:create, :update], if: :saved_change_to_email?
+
+    # Deleta o EmailCadastro quando o usuário for destruído
+    after_destroy :destroy_email_cadastro
   end
 
   private
@@ -17,5 +21,9 @@ module EmailCadastroUser
     else
       create_email_cadastro!(email: email)
     end
+  end
+
+  def destroy_email_cadastro
+    email_cadastro&.destroy
   end
 end

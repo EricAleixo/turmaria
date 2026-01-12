@@ -367,52 +367,31 @@ document.getElementById('foto-upload').addEventListener('change', function(e) {
 
 function confirmFotoCrop() {
   if (!cropper) return;
-  
-  console.log('🔍 Iniciando crop da foto...');
-  
+
   const canvas = cropper.getCroppedCanvas({
     width: 400,
     height: 400,
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high',
   });
-  
-  // Criar canvas circular
-  const circularCanvas = document.createElement('canvas');
-  const ctx = circularCanvas.getContext('2d');
-  circularCanvas.width = 400;
-  circularCanvas.height = 400;
-  
-  // Desenhar círculo como máscara
-  ctx.beginPath();
-  ctx.arc(200, 200, 200, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-  
-  // Desenhar imagem recortada dentro do círculo
-  ctx.drawImage(canvas, 0, 0, 400, 400);
-  
-  circularCanvas.toBlob(function(blob) {
-    console.log('📸 Blob criado:', blob);
-    console.log('📦 Tamanho do blob:', blob.size, 'bytes');
-    
-    const file = new File([blob], 'foto_professor.png', { type: 'image/png' });
-    console.log('📄 Arquivo criado:', file);
-    
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    
-    const fotoInput = document.getElementById('foto-upload');
-    fotoInput.files = dataTransfer.files;
-    
-    console.log('✅ Arquivo anexado ao input:', fotoInput.files[0]);
-    
-    updateFileList('foto-files-list', [file]);
-    closeFotoModal();
-    
-    showToast('Foto recortada e anexada com sucesso!', 'success');
-  }, 'image/png', 0.95);
+
+  // Converter para Base64
+  const base64 = canvas.toDataURL('image/png');
+
+  // Criar input hidden (ou atualizar se já existir)
+  let hiddenInput = document.getElementById('foto_base64_input');
+  if (!hiddenInput) {
+    hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'professor[foto_base64]';
+    hiddenInput.id = 'foto_base64_input';
+    document.querySelector('form').appendChild(hiddenInput);
+  }
+
+  hiddenInput.value = base64;
+
+  closeFotoModal();
+  showToast('Foto recortada pronta para envio!', 'success');
 }
+
 
 // Drag and Drop para área de upload de foto
 const fotoUploadArea = document.getElementById('foto-upload-area');

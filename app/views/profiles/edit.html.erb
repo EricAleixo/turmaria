@@ -1,5 +1,8 @@
 <% content_for :title, "Editar Perfil de #{@user.nome}" %>
 
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
 <div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
   <div class="container mx-auto px-4 py-6 max-w-4xl">
     
@@ -7,9 +10,8 @@
                   scope: @user.model_name.singular.to_sym,
                   url: profile_path, 
                   method: :patch, 
-                  html: { class: "w-full", multipart: true, id: "profile-form" }, 
-                  data: { turbo: false }, 
-                  novalidate: true) do |f| %>
+                  html: { class: "w-full", id: "profile-form" }, 
+                  data: { turbo: false }) do |f| %>
       
       <%# Header Card com Banner %>
       <div class="bg-white shadow-2xl rounded-3xl overflow-hidden mb-6">
@@ -43,39 +45,40 @@
         <div class="px-4 md:px-10 py-6 md:py-8">
           
           <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-            <%# Avatar Editável %>
+            <%# Avatar Editável CIRCULAR %>
             <div class="avatar flex-shrink-0 relative">
-              <div class="w-24 h-24 md:w-32 md:h-32 rounded-3xl shadow-2xl bg-gradient-to-br from-green-400 to-emerald-600 relative group cursor-pointer">
+              <div id="avatar-container" class="w-32 h-32 md:w-40 md:h-40 rounded-full shadow-2xl bg-gradient-to-br from-green-400 to-emerald-600 relative group cursor-pointer ring-4 ring-white">
                 
                 <% if @user.respond_to?(:foto) && @user.foto.attached? %>
-                  <%= image_tag @user.foto.variant(resize_to_fill: [128, 128]), class: "object-cover h-full w-full rounded-3xl transition-opacity duration-300 group-hover:opacity-75" %>
+                  <%= image_tag @user.foto.variant(resize_to_fill: [160, 160]), 
+                      class: "object-cover h-full w-full rounded-full transition-opacity duration-300 group-hover:opacity-75",
+                      id: "current-avatar-img" %>
                 <% else %>
-                  <div class="h-full w-full rounded-3xl transition-opacity duration-300 group-hover:opacity-75 flex items-center justify-center">
-                    <span class="text-4xl md:text-5xl font-bold text-white">
+                  <div id="avatar-placeholder" class="h-full w-full rounded-full transition-opacity duration-300 group-hover:opacity-75 flex items-center justify-center">
+                    <span class="text-5xl md:text-6xl font-bold text-white">
                       <%= @user.nome.present? ? @user.nome.first.upcase : 'P' %>
                     </span>
                   </div>
                 <% end %>
                 
                 <%# Overlay para trocar foto %>
-                <label for="<%= f.object_name %>_foto" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-60 rounded-3xl cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300" title="Clique para trocar a foto">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <label for="foto-file-input" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-60 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300" title="Clique para trocar a foto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.742 4h2.516a2 2 0 011.664.89l.812 1.22a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span class="text-xs text-white font-medium">Trocar Foto</span>
                 </label>
                 
-                <%= f.file_field :foto, class: "hidden", accept: 'image/png,image/gif,image/jpeg' %>
+                <input type="file" id="foto-file-input" class="hidden" accept="image/jpeg,image/jpg,image/png,image/gif">
               </div>
               
-              <%# Checkbox para remover foto %>
               <%# Botão para remover foto %>
               <% if @user.respond_to?(:foto) && @user.foto.attached? %>
-                <div class="absolute -bottom-2 -right-2">
+                <div class="absolute bottom-0 right-0" id="remove-photo-btn">
                   <label for="remove_foto_checkbox" class="btn btn-circle btn-sm bg-red-500 hover:bg-red-600 border-0 shadow-lg cursor-pointer" title="Remover foto">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </label>
                   <%= f.check_box :remove_foto, class: "hidden", id: "remove_foto_checkbox" %>
@@ -111,6 +114,9 @@
           </div>
         </div>
       <% end %>
+      
+      <%# Hidden field para a imagem cropada %>
+      <%= f.hidden_field :foto, id: "cropped-photo-data" %>
       
       <%# Formulário Principal %>
       <div class="space-y-6">
@@ -198,15 +204,6 @@
                 
                 <%= f.hidden_field :formacao, id: "formacao-hidden-field" %>
               </div>
-              
-              <script>
-                function selecionarFormacao(valor, label) {
-                  document.getElementById('formacao-display').textContent = label;
-                  document.getElementById('formacao-hidden-field').value = valor;
-                  // Fecha o dropdown
-                  document.activeElement.blur();
-                }
-              </script>
             <% end %>
 
           </div>
@@ -269,8 +266,7 @@
             Cancelar
           <% end %>
           
-          <button type="button" 
-                  onclick="document.getElementById('profile-form').submit();"
+          <button type="submit" 
                   class="btn btn-lg bg-green-600 hover:bg-green-700 text-white border-0 shadow-xl hover:shadow-2xl transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -285,6 +281,242 @@
 
   </div>
 </div>
+
+<%# Modal de Crop CIRCULAR %>
+<div id="crop-modal" class="modal">
+  <div class="modal-box max-w-2xl bg-white p-0 overflow-hidden">
+    <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+      <h3 class="font-bold text-xl text-white">Ajustar Foto de Perfil</h3>
+      <p class="text-green-50 text-sm mt-1">Posicione sua foto no círculo</p>
+    </div>
+    
+    <div class="p-6">
+      <div id="crop-container" class="max-h-96 overflow-hidden bg-gray-900 rounded-xl flex items-center justify-center">
+        <img id="crop-image" src="" alt="Imagem para crop" style="max-width: 100%; display: block;">
+      </div>
+
+      <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+        <div class="text-sm text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Mova e ajuste a área circular
+        </div>
+        <div class="flex gap-3">
+          <button type="button" id="crop-cancel" class="btn btn-outline btn-md">
+            Cancelar
+          </button>
+          <button type="button" id="crop-confirm" class="btn bg-green-500 hover:bg-green-600 text-white border-none btn-md shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Aplicar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop"></div>
+</div>
+
+<!-- Cropper.js Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<script>
+<% if @user.is_a?(Professor) %>
+  function selecionarFormacao(valor, label) {
+    document.getElementById('formacao-display').textContent = label;
+    document.getElementById('formacao-hidden-field').value = valor;
+    document.activeElement.blur();
+  }
+<% end %>
+
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('foto-file-input');
+  const cropModal = document.getElementById('crop-modal');
+  const cropImage = document.getElementById('crop-image');
+  const cropConfirm = document.getElementById('crop-confirm');
+  const cropCancel = document.getElementById('crop-cancel');
+  const croppedPhotoData = document.getElementById('cropped-photo-data');
+  const avatarContainer = document.getElementById('avatar-container');
+  const removePhotoBtn = document.getElementById('remove-photo-btn');
+  const removeCheckbox = document.getElementById('remove_foto_checkbox');
+  let cropper = null;
+
+  // Quando selecionar arquivo
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    if (!file.type.match('image.*')) {
+      alert('Por favor, selecione uma imagem válida (JPG, PNG ou GIF).');
+      fileInput.value = '';
+      return;
+    }
+
+    // Validar tamanho (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB.');
+      fileInput.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      cropImage.src = event.target.result;
+      cropModal.classList.add('modal-open');
+
+      // Destruir cropper anterior se existir
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      // Aguardar a imagem carregar
+      cropImage.onload = function() {
+        // Inicializar Cropper.js com CROP CIRCULAR
+        cropper = new Cropper(cropImage, {
+          aspectRatio: 1,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 1,
+          restore: false,
+          guides: false,
+          center: true,
+          highlight: false,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+          minCropBoxWidth: 200,
+          minCropBoxHeight: 200,
+          ready: function() {
+            // Adiciona estilo circular ao crop box
+            const cropBox = document.querySelector('.cropper-crop-box');
+            if (cropBox) {
+              cropBox.style.borderRadius = '50%';
+            }
+            const face = document.querySelector('.cropper-face');
+            if (face) {
+              face.style.borderRadius = '50%';
+            }
+          }
+        });
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Confirmar crop
+  cropConfirm.addEventListener('click', function() {
+    if (!cropper) return;
+
+    // Obter imagem cropada como canvas CIRCULAR
+    const canvas = cropper.getCroppedCanvas({
+      width: 400,
+      height: 400,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+
+    // Criar canvas circular
+    const roundedCanvas = document.createElement('canvas');
+    const roundedCtx = roundedCanvas.getContext('2d');
+    roundedCanvas.width = 400;
+    roundedCanvas.height = 400;
+
+    // Desenhar círculo
+    roundedCtx.beginPath();
+    roundedCtx.arc(200, 200, 200, 0, Math.PI * 2);
+    roundedCtx.closePath();
+    roundedCtx.clip();
+
+    // Desenhar imagem dentro do círculo
+    roundedCtx.drawImage(canvas, 0, 0, 400, 400);
+
+    // Converter para blob e depois para base64
+    roundedCanvas.toBlob(function(blob) {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        const base64data = reader.result;
+        
+        // Atualizar preview do avatar
+        const currentImg = document.getElementById('current-avatar-img');
+        const placeholder = document.getElementById('avatar-placeholder');
+        
+        if (currentImg) {
+          currentImg.src = base64data;
+        } else if (placeholder) {
+          avatarContainer.innerHTML = `
+            <img src="${base64data}" 
+                 class="object-cover h-full w-full rounded-full transition-opacity duration-300 group-hover:opacity-75" 
+                 id="current-avatar-img">
+            <label for="foto-file-input" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-60 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.742 4h2.516a2 2 0 011.664.89l.812 1.22a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-xs text-white font-medium">Trocar Foto</span>
+            </label>
+          `;
+          
+          // Adicionar botão de remover se não existir
+          if (!removePhotoBtn) {
+            const parentDiv = avatarContainer.parentElement;
+            const btnHtml = `
+              <div class="absolute bottom-0 right-0" id="remove-photo-btn">
+                <label for="remove_foto_checkbox" class="btn btn-circle btn-sm bg-red-500 hover:bg-red-600 border-0 shadow-lg cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </label>
+              </div>
+            `;
+            parentDiv.insertAdjacentHTML('beforeend', btnHtml);
+          }
+        }
+
+        // Salvar base64 no hidden field
+        croppedPhotoData.value = base64data;
+        
+        console.log('Foto cropada salva no campo hidden');
+        
+        // Desmarcar checkbox de remover se estiver marcado
+        if (removeCheckbox) {
+          removeCheckbox.checked = false;
+        }
+
+        // Fechar modal
+        cropModal.classList.remove('modal-open');
+        if (cropper) {
+          cropper.destroy();
+        }
+        fileInput.value = '';
+      };
+      reader.readAsDataURL(blob);
+    }, 'image/png', 0.95);
+  });
+
+  // Cancelar crop
+  cropCancel.addEventListener('click', function() {
+    cropModal.classList.remove('modal-open');
+    if (cropper) {
+      cropper.destroy();
+    }
+    fileInput.value = '';
+  });
+
+  // Fechar modal ao clicar fora
+  cropModal.addEventListener('click', function(e) {
+    if (e.target === cropModal) {
+      cropModal.classList.remove('modal-open');
+      if (cropper) {
+        cropper.destroy();
+      }
+      fileInput.value = '';
+    }
+  });
+});
+</script>
 
 <%= javascript_include_tag "imask", "data-turbo-track": "reload" %>
 <%= javascript_include_tag "mascaras", "data-turbo-track": "reload" %>

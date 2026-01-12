@@ -1232,25 +1232,27 @@ else
             <div class="divider my-2"></div>
 
             <!-- Professor -->
-            <div class="flex items-center gap-2 mb-2">
-              <div class="flex-shrink-0 h-8 w-8">
-                <% if frequencia.professor.foto.attached? %>
-                  <%= image_tag frequencia.professor.foto, class: "h-8 w-8 rounded-full object-cover border-2 border-green-200" %>
-                <% else %>
-                  <div class="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                    <span class="text-white text-xs font-bold">
-                      <%= frequencia.professor.nome.first.upcase %>
-                    </span>
-                  </div>
-                <% end %>
+            <% if frequencia.professor %>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="flex-shrink-0 h-8 w-8">
+                  <% if frequencia.professor.foto.attached? %>
+                    <%= image_tag frequencia.professor.foto, class: "h-8 w-8 rounded-full object-cover border-2 border-green-200" %>
+                  <% else %>
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span class="text-white text-xs font-bold">
+                        <%= frequencia.professor.nome.first.upcase %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-500">Professor</p>
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    <%= frequencia.professor.nome %>
+                  </p>
+                </div>
               </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs text-gray-500">Professor</p>
-                <p class="text-sm font-medium text-gray-900 truncate">
-                  <%= frequencia.professor.nome %>
-                </p>
-              </div>
-            </div>
+            <%end%>
 
             <!-- Estatísticas -->
             <div class="grid grid-cols-3 gap-2 mt-3">

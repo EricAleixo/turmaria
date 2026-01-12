@@ -1,15 +1,15 @@
 class Escola < ApplicationRecord
   # Relacionamentos
-  has_many :alunos, dependent: :nullify
+  has_many :alunos, dependent: :destroy
   has_many :turmas, dependent: :destroy
   has_many :ano_letivos, dependent: :destroy
   has_one  :endereco, dependent: :destroy
-  has_many :admins, dependent: :nullify
+  has_many :admins
   belongs_to :admin, optional: true
   has_many :materias
   has_many :disciplinas
   has_many :area_disciplinas, dependent: :destroy
-  has_many :professors
+  has_many :professors, dependent: :destroy
   has_many :conteudos
 
   accepts_nested_attributes_for :endereco, allow_destroy: true

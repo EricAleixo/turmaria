@@ -201,7 +201,6 @@
       <%= link_to "Limpar", escolas_menager_paths, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-gray-50 px-6" %>
     <% end %>
           
-    <%= turbo_frame_tag "escolas" do %>
       <% if @escolas.any? %>
         <!-- Desktop Table View - Personalizada -->
         <div class="hidden lg:block overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-100">
@@ -609,7 +608,7 @@
           </div>
         </div>
       <% end %>
-    <% end %>
+
 
     <!-- Gráficos -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">

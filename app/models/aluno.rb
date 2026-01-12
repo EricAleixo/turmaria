@@ -1,7 +1,7 @@
 class Aluno < ApplicationRecord
   devise :database_authenticatable,
          :rememberable,
-         authentication_keys: [:matricula]
+         :validatable
 
   # === Associações ===
   belongs_to :escola
@@ -71,7 +71,11 @@ class Aluno < ApplicationRecord
   # Remove todos os arquivos do S3 quando o aluno for excluído
   before_destroy :purge_all_attachments
 
-  # === Métodos de Instância ===
+  def self.authentication_keys
+    [:matricula]
+  end
+
+
   def idade
     return nil unless data_nascimento
     
