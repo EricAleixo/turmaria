@@ -42,7 +42,7 @@ helper_method :current_any_user, :authenticated_user_type
   def current_user_type
     case current_any_user
     when Admin then "Administrador"
-    when Professor then "Professor"
+    when Professor then "Professor(a)"
     when Coordenador then "Coordenador"
     when SuperAdmin then "Super Admin"
     else nil
