@@ -176,15 +176,15 @@
           <div id="admin-list" class="max-h-80 overflow-y-auto bg-white">
             <% Admin.where.not(confirmed_at: nil).order(:nome).each do |admin| %>
               <label class="admin-item flex items-center gap-4 p-4 hover:bg-purple-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0" 
-                     data-name="<%= admin.nome.downcase %>" 
-                     data-email="<%= admin.email.downcase %>">
+                     data-name="<%= admin.nome&.downcase || "Nome não informado" %>" 
+                     data-email="<%= admin.email&.downcase %>">
                 <input type="radio" 
                        name="escola[admin_id]" 
                        value="<%= admin.id %>" 
                        class="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300"
                        <%= 'checked' if escola.admin_id == admin.id %>>
                 <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span class="text-white font-bold text-lg"><%= admin.nome[0].upcase %></span>
+                  <span class="text-white font-bold text-lg"><%= admin.nome.to_s[0]&.upcase || "?" %></span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-gray-900 truncate"><%= admin.nome %></p>
