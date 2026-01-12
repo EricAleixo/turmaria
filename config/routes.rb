@@ -54,30 +54,9 @@ end
     post 'cidades', to: 'cidades#admin_create'
   end
 
-  # Estados e cidades
-  resources :estados do
-    member do
-      get :confirm_delete
-    end
-
-    resources :cidades do
-      member do
-        get :confirm_delete
-      end
-    end
-  end
-
   resources :cidades do
     collection do
       get :admin_new
-    end
-  end
-
-  # Complete CRUD for administradores
-  resources :administradores do
-    collection do
-      post :generate_presigned_url
-      post :confirm_upload
     end
   end
 
@@ -122,6 +101,25 @@ end
         patch :update_conteudos
       end
     end
+
+    resources :estados do
+      member do
+        get :confirm_delete
+      end
+
+      resources :cidades do
+        member do
+          get :confirm_delete
+        end
+      end
+    end
+
+    resources :administradores do
+    collection do
+      post :generate_presigned_url
+      post :confirm_upload
+    end
+  end
 
     resources :escolas do
       collection do
