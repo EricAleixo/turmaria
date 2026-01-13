@@ -54,7 +54,23 @@ class AlunosController < ApplicationController
     # ACTIONS CRUD
     # =====================================================================
 
-    def show; end
+    def show
+        # Carregar dados de notas e frequências se o aluno tiver turma
+        if @aluno.turma.present?
+            @turma = @aluno.turma
+            
+            # 1. CARREGAR AVALIAÇÕES BIMESTRAIS
+            avaliacoes = AvaliacaoBimestral
+                .includes(:disciplina)
+                .where(aluno_id: @aluno.id, turma_id: @turma.id)
+                .order('disciplinas.nome', :bimestre)
+            
+            @boletim_disciplinas = avaliacoes.group_by(&:disciplina)
+            
+            # 2. CARREGAR DADOS DE FREQUÊNCIA POR DISCIPLINA
+            @frequencia_por_disciplina = calcular_frequencia_por_disciplina(@turma, @aluno)
+        end
+    end
 
     def new
         if @escola.nil?
@@ -106,23 +122,52 @@ class AlunosController < ApplicationController
     end
 
     def regenerate_matricula
-    @escola = Escola.find(params[:escola_id])
-    @aluno = @escola.alunos.find(params[:id])
-    
-    loop do
-        @aluno.matricula = SecureRandom.alphanumeric(8).upcase
-        break unless Aluno.exists?(matricula: @aluno.matricula)
-    end
-    
-    if @aluno.save
-        redirect_to escola_aluno_path(@escola, @aluno), notice: 'Matrícula regenerada com sucesso!'
-    else
-        redirect_to escola_aluno_path(@escola, @aluno), alert: 'Erro ao gerar nova matrícula.'
-    end
+        @escola = Escola.find(params[:escola_id])
+        @aluno = @escola.alunos.find(params[:id])
+        
+        loop do
+            @aluno.matricula = SecureRandom.alphanumeric(8).upcase
+            break unless Aluno.exists?(matricula: @aluno.matricula)
+        end
+        
+        if @aluno.save
+            redirect_to escola_aluno_path(@escola, @aluno), notice: 'Matrícula regenerada com sucesso!'
+        else
+            redirect_to escola_aluno_path(@escola, @aluno), alert: 'Erro ao gerar nova matrícula.'
+        end
     end
 
     # PRIVATE METHODS
     private
+
+    # Método para calcular Frequência: Total de Aulas e Total de Faltas por Disciplina
+    def calcular_frequencia_por_disciplina(turma, aluno)
+        # Busca o total de aulas dadas por disciplina na turma
+        aulas_dadas = Frequencia
+            .where(turma_id: turma.id)
+            .group(:disciplina_id)
+            .count
+
+        # Busca o total de faltas do aluno por disciplina na turma
+        faltas_por_disciplina = FrequenciaAluno
+            .joins(:frequencia) 
+            .where(aluno_id: aluno.id, frequencias: { turma_id: turma.id }, status: 'falta')
+            .group('frequencias.disciplina_id')
+            .count
+
+        frequencia_combinada = {}
+        
+        aulas_dadas.each do |disciplina_id, total_aulas|
+            total_faltas = faltas_por_disciplina[disciplina_id] || 0
+            
+            frequencia_combinada[disciplina_id] = {
+                total_aulas: total_aulas,
+                total_faltas: total_faltas
+            }
+        end
+        
+        return frequencia_combinada
+    end
 
     # Define o escopo inicial baseado na navegação
     def define_base_scope
@@ -251,50 +296,49 @@ class AlunosController < ApplicationController
     # ADICIONE ESTE MÉTODO AO SEU CONTROLLER (substituindo o aluno_params existente)
 
     def aluno_params
-    params.require(:aluno).permit(
-        :escola_id,
-        :turma_id,
-        :cidade_id,
-        :nome,
-        :data_nascimento,
-        :cpf,
-        :rg,
-        :telefone,
-        :email,
-        :sexo,
-        :cor,
-        :tipo_sanguinio,
-        :observacoes_pcd,
-        :responsavel_1,
-        :responsavel_2,
-        :telefone_responsavel_1,
-        :telefone_responsavel_2,
-        :matricula,
-        :password,
-        :password_confirmation,
-        
-        # ✅ CORRIGIDO: Adicionar os campos de Active Storage
-        :foto,
-        :historico_academico,
-        necessidades_especiais_tipo: [],
-        cpf_documento: [],
-        comprovante_residencia: []
-    ).tap do |whitelisted_params|
-        whitelisted_params[:cidade_id] = nil if whitelisted_params[:cidade_id].blank?
+        params.require(:aluno).permit(
+            :escola_id,
+            :turma_id,
+            :cidade_id,
+            :nome,
+            :data_nascimento,
+            :cpf,
+            :rg,
+            :telefone,
+            :email,
+            :sexo,
+            :cor,
+            :tipo_sanguinio,
+            :observacoes_pcd,
+            :responsavel_1,
+            :responsavel_2,
+            :telefone_responsavel_1,
+            :telefone_responsavel_2,
+            :matricula,
+            :password,
+            :password_confirmation,
+            
+            # ✅ CORRIGIDO: Adicionar os campos de Active Storage
+            :foto,
+            :historico_academico,
+            necessidades_especiais_tipo: [],
+            cpf_documento: [],
+            comprovante_residencia: []
+        ).tap do |whitelisted_params|
+            whitelisted_params[:cidade_id] = nil if whitelisted_params[:cidade_id].blank?
 
-        if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
-        whitelisted_params[:necessidades_especiais_tipo] =
-            whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+            if whitelisted_params[:necessidades_especiais_tipo].is_a?(String)
+                whitelisted_params[:necessidades_especiais_tipo] =
+                    whitelisted_params[:necessidades_especiais_tipo].split(',').map(&:strip)
+            end
+
+            whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"] if whitelisted_params[:necessidades_especiais_tipo].blank?
+            
+            # ✅ DEBUG: Log dos arquivos recebidos
+            Rails.logger.info "📸 FOTO recebida: #{whitelisted_params[:foto].present? ? whitelisted_params[:foto].original_filename : 'Nenhuma'}"
+            Rails.logger.info "📄 Histórico recebido: #{whitelisted_params[:historico_academico].present? ? 'Sim' : 'Não'}"
+            Rails.logger.info "📋 CPF documentos: #{whitelisted_params[:cpf_documento]&.size || 0} arquivo(s)"
+            Rails.logger.info "🏠 Comprovantes: #{whitelisted_params[:comprovante_residencia]&.size || 0} arquivo(s)"
         end
-
-        whitelisted_params[:necessidades_especiais_tipo] = ["Nenhuma"] if whitelisted_params[:necessidades_especiais_tipo].blank?
-        
-        # ✅ DEBUG: Log dos arquivos recebidos
-        Rails.logger.info "📸 FOTO recebida: #{whitelisted_params[:foto].present? ? whitelisted_params[:foto].original_filename : 'Nenhuma'}"
-        Rails.logger.info "📄 Histórico recebido: #{whitelisted_params[:historico_academico].present? ? 'Sim' : 'Não'}"
-        Rails.logger.info "📋 CPF documentos: #{whitelisted_params[:cpf_documento]&.size || 0} arquivo(s)"
-        Rails.logger.info "🏠 Comprovantes: #{whitelisted_params[:comprovante_residencia]&.size || 0} arquivo(s)"
     end
-    end
-
 end

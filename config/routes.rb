@@ -196,13 +196,17 @@ end
 
   # Rotas autenticadas (professor)
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
-    get 'minhas_turmas', to: 'professor/turmas#index', as: 'minhas_turmas'
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
 
-    # Estrutura aninhada de turmas -> disciplinas -> funcionalidades
     namespace :professor do
       get "selecionar_turma", to: "conteudos#selecionar_turma"
-      
+
+      namespace :notas do
+      get 'selecionar_disciplina',
+          to: 'resultados#selecionar_disciplina',
+          as: :selecionar_disciplina
+    end
+
       scope :turmas do
         resources :frequencias, only: [:index]
       end
@@ -210,51 +214,60 @@ end
       # Turmas principais
       resources :turmas, only: [:index] do
         member do
-          get :historico # /professor/turmas/:id/historico
+          get :historico
         end
 
-        # **Frequências aninhadas diretamente em turmas (CRUD completo)**
+        # ============================
+        # ✅ ALUNOS ANINHADOS (CORRETO)
+        # ============================
+        resources :alunos, only: [:index, :show]
+
+        # Frequências
         resources :frequencias, except: [:index] do
           member do
             patch :update_presencas
           end
         end
 
-        # **Conteúdos aninhados em turmas**
+        # Conteúdos
         resources :conteudos, only: [:index, :show, :new, :create, :edit, :update, :destroy]
 
-        # Disciplinas dentro da turma
+        # Disciplinas
         resources :disciplinas, only: [:index] do
-          # Visualização de resultados
-          resource :resultados, controller: 'notas/resultados', only: [:show] do
+          resource :resultados,
+                  controller: 'notas/resultados',
+                  only: [:show] do
             member do
               get :detalhes
             end
           end
 
-          # Lançamento de notas
           namespace :notas do
-            resources :avaliacoes, controller: 'avaliacoes' do
+            resources :avaliacoes do
               collection do
                 get :filter_by_bimestre
               end
-              resources :registros, controller: 'registros', only: [:new, :create]
+              resources :registros, only: [:new, :create]
             end
           end
         end
       end
 
-      get 'minhas_disciplinas/:disciplina_id/todos_alunos', 
-          to: 'notas/resultados#todos_alunos', 
+      # Outras rotas do professor
+      get 'minhas_disciplinas/:disciplina_id/todos_alunos',
+          to: 'notas/resultados#todos_alunos',
           as: :disciplina_todos_alunos
 
-      # Outros recursos do namespace professor
       get 'alunos_geral', to: 'alunos#index', as: :alunos_gerais
-      resources :alunos
+
+      # ⚠️ Mantido para INDEX GLOBAL (sidebar)
+      resources :alunos, only: [:index]
+
       resources :disciplinas
       resources :conteudos, as: :painel_conteudos
     end
   end
+
 
   # Rota de Perfil
   resource :profile, only: [:show, :edit, :update], controller: 'profiles'

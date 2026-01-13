@@ -88,6 +88,7 @@ pt-BR:
           manha: "Manhã"
           tarde: "Tarde"
           noite: "Noite"
+          integral: "Integral"
         escola: "Escola"
 
       disciplina:

@@ -429,14 +429,16 @@ end
     
     # 6. Lista de Disciplinas/Turmas (dados reais)
     @disciplinas_e_turmas = frequencias
-      .includes(:turma, :disciplina)
-      .select(:turma_id, :disciplina_id)
-      .distinct
-      .map do |freq|
-        {
-          disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
-          turma: freq.turma&.nome || "Turma não encontrada"
-        }
+        .includes(:turma, :disciplina)
+        .select(:turma_id, :disciplina_id)
+        .distinct
+        .map do |freq|
+          {
+            disciplina_id: freq.disciplina_id,
+            disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
+            turma_id: freq.turma_id,
+            turma: freq.turma&.nome || "Turma não encontrada"
+          }
       end
     
     # 7. Gráfico de Desempenho por Disciplina (NIL - necessário modelo de Nota)

@@ -9,81 +9,12 @@
         <div class="text-sm breadcrumbs mt-1">
           <ul>
             <li>
-              <% if @conteudo.escola.present? %>
-                <%= link_to @conteudo.escola.nome, escola_path(@conteudo.escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
-              <% end %>
+              <%= link_to "Meus Conteúdos", professor_turma_conteudos_path(@conteudo.turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
             </li>
-            <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-              <li>
-                <%= link_to "Conteúdos da Escola", escola_conteudos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
-              </li>
-            <% end %>
-            <% if @escola.present? && (current_user.is_a?(Professor)) %>
-              <li>
-                <%= link_to "Meus Conteúdos", escola_conteudos_path(@conteudo.escola.id), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
-              </li>
-            <% end %>
             <li class="text-gray-600"><%= @conteudo.titulo %></li>
           </ul>
         </div>
       </div>
-
-      <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
-  <div class="flex gap-3">
-    <% if current_user.is_a?(Admin) && @conteudo.escola_id == current_user.escolas.pluck(:id).first %>
-      <%= link_to new_escola_conteudo_path(@conteudo.escola),
-                  class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-        Novo Conteúdo
-      <% end %>
-
-    <% elsif current_user.is_a?(SuperAdmin) %>
-      <% if @conteudo.escola.present? %>
-        <%= link_to new_escola_conteudo_path(@conteudo.escola),
-                    class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Novo Conteúdo
-        <% end %>
-      <% else %>
-        <%= link_to escolas_path,
-                    class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Novo Conteúdo
-        <% end %>
-      <% end %>
-    <% end %>
-
-    <%# Lógica para alternar entre rotas aninhadas e rotas de namespace %>
-    <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-      <%# Rota aninhada para Admin/SuperAdmin (escola/conteudo) %>
-      <%= link_to edit_escola_conteudo_path(@escola, @conteudo),
-                  class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-        </svg>
-        Editar Conteúdo
-      <% end %>
-    <% else %>
-      <%# Rota padrão para Professor e para Admin/SuperAdmin em modo global (/professor/conteudos) %>
-      <%= link_to edit_professor_conteudo_path(@conteudo),
-                  class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-1 transition-colors" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-        </svg>
-        Editar Conteúdo
-      <% end %>
-    <% end %>
-    
-  </div>
-<% end %>
     </div>
   </div>
 
@@ -107,13 +38,6 @@
               <p class="text-lg text-gray-400 italic">Sem disciplina</p>
             <% end %>
           </div>
-
-          <% if current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin) %>
-            <div>
-              <p class="text-xs text-gray-500 uppercase tracking-wide">Professor responsável</p>
-              <p class="text-lg font-bold text-indigo-600"><%= @conteudo.professor&.nome || "Não atribuído" %></p>
-            </div>
-          <% end %>
 
           <div>
             <p class="text-xs text-gray-500 uppercase tracking-wide">Bimestre</p>
@@ -200,32 +124,6 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0 0l-4-4m4 4l4-4m-4-8V4" />
                 </svg>
               <% end %>
-
-              <%# Lógica condicional para a rota de remoção %>
-              <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-                <%# Rota aninhada de Admin/SuperAdmin %>
-                <%= link_to remove_material_escola_conteudo_path(@escola, @conteudo, arquivo_id: arquivo.id),
-                            data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
-                            class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
-                            title: "Remover" do %>
-
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
-                <% end %>
-              <% else %>
-                <%# Rota padrão de Professor / Admin Global %>
-                <%= link_to remove_material_professor_conteudo_path(@conteudo, arquivo_id: arquivo.id),
-                            data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
-                            class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
-                            title: "Remover" do %>
-
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
-                <% end %>
-              <% end %>
-              
             </td>
           </tr>
         <% end %>

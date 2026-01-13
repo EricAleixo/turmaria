@@ -101,15 +101,16 @@ class ProfessorsController < ApplicationController
       update_params = update_params.except(:password, :password_confirmation)
     end
     
-    # CORRIGIDO: Processa foto Base64 ANTES de tentar atualizar
-    if params[:professor][:foto_base64].present?
-      process_base64_foto(@professor)
-    end
-    
-    # Remove foto_base64 dos params para não dar erro
+    # Remove foto_base64 dos params
     update_params = update_params.except(:foto_base64)
     
+    # PRIMEIRO atualiza os campos normais
     if @professor.update(update_params)
+      # DEPOIS processa a foto (se houver)
+      if params[:professor][:foto_base64].present?
+        process_base64_foto(@professor)
+      end
+      
       redirect_to @professor, notice: "Professor atualizado com sucesso!"
     else
       render :edit, status: :unprocessable_entity

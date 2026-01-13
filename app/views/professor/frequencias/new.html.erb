@@ -9,7 +9,7 @@
             Turma: <span class="font-medium"><%= @turma.nome %></span> - <%= @turma.escola.nome %>
           </p>
         </div>
-        <%= link_to minhas_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
+        <%= link_to professor_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
           Voltar para Turmas
         <% end %>
       </div>
@@ -140,17 +140,6 @@
                     
                     <div class="border-t border-gray-100 my-2"></div>
                     
-                    <button type="button" data-acao="inverter" class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 group">
-                      <div class="w-8 h-8 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                        </svg>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="font-medium text-gray-900 text-sm">Inverter Seleção</div>
-                        <div class="text-xs text-gray-500">Presentes viram ausentes</div>
-                      </div>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -223,187 +212,70 @@
 </style>
 
 <script>
-// Funções globais para serem acessadas de qualquer lugar
-window.FrequenciaManager = {
-  setStatus: function(alunoId, status) {
-    // Remover classe active de todos os botões do aluno
-    const buttons = document.querySelectorAll(`[data-aluno-id="${alunoId}"].status-btn`);
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    // Adicionar classe active ao botão clicado
-    const activeButton = document.querySelector(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
-    if (activeButton) {
-      activeButton.classList.add('active');
-    }
-    
-    // Atualizar o campo hidden
-    const hiddenField = document.getElementById(`status_${alunoId}`);
-    if (hiddenField) {
-      hiddenField.value = status;
-    }
-    
-    // Atualizar cor da linha
-    this.updateRowColor(alunoId, status);
-    
-    // Atualizar contadores
-    this.atualizarContadores();
-  },
-
-  updateRowColor: function(alunoId, status) {
-    const row = document.querySelector(`div.aluno-row[data-aluno-id="${alunoId}"]`);
-    if (!row) return;
-
-    row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
-    
-    switch(status) {
-      case 'presente':
-        row.classList.add('bg-green-50');
-        break;
-      case 'falta':
-        row.classList.add('bg-red-50');
-        break;
-      case 'justificada':
-        row.classList.add('bg-yellow-50');
-        break;
-    }
-  },
-
-  marcarTodos: function(status) {
-    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
-    const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
-    
-    alunoIds.forEach(alunoId => {
-      this.setStatus(parseInt(alunoId), status);
+// Toggle do menu dropdown
+document.addEventListener('DOMContentLoaded', function() {
+  const btnAcoes = document.getElementById('btn-acoes-rapidas');
+  const menuAcoes = document.getElementById('menu-acoes');
+  
+  if (btnAcoes && menuAcoes) {
+    btnAcoes.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      menuAcoes.classList.toggle('hidden');
     });
-  },
 
-  inverterSelecao: function() {
-    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
-    const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
-    
-    alunoIds.forEach(alunoId => {
-      const hiddenField = document.getElementById(`status_${alunoId}`);
-      if (hiddenField) {
-        const currentStatus = hiddenField.value;
-        let newStatus;
-        
-        if (currentStatus === 'presente') {
-          newStatus = 'falta';
-        } else if (currentStatus === 'falta') {
-          newStatus = 'presente';
-        } else {
-          // Se for justificada, não inverte
-          return;
-        }
-        
-        this.setStatus(parseInt(alunoId), newStatus);
+    // Fecha o menu ao clicar fora
+    document.addEventListener('click', function(e) {
+      if (!menuAcoes.contains(e.target) && !btnAcoes.contains(e.target)) {
+        menuAcoes.classList.add('hidden');
       }
     });
-  },
-
-  atualizarContadores: function() {
-    const presente = document.querySelectorAll('input[id^="status_"][value="presente"]').length;
-    const ausente = document.querySelectorAll('input[id^="status_"][value="falta"]').length;
-    const justificado = document.querySelectorAll('input[id^="status_"][value="justificada"]').length;
-    
-    const contadorPresente = document.getElementById('contador-presente');
-    const contadorAusente = document.getElementById('contador-ausente');
-    const contadorJustificado = document.getElementById('contador-justificado');
-    
-    if (contadorPresente) contadorPresente.textContent = presente;
-    if (contadorAusente) contadorAusente.textContent = ausente;
-    if (contadorJustificado) contadorJustificado.textContent = justificado;
-  },
-
-  init: function() {
-    // Inicializa todos como presentes
-    const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
-    
-    alunos.forEach(row => {
-      const alunoId = row.getAttribute('data-aluno-id');
-      this.setStatus(parseInt(alunoId), 'presente');
-    });
-
-    // Toggle do menu dropdown
-    const btnAcoes = document.getElementById('btn-acoes-rapidas');
-    const menuAcoes = document.getElementById('menu-acoes');
-    
-    if (btnAcoes && menuAcoes) {
-      // Remove listeners antigos se existirem
-      const newBtnAcoes = btnAcoes.cloneNode(true);
-      btnAcoes.parentNode.replaceChild(newBtnAcoes, btnAcoes);
-      
-      newBtnAcoes.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        menuAcoes.classList.toggle('hidden');
-      });
-
-      // Fecha o menu ao clicar fora
-      document.addEventListener('click', function(e) {
-        if (!menuAcoes.contains(e.target) && !newBtnAcoes.contains(e.target)) {
-          menuAcoes.classList.add('hidden');
-        }
-      });
-    }
-
-    // Ações do menu
-    const botoesAcao = document.querySelectorAll('[data-acao]');
-    
-    botoesAcao.forEach(btn => {
-      // Remove listeners antigos
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode.replaceChild(newBtn, btn);
-      
-      newBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const acao = newBtn.dataset.acao;
-        
-        switch(acao) {
-          case 'presente':
-            this.marcarTodos('presente');
-            break;
-          case 'falta':
-            this.marcarTodos('falta');
-            break;
-          case 'justificada':
-            this.marcarTodos('justificada');
-            break;
-          case 'inverter':
-            this.inverterSelecao();
-            break;
-        }
-        
-        if (menuAcoes) {
-          menuAcoes.classList.add('hidden');
-        }
-      });
-    });
   }
-};
 
-// Função global para compatibilidade com onclick
-function setStatus(alunoId, status) {
-  window.FrequenciaManager.setStatus(alunoId, status);
-}
-
-// Inicializar quando o DOM carregar
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    window.FrequenciaManager.init();
+  // Ações do menu
+  const botoesAcao = document.querySelectorAll('[data-acao]');
+  
+  botoesAcao.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const acao = btn.dataset.acao;
+      
+      switch(acao) {
+        case 'presente':
+          marcarTodos('presente');
+          break;
+        case 'falta':
+          marcarTodos('falta');
+          break;
+        case 'justificada':
+          marcarTodos('justificada');
+          break;
+      }
+      
+      if (menuAcoes) {
+        menuAcoes.classList.add('hidden');
+      }
+      
+      atualizarContadores();
+    });
   });
-} else {
-  // DOM já está carregado
-  window.FrequenciaManager.init();
+  
+  // Atualizar contadores ao carregar
+  atualizarContadores();
+});
+
+function atualizarContadores() {
+  const presente = document.querySelectorAll('input[id^="status_"][value="presente"]').length;
+  const ausente = document.querySelectorAll('input[id^="status_"][value="falta"]').length;
+  const justificado = document.querySelectorAll('input[id^="status_"][value="justificada"]').length;
+  
+  const contadorPresente = document.getElementById('contador-presente');
+  const contadorAusente = document.getElementById('contador-ausente');
+  const contadorJustificado = document.getElementById('contador-justificado');
+  
+  if (contadorPresente) contadorPresente.textContent = presente;
+  if (contadorAusente) contadorAusente.textContent = ausente;
+  if (contadorJustificado) contadorJustificado.textContent = justificado;
 }
-
-// Reinicializar em caso de Turbolinks/Turbo
-document.addEventListener('turbolinks:load', function() {
-  window.FrequenciaManager.init();
-});
-
-document.addEventListener('turbo:load', function() {
-  window.FrequenciaManager.init();
-});
 </script>

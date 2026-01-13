@@ -16,6 +16,9 @@ module SistemaAcademico
       g.orm :active_record, primary_key_type: :uuid
     end
 
+    config.time_zone = 'America/Sao_Paulo'
+    config.active_record.default_timezone = :local
+
     # devise em portugues pt-BR
     config.i18n.default_locale = :"pt-BR"
 

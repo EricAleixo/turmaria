@@ -61,9 +61,6 @@ class Professor::AlunosController < Professor::ApplicationController
     end
   end
 
-  # -------------------------------
-  # SHOW (Detalhes do Aluno)
-  # -------------------------------
   # GET /professor/turmas/:turma_id/alunos/:id
   def show
     # @aluno e @turma já estão definidos e seguros pelo before_action :set_turma_and_aluno

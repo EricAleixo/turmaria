@@ -38,6 +38,20 @@ class Professor < ApplicationRecord
   # Remove a foto do S3 ao destruir o registro
   before_destroy :purge_foto_on_destroy
 
+  scope :por_nome, ->(nome) {
+    where("LOWER(nome) LIKE ?", "%#{nome.downcase}%")
+  }
+  
+  # Filtro por formação acadêmica
+  scope :por_formacao, ->(formacoes) {
+    where(formacao: formacoes) if formacoes.present?
+  }
+  
+  # Filtro por tipo de vínculo
+  scope :por_tipo, ->(tipos) {
+    where(tipo_professor: tipos) if tipos.present?
+  }
+
   # === Validação de formato e tamanho ===
   def foto_format_and_size
     if foto.blob.byte_size > 2.megabytes

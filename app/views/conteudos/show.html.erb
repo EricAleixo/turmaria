@@ -20,7 +20,7 @@
             <% end %>
             <% if @escola.present? && (current_user.is_a?(Professor)) %>
               <li>
-                <%= link_to "Meus Conteúdos", escola_conteudos_path(@conteudo.escola.id), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
+                <%= link_to "Meus Conteúdos", professor_turma_conteudos_path(@conteudo.turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>  
               </li>
             <% end %>
             <li class="text-gray-600"><%= @conteudo.titulo %></li>

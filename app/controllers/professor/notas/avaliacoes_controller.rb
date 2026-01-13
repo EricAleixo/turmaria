@@ -124,11 +124,11 @@ class Professor::Notas::AvaliacoesController < Professor::BaseController
         :nome, 
         :bimestre, 
         :is_recuperacao, 
-        :avaliacao_original_id # Permitir o ID de referência
+        :avaliacao_original_id
       ).tap do |whitelisted|
-        # Lógica para limpar o campo se não for recuperação
+        # 🚨 CORREÇÃO: Define explicitamente como nil se não for recuperação
         unless whitelisted[:is_recuperacao] == '1'
-          whitelisted.delete(:avaliacao_original_id)
+          whitelisted[:avaliacao_original_id] = nil
         end
       end
     end

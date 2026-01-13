@@ -22,10 +22,10 @@
             <div class="flex items-center gap-3">
               <!-- Presente -->
               <button type="button" 
-                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn active" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="presente"
-                      onclick="setStatus('<%= aluno.id %>', 'presente')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'presente')">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -37,7 +37,7 @@
                       class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn falta-btn" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="falta"
-                      onclick="setStatus('<%= aluno.id %>', 'falta')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'falta')">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -49,7 +49,7 @@
                       class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn justificada-btn" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="justificada"
-                      onclick="setStatus('<%= aluno.id %>', 'justificada')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'justificada')">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -57,7 +57,10 @@
               </button>
             </div>
 
-            <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
+            <input type="hidden" 
+                   name="alunos[<%= aluno.id %>][status]" 
+                   value="presente" 
+                   id="status_<%= aluno.id %>">
           </div>
 
           <!-- Campo de Observações -->
@@ -95,10 +98,10 @@
             <div class="grid grid-cols-3 gap-2 mb-3">
               <!-- Presente -->
               <button type="button" 
-                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn presente-btn" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn presente-btn active" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="presente"
-                      onclick="setStatus('<%= aluno.id %>', 'presente')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'presente')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -110,7 +113,7 @@
                       class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn falta-btn" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="falta"
-                      onclick="setStatus('<%= aluno.id %>', 'falta')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'falta')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -122,15 +125,13 @@
                       class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn justificada-btn" 
                       data-aluno-id="<%= aluno.id %>" 
                       data-status="justificada"
-                      onclick="setStatus('<%= aluno.id %>', 'justificada')">
+                      onclick="setStatusNew('<%= aluno.id %>', 'justificada')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 <span>Justificada</span>
               </button>
             </div>
-
-            <%= hidden_field_tag "alunos[#{aluno.id}][status]", "presente", id: "status_#{aluno.id}" %>
 
             <!-- Campo de Observações -->
             <input type="text" 
@@ -195,153 +196,124 @@
 </style>
 
 <script>
-console.log('=== SCRIPT DE FREQUÊNCIA CARREGADO ===');
+// ============================================
+// DEFINIR FUNÇÕES GLOBALMENTE PRIMEIRO
+// ============================================
 
-function setStatus(alunoId, status) {
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🎯 setStatus CHAMADO');
-  console.log('   Aluno ID:', alunoId);
-  console.log('   Status:', status);
-  
-  // Remover classe active de todos os botões do aluno
+// Função específica para a tela NEW
+window.setStatusNew = function(alunoId, status) {
+  // Remover classe active de todos os botões deste aluno
   const buttons = document.querySelectorAll(`[data-aluno-id="${alunoId}"].status-btn`);
-  console.log('   Botões encontrados:', buttons.length);
-  
-  buttons.forEach((btn, index) => {
-    console.log(`   Botão ${index + 1}:`, btn.dataset.status, '- removendo active');
-    btn.classList.remove('active');
-  });
+  buttons.forEach(btn => btn.classList.remove('active'));
   
   // Adicionar classe active ao botão clicado
-  const activeButton = document.querySelector(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
-  console.log('   Botão a ativar encontrado:', activeButton ? 'SIM' : 'NÃO');
-  
-  if (activeButton) {
-    activeButton.classList.add('active');
-    console.log('   ✅ Classe "active" adicionada ao botão:', status);
-  } else {
-    console.error('   ❌ ERRO: Botão não encontrado!');
-  }
+  const activeButtons = document.querySelectorAll(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
+  activeButtons.forEach(btn => btn.classList.add('active'));
   
   // Atualizar o campo hidden
   const hiddenField = document.getElementById(`status_${alunoId}`);
-  console.log('   Campo hidden encontrado:', hiddenField ? 'SIM' : 'NÃO');
-  
   if (hiddenField) {
-    const valorAnterior = hiddenField.value;
     hiddenField.value = status;
-    console.log('   Campo hidden atualizado:', valorAnterior, '→', status);
-  } else {
-    console.error('   ❌ ERRO: Campo hidden não encontrado!');
   }
   
   // Atualizar cor da linha
-  console.log('   Chamando updateRowColor...');
-  updateRowColor(alunoId, status);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-}
-
-function updateRowColor(alunoId, status) {
-  console.log('🎨 updateRowColor CHAMADO');
-  console.log('   Aluno ID:', alunoId);
-  console.log('   Status:', status);
+  window.updateRowColorNew(alunoId, status);
   
-  const row = document.querySelector(`div.aluno-row[data-aluno-id="${alunoId}"]`);
-  console.log('   Linha encontrada:', row ? 'SIM' : 'NÃO');
-  
-  if (!row) {
-    console.error('   ❌ ERRO: Linha não encontrada!');
-    return;
+  // Atualizar contadores
+  if (typeof window.atualizarContadores === 'function') {
+    window.atualizarContadores();
   }
+};
 
-  console.log('   Classes antes:', row.className);
-  row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
+window.updateRowColorNew = function(alunoId, status) {
+  const rows = document.querySelectorAll(`div.aluno-row[data-aluno-id="${alunoId}"]`);
   
-  switch(status) {
-    case 'presente':
-      row.classList.add('bg-green-50');
-      console.log('   ✅ Adicionada classe: bg-green-50');
-      break;
-    case 'falta':
-      row.classList.add('bg-red-50');
-      console.log('   ✅ Adicionada classe: bg-red-50');
-      break;
-    case 'justificada':
-      row.classList.add('bg-yellow-50');
-      console.log('   ✅ Adicionada classe: bg-yellow-50');
-      break;
-    default:
-      console.warn('   ⚠️  Status desconhecido:', status);
-  }
-  
-  console.log('   Classes depois:', row.className);
-}
-
-function marcarTodos(status) {
-  console.log('📝 marcarTodos CHAMADO - Status:', status);
-  const alunos = document.querySelectorAll('[data-aluno-id]');
-  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
-  console.log('   Total de alunos únicos:', alunoIds.length);
-  
-  alunoIds.forEach((alunoId, index) => {
-    console.log(`   Marcando aluno ${index + 1}/${alunoIds.length} (ID: ${alunoId})`);
-    setStatus(parseInt(alunoId), status);
-  });
-  
-  console.log('✅ marcarTodos CONCLUÍDO\n');
-}
-
-// Inicializa as cores quando a página carregar
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('\n🚀 DOM CONTENT LOADED - INICIALIZANDO...');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  
-  const rows = document.querySelectorAll('.aluno-row[data-aluno-id]');
-  console.log('📊 Total de linhas de alunos encontradas:', rows.length);
-  
-  rows.forEach((row, index) => {
-    const alunoId = row.getAttribute('data-aluno-id');
-    const hiddenField = document.getElementById(`status_${alunoId}`);
+  rows.forEach(row => {
+    row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
     
-    console.log(`\n   Aluno ${index + 1}/${rows.length}:`);
-    console.log('   - ID:', alunoId);
-    console.log('   - Hidden field encontrado:', hiddenField ? 'SIM' : 'NÃO');
-    
-    if (hiddenField) {
-      const status = hiddenField.value;
-      console.log('   - Status inicial:', status);
-      updateRowColor(parseInt(alunoId), status);
-    } else {
-      console.error('   ❌ ERRO: Campo hidden não encontrado para aluno ID:', alunoId);
+    switch(status) {
+      case 'presente':
+        row.classList.add('bg-green-50');
+        break;
+      case 'falta':
+        row.classList.add('bg-red-50');
+        break;
+      case 'justificada':
+        row.classList.add('bg-yellow-50');
+        break;
     }
   });
-  
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('✅ INICIALIZAÇÃO CONCLUÍDA');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  
-  // Adicionar event listeners aos botões
-  console.log('🔧 CONFIGURANDO EVENT LISTENERS...');
-  const allButtons = document.querySelectorAll('.status-btn');
-  console.log('   Total de botões encontrados:', allButtons.length);
-  
-  allButtons.forEach((button, index) => {
-    const alunoId = button.getAttribute('data-aluno-id');
-    const status = button.getAttribute('data-status');
-    
-    console.log(`   Botão ${index + 1}: Aluno ID ${alunoId}, Status: ${status}`);
-    
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('\n🖱️  BOTÃO CLICADO!');
-      console.log('   Target:', e.target);
-      console.log('   Current Target:', e.currentTarget);
-      setStatus(parseInt(alunoId), status);
-    });
-  });
-  
-  console.log('✅ EVENT LISTENERS CONFIGURADOS\n');
-});
+};
 
-console.log('=== FIM DO SCRIPT ===\n');
+window.marcarTodos = function(status) {
+  const alunos = document.querySelectorAll('[data-aluno-id]');
+  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+  
+  alunoIds.forEach(alunoId => {
+    window.setStatusNew(alunoId, status);
+  });
+};
+
+window.inverterSelecao = function() {
+  const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
+  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+  
+  alunoIds.forEach(alunoId => {
+    const hiddenField = document.getElementById(`status_${alunoId}`);
+    if (hiddenField) {
+      const currentStatus = hiddenField.value;
+      let newStatus;
+      
+      if (currentStatus === 'presente') {
+        newStatus = 'falta';
+      } else if (currentStatus === 'falta') {
+        newStatus = 'presente';
+      } else {
+        return;
+      }
+      
+      window.setStatusNew(alunoId, newStatus);
+    }
+  });
+};
+
+window.atualizarContadores = function() {
+  const presente = document.querySelectorAll('input[id^="status_"][value="presente"]').length;
+  const ausente = document.querySelectorAll('input[id^="status_"][value="falta"]').length;
+  const justificado = document.querySelectorAll('input[id^="status_"][value="justificada"]').length;
+  
+  const contadorPresente = document.getElementById('contador-presente');
+  const contadorAusente = document.getElementById('contador-ausente');
+  const contadorJustificado = document.getElementById('contador-justificado');
+  
+  if (contadorPresente) contadorPresente.textContent = presente;
+  if (contadorAusente) contadorAusente.textContent = ausente;
+  if (contadorJustificado) contadorJustificado.textContent = justificado;
+};
+
+// ============================================
+// INICIALIZAÇÃO IMEDIATA
+// ============================================
+(function() {
+  // Inicializar cores imediatamente
+  function inicializarCores() {
+    document.querySelectorAll('.aluno-row[data-aluno-id]').forEach(row => {
+      const alunoId = row.getAttribute('data-aluno-id');
+      const hiddenField = document.getElementById(`status_${alunoId}`);
+      if (hiddenField) {
+        const status = hiddenField.value;
+        window.updateRowColorNew(alunoId, status);
+      }
+    });
+    
+    window.atualizarContadores();
+  }
+  
+  // Executar imediatamente se DOM já estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarCores);
+  } else {
+    inicializarCores();
+  }
+})();
 </script>

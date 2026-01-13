@@ -35,36 +35,33 @@ class Professor::Notas::RegistrosController < ApplicationController
 
   # Ação CREATE: Salva as notas submetidas
   def create
-    # Acessa o hash de notas submetido pelo formulário
-    registros_data = registros_params[:registros]
+  registros_data = registros_params[:registros]
 
-    # Itera sobre os dados e salva/atualiza cada registro individualmente
-    success = true
-    ActiveRecord::Base.transaction do
-      registros_data.each do |aluno_id, data|
-        # Busca ou cria o registro
-        registro = RegistroDeNota.find_or_initialize_by(
-          aluno_id: aluno_id,
-          avaliacao_configuracao: @avaliacao_configuracao
-        )
+  success = true
+  ActiveRecord::Base.transaction do
+    registros_data.each do |aluno_id, data|
+      registro = RegistroDeNota.find_or_initialize_by(
+        aluno_id: aluno_id,
+        avaliacao_configuracao: @avaliacao_configuracao
+      )
+      
+      valor_nota = data[:valor].presence 
+      
+      if valor_nota
+        # 🔧 NORMALIZA: aceita "5,3" ou "5.3"
+        registro.valor = normalize_decimal(valor_nota)
+        registro.data_registro = Date.current
         
-        # Atualiza o valor. Se o valor estiver em branco, remove a nota (opcional, mas comum)
-        valor_nota = data[:valor].presence 
-        
-        if valor_nota
-          registro.valor = valor_nota
-          registro.data_registro = Date.current # Ou use um campo de data no formulário
-          unless registro.save
-            success = false
-            # O ideal é coletar todos os erros e exibi-los
-            raise ActiveRecord::Rollback 
-          end
-        elsif registro.persisted?
-          # Se o valor foi removido (deixado em branco), exclui o registro
-          registro.destroy 
+        unless registro.save
+          success = false
+          raise ActiveRecord::Rollback 
         end
+      elsif registro.persisted?
+        registro.destroy 
       end
     end
+  end
+
 
     if success
       # CORREÇÃO DE ROTA: Usando professor_turma_disciplina_notas_avaliacoes_path
@@ -87,6 +84,13 @@ class Professor::Notas::RegistrosController < ApplicationController
   end
 
   private
+
+
+  def normalize_decimal(value)
+    return nil if value.blank?
+    # Aceita tanto vírgula quanto ponto e converte para decimal Ruby
+    value.to_s.gsub(',', '.').to_f
+  end
   
   # Define o contexto Turma, Disciplina e AvaliacaoConfiguracao
   def set_turma_disciplina_e_configuracao

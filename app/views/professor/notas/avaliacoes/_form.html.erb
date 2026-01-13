@@ -1,132 +1,127 @@
-<%# app/views/professor/notas/avaliacoes/_form.html.erb %>
-<%# app/views/professor/notas/avaliacoes/_form.html.erb %>
+<%# app/views/professor/notas/registros/new.html.erb %>
 
-<% if @avaliacao_configuracao.persisted? %>
-  <% form_url = professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, @avaliacao_configuracao) %>
-<% else %>
-  <% form_url = professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
-<% end %>
+<div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+  <div class="border-b-2 border-green-500 pb-4 mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-800 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      Lançamento de Notas
+    </h1>
+    <p class="text-gray-500 mt-1">
+      <%= @avaliacao_configuracao.nome %> - <%= @bimestre %>º Bimestre
+    </p>
+  </div>
 
-<% ajax_url = filter_by_bimestre_professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina) %>
+  <%= form_with model: @registros_form, 
+                url: professor_turma_disciplina_notas_avaliaco_registros_path(@turma, @disciplina, @avaliacao_configuracao),
+                method: :post,
+                class: "space-y-4" do |form| %>
 
-<div 
-  data-controller="avaliacao-form"
-  data-avaliacao-form-url-value="<%= ajax_url %>"
-  data-avaliacao-form-current-avaliacao-id-value="<%= @avaliacao_configuracao.avaliacao_original_id %>"
->
-  <%= form_with(model: @avaliacao_configuracao,
-                url: form_url, 
-                data: { turbo: true }, 
-                class: "bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100 space-y-8") do |form| %>
-
-    <% if @avaliacao_configuracao.errors.any? %>
-      <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" role="alert">
-        <div class="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          <div>
-            <h3 class="font-bold text-lg">Houve um problema ao salvar!</h3>
-            <ul class="list-disc list-inside mt-2 text-sm">
-              <% @avaliacao_configuracao.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      </div>
-    <% end %>
-
-    <div class="border-b-2 border-green-500 pb-4">
-      <h1 class="text-3xl font-extrabold text-gray-800 flex items-center">
-        <% if @avaliacao_configuracao.persisted? %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-            Editar Avaliação
-        <% else %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Nova Avaliação
-        <% end %>
-      </h1>
-      <p class="text-gray-500 mt-1 text-sm">Preencha os dados para configurar esta coluna de nota.</p>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th class="text-center">Nota (0 a 10)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @registros.each do |registro| %>
+            <tr>
+              <td class="font-medium"><%= registro.aluno.nome %></td>
+              <td class="text-center">
+                <%= text_field_tag "open_struct[registros][#{registro.aluno.id}][valor]",
+                                   registro.valor&.to_s&.gsub('.', ','),
+                                   class: 'input input-bordered input-sm w-24 text-center input-nota',
+                                   placeholder: '0,0',
+                                   pattern: '[0-9]{1,2}[,.]?[0-9]{0,2}',
+                                   inputmode: 'decimal' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="form-control w-full">
-        <label class="label">
-            <%= form.label :nome, 'Nome da Avaliação *', class: 'label-text text-gray-700 font-medium' %>
-        </label>
-        <%= form.text_field :nome,
-                            class: 'input input-bordered w-full border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors',
-                            placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo',
-                            required: true %>
-      </div>
-
-      <div class="form-control w-full">
-        <label class="label">
-            <%= form.label :bimestre, 'Bimestre *', class: 'label-text text-gray-700 font-medium' %>
-        </label>
-        <%= form.select :bimestre,
-                        options_for_select(@turma.bimestres_disponiveis.map { |b| ["#{b}º Bimestre", b] }, @avaliacao_configuracao.bimestre),
-                        { include_blank: 'Selecione o Bimestre' },
-                        { 
-                          class: 'select select-bordered w-full border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors',
-                          required: true,
-                          data: { 
-                            'avaliacao-form-target': 'bimestreSelect',
-                            action: 'change->avaliacao-form#handleFormChange' 
-                          } 
-                        } %>
-      </div>
-
-      <div class="form-control w-full md:col-span-2">
-        <%# 🚨 CAIXA DE RECUPERAÇÃO: AGORA TUDO EM green-500 E TONS PRÓXIMOS 🚨 %>
-        <div class="p-4 bg-green-50 border border-green-500 rounded-lg">
-          <div class="flex items-center">
-            <%= form.check_box :is_recuperacao,
-                               class: 'checkbox checkbox-success mr-3 checkbox-lg', 
-                               data: { 
-                                 'avaliacao-form-target': 'isRecuperacaoCheckbox',
-                                 action: 'change->avaliacao-form#handleFormChange' 
-                               } %>
-            <div class="flex flex-col">
-              <%= form.label :is_recuperacao, 'É uma Recuperação?', class: 'label cursor-pointer p-0 text-green-700 font-bold text-base' %>
-              <span class="label-text text-sm text-green-500 mt-1">
-                Marque se esta avaliação deve substituir uma nota padrão (Normal) do bimestre selecionado.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div 
-      data-avaliacao-form-target="recuperacaoField"
-      class="form-control w-full pt-4 transition-all duration-300 border-t border-gray-200 <%= @avaliacao_configuracao.recuperacao? ? '' : 'hidden' %>"
-    >
-      <label class="label">
-        <%= form.label :avaliacao_original_id, 'Avaliação Original Substituída *', class: 'label-text text-gray-700 font-medium' %>
-      </label>
-      <p class="text-sm text-yellow-600 mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        Selecione a avaliação 'Normal' deste bimestre que será substituída por esta nota de Recuperação.
-      </p>
-
-      <%= form.select :avaliacao_original_id,
-                      [], 
-                      { include_blank: 'Carregando avaliações normais...' },
-                      { 
-                        class: 'select select-bordered w-full border-gray-300 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-colors',
-                        data: { 'avaliacao-form-target': 'avaliacaoOriginalSelect' } 
-                      } %>
-    </div>
-
-
-    <div class="flex justify-between pt-8 border-t border-gray-100">
+    <div class="flex justify-between pt-6 border-t border-gray-200">
       <%= link_to '← Voltar', 
                   professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
-                  class: 'btn btn-ghost text-gray-600 hover:bg-gray-100' %>
-
-      <%= form.submit @avaliacao_configuracao.persisted? ? "Atualizar Avaliação" : "Salvar Avaliação",
-                      class: "btn bg-green-500 hover:bg-green-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-200" %>
+                  class: 'btn btn-ghost text-gray-600' %>
+      
+      <%= form.submit 'Salvar Notas', 
+                      class: 'btn bg-green-500 hover:bg-green-700 text-white font-bold' %>
     </div>
-
   <% end %>
 </div>
+
+<script>
+  // 🎯 SOLUÇÃO: Aceita tanto PONTO quanto VÍRGULA
+  document.addEventListener('DOMContentLoaded', function() {
+    const notaInputs = document.querySelectorAll('.input-nota');
+    
+    notaInputs.forEach(input => {
+      // Converte automaticamente ao digitar
+      input.addEventListener('input', function(e) {
+        // Permite apenas números, vírgula e ponto
+        let valor = this.value.replace(/[^0-9.,]/g, '');
+        
+        // Remove múltiplos separadores decimais
+        const parts = valor.split(/[.,]/);
+        if (parts.length > 2) {
+          valor = parts[0] + ',' + parts.slice(1).join('');
+        }
+        
+        // Converte ponto para vírgula
+        valor = valor.replace('.', ',');
+        
+        this.value = valor;
+      });
+      
+      // Valida e formata ao sair do campo
+      input.addEventListener('blur', function() {
+        let valor = this.value.trim();
+        
+        if (!valor) return;
+        
+        // Converte vírgula para ponto temporariamente para validar
+        const valorNumerico = parseFloat(valor.replace(',', '.'));
+        
+        // Valida range
+        if (isNaN(valorNumerico)) {
+          alert('Digite um número válido');
+          this.value = '';
+          return;
+        }
+        
+        if (valorNumerico < 0 || valorNumerico > 10) {
+          alert('A nota deve estar entre 0 e 10');
+          this.value = '';
+          return;
+        }
+        
+        // Formata com 1 casa decimal (opcional)
+        // this.value = valorNumerico.toFixed(1).replace('.', ',');
+      });
+      
+      // Permite navegar com Enter
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const inputs = Array.from(notaInputs);
+          const index = inputs.indexOf(this);
+          if (index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .input-nota:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+</style>

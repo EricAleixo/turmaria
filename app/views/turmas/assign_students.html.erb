@@ -113,9 +113,17 @@
                           <td>
                             <div class="flex items-center gap-3">
                               <div class="avatar">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
-                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
-                                </div>
+                                <% if aluno.foto.attached? %>
+                                  <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <%= image_tag aluno.foto, class: "w-full h-full object-cover" %>
+                                  </div>
+                                <% else %>
+                                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                    <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2">
+                                      <%= aluno.nome.first.upcase %>
+                                    </span>
+                                  </div>
+                                <% end %>
                               </div>
                               <div>
                                 <div class="font-semibold text-gray-900"><%= aluno.nome %></div>
@@ -195,9 +203,17 @@
                               <input type="checkbox" class="checkbox checkbox-primary allocated-checkbox" data-student-id="<%= aluno.id %>" />
                             </label>
                             <div class="avatar">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
-                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
+                              <% if aluno.foto.attached? %>
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                  <%= image_tag aluno.foto, class: "w-full h-full object-cover" %>
                                 </div>
+                              <% else %>
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2">
+                                    <%= aluno.nome.first.upcase %>
+                                  </span>
+                                </div>
+                              <% end %>
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-semibold text-gray-900 truncate"><%= aluno.nome %></div>
@@ -217,10 +233,10 @@
                         </div>
                         <div class="flex flex-wrap gap-2 mt-3">
                           <div class="badge badge-outline badge-sm whitespace-nowrap">
-                            📅 <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
+                            <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
                           </div>
                           <div class="badge badge-info badge-sm whitespace-nowrap">
-                            🎂 <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                            <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
                           </div>
                         </div>
                       </div>
@@ -337,9 +353,17 @@
                           <td>
                             <div class="flex items-center gap-3">
                               <div class="avatar">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
-                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
-                                </div>
+                                <% if aluno.foto.attached? %>
+                                  <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <%= image_tag aluno.foto, class: "w-full h-full object-cover" %>
+                                  </div>
+                                <% else %>
+                                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                    <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2">
+                                      <%= aluno.nome.first.upcase %>
+                                    </span>
+                                  </div>
+                                <% end %>
                               </div>
                               <div>
                                 <div class="font-semibold text-gray-900"><%= aluno.nome %></div>
@@ -422,9 +446,17 @@
                               <input type="checkbox" class="checkbox checkbox-primary student-checkbox" data-student-id="<%= aluno.id %>" />
                             </label>
                             <div class="avatar">
-                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
-                                <span class="text-white font-bold text-sm absolute top-1/2 left-1/2 -translate-1/2"><%= aluno.nome.first.upcase %></span>
-                              </div>
+                              <% if aluno.foto.attached? %>
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                  <%= image_tag aluno.foto, class: "w-full h-full object-cover" %>
+                                </div>
+                              <% else %>
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                  <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2">
+                                    <%= aluno.nome.first.upcase %>
+                                  </span>
+                                </div>
+                              <% end %>
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-semibold text-gray-900 truncate"><%= aluno.nome %></div>
@@ -444,10 +476,10 @@
                         </div>
                         <div class="flex flex-wrap gap-2 mt-3">
                           <div class="badge badge-outline badge-sm whitespace-nowrap">
-                            📅 <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
+                            <%= aluno.data_nascimento&.strftime("%d/%m/%Y") || "Não informada" %>
                           </div>
                           <div class="badge badge-info badge-sm whitespace-nowrap">
-                            🎂 <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
+                            <%= aluno.idade ? "#{aluno.idade} anos" : "N/A" %>
                           </div>
                         </div>
                       </div>

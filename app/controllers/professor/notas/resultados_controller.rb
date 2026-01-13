@@ -85,8 +85,39 @@ class Professor::Notas::ResultadosController < Professor::BaseController
   
   # A view (todosAlunos.html.erb) será renderizada automaticamente.
 rescue ActiveRecord::RecordNotFound
-  redirect_to minhas_turmas_path, alert: "Disciplina não encontrada ou você não está associado a ela."
+  redirect_to professor_turmas_path, alert: "Disciplina não encontrada ou você não está associado a ela."
 end
+
+  def selecionar_disciplina
+    # Busca todas as disciplinas do professor
+    @disciplinas = current_professor.disciplinas.distinct
+
+    # Cria um hash para agrupar turmas por disciplina
+    @disciplinas_com_turmas = {}
+
+    @disciplinas.each do |disciplina|
+      # Busca turmas que:
+      # 1. O professor leciona
+      # 2. Têm essa disciplina associada
+      turmas = current_professor.turmas
+                                .joins(:disciplinas)
+                                .where(disciplinas: { id: disciplina.id })
+                                .includes(:alunos, :ano_letivo)
+                                .distinct
+                                .order(:serie, :nome)
+
+      # Monta dados enriquecidos de cada turma
+      turmas_data = turmas.map do |turma|
+        {
+          turma: turma,
+          total_alunos: turma.alunos.count,
+          ano_letivo: turma.ano_letivo&.ano
+        }
+      end
+
+      @disciplinas_com_turmas[disciplina] = turmas_data if turmas_data.any?
+    end
+  end
   
   private
 
@@ -95,11 +126,11 @@ end
     @disciplina = Disciplina.find(params[:disciplina_id])
     
     unless current_professor.disciplinas.include?(@disciplina)
-      redirect_to minhas_turmas_path, alert: 'Você não está autorizado a acessar esta disciplina.'
+      redirect_to professor_turmas_path, alert: 'Você não está autorizado a acessar esta disciplina.'
       return
     end
 
   rescue ActiveRecord::RecordNotFound
-    redirect_to minhas_turmas_path, alert: 'Turma ou Disciplina não encontrada ou você não tem acesso.'
+    redirect_to professor_turmas_path, alert: 'Turma ou Disciplina não encontrada ou você não tem acesso.'
   end
 end

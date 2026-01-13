@@ -34,15 +34,17 @@
           
           <%# Avatar com badge SuperAdmin %>
           <div class="relative flex-shrink-0">
-            <div class="w-28 h-28 md:w-36 md:h-36 rounded-3xl shadow-md bg-gradient-to-br from-green-400 to-emerald-500 relative ring-4 ring-green-100">
               <% if @user.respond_to?(:foto) && @user.foto.attached? %>
-                <%= image_tag @user.foto.variant(resize_to_fill: [144, 144]), class: "object-cover h-full w-full rounded-3xl" %>
+                <div class="bg-green-600 h-[150px] w-[150px] rounded-full relative">
+                  <%= image_tag @user.foto.variant(resize_to_fill: [144, 144]), class: "object-cover rounded-3xl absolute top-1/2 left-1/2 -translate-1/2" %>
+                </div>
               <% else %>
-                <span class="text-5xl md:text-6xl font-bold text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <%= @user.nome.present? ? @user.nome.first.upcase : 'S' %>
-                </span>
+              <div class="w-28 h-28 md:w-36 md:h-36 rounded-3xl shadow-md bg-gradient-to-br from-green-400 to-emerald-500 relative ring-4 ring-green-100">
+                  <span class="text-5xl md:text-6xl font-bold text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <%= @user.nome.present? ? @user.nome.first.upcase : 'S' %>
+                  </span>
+              </div>
               <% end %>
-            </div>
             
             <%# Badge SuperAdmin %>
             <div class="absolute -bottom-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl px-3 py-1 shadow-md">

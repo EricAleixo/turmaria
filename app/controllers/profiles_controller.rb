@@ -61,8 +61,10 @@ class ProfilesController < ApplicationController
 
       Rails.logger.info "=== REMOVENDO FOTO ANTIGA ==="
       @user.foto.purge
-      permitted_params = permitted_params.except(:remove_foto)
     end
+
+    # Remove remove_foto sempre para não quebrar o update
+    permitted_params = permitted_params.except(:remove_foto)
 
     # === UPDATE PRINCIPAL ===
     if @user.update(permitted_params)

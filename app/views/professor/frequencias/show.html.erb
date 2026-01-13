@@ -12,7 +12,7 @@
           </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <%= link_to minhas_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
+          <%= link_to professor_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
             Voltar para Turmas
           <% end %>
           <%= link_to edit_professor_turma_frequencia_path(@frequencia.turma,@frequencia), class: "w-full sm:w-auto text-center bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base" do %>
@@ -136,7 +136,7 @@
           <% if @frequencia_alunos.any? %>
             <div class="mt-6 pt-6 border-t border-gray-200">
               <div class="flex flex-col sm:flex-row justify-end gap-3">
-                <%= link_to "Cancelar", minhas_turmas_path, 
+                <%= link_to "Cancelar", professor_turmas_path, 
                       class: "w-full sm:w-auto text-center px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors text-sm sm:text-base" %>
                 <%= form.submit "Salvar Alterações", 
                       class: "w-full sm:w-auto px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors shadow-md hover:shadow-lg text-sm sm:text-base" %>

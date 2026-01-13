@@ -76,13 +76,12 @@ class Professor::ConteudosController < ApplicationController
       @conteudo.escola ||= @escola
     end
 
-    # 🔥 ISSO AQUI RESOLVE O ERRO
     if params[:turma_id].present?
       @conteudo.turma = Turma.find(params[:turma_id])
     end
 
     if @conteudo.save
-      redirect_to professor_conteudos_path(@professor), notice: "Conteúdo criado com sucesso."
+      redirect_to professor_turma_conteudos_path(@conteudo.turma), notice: "Conteúdo criado com sucesso."
     else
       render :new, status: :unprocessable_entity
     end
