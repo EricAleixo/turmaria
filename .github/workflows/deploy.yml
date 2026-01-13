@@ -23,7 +23,7 @@ jobs:
             cd ${{ secrets.APP_PATH }}
 
             echo "Git pull"
-            git pull origin main
+            git pull --no-rebase
 
             echo "Build das imagens"
             docker compose build
