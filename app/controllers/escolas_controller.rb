@@ -3,7 +3,8 @@ class EscolasController < ApplicationController
 
   # SuperAdmin é exigido em tudo, EXCETO:
   # index, show, new, edit, update (admin acessa via policy)
-  before_action :required_super_admin!, except: %i[index show new edit update]
+  before_action :required_super_admin!,
+              except: %i[index show new edit update welcome create]
   before_action :set_escola, only: %i[show edit update destroy]
 
   # --------------------------
@@ -58,6 +59,16 @@ class EscolasController < ApplicationController
     end
   end
 
+  def welcome
+    authorize Escola, :welcome?
+    if current_admin&.escolas&.any?
+      redirect_to escolas_path
+    end
+
+    @escola = Escola.new
+    @escola.build_endereco
+  end
+
 
   # --------------------------
   # SHOW
@@ -95,6 +106,7 @@ class EscolasController < ApplicationController
   # --------------------------
   def create
     @escola = Escola.new(escola_params)
+    authorize @escola
 
     # Admin que cria → vira dono
     if current_admin.present?
@@ -105,7 +117,7 @@ class EscolasController < ApplicationController
       redirect_to escolas_path, notice: "Escola criada com sucesso."
     else
       @escola.build_endereco if @escola.endereco.nil?
-      render :new, status: :unprocessable_entity
+      render :welcome, status: :unprocessable_entity
     end
   end
 

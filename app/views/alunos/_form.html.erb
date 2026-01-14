@@ -273,7 +273,7 @@
     <p class="text-gray-500 mb-2 text-sm">Envie uma foto do aluno. (Máximo 1 arquivo)</p>
     
     <!-- INPUT REAL DO RAILS - ESCONDIDO -->
-    <%= form.file_field :foto, class: "hidden", id: "aluno_foto", accept: "image/*" %>
+    <%= form.file_field :foto, class: "hidden", id: "foto-upload", accept: "image/*" %>
     
     <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
   </div>
@@ -292,7 +292,7 @@
     <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
     
     <!-- INPUT REAL DO RAILS - ESCONDIDO -->
-    <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "aluno_cpf_documento", accept: "image/*,.pdf" %>
+    <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "cpf_documento-upload", accept: "image/*,.pdf" %>
     
     <div id="cpf_documento-files-list" class="mt-4 border rounded-lg"></div>
   </div>
@@ -311,7 +311,7 @@
     <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
     
     <!-- INPUT REAL DO RAILS - ESCONDIDO -->
-    <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "aluno_comprovante_residencia", accept: "image/*,.pdf" %>
+    <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "comprovante-upload", accept: "image/*,.pdf" %>
     
     <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
   </div>
@@ -330,7 +330,7 @@
     <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 1 arquivo)</p>
     
     <!-- INPUT REAL DO RAILS - ESCONDIDO -->
-    <%= form.file_field :historico_academico, class: "hidden", id: "aluno_historico_academico", accept: "image/*,.pdf" %>
+    <%= form.file_field :historico_academico, class: "hidden", id: "historico-upload", accept: "image/*,.pdf" %>
     
     <div id="historico-files-list" class="mt-4 border rounded-lg"></div>
   </div>
@@ -515,842 +515,133 @@ input:not(:placeholder-shown) + .placeholder-helper {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-
 <script>
-
-  (function() {
-    'use strict';
-    
-    function destroyAllCalendars() {
-      console.log("[CALENDAR] Destruindo todos os calendários...");
-      
-      // Destrói instâncias do flatpickr
-      document.querySelectorAll(".datepicker-field").forEach(input => {
-        if (input._flatpickr) {
-          input._flatpickr.destroy();
-        }
-      });
-      
-      // Remove elementos órfãos do DOM IMEDIATAMENTE
-      document.querySelectorAll(".flatpickr-calendar").forEach(cal => {
-        cal.style.display = 'none'; // Esconde primeiro para evitar flash
-        cal.remove();
-      });
-    }
-    
-    function initCalendar() {
-      if (typeof flatpickr === 'undefined') {
-        console.log("[CALENDAR] Flatpickr ainda não carregado, aguardando...");
-        return;
-      }
-
-      console.log("[CALENDAR] Inicializando calendário...");
-      
-      document.querySelectorAll(".datepicker-field").forEach(input => {
-        if (input._flatpickr) {
-          console.log("[CALENDAR] Campo já tem flatpickr, pulando...");
-          return;
-        }
-
-        console.log("[CALENDAR] Inicializando campo:", input);
-
-        flatpickr(input, {
-          locale: "pt",
-          dateFormat: "d/m/Y",
-          allowInput: true,
-          disableMobile: true,
-          monthSelectorType: "static",
-          appendTo: document.body,
-          
-          onOpen(selectedDates, dateStr, instance) {
-            console.log("[CALENDAR] Calendário aberto");
-            if (selectedDates.length > 0) {
-              instance.currentYear = selectedDates[0].getFullYear();
-              instance.currentMonth = selectedDates[0].getMonth();
-              instance.redraw();
-            }
-            const el = instance.calendarContainer;
-            el.classList.add("fade-in", "swipe-hint");
-            setTimeout(() => el.classList.remove("swipe-hint"), 1000);
-            setTimeout(() => el.classList.remove("fade-in"), 300);
-          },
-
-          onChange(selectedDates, dateStr, instance) {
-            console.log("[CALENDAR] Data selecionada:", dateStr);
-            if (selectedDates.length > 0) {
-              setTimeout(() => instance.close(), 300);
-            }
-          },
-
-          onReady(selectedDates, dateStr, instance) {
-            console.log("[CALENDAR] Calendário pronto");
-            const calendar = instance.calendarContainer;
-            const monthView = calendar.querySelector(".flatpickr-days");
-
-            if (!monthView) {
-              console.error("[CALENDAR] monthView não encontrado!");
-              return;
-            }
-
-            // Input de ano customizado
-            const yearContainer = calendar.querySelector(".flatpickr-current-month");
-            if (yearContainer && !yearContainer.querySelector(".flatpickr-year-input")) {
-              const yearSpan = yearContainer.querySelector(".cur-year");
-              if (yearSpan) {
-                const input = document.createElement("input");
-                input.type = "number";
-                input.value = yearSpan.textContent;
-                input.className = "flatpickr-year-input";
-                input.style.width = "4rem";
-                input.style.textAlign = "center";
-                yearSpan.textContent = "";
-                yearSpan.appendChild(input);
-
-                const applyYearChange = () => {
-                  const newYear = parseInt(input.value, 10);
-                  if (!isNaN(newYear)) {
-                    instance.currentYear = newYear;
-                    instance.redraw();
-                  }
-                };
-
-                input.addEventListener("change", applyYearChange);
-                input.addEventListener("blur", applyYearChange);
-                input.addEventListener("keydown", (e) => {
-                  if (e.key === "Enter") { 
-                    applyYearChange(); 
-                    input.blur(); 
-                  }
-                });
-              }
-            }
-
-            // Animação de mudança de mês
-            let startX = 0, currentX = 0, isDragging = false, dragged = false;
-            const threshold = 50, minDrag = 10;
-
-            const animateMonth = (direction) => {
-              const dir = direction === "right" ? 1 : -1; 
-              monthView.style.transition = "transform 0.25s ease";
-              monthView.style.transform = `translateX(${dir * 100}%)`;
-
-              setTimeout(() => {
-                instance.currentMonth += dir;
-                instance.redraw();
-                monthView.style.transition = "none";
-                monthView.style.transform = `translateX(${-dir * 100}%)`;
-                requestAnimationFrame(() => {
-                  monthView.style.transition = "transform 0.25s ease";
-                  monthView.style.transform = "translateX(0)";
-                });
-              }, 250);
-            };
-
-            // Setas com animação
-            const prevBtn = calendar.querySelector(".flatpickr-prev-month");
-            const nextBtn = calendar.querySelector(".flatpickr-next-month");
-
-            if (prevBtn) {
-              prevBtn.addEventListener("click", (e) => { 
-                e.preventDefault(); 
-                e.stopPropagation();
-                animateMonth("right"); 
-              }, { once: false });
-            }
-            
-            if (nextBtn) {
-              nextBtn.addEventListener("click", (e) => { 
-                e.preventDefault(); 
-                e.stopPropagation();
-                animateMonth("left"); 
-              }, { once: false });
-            }
-
-            // Swipe - com passive: true para evitar warnings
-            const startDrag = (x, target) => {
-              if (target.closest(".flatpickr-prev-month") || target.closest(".flatpickr-next-month")) return;
-              startX = x; currentX = 0; isDragging = true; dragged = false;
-              monthView.style.transition = "none";
-            };
-            
-            const moveDrag = (x) => {
-              if (!isDragging) return;
-              currentX = x - startX;
-              if (Math.abs(currentX) > minDrag) { 
-                dragged = true; 
-                monthView.style.transform = `translateX(${currentX * 0.4}px)`; 
-              }
-            };
-            
-            const endDrag = () => {
-              if (!isDragging) return;
-              isDragging = false;
-              monthView.style.transition = "transform 0.25s ease";
-              if (!dragged) { 
-                monthView.style.transform = "translateX(0)"; 
-                return; 
-              }
-              if (Math.abs(currentX) > threshold) {
-                animateMonth(currentX > 0 ? "right" : "left");
-              } else {
-                monthView.style.transform = "translateX(0)";
-              }
-            };
-
-            calendar.addEventListener("touchstart", (e) => 
-              startDrag(e.changedTouches[0].screenX, e.target), { passive: true }
-            );
-            
-            calendar.addEventListener("mousedown", (e) => 
-              startDrag(e.clientX, e.target)
-            );
-            
-            calendar.addEventListener("touchmove", (e) => 
-              moveDrag(e.changedTouches[0].screenX), { passive: true }
-            );
-            
-            calendar.addEventListener("mousemove", (e) => 
-              moveDrag(e.clientX)
-            );
-            
-            ["touchend", "mouseup", "mouseleave"].forEach(evt => 
-              calendar.addEventListener(evt, endDrag)
-            );
-
-            // Fechamento suave
-            const calendarEl = instance.calendarContainer;
-            const originalClose = instance.close.bind(instance);
-            instance.close = function() {
-              calendarEl.classList.add("closing");
-              setTimeout(() => { 
-                originalClose(); 
-                calendarEl.classList.remove("closing"); 
-              }, 220);
-            };
-          },
-          
-          onClose() {
-            console.log("[CALENDAR] Calendário fechado");
-          },
-          
-          onDestroy() {
-            console.log("[CALENDAR] Calendário destruído");
-          }
-        });
-        
-        console.log("[CALENDAR] Campo inicializado com sucesso!");
-      });
-    }
-
-    // CRÍTICO: Limpa ANTES de renderizar para evitar flash
-    document.addEventListener("turbo:before-frame-render", (event) => {
-      console.log("[CALENDAR] turbo:before-frame-render - limpando calendários");
-      destroyAllCalendars();
-    });
-
-    // CRÍTICO: Limpa IMEDIATAMENTE após submit
-    document.addEventListener("turbo:submit-start", (event) => {
-      console.log("[CALENDAR] turbo:submit-start - limpando calendários");
-      destroyAllCalendars();
-    });
-
-    // Limpa após submit do form (dupla garantia)
-    document.addEventListener("turbo:submit-end", (event) => {
-      console.log("[CALENDAR] turbo:submit-end - limpando calendários");
-      destroyAllCalendars();
-    });
-
-    // Inicializa após frame carregar (MODAL)
-    document.addEventListener("turbo:frame-load", (event) => {
-      console.log("[CALENDAR] turbo:frame-load disparado");
-      setTimeout(initCalendar, 100);
-    });
-
-    // Inicializa após página carregar
-    document.addEventListener("turbo:load", () => {
-      console.log("[CALENDAR] turbo:load disparado");
-      initCalendar();
-    });
-
-    // Limpa antes de navegar
-    document.addEventListener("turbo:before-visit", () => {
-      console.log("[CALENDAR] turbo:before-visit - limpando calendários");
-      destroyAllCalendars();
-    });
-
-    // Fallback: Inicializa se já estiver carregado
-    if (document.readyState !== "loading") {
-      console.log("[CALENDAR] DOM já carregado, inicializando imediatamente");
-      setTimeout(initCalendar, 100);
-    }
-  })();
-
-  // =====================================================================
-// VARIÁVEIS GLOBAIS
-// =====================================================================
-// =====================================================================
-// VARIÁVEIS GLOBAIS
-// =====================================================================
-let cropper = null;
-let currentDocumentType = null;
-let tempDocumentFiles = [];
-
-// =====================================================================
-// FUNÇÕES PARA MODAL DE FOTO (JÁ FUNCIONANDO)
-// =====================================================================
-function openFotoModal() {
-  document.getElementById('foto-modal').showModal();
-}
-
-function closeFotoModal() {
-  if (cropper) {
-    cropper.destroy();
-    cropper = null;
+/* =====================================================
+   BOOTSTRAP SEGURO (TURBO + DOM)
+===================================================== */
+(function () {
+  function init() {
+    initUploads();
+    initFotoUpload();
+    initMasks();
   }
-  document.getElementById('foto-upload-area').classList.remove('hidden');
-  document.getElementById('foto-crop-area').classList.add('hidden');
-  document.getElementById('foto-modal').close();
-}
 
-function resetFotoModal() {
-  if (cropper) {
-    cropper.destroy();
-    cropper = null;
-  }
-  document.getElementById('foto-upload-area').classList.remove('hidden');
-  document.getElementById('foto-crop-area').classList.add('hidden');
-  
-  // Limpar o input REAL também
-  const realInput = document.getElementById('aluno_foto');
-  if (realInput) realInput.value = '';
-  
-  document.getElementById('foto-files-list').innerHTML = '';
-}
+  document.addEventListener("turbo:load", init);
+})();
 
-// Event listener para o input de foto (usar o ID correto do Rails)
-const fotoModalInput = document.getElementById('aluno_foto');
-if (fotoModalInput) {
-  fotoModalInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
-      this.value = '';
-      return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('A imagem deve ter no máximo 5MB', 'error');
-      this.value = '';
-      return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const img = document.getElementById('foto-preview');
-      img.src = event.target.result;
-      
-      document.getElementById('foto-upload-area').classList.add('hidden');
-      document.getElementById('foto-crop-area').classList.remove('hidden');
-      
-      if (cropper) {
-        cropper.destroy();
-      }
-      
-      img.onload = function() {
-        cropper = new Cropper(img, {
-          aspectRatio: 1,
-          viewMode: 2,
-          autoCropArea: 0.65,
-          responsive: true,
-          guides: false,
-          center: true,
-          highlight: true,
-          cropBoxMovable: true,
-          cropBoxResizable: true,
-          toggleDragModeOnDblclick: false,
-          dragMode: 'move',
-          background: true,
-          modal: true,
-          minCropBoxWidth: 200,
-          minCropBoxHeight: 200,
-          ready: function() {
-            const cropBox = document.querySelector('.cropper-crop-box');
-            const face = document.querySelector('.cropper-face');
-            if (cropBox && face) {
-              cropBox.style.borderRadius = '50%';
-              face.style.borderRadius = '50%';
-            }
-          },
-          crop: function() {
-            const face = document.querySelector('.cropper-face');
-            if (face) {
-              face.style.borderRadius = '50%';
-            }
-          }
-        });
-      };
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function confirmFotoCrop() {
-  if (!cropper) return;
-  
-  console.log('🔍 Iniciando crop da foto...');
-  
-  const canvas = cropper.getCroppedCanvas({
-    width: 400,
-    height: 400,
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high',
-  });
-  
-  const circularCanvas = document.createElement('canvas');
-  const ctx = circularCanvas.getContext('2d');
-  circularCanvas.width = 400;
-  circularCanvas.height = 400;
-  
-  ctx.beginPath();
-  ctx.arc(200, 200, 200, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-  
-  ctx.drawImage(canvas, 0, 0, 400, 400);
-  
-  circularCanvas.toBlob(function(blob) {
-    console.log('📸 Blob criado:', blob);
-    
-    const file = new File([blob], 'foto_aluno.png', { type: 'image/png' });
-    
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    
-    const fotoInput = document.getElementById('foto-upload');
-    fotoInput.files = dataTransfer.files;
-    
-    console.log('✅ Foto anexada ao input:', fotoInput.files[0]);
-    
-    updateFileList('foto-files-list', [file]);
-    closeFotoModal();
-    
-    showToast('Foto recortada e anexada com sucesso!', 'success');
-  }, 'image/png', 0.95);
-}
-
-// =====================================================================
-// FUNÇÕES PARA MODAL DE DOCUMENTOS (CORRIGIDAS)
-// =====================================================================
+/* =====================================================
+   UPLOAD DE DOCUMENTOS (SEM MODAL)
+===================================================== */
 function openDocumentModal(type) {
-  currentDocumentType = type;
-  tempDocumentFiles = [];
-  
-  const modal = document.getElementById('document-modal');
-  const title = document.getElementById('document-modal-title');
-  const description = document.getElementById('document-modal-description');
-  const label = document.getElementById('document-modal-label');
-  
-  const configs = {
-    'cpf_documento': {
-      title: 'Anexar CPF (Documento)',
-      description: 'Arraste e solte os arquivos aqui (frente e verso) ou',
-      maxFiles: 2
-    },
-    'comprovante': {
-      title: 'Anexar Comprovante de Residência',
-      description: 'Arraste e solte os arquivos aqui (frente e verso) ou',
-      maxFiles: 2
-    },
-    'historico': {
-      title: 'Anexar Histórico Acadêmico',
-      description: 'Arraste e solte o arquivo aqui ou',
-      maxFiles: 1
-    }
+  const inputMap = {
+    cpf_documento: "cpf_documento-upload",
+    comprovante: "comprovante-upload",
+    historico: "historico-upload"
   };
-  
-  const config = configs[type];
-  title.textContent = config.title;
-  description.textContent = config.description;
-  label.setAttribute('for', `${type}-upload`);
-  label.onclick = () => document.getElementById(`${type}-upload`).click();
-  
-  setupDragAndDrop(type);
-  modal.showModal();
+
+  const inputId = inputMap[type];
+  if (!inputId) return;
+
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  input.click();
 }
 
-function closeDocumentModal() {
-  resetDocumentModal();
-  document.getElementById('document-modal').close();
+function initUploads() {
+  bindUpload("cpf_documento-upload", "cpf_documento-files-list", 2);
+  bindUpload("comprovante-upload", "comprovante-files-list", 2);
+  bindUpload("historico-upload", "historico-files-list", 1);
 }
 
-function resetDocumentModal() {
-  tempDocumentFiles = [];
-  document.getElementById('document-upload-area').classList.remove('hidden');
-  document.getElementById('document-preview-area').classList.add('hidden');
-  document.getElementById('document-preview-list').innerHTML = '';
-  if (currentDocumentType) {
-    document.getElementById(`${currentDocumentType}-upload`).value = '';
-  }
-}
-
-function setupDragAndDrop(type) {
-  const uploadArea = document.getElementById('document-upload-area');
-  
-  // Mapear tipo para ID correto do input REAL
-  const inputMapping = {
-    'cpf_documento': 'aluno_cpf_documento',
-    'comprovante': 'aluno_comprovante_residencia',
-    'historico': 'aluno_historico_academico'
-  };
-  
-  const realInputId = inputMapping[type];
-  const fileInput = document.getElementById(realInputId);
-  
-  if (!fileInput) {
-    console.error(`❌ Input REAL não encontrado para tipo ${type}: ${realInputId}`);
-    return;
-  }
-  
-  console.log(`✅ Configurando drag&drop para ${type} (input: ${realInputId})`);
-  
-  // Remove listeners antigos para evitar duplicação
-  const newUploadArea = uploadArea.cloneNode(true);
-  uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
-  
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    newUploadArea.addEventListener(eventName, preventDefaults, false);
-  });
-  
-  function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-  
-  ['dragenter', 'dragover'].forEach(eventName => {
-    newUploadArea.addEventListener(eventName, () => {
-      newUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
-    }, false);
-  });
-  
-  ['dragleave', 'drop'].forEach(eventName => {
-    newUploadArea.addEventListener(eventName, () => {
-      newUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
-    }, false);
-  });
-  
-  newUploadArea.addEventListener('drop', (e) => {
-    const files = e.dataTransfer.files;
-    handleDocumentFiles(files, type);
-  }, false);
-  
-  // IMPORTANTE: Usar o input REAL em vez de criar novo
-  // Adicionar event listener diretamente ao input real
-  const newInputHandler = (e) => {
-    handleDocumentFiles(e.target.files, type);
-  };
-  
-  // Remove listener antigo se existir
-  fileInput.removeEventListener('change', newInputHandler);
-  fileInput.addEventListener('change', newInputHandler);
-}
-
-function handleDocumentFiles(files, type) {
-  const maxFiles = type === 'historico' ? 1 : 2;
-  
-  if (files.length > maxFiles) {
-    showToast(`Você pode enviar no máximo ${maxFiles} arquivo(s)`, 'error');
-    return;
-  }
-  
-  // Validar tipo de arquivo
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-  for (let file of files) {
-    if (!allowedTypes.includes(file.type)) {
-      showToast('Apenas imagens (JPG, PNG) e PDFs são permitidos', 'error');
-      return;
-    }
-  }
-  
-  tempDocumentFiles = Array.from(files);
-  displayDocumentPreview(tempDocumentFiles);
-}
-
-function displayDocumentPreview(files) {
-  const previewList = document.getElementById('document-preview-list');
-  previewList.innerHTML = '';
-  
-  files.forEach((file, index) => {
-    const fileItem = document.createElement('div');
-    fileItem.className = 'flex items-center justify-between p-3 bg-base-200 rounded-lg';
-    
-    const fileInfo = document.createElement('div');
-    fileInfo.className = 'flex items-center gap-3';
-    
-    const icon = document.createElement('svg');
-    icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.setAttribute('stroke-width', '1.5');
-    icon.setAttribute('stroke', 'currentColor');
-    icon.className = 'w-6 h-6 text-primary';
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />';
-    
-    const fileName = document.createElement('span');
-    fileName.className = 'text-sm font-medium';
-    fileName.textContent = file.name;
-    
-    const fileSize = document.createElement('span');
-    fileSize.className = 'text-xs text-gray-500';
-    fileSize.textContent = formatFileSize(file.size);
-    
-    const textContainer = document.createElement('div');
-    textContainer.appendChild(fileName);
-    textContainer.appendChild(document.createElement('br'));
-    textContainer.appendChild(fileSize);
-    
-    fileInfo.appendChild(icon);
-    fileInfo.appendChild(textContainer);
-    
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'btn btn-ghost btn-sm btn-circle';
-    removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>';
-    removeBtn.onclick = () => removeDocumentFile(index);
-    
-    fileItem.appendChild(fileInfo);
-    fileItem.appendChild(removeBtn);
-    previewList.appendChild(fileItem);
-  });
-  
-  document.getElementById('document-upload-area').classList.add('hidden');
-  document.getElementById('document-preview-area').classList.remove('hidden');
-}
-
-function removeDocumentFile(index) {
-  tempDocumentFiles.splice(index, 1);
-  if (tempDocumentFiles.length > 0) {
-    displayDocumentPreview(tempDocumentFiles);
-  } else {
-    resetDocumentModal();
-  }
-}
-
-// =====================================================================
-// FUNÇÃO CRÍTICA CORRIGIDA - CONFIRMAÇÃO DE UPLOAD
-// =====================================================================
-function confirmDocumentUpload() {
-  if (tempDocumentFiles.length === 0) {
-    showToast('Nenhum arquivo selecionado', 'error');
-    return;
-  }
-  
-  console.log(`📁 Confirmando upload de ${currentDocumentType}:`, tempDocumentFiles);
-  
-  // Mapear o tipo para o ID correto do input NO FORMULÁRIO (não no modal)
-  const inputMapping = {
-    'cpf_documento': 'aluno_cpf_documento',
-    'comprovante': 'aluno_comprovante_residencia',
-    'historico': 'aluno_historico_academico'
-  };
-  
-  const realInputId = inputMapping[currentDocumentType];
-  const realInput = document.getElementById(realInputId);
-  
-  if (!realInput) {
-    console.error(`❌ Input REAL não encontrado: ${realInputId}`);
-    showToast('Erro ao anexar arquivos', 'error');
-    return;
-  }
-  
-  console.log(`🎯 Input REAL encontrado: ${realInputId}`);
-  
-  // Criar novo DataTransfer e adicionar arquivos
-  const dataTransfer = new DataTransfer();
-  tempDocumentFiles.forEach(file => {
-    if (file && file.size > 0) {
-      dataTransfer.items.add(file);
-      console.log(`✅ Arquivo adicionado ao DataTransfer: ${file.name} (${file.size} bytes)`);
-    }
-  });
-  
-  // Atribuir arquivos ao input REAL do formulário
-  realInput.files = dataTransfer.files;
-  
-  console.log(`📊 Total de arquivos no input REAL "${realInputId}":`, realInput.files.length);
-  console.log(`📋 Arquivos no input:`, Array.from(realInput.files).map(f => f.name));
-  
-  // Atualizar a lista visual
-  const listId = currentDocumentType === 'comprovante' 
-    ? 'comprovante-files-list' 
-    : `${currentDocumentType}-files-list`;
-  
-  updateFileList(listId, Array.from(dataTransfer.files));
-  closeDocumentModal();
-  
-  showToast(`${tempDocumentFiles.length} arquivo(s) anexado(s) com sucesso!`, 'success');
-}
-
-// =====================================================================
-// FUNÇÕES AUXILIARES
-// =====================================================================
-function updateFileList(listId, files) {
+function bindUpload(inputId, listId, maxFiles) {
+  const input = document.getElementById(inputId);
   const list = document.getElementById(listId);
-  list.innerHTML = '';
-  
-  if (files.length === 0) return;
-  
-  files.forEach((file, index) => {
-    const fileItem = document.createElement('div');
-    fileItem.className = 'flex items-center justify-between p-3 border-b last:border-b-0';
-    
-    const fileInfo = document.createElement('div');
-    fileInfo.className = 'flex items-center gap-3';
-    
-    const icon = document.createElement('svg');
-    icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.setAttribute('stroke-width', '1.5');
-    icon.setAttribute('stroke', 'currentColor');
-    icon.className = 'w-5 h-5 text-success';
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />';
-    
-    const fileName = document.createElement('span');
-    fileName.className = 'text-sm';
-    fileName.textContent = file.name;
-    
-    fileInfo.appendChild(icon);
-    fileInfo.appendChild(fileName);
-    fileItem.appendChild(fileInfo);
-    list.appendChild(fileItem);
-  });
-}
 
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-}
+  if (!input || !list) return;
 
-function showToast(message, type = 'info') {
-  const container = document.getElementById('alert-container');
-  const alert = document.createElement('div');
-  alert.className = `alert alert-${type} shadow-lg mb-2`;
-  
-  const iconMap = {
-    success: '<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />',
-    error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />',
-    info: '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />'
-  };
-  
-  alert.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      ${iconMap[type] || iconMap.info}
-    </svg>
-    <span>${message}</span>
-  `;
-  
-  container.appendChild(alert);
-  
-  setTimeout(() => {
-    alert.style.transition = 'opacity 0.3s';
-    alert.style.opacity = '0';
-    setTimeout(() => alert.remove(), 300);
-  }, 3000);
-}
+  input.addEventListener("change", () => {
+    // 🔥 CLONA os arquivos atuais
+    const files = Array.from(input.files);
 
-// =====================================================================
-// DRAG AND DROP PARA FOTO
-// =====================================================================
-const fotoUploadArea = document.getElementById('foto-upload-area');
-const fotoRealInput = document.getElementById('aluno_foto');
+    // 🔥 LIMPA o input imediatamente
+    input.value = "";
 
-if (fotoUploadArea && fotoRealInput) {
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    fotoUploadArea.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, false);
-  });
-
-  ['dragenter', 'dragover'].forEach(eventName => {
-    fotoUploadArea.addEventListener(eventName, () => {
-      fotoUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
-    }, false);
-  });
-
-  ['dragleave', 'drop'].forEach(eventName => {
-    fotoUploadArea.addEventListener(eventName, () => {
-      fotoUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
-    }, false);
-  });
-
-  fotoUploadArea.addEventListener('drop', (e) => {
-    const files = e.dataTransfer.files;
-    
-    if (files.length > 1) {
-      showToast('Selecione apenas 1 arquivo de foto', 'error');
+    // 🔥 valida quantidade REAL
+    if (files.length > maxFiles) {
+      alert(`Máximo permitido: ${maxFiles} arquivo(s).`);
+      list.innerHTML = "";
       return;
     }
-    
-    if (files.length > 0) {
-      if (!files[0].type.startsWith('image/')) {
-        showToast('Por favor, selecione apenas arquivos de imagem', 'error');
-        return;
-      }
-      
-      // Criar DataTransfer para transferir o arquivo
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(files[0]);
-      
-      fotoRealInput.files = dataTransfer.files;
-      fotoRealInput.dispatchEvent(new Event('change'));
-    }
-  }, false);
+
+    renderFileList(list, files);
+  });
 }
 
-// =====================================================================
-// DEBUG DO FORMULÁRIO
-// =====================================================================
-document.getElementById('student-form').addEventListener('submit', function(e) {
-  console.log('=== 🚀 DEBUG FORM SUBMIT ===');
-  
-  const fotoInput = document.getElementById('aluno_foto');
-  console.log('📸 FOTO:', fotoInput?.files?.length || 0, 'arquivo(s)');
-  if (fotoInput?.files?.length > 0) {
-    console.log('  └─', fotoInput.files[0].name, '-', fotoInput.files[0].size, 'bytes');
-  }
-  
-  const cpfInput = document.getElementById('aluno_cpf_documento');
-  console.log('📄 CPF DOCUMENTO:', cpfInput?.files?.length || 0, 'arquivo(s)');
-  if (cpfInput?.files) {
-    Array.from(cpfInput.files).forEach((file, i) => {
-      console.log(`  └─ [${i+1}]`, file.name, '-', file.size, 'bytes');
-    });
-  }
-  
-  const comprovanteInput = document.getElementById('aluno_comprovante_residencia');
-  console.log('🏠 COMPROVANTE:', comprovanteInput?.files?.length || 0, 'arquivo(s)');
-  if (comprovanteInput?.files) {
-    Array.from(comprovanteInput.files).forEach((file, i) => {
-      console.log(`  └─ [${i+1}]`, file.name, '-', file.size, 'bytes');
-    });
-  }
-  
-  const historicoInput = document.getElementById('aluno_historico_academico');
-  console.log('📋 HISTÓRICO:', historicoInput?.files?.length || 0, 'arquivo(s)');
-  if (historicoInput?.files?.length > 0) {
-    console.log('  └─', historicoInput.files[0].name, '-', historicoInput.files[0].size, 'bytes');
-  }
-  
-  console.log('========================');
-});
+function renderFileList(container, files) {
+  container.innerHTML = "";
 
+  files.forEach(file => {
+    const div = document.createElement("div");
+    div.className = "p-2 border-b text-sm text-gray-700";
+    div.textContent = `📎 ${file.name}`;
+    container.appendChild(div);
+  });
+}
+
+/* =====================================================
+   FOTO DO ALUNO (SEM MODAL)
+===================================================== */
+function openFotoModal() {
+  const input = document.getElementById("foto-upload");
+  if (input) input.click();
+}
+
+function initFotoUpload() {
+  const input = document.getElementById("foto-upload");
+  const list = document.getElementById("foto-files-list");
+
+  if (!input || !list) return;
+
+  input.addEventListener("change", () => {
+    if (input.files.length > 1) {
+      alert("Apenas 1 foto é permitida.");
+      input.value = "";
+      list.innerHTML = "";
+      return;
+    }
+
+    renderFileList(list, Array.from(input.files));
+  });
+}
+
+/* =====================================================
+   MÁSCARAS (IMask BLINDADO)
+===================================================== */
+function initMasks() {
+  if (typeof IMask === "undefined") {
+    console.warn("IMask não carregado — máscaras ignoradas");
+    return;
+  }
+
+  const cpf = document.getElementById("aluno_cpf");
+  if (cpf) {
+    IMask(cpf, { mask: "000.000.000-00" });
+  }
+
+  const telAluno = document.getElementById("aluno_telefone");
+  if (telAluno) {
+    IMask(telAluno, { mask: "(00) 00000-0000" });
+  }
+
+  const telResp1 = document.getElementById("aluno_telefone_responsavel_1");
+  if (telResp1) {
+    IMask(telResp1, { mask: "(00) 00000-0000" });
+  }
+
+  const telResp2 = document.getElementById("aluno_telefone_responsavel_2");
+  if (telResp2) {
+    IMask(telResp2, { mask: "(00) 00000-0000" });
+  }
+}
 </script>
-
-<%= javascript_include_tag 'mascaras' %>

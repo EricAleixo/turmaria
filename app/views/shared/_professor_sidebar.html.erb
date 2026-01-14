@@ -1,29 +1,69 @@
 <div class="drawer-side z-111111111111">
   <label for="my-drawer" class="drawer-overlay"></label>
   
-  <aside class="w-64 min-h-full bg-white shadow-lg flex flex-col">
+  <aside class="w-64 min-h-full bg-gradient-to-b from-green-50 to-white shadow-xl flex flex-col">
     
-    <div class="p-4 border-b border-gray-200 bg-green-500">
-      <h2 class="text-xl font-bold text-white">Turmaria</h2>
-      <p class="text-sm text-white">Gestão Escolar</p>
-      <div class="mt-2">
-        <div class="badge badge-sm bg-green-100 text-green-700 border-green-200">
-          Portal do Professor
+    <!-- Header do Sistema -->
+    <div class="p-5 bg-green-500">
+      <div>
+        <!-- Logo e Nome do Sistema -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Turmaria</h2>
+            <p class="text-xs text-green-100 font-medium">Gestão Escolar</p>
+          </div>
+        </div>
+
+        <!-- Card da Escola -->
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-300">
+          <div class="flex items-start gap-3">
+            <!-- Ícone da Escola com destaque -->
+            <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                  class="h-7 w-7 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6" />
+              </svg>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] text-green-200 font-semibold uppercase tracking-wider mb-1">Sua Escola</p>
+              <h3 class="text-sm font-bold text-white leading-tight truncate">
+                <%= current_professor.escola.nome %>
+              </h3>
+              <div class="mt-2">
+                <span class="inline-flex items-center gap-1 text-[10px] bg-green-500/30 text-white px-2 py-0.5 rounded-full font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
+                  Portal do Professor
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    
+
     <nav class="p-4 flex-grow overflow-y-auto">
-      <ul class="space-y-2">
+      <ul class="space-y-1.5">
         
         <!-- Dashboard -->
         <li>
           <% dashboard_active = current_page?(dashboard_path) %>
-          <%= link_to dashboard_path, class: "flex items-center p-3 rounded-lg #{dashboard_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%= link_to dashboard_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{dashboard_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
             </svg>
-
             Dashboard
           <% end %>
         </li>
@@ -33,7 +73,7 @@
           <% 
             turmas_active = controller_name == 'turmas' && action_name != 'show'
           %>
-          <%= link_to professor_turmas_path, class: "flex items-center p-3 rounded-lg #{turmas_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%= link_to professor_turmas_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{turmas_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
@@ -47,7 +87,7 @@
             alunos_active = (controller_path == 'professor/alunos' && action_name == 'index') || 
                            current_page?(professor_alunos_gerais_path)
           %>
-          <%= link_to professor_alunos_gerais_path, class: "flex items-center p-3 rounded-lg #{alunos_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%= link_to professor_alunos_gerais_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{alunos_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
             </svg>
@@ -56,39 +96,33 @@
         </li>
 
         <!-- Notas -->
-                  <li>
-            <% 
-              # Verifica se a primeira disciplina do professor existe antes de tentar criar o link
-              primeira_disciplina = current_professor.disciplinas.first 
-              
-              # Define o estado ativo
-              # Isso pode ser ajustado dependendo de quais controllers e actions devem ativar este link.
-              notas_active = controller_name.include?('resultados') || 
-                            controller_name.include?('notas')
-            %>
+        <li>
+          <% 
+            primeira_disciplina = current_professor.disciplinas.first 
+            notas_active = controller_name.include?('resultados') || 
+                          controller_name.include?('notas')
+          %>
 
-            <% if primeira_disciplina %>
-              <%# O link agora usa a primeira disciplina do professor, garantindo que o objeto exista. %>
-              <%= link_to professor_notas_selecionar_disciplina_path, class: "flex items-center p-3 rounded-lg #{notas_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-                </svg>
-                <span>Notas</span>
-              <% end %>
-            <% else %>
-              <%# Se o professor não tiver disciplinas, o link não é exibido ou é desativado. %>
-              <span class="flex items-center p-3 rounded-lg text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-                </svg>
-                <span class="ml-3">Notas (Sem Disciplina)</span>
-              </span>
+          <% if primeira_disciplina %>
+            <%= link_to professor_notas_selecionar_disciplina_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{notas_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+              </svg>
+              Notas
             <% end %>
-          </li>
+          <% else %>
+            <span class="flex items-center p-3 rounded-xl text-gray-400">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+              </svg>
+              Notas
+            </span>
+          <% end %>
+        </li>
 
         <!-- Frequência -->
         <li>
-          <%= link_to professor_frequencias_path, class: "flex items-center p-3 rounded-lg #{frequencias_section_path? ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%= link_to professor_frequencias_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{frequencias_section_path? ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -102,37 +136,35 @@
             disciplinas_active = controller_path == 'professor/disciplinas' ||
                                 current_page?(professor_disciplinas_path(current_professor.id))
           %>
-          <%= link_to professor_disciplinas_path, class: "flex items-center p-3 rounded-lg #{disciplinas_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+          <%= link_to professor_disciplinas_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{disciplinas_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
             </svg>
             Minhas Disciplinas
           <% end %>
         </li>
+
+        <!-- Meus Conteúdos -->
+        <li>
+          <%= link_to "/professor/selecionar_turma", 
+            class: "flex items-center p-3 rounded-xl transition-all duration-200 #{conteudos_section_active? ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 mr-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+            Meus Conteúdos
+          <% end %>
+        </li>
       </ul>
-
-<ul>
-  <li>
-    <%= link_to "/professor/selecionar_turma", 
-      class: "flex items-center p-3 rounded-lg #{conteudos_section_active? ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'} hover:bg-gray-100 text-gray-700" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 mr-3">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-      </svg>
-
-      Meus Conteúdos
-    <% end %>
-  </li>
-</ul>
-
     </nav>
     
-    <div class="p-4 border-t border-gray-200">
-      <div class="flex items-center justify-between">
+    <!-- Footer do usuário com design aprimorado -->
+    <div class="p-4 border-t border-gray-200 bg-gray-50/50">
+      <div class="flex items-center justify-between gap-3">
         
-        <div class="flex items-center flex-grow truncate">
-          <div class="avatar placeholder mr-3 flex-shrink-0">
-            <div class="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
-              <span class="flex items-center justify-center h-full w-full font-bold text-lg">
+        <div class="flex items-center flex-grow min-w-0 gap-3">
+          <div class="avatar placeholder flex-shrink-0">
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full w-11 h-11 flex items-center justify-center shadow-md ring-2 ring-green-100">
+              <span class="font-bold text-base">
                 <% if current_professor&.nome.present? %>
                   <%= current_professor.nome.first.upcase %>
                 <% elsif current_professor&.email.present? %>
@@ -144,18 +176,18 @@
             </div>
           </div>
           
-          <div class="w-full truncate">
-            <h3 class="font-bold text-gray-800 text-sm truncate">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-gray-800 text-sm truncate">
               <%= current_professor&.nome.present? ? current_professor.nome : 'Professor(a)' %>
             </h3>
-            <p class="text-xs text-gray-600 truncate">
+            <p class="text-xs text-gray-500 truncate">
               <%= current_professor&.email %>
             </p>
           </div>
         </div>
         
         <%= link_to destroy_user_session_path, data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja sair?" }, 
-              class: "btn btn-ghost btn-circle btn-sm text-gray-500 hover:text-red-500" do %>
+              class: "btn btn-ghost btn-circle btn-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 flex-shrink-0" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>

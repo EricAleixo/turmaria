@@ -36,13 +36,13 @@
 
       <div class="form-control">
         <%= form.label :telefone, class: "label" %>
-        <span class="label-text font-medium text-gray-700">Telefone *</span>
+        <span class="label-text font-medium text-gray-700">Telefone</span>
         <%= form.text_field :telefone, class: "input input-bordered w-full focus:input-success", placeholder: "(11) 99999-9999" %>
       </div>
 
       <div class="form-control">
         <%= form.label :email, class: "label" %>
-        <span class="label-text font-medium text-gray-700">E-mail *</span>
+        <span class="label-text font-medium text-gray-700">E-mail</span>
         <%= form.email_field :email, class: "input input-bordered w-full focus:input-success", placeholder: "contato@escola.com.br" %>
       </div>
 
@@ -63,7 +63,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
             <%= endereco_form.label :cep, class: "label" %>
-            <span class="label-text font-medium text-gray-700">CEP *</span>
+            <span class="label-text font-medium text-gray-700">CEP</span>
             <%= endereco_form.text_field :cep, class: "input input-bordered w-full focus:input-success", placeholder: "00000-000" %>
           </div>
 
@@ -76,7 +76,7 @@
 
         <div class="form-control">
           <%= endereco_form.label :logradouro, class: "label" %>
-          <span class="label-text font-medium text-gray-700">Logradouro *</span>
+          <span class="label-text font-medium text-gray-700">Logradouro</span>
           <%= endereco_form.text_field :logradouro, class: "input input-bordered w-full focus:input-success", placeholder: "Rua das Flores" %>
         </div>
 
@@ -99,7 +99,7 @@
 
         <div class="form-control">
           <%= endereco_form.label :cidade_id, class: "label" %>
-          <span class="label-text font-medium text-gray-700">Estado / Cidade *</span>
+          <span class="label-text font-medium text-gray-700">Estado / Cidade</span>
           
           <%# Usa a chave estrangeira :cidade_id e agrupa as cidades por Estado (assumindo a associação correta). %>
           <%= endereco_form.grouped_collection_select :cidade_id, 
@@ -118,7 +118,7 @@
 
   <!-- Botões de Ação -->
   <div class="flex justify-center pt-8 border-t border-gray-200">
-    <div class="flex gap-4">
+    <div class="flex gap-4 items-center">
       <%= link_to "Cancelar", dashboard_path, class: "btn btn-outline btn-neutral" %>
       <%= form.submit "Criar Minha Escola", class: "btn btn-success btn-lg px-8" %>
     </div>

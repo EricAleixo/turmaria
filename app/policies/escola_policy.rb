@@ -11,9 +11,31 @@ class EscolaPolicy < ApplicationPolicy
     true
   end
 
+  def welcome?
+    return false unless user
+
+    # SuperAdmin sempre pode
+    return true if user.is_a?(SuperAdmin)
+
+    # Admin sempre pode (tenha escola ou não)
+    return true if user.is_a?(Admin)
+
+    false
+  end
+
+
+
   # Apenas SuperAdmin cria escolas
   def create?
-    user&.is_a?(SuperAdmin)
+    return false unless user
+
+    # SuperAdmin pode sempre
+    return true if user.is_a?(SuperAdmin)
+
+    # Admin pode criar escola (a própria)
+    return true if user.is_a?(Admin)
+
+    false
   end
 
   # Admin comum só atualiza escolas que ele é dono

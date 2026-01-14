@@ -199,12 +199,14 @@ class Aluno < ApplicationRecord
     current_blob_ids = send(attachment_name).blobs.pluck(:id)
     
     # Busca blobs anteriormente anexados
-    old_blob_ids = send(attachment_name).attachments
-                                        .where.not(blob_id: current_blob_ids)
-                                        .pluck(:blob_id)
+    old_blob_ids =
+                  send(attachment_name).attachments
+                    .map(&:blob_id)
+                    .compact
+                    .reject { |id| current_blob_ids.include?(id) }
 
     old_blob_ids.each do |blob_id|
-      ActiveStorage::Blob.find_by(id: blob_id)&.purge_later
+      ActiveStorage::Blob.find(blob_id).purge
     end
   end
 

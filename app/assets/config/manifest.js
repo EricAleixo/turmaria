@@ -5,6 +5,5 @@
 //= link_tree ../builds
 
 //= link assign_students.js
-//= link alunos_form.js
 //= link mascaras.js
 //= link assign_professors.js
