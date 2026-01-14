@@ -163,8 +163,8 @@
         
         <div class="flex items-center flex-grow min-w-0 gap-3">
           <div class="avatar placeholder flex-shrink-0">
-            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full w-11 h-11 flex items-center justify-center shadow-md ring-2 ring-green-100">
-              <span class="font-bold text-base">
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full w-11 h-11 relative shadow-md ring-2 ring-green-100">
+              <span class="absolute top-1/2 left-1/2 -translate-1/2 font-bold text-base">
                 <% if current_professor&.nome.present? %>
                   <%= current_professor.nome.first.upcase %>
                 <% elsif current_professor&.email.present? %>

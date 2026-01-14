@@ -406,53 +406,79 @@ end
 
   # 3. Método: Carrega dados para Professor (Mantido Intacto)
   def load_professor_dashboard_data
-    # 1. Dados do Professor (dados reais)
-    @professor_nome = current_professor.nome
-    
-    # 2. Turmas e Disciplinas do Professor (dados reais)
-    frequencias = Frequencia.where(professor_id: current_professor.id)
-    
-    @turmas_ativas = frequencias.distinct.pluck(:turma_id).count
-    @disciplinas_contagem = frequencias.distinct.pluck(:disciplina_id).count
-    
-    # 3. Alunos únicos nas turmas do professor (dados reais)
-    turma_ids = frequencias.distinct.pluck(:turma_id)
-    @alunos_unicos = Aluno.where(turma_id: turma_ids).count
-    
-    # 4. Taxa de presença (NIL - necessário modelo de registros de presença individual)
-    # TODO: Criar cálculo real quando houver modelo de presença por aluno
-    @media_presenca = nil
-    
-    # 5. Média geral de notas (NIL - necessário modelo de Nota/Avaliacao)
-    # TODO: Buscar média real das notas quando modelo estiver disponível
-    @media_geral_notas = nil
-    
-    # 6. Lista de Disciplinas/Turmas (dados reais)
-    @disciplinas_e_turmas = frequencias
-        .includes(:turma, :disciplina)
-        .select(:turma_id, :disciplina_id)
-        .distinct
-        .map do |freq|
-          {
-            disciplina_id: freq.disciplina_id,
-            disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
-            turma_id: freq.turma_id,
-            turma: freq.turma&.nome || "Turma não encontrada"
-          }
-      end
-    
-    # 7. Gráfico de Desempenho por Disciplina (NIL - necessário modelo de Nota)
-    # TODO: Calcular médias reais por disciplina
-    @grafico_desempenho_disciplinas = nil
-    
-    # 8. Calendário de Presença do Mês (NIL)
-    # TODO: Implementar com dados reais de frequência por dia
-    @calendario_presenca = nil
-    
-    # 9. Presença Semanal (NIL)
-    # TODO: Calcular presença dos últimos 5 dias úteis
-    @presenca_semanal = nil
+  # 1. Dados do Professor
+  @professor_nome = current_professor.nome
+
+  # 2. Frequências do professor
+  frequencias = Frequencia.where(professor_id: current_professor.id)
+
+  @turmas_ativas = frequencias.distinct.pluck(:turma_id).count
+  @disciplinas_contagem = frequencias.distinct.pluck(:disciplina_id).count
+
+  # 3. Alunos únicos nas turmas do professor
+  turma_ids = frequencias.distinct.pluck(:turma_id)
+  @alunos_unicos = Aluno.where(turma_id: turma_ids).count
+
+  # 4. Média de presença (global do mês)
+  inicio_mes = Date.current.beginning_of_month
+  fim_mes    = Date.current.end_of_month
+
+  frequencias_mes = frequencias.where(data_aula: inicio_mes..fim_mes)
+
+  presencas_mes = FrequenciaAluno
+    .joins(:frequencia)
+    .where(frequencias: { id: frequencias_mes.select(:id) })
+
+  total_registros = presencas_mes.count
+  total_presentes = presencas_mes.where(status: 'presente').count
+
+  @media_presenca =
+    if total_registros.positive?
+      "#{((total_presentes.to_f / total_registros) * 100).round}%"
+    else
+      nil
+    end
+
+  # 5. Média geral de notas (ainda não implementado)
+  @media_geral_notas = nil
+
+  # 6. Lista de Disciplinas / Turmas
+  @disciplinas_e_turmas = frequencias
+    .includes(:turma, :disciplina)
+    .select(:turma_id, :disciplina_id)
+    .distinct
+    .map do |freq|
+      {
+        disciplina_id: freq.disciplina_id,
+        disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
+        turma_id: freq.turma_id,
+        turma: freq.turma&.nome || "Turma não encontrada"
+      }
+    end
+
+  # 7. Gráfico de desempenho (pendente)
+  @grafico_desempenho_disciplinas = nil
+
+  # 8. 📅 CALENDÁRIO DE PRESENÇA DO MÊS (REAL)
+  @calendario_presenca = frequencias_mes
+    .joins(:frequencia_alunos)
+    .group("frequencias.data_aula")
+    .pluck(
+      "frequencias.data_aula",
+      Arel.sql("SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END)"),
+      Arel.sql("COUNT(frequencia_alunos.id)")
+    )
+    .map do |data_aula, presentes, total|
+      {
+        dia: data_aula.day,
+        taxa_presenca: ((presentes.to_f / total) * 100).round
+      }
+    end
+
+  # 9. Presença semanal (pendente)
+  @presenca_semanal = nil
   end
+
 
   # 4. Mantenha o método de cálculo de crescimento (Mantido Intacto)
   def calculate_monthly_growth

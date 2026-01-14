@@ -123,7 +123,7 @@
                   dado_dia = @calendario_presenca.find { |d| d[:dia] == day }
                   
                   attendance_class = if dado_dia
-                    taxa = dado_dio[:taxa_presenca]
+                    taxa = dado_dia[:taxa_presenca]
                     if taxa >= 90
                       'bg-green-100 text-green-700 hover:bg-green-200'
                     elsif taxa >= 70

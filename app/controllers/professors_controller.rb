@@ -83,7 +83,7 @@ class ProfessorsController < ApplicationController
     process_base64_foto(@professor)
     
     if @professor.save
-      redirect_to @professor, notice: "Professor criado com sucesso!"
+      redirect_to :index, notice: "Professor criado com sucesso!"
     else
       render :new, status: :unprocessable_entity
     end
@@ -111,7 +111,7 @@ class ProfessorsController < ApplicationController
         process_base64_foto(@professor)
       end
       
-      redirect_to @professor, notice: "Professor atualizado com sucesso!"
+      redirect_to :index, notice: "Professor atualizado com sucesso!"
     else
       render :edit, status: :unprocessable_entity
     end

@@ -90,7 +90,6 @@ class Professor::FrequenciasController < Professor::BaseController
     @frequencia = @turma.frequencias.build(frequencia_params)
     @frequencia.professor = current_professor
 
-    # 🔐 Garantia de segurança
     unless current_professor.disciplinas.exists?(@frequencia.disciplina_id)
       redirect_to professor_turmas_path,
                   alert: 'Disciplina inválida.'
@@ -115,7 +114,7 @@ class Professor::FrequenciasController < Professor::BaseController
         end
       end
 
-      redirect_to professor_turma_frequencias_path(@turma),
+      redirect_to professor_frequencias_path,
                   notice: "Frequência registrada com sucesso!"
     else
       @alunos = @turma.alunos.order(:nome)
