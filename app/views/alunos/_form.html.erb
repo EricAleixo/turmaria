@@ -248,181 +248,106 @@
   </div>
 
   <div id="step-3" class="form-step hidden">
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h1 class="text-2xl font-bold text-gray-700">
-        <%= editing ? "Editar Aluno - Etapa 3" : "Novo Aluno - Etapa 3" %>
-      </h1>
-      <p class="text-xs text-gray-400">Campos opcionais</p>
-    </div>
-
-    <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
-      <span class="block sm:inline"></span>
-    </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-700">Foto do Aluno</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openFotoModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-          </svg>
-          Anexar
-        </button>
-      </div>
-      <p class="text-gray-500 mb-2 text-sm">Envie uma foto do aluno. (Máximo 1 arquivo)</p>
-      <%= form.file_field :foto, class: "hidden", id: "foto-upload", accept: "image/*" %>
-      <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
-    </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-700">Upload de CPF</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('cpf_documento')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-          </svg>
-          Anexar
-        </button>
-      </div>
-      <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "cpf_documento-upload", accept: "image/*,.pdf" %>
-      <div id="cpf_documento-files-list" class="mt-4 border rounded-lg"></div>
-    </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('comprovante')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-          </svg>
-          Anexar
-        </button>
-      </div>
-      <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
-      <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "comprovante-upload", accept: "image/*,.pdf" %>
-      <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
-    </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-700">Histórico Acadêmico</h3>
-        <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('historico')">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-          </svg>
-          Anexar
-        </button>
-      </div>
-      <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 1 arquivo)</p>
-      <%= form.file_field :historico_academico, class: "hidden", id: "historico-upload", accept: "image/*,.pdf" %>
-      <div id="historico-files-list" class="mt-4 border rounded-lg"></div>
-    </div>
-
-    <!-- Modal de Foto com Crop -->
-    <dialog id="foto-modal" class="modal">
-      <div class="modal-box max-w-2xl">
-        <h3 class="font-bold text-lg mb-4">Anexar Foto do Aluno</h3>
-        
-        <div id="foto-upload-area" class="upload-area border-2 border-dashed rounded-lg p-6 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-          </svg>
-          <p class="text-gray-500 mb-2">Arraste e solte a foto aqui ou</p>
-          <label for="foto-upload" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivo</label>
-        </div>
-
-        <div id="foto-crop-area" class="hidden mt-4">
-          <div class="mb-4">
-            <p class="text-sm text-gray-600 mb-3 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-              </svg>
-              <strong>Ajuste a área circular para enquadrar o rosto do aluno</strong>
-            </p>
-            <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="max-height: 450px;">
-              <img id="foto-preview" src="" alt="Preview" class="max-w-full">
-            </div>
-            <div class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-              </svg>
-              Clique e arraste para mover a imagem • Use a roda do mouse para zoom
-            </div>
-          </div>
-          <div class="flex gap-2 justify-end">
-            <button type="button" class="btn btn-ghost" onclick="resetFotoModal()">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-              </svg>
-              Trocar foto
-            </button>
-            <button type="button" class="btn btn-success text-white" onclick="confirmFotoCrop()">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-              Confirmar recorte
-            </button>
-          </div>
-        </div>
-
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="closeFotoModal()">Fechar</button>
-        </div>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button type="button" onclick="closeFotoModal()">close</button>
-      </form>
-    </dialog>
-
-    <!-- Modal Genérico para Documentos -->
-    <dialog id="document-modal" class="modal">
-      <div class="modal-box max-w-xl">
-        <h3 class="font-bold text-lg mb-4" id="document-modal-title">Anexar Documento</h3>
-        
-        <div id="document-upload-area" class="upload-area border-2 border-dashed rounded-lg p-6 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-          </svg>
-          <p class="text-gray-500 mb-2" id="document-modal-description">Arraste e solte seus arquivos aqui ou</p>
-          <label id="document-modal-label" class="btn btn-outline mt-2 cursor-pointer">Escolher arquivos</label>
-        </div>
-
-        <div id="document-preview-area" class="hidden mt-4">
-          <p class="text-sm font-semibold text-gray-700 mb-2">Arquivos selecionados:</p>
-          <div id="document-preview-list" class="space-y-2"></div>
-          <div class="flex gap-2 justify-end mt-4">
-            <button type="button" class="btn btn-ghost" onclick="resetDocumentModal()">Trocar arquivos</button>
-            <button type="button" class="btn btn-success text-white" onclick="confirmDocumentUpload()">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-              Confirmar
-            </button>
-          </div>
-        </div>
-
-        <div class="modal-action">
-          <button type="button" class="btn" onclick="closeDocumentModal()">Fechar</button>
-        </div>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button onclick="closeDocumentModal()">close</button>
-      </form>
-    </dialog>
-
-    <div class="flex justify-between mt-6">
-      <button type="button" id="prev-step-3" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-        </svg>
-        Anterior
-      </button>
-      <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white" id="submit-btn">
-        <%= editing ? "Salvar Alterações" : "Criar Aluno" %>
-      </button>
-    </div>
+  <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">
+      <%= editing ? "Editar Aluno - Etapa 3" : "Novo Aluno - Etapa 3" %>
+    </h1>
+    <p class="text-xs text-gray-400">Campos opcionais</p>
   </div>
+
+  <div id="upload-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+    <span class="block sm:inline"></span>
+  </div>
+
+  <!-- FOTO DO ALUNO -->
+  <div class="bg-gray-50 p-4 rounded-lg mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-lg font-bold text-gray-700">Foto do Aluno</h3>
+      <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openFotoModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        Anexar
+      </button>
+    </div>
+    <p class="text-gray-500 mb-2 text-sm">Envie uma foto do aluno. (Máximo 1 arquivo)</p>
+    
+    <!-- INPUT REAL DO RAILS - ESCONDIDO -->
+    <%= form.file_field :foto, class: "hidden", id: "aluno_foto", accept: "image/*" %>
+    
+    <div id="foto-files-list" class="mt-4 border rounded-lg"></div>
+  </div>
+
+  <!-- CPF DOCUMENTO -->
+  <div class="bg-gray-50 p-4 rounded-lg mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-lg font-bold text-gray-700">Upload de CPF</h3>
+      <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('cpf_documento')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        Anexar
+      </button>
+    </div>
+    <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
+    
+    <!-- INPUT REAL DO RAILS - ESCONDIDO -->
+    <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "aluno_cpf_documento", accept: "image/*,.pdf" %>
+    
+    <div id="cpf_documento-files-list" class="mt-4 border rounded-lg"></div>
+  </div>
+
+  <!-- COMPROVANTE DE RESIDÊNCIA -->
+  <div class="bg-gray-50 p-4 rounded-lg mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-lg font-bold text-gray-700">Upload de Comprovante de Residência</h3>
+      <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('comprovante')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        Anexar
+      </button>
+    </div>
+    <p class="text-gray-500 mb-2 text-sm">Envie a frente e o verso do documento. (Máximo 2 arquivos)</p>
+    
+    <!-- INPUT REAL DO RAILS - ESCONDIDO -->
+    <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "aluno_comprovante_residencia", accept: "image/*,.pdf" %>
+    
+    <div id="comprovante-files-list" class="mt-4 border rounded-lg"></div>
+  </div>
+
+  <!-- HISTÓRICO ACADÊMICO -->
+  <div class="bg-gray-50 p-4 rounded-lg mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-lg font-bold text-gray-700">Histórico Acadêmico</h3>
+      <button type="button" class="btn btn-sm btn-primary text-white cursor-pointer" onclick="openDocumentModal('historico')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        Anexar
+      </button>
+    </div>
+    <p class="text-gray-500 mb-2 text-sm">Envie o documento assinado. (Máximo 1 arquivo)</p>
+    
+    <!-- INPUT REAL DO RAILS - ESCONDIDO -->
+    <%= form.file_field :historico_academico, class: "hidden", id: "aluno_historico_academico", accept: "image/*,.pdf" %>
+    
+    <div id="historico-files-list" class="mt-4 border rounded-lg"></div>
+  </div>
+
+  <!-- BOTÕES DE NAVEGAÇÃO -->
+  <div class="flex justify-between mt-6">
+    <button type="button" id="prev-step-3" class="btn btn-ghost w-28 flex items-center justify-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Anterior
+    </button>
+    <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white" id="submit-btn">
+      <%= editing ? "Salvar Alterações" : "Criar Aluno" %>
+    </button>
+  </div>
+</div>
 <% end %>
 
 <dialog id="success-modal" class="modal modal-bottom sm:modal-middle">
@@ -860,24 +785,30 @@ input:not(:placeholder-shown) + .placeholder-helper {
     }
   })();
 
+  // =====================================================================
+// VARIÁVEIS GLOBAIS
+// =====================================================================
+// =====================================================================
+// VARIÁVEIS GLOBAIS
+// =====================================================================
 let cropper = null;
 let currentDocumentType = null;
 let tempDocumentFiles = [];
 
-// Funções para Modal de Foto
+// =====================================================================
+// FUNÇÕES PARA MODAL DE FOTO (JÁ FUNCIONANDO)
+// =====================================================================
 function openFotoModal() {
   document.getElementById('foto-modal').showModal();
 }
 
 function closeFotoModal() {
-  // NÃO resetar o modal ao fechar, apenas esconder
   if (cropper) {
     cropper.destroy();
     cropper = null;
   }
   document.getElementById('foto-upload-area').classList.remove('hidden');
   document.getElementById('foto-crop-area').classList.add('hidden');
-  // NÃO limpar o input aqui! document.getElementById('foto-upload').value = '';
   document.getElementById('foto-modal').close();
 }
 
@@ -888,79 +819,83 @@ function resetFotoModal() {
   }
   document.getElementById('foto-upload-area').classList.remove('hidden');
   document.getElementById('foto-crop-area').classList.add('hidden');
-  document.getElementById('foto-upload').value = '';
+  
+  // Limpar o input REAL também
+  const realInput = document.getElementById('aluno_foto');
+  if (realInput) realInput.value = '';
+  
   document.getElementById('foto-files-list').innerHTML = '';
 }
 
-document.getElementById('foto-upload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  
-  if (!file) return;
-  
-  if (!file.type.startsWith('image/')) {
-    showToast('Por favor, selecione apenas arquivos de imagem', 'error');
-    this.value = '';
-    return;
-  }
-  
-  // Validar tamanho (máximo 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('A imagem deve ter no máximo 5MB', 'error');
-    this.value = '';
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const img = document.getElementById('foto-preview');
-    img.src = event.target.result;
+// Event listener para o input de foto (usar o ID correto do Rails)
+const fotoModalInput = document.getElementById('aluno_foto');
+if (fotoModalInput) {
+  fotoModalInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
     
-    document.getElementById('foto-upload-area').classList.add('hidden');
-    document.getElementById('foto-crop-area').classList.remove('hidden');
+    if (!file) return;
     
-    if (cropper) {
-      cropper.destroy();
+    if (!file.type.startsWith('image/')) {
+      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+      this.value = '';
+      return;
     }
     
-    // Aguardar imagem carregar antes de inicializar o Cropper
-    img.onload = function() {
-      cropper = new Cropper(img, {
-        aspectRatio: 1, // Proporção quadrada/circular
-        viewMode: 2,
-        autoCropArea: 0.65,
-        responsive: true,
-        guides: false,
-        center: true,
-        highlight: true,
-        cropBoxMovable: true,
-        cropBoxResizable: true,
-        toggleDragModeOnDblclick: false,
-        dragMode: 'move',
-        background: true,
-        modal: true,
-        minCropBoxWidth: 200,
-        minCropBoxHeight: 200,
-        ready: function() {
-          // Adicionar borda circular ao cropBox
-          const cropBox = document.querySelector('.cropper-crop-box');
-          const face = document.querySelector('.cropper-face');
-          if (cropBox && face) {
-            cropBox.style.borderRadius = '50%';
-            face.style.borderRadius = '50%';
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('A imagem deve ter no máximo 5MB', 'error');
+      this.value = '';
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = document.getElementById('foto-preview');
+      img.src = event.target.result;
+      
+      document.getElementById('foto-upload-area').classList.add('hidden');
+      document.getElementById('foto-crop-area').classList.remove('hidden');
+      
+      if (cropper) {
+        cropper.destroy();
+      }
+      
+      img.onload = function() {
+        cropper = new Cropper(img, {
+          aspectRatio: 1,
+          viewMode: 2,
+          autoCropArea: 0.65,
+          responsive: true,
+          guides: false,
+          center: true,
+          highlight: true,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+          dragMode: 'move',
+          background: true,
+          modal: true,
+          minCropBoxWidth: 200,
+          minCropBoxHeight: 200,
+          ready: function() {
+            const cropBox = document.querySelector('.cropper-crop-box');
+            const face = document.querySelector('.cropper-face');
+            if (cropBox && face) {
+              cropBox.style.borderRadius = '50%';
+              face.style.borderRadius = '50%';
+            }
+          },
+          crop: function() {
+            const face = document.querySelector('.cropper-face');
+            if (face) {
+              face.style.borderRadius = '50%';
+            }
           }
-        },
-        crop: function() {
-          // Manter borda circular durante o crop
-          const face = document.querySelector('.cropper-face');
-          if (face) {
-            face.style.borderRadius = '50%';
-          }
-        }
-      });
+        });
+      };
     };
-  };
-  reader.readAsDataURL(file);
-});
+    reader.readAsDataURL(file);
+  });
+}
 
 function confirmFotoCrop() {
   if (!cropper) return;
@@ -974,28 +909,22 @@ function confirmFotoCrop() {
     imageSmoothingQuality: 'high',
   });
   
-  // Criar canvas circular
   const circularCanvas = document.createElement('canvas');
   const ctx = circularCanvas.getContext('2d');
   circularCanvas.width = 400;
   circularCanvas.height = 400;
   
-  // Desenhar círculo como máscara
   ctx.beginPath();
   ctx.arc(200, 200, 200, 0, Math.PI * 2);
   ctx.closePath();
   ctx.clip();
   
-  // Desenhar imagem recortada dentro do círculo
   ctx.drawImage(canvas, 0, 0, 400, 400);
   
   circularCanvas.toBlob(function(blob) {
     console.log('📸 Blob criado:', blob);
-    console.log('📦 Tamanho do blob:', blob.size, 'bytes');
     
     const file = new File([blob], 'foto_aluno.png', { type: 'image/png' });
-    console.log('📄 Arquivo criado:', file);
-    console.log('📏 Tamanho do arquivo:', file.size, 'bytes');
     
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
@@ -1003,8 +932,7 @@ function confirmFotoCrop() {
     const fotoInput = document.getElementById('foto-upload');
     fotoInput.files = dataTransfer.files;
     
-    console.log('✅ Arquivo anexado ao input:', fotoInput.files[0]);
-    console.log('🎯 Total de arquivos no input:', fotoInput.files.length);
+    console.log('✅ Foto anexada ao input:', fotoInput.files[0]);
     
     updateFileList('foto-files-list', [file]);
     closeFotoModal();
@@ -1013,7 +941,9 @@ function confirmFotoCrop() {
   }, 'image/png', 0.95);
 }
 
-// Funções para Modal de Documentos
+// =====================================================================
+// FUNÇÕES PARA MODAL DE DOCUMENTOS (CORRIGIDAS)
+// =====================================================================
 function openDocumentModal(type) {
   currentDocumentType = type;
   tempDocumentFiles = [];
@@ -1068,10 +998,30 @@ function resetDocumentModal() {
 
 function setupDragAndDrop(type) {
   const uploadArea = document.getElementById('document-upload-area');
-  const fileInput = document.getElementById(`${type}-upload`);
+  
+  // Mapear tipo para ID correto do input REAL
+  const inputMapping = {
+    'cpf_documento': 'aluno_cpf_documento',
+    'comprovante': 'aluno_comprovante_residencia',
+    'historico': 'aluno_historico_academico'
+  };
+  
+  const realInputId = inputMapping[type];
+  const fileInput = document.getElementById(realInputId);
+  
+  if (!fileInput) {
+    console.error(`❌ Input REAL não encontrado para tipo ${type}: ${realInputId}`);
+    return;
+  }
+  
+  console.log(`✅ Configurando drag&drop para ${type} (input: ${realInputId})`);
+  
+  // Remove listeners antigos para evitar duplicação
+  const newUploadArea = uploadArea.cloneNode(true);
+  uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
   
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, preventDefaults, false);
+    newUploadArea.addEventListener(eventName, preventDefaults, false);
   });
   
   function preventDefaults(e) {
@@ -1080,25 +1030,31 @@ function setupDragAndDrop(type) {
   }
   
   ['dragenter', 'dragover'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, () => {
-      uploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+    newUploadArea.addEventListener(eventName, () => {
+      newUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
     }, false);
   });
   
   ['dragleave', 'drop'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, () => {
-      uploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+    newUploadArea.addEventListener(eventName, () => {
+      newUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
     }, false);
   });
   
-  uploadArea.addEventListener('drop', (e) => {
+  newUploadArea.addEventListener('drop', (e) => {
     const files = e.dataTransfer.files;
     handleDocumentFiles(files, type);
   }, false);
   
-  fileInput.addEventListener('change', (e) => {
+  // IMPORTANTE: Usar o input REAL em vez de criar novo
+  // Adicionar event listener diretamente ao input real
+  const newInputHandler = (e) => {
     handleDocumentFiles(e.target.files, type);
-  });
+  };
+  
+  // Remove listener antigo se existir
+  fileInput.removeEventListener('change', newInputHandler);
+  fileInput.addEventListener('change', newInputHandler);
 }
 
 function handleDocumentFiles(files, type) {
@@ -1107,6 +1063,15 @@ function handleDocumentFiles(files, type) {
   if (files.length > maxFiles) {
     showToast(`Você pode enviar no máximo ${maxFiles} arquivo(s)`, 'error');
     return;
+  }
+  
+  // Validar tipo de arquivo
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+  for (let file of files) {
+    if (!allowedTypes.includes(file.type)) {
+      showToast('Apenas imagens (JPG, PNG) e PDFs são permitidos', 'error');
+      return;
+    }
   }
   
   tempDocumentFiles = Array.from(files);
@@ -1173,31 +1138,64 @@ function removeDocumentFile(index) {
   }
 }
 
+// =====================================================================
+// FUNÇÃO CRÍTICA CORRIGIDA - CONFIRMAÇÃO DE UPLOAD
+// =====================================================================
 function confirmDocumentUpload() {
-  if (tempDocumentFiles.length === 0) return;
+  if (tempDocumentFiles.length === 0) {
+    showToast('Nenhum arquivo selecionado', 'error');
+    return;
+  }
   
-  const input = document.getElementById(`${currentDocumentType}-upload`);
+  console.log(`📁 Confirmando upload de ${currentDocumentType}:`, tempDocumentFiles);
   
-  // Criar novo DataTransfer e adicionar apenas arquivos válidos
+  // Mapear o tipo para o ID correto do input NO FORMULÁRIO (não no modal)
+  const inputMapping = {
+    'cpf_documento': 'aluno_cpf_documento',
+    'comprovante': 'aluno_comprovante_residencia',
+    'historico': 'aluno_historico_academico'
+  };
+  
+  const realInputId = inputMapping[currentDocumentType];
+  const realInput = document.getElementById(realInputId);
+  
+  if (!realInput) {
+    console.error(`❌ Input REAL não encontrado: ${realInputId}`);
+    showToast('Erro ao anexar arquivos', 'error');
+    return;
+  }
+  
+  console.log(`🎯 Input REAL encontrado: ${realInputId}`);
+  
+  // Criar novo DataTransfer e adicionar arquivos
   const dataTransfer = new DataTransfer();
   tempDocumentFiles.forEach(file => {
-    if (file && file.size > 0) {  // Verificar se o arquivo é válido
+    if (file && file.size > 0) {
       dataTransfer.items.add(file);
+      console.log(`✅ Arquivo adicionado ao DataTransfer: ${file.name} (${file.size} bytes)`);
     }
   });
   
-  // Só atribuir se houver arquivos válidos
-  if (dataTransfer.files.length > 0) {
-    input.files = dataTransfer.files;
-    updateFileList(`${currentDocumentType}-files-list`, Array.from(dataTransfer.files));
-    closeDocumentModal();
-    showToast('Arquivo(s) anexado(s) com sucesso!', 'success');
-  } else {
-    showToast('Nenhum arquivo válido selecionado', 'error');
-  }
+  // Atribuir arquivos ao input REAL do formulário
+  realInput.files = dataTransfer.files;
+  
+  console.log(`📊 Total de arquivos no input REAL "${realInputId}":`, realInput.files.length);
+  console.log(`📋 Arquivos no input:`, Array.from(realInput.files).map(f => f.name));
+  
+  // Atualizar a lista visual
+  const listId = currentDocumentType === 'comprovante' 
+    ? 'comprovante-files-list' 
+    : `${currentDocumentType}-files-list`;
+  
+  updateFileList(listId, Array.from(dataTransfer.files));
+  closeDocumentModal();
+  
+  showToast(`${tempDocumentFiles.length} arquivo(s) anexado(s) com sucesso!`, 'success');
 }
 
-// Função auxiliar para atualizar lista de arquivos
+// =====================================================================
+// FUNÇÕES AUXILIARES
+// =====================================================================
 function updateFileList(listId, files) {
   const list = document.getElementById(listId);
   list.innerHTML = '';
@@ -1231,7 +1229,6 @@ function updateFileList(listId, files) {
   });
 }
 
-// Função auxiliar para formatar tamanho de arquivo
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -1240,7 +1237,6 @@ function formatFileSize(bytes) {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
-// Função para mostrar toast
 function showToast(message, type = 'info') {
   const container = document.getElementById('alert-container');
   const alert = document.createElement('div');
@@ -1268,62 +1264,93 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
-// Drag and Drop para área de upload de foto
+// =====================================================================
+// DRAG AND DROP PARA FOTO
+// =====================================================================
 const fotoUploadArea = document.getElementById('foto-upload-area');
-const fotoInput = document.getElementById('foto-upload');
+const fotoRealInput = document.getElementById('aluno_foto');
 
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, false);
-});
+if (fotoUploadArea && fotoRealInput) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
 
-['dragenter', 'dragover'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, () => {
-    fotoUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
-  }, false);
-});
+  ['dragenter', 'dragover'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
 
-['dragleave', 'drop'].forEach(eventName => {
-  fotoUploadArea.addEventListener(eventName, () => {
-    fotoUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
-  }, false);
-});
+  ['dragleave', 'drop'].forEach(eventName => {
+    fotoUploadArea.addEventListener(eventName, () => {
+      fotoUploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+    }, false);
+  });
 
-fotoUploadArea.addEventListener('drop', (e) => {
-  const files = e.dataTransfer.files;
-  
-  if (files.length > 1) {
-    showToast('Selecione apenas 1 arquivo de foto', 'error');
-    return;
-  }
-  
-  if (files.length > 0) {
-    if (!files[0].type.startsWith('image/')) {
-      showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+  fotoUploadArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    
+    if (files.length > 1) {
+      showToast('Selecione apenas 1 arquivo de foto', 'error');
       return;
     }
     
-    fotoInput.files = files;
-    fotoInput.dispatchEvent(new Event('change'));
-  }
-}, false);
+    if (files.length > 0) {
+      if (!files[0].type.startsWith('image/')) {
+        showToast('Por favor, selecione apenas arquivos de imagem', 'error');
+        return;
+      }
+      
+      // Criar DataTransfer para transferir o arquivo
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(files[0]);
+      
+      fotoRealInput.files = dataTransfer.files;
+      fotoRealInput.dispatchEvent(new Event('change'));
+    }
+  }, false);
+}
 
-// Debug: Verificar arquivos antes de enviar o formulário
+// =====================================================================
+// DEBUG DO FORMULÁRIO
+// =====================================================================
 document.getElementById('student-form').addEventListener('submit', function(e) {
-  const fotoInput = document.getElementById('foto-upload');
   console.log('=== 🚀 DEBUG FORM SUBMIT ===');
-  console.log('📸 Foto input files:', fotoInput.files);
-  console.log('📸 Quantidade de arquivos:', fotoInput.files.length);
-  if (fotoInput.files.length > 0) {
-    console.log('📸 Primeiro arquivo:', fotoInput.files[0]);
-    console.log('📸 Nome:', fotoInput.files[0].name);
-    console.log('📸 Tamanho:', fotoInput.files[0].size, 'bytes');
-    console.log('📸 Tipo:', fotoInput.files[0].type);
+  
+  const fotoInput = document.getElementById('aluno_foto');
+  console.log('📸 FOTO:', fotoInput?.files?.length || 0, 'arquivo(s)');
+  if (fotoInput?.files?.length > 0) {
+    console.log('  └─', fotoInput.files[0].name, '-', fotoInput.files[0].size, 'bytes');
   }
+  
+  const cpfInput = document.getElementById('aluno_cpf_documento');
+  console.log('📄 CPF DOCUMENTO:', cpfInput?.files?.length || 0, 'arquivo(s)');
+  if (cpfInput?.files) {
+    Array.from(cpfInput.files).forEach((file, i) => {
+      console.log(`  └─ [${i+1}]`, file.name, '-', file.size, 'bytes');
+    });
+  }
+  
+  const comprovanteInput = document.getElementById('aluno_comprovante_residencia');
+  console.log('🏠 COMPROVANTE:', comprovanteInput?.files?.length || 0, 'arquivo(s)');
+  if (comprovanteInput?.files) {
+    Array.from(comprovanteInput.files).forEach((file, i) => {
+      console.log(`  └─ [${i+1}]`, file.name, '-', file.size, 'bytes');
+    });
+  }
+  
+  const historicoInput = document.getElementById('aluno_historico_academico');
+  console.log('📋 HISTÓRICO:', historicoInput?.files?.length || 0, 'arquivo(s)');
+  if (historicoInput?.files?.length > 0) {
+    console.log('  └─', historicoInput.files[0].name, '-', historicoInput.files[0].size, 'bytes');
+  }
+  
   console.log('========================');
 });
+
 </script>
 
 <%= javascript_include_tag 'mascaras' %>
