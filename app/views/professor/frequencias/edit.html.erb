@@ -12,7 +12,7 @@
             Data da aula: <%= @frequencia.data_aula.strftime("%d/%m/%Y") %>
           </p>
         </div>
-        <%= link_to professor_turma_frequencias_path(@turma), class: "w-full sm:w-auto text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
+        <%= link_to professor_turma_frequencia_path(@frequencia.turma, @frequencia), class: "w-full sm:w-auto text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" do %>
           Voltar
         <% end %>
       </div>
@@ -112,8 +112,10 @@
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Para editar as presenças individuais dos alunos, acesse a 
-              <%= link_to "página de visualização", professor_turma_frequencia_path(@turma, @frequencia), class: "font-medium underline hover:text-blue-900" %>
+              Para editar as presenças individuais dos alunos, acesse a&nbsp;
+              <%= link_to professor_turma_frequencia_path(@turma, @frequencia), class: "font-medium underline hover:text-blue-900" do%>
+                página de visualização
+              <% end %>
             </p>
           </div>
         </div>
