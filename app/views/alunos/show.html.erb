@@ -516,7 +516,6 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            <%= @aluno.cpf_documento.count %> arquivo(s)
                           </span>
                           <button onclick="modal_cpf_preview.showModal()" class="text-sm text-cyan-600 hover:text-cyan-800 font-semibold flex items-center gap-1 hover:underline">
                             Visualizar
@@ -828,11 +827,38 @@
            <% if @aluno.turma.present? %>
               <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
                 <div class="form-control w-full">
-                  <%= f.file_field :historico, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
+                  <%= f.file_field :historico_academico, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
                 </div>
                 
                 <div class="modal-action">
                   <button type="button" class="btn" onclick="document_modal_historico.close()">Cancelar</button>
+                  <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            <% else %>
+              <p>Aluno ainda não está vinculado a nenhuma turma.</p>
+            <% end %>
+
+          </div>
+          <form method="dialog" class="modal-backdrop">
+            <button>Fechar</button>
+          </form>
+        </dialog>
+
+        <!-- Modal de Upload - CPF Documento -->
+        <dialog id="document_modal_cpf" class="modal">
+          <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">Documento CPF</h3>
+            <p class="mb-4">Faça upload do documento CPF do aluno (formato PDF).</p>
+            
+            <% if @aluno.turma.present? %>
+              <%= form_with(model: @aluno, url: escola_turma_aluno_path(@escola, @aluno.turma, @aluno), method: :patch, class: "space-y-4") do |f| %>
+                <div class="form-control w-full">
+                  <%= f.file_field :cpf_documento, multiple: true, class: "file-input file-input-bordered w-full", accept: "application/pdf" %>
+                </div>
+                
+                <div class="modal-action">
+                  <button type="button" class="btn" onclick="document_modal_cpf.close()">Cancelar</button>
                   <%= f.submit "Enviar Documento", class: "btn btn-primary" %>
                 </div>
               <% end %>

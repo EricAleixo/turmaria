@@ -197,6 +197,7 @@ end
   # Rotas autenticadas (professor)
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
+    get '/professor/minha_escola', to: 'professor/minha_escola#index', as: :minha_escola_professor_path
 
     namespace :professor do
       get "selecionar_turma", to: "conteudos#selecionar_turma"
