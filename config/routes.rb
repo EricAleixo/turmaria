@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   devise_for :alunos, skip: [:registrations, :sessions], controllers: { confirmations: 'confirmations' }
 
   get 'dashboard', to: 'dashboard#index'
+  get 'filtrar_calendario', to: 'dashboard#filtrar_calendario', defaults: { format: :json }
+
 
   constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
   scope :aluno, as: :aluno do
@@ -197,7 +199,8 @@ end
   # Rotas autenticadas (professor)
   constraints lambda { |request| request.env['warden'].authenticated?(:professor) } do
     get 'turmas/:turma_id/historico', to: 'professor/turmas#historico', as: 'historico_turma'
-    get '/professor/minha_escola', to: 'professor/minha_escola#index', as: :minha_escola_professor_path
+    get '/professor/minha_escola', to: 'professor/minha_escola#index', as: :minha_escola_professor
+
 
     namespace :professor do
       get "selecionar_turma", to: "conteudos#selecionar_turma"

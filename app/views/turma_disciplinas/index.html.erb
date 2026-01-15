@@ -35,12 +35,7 @@
               Gerencie as disciplinas da turma <strong class="text-green-600"><%= @turma.nome %></strong>
             </p>
           </div>
-          <%= link_to escola_turma_disciplinas_path(@turma.escola, @turma), class: "btn btn-outline btn-sm md:btn-md gap-2" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-            </svg>
-            Cancelar
-          <% end %>
+         
         </div>
       </div>
     </div>
@@ -204,7 +199,7 @@
           </div>
           
           <div class="flex gap-3 w-full sm:w-auto">
-            <%= link_to escola_turma_disciplinas_path(@turma.escola, @turma), class: "btn btn-ghost flex-1 sm:flex-none" do %>
+            <%= link_to escola_turma_path(@turma.escola, @turma), class: "btn btn-ghost flex-1 sm:flex-none" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>

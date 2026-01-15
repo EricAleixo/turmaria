@@ -68,7 +68,7 @@
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs sm:text-sm font-medium text-gray-500">Disciplina</p>
-            <p class="text-base sm:text-lg font-bold text-gray-900 truncate"><%= @frequencia.disciplina&.nome || "N/A" %></p>
+            <p style="color: <%= @frequencia.disciplina&.cor_nome %>" class="text-base sm:text-lg font-bold text-gray-900 truncate"><%= @frequencia.disciplina&.nome || "N/A" %></p>
           </div>
         </div>
       </div>

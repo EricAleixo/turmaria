@@ -1,28 +1,49 @@
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100 overflow-x-hidden">
   <!-- Header -->
-  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
-    <div class="px-6 py-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Nova Disciplina</h1>
-          <div class="text-sm breadcrumbs mt-1">
-            <ul>
-              <li><%= link_to @escola.nome,disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-              <li><%= link_to "Disciplinas",disciplinas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
-              <li class="text-gray-600">Nova disciplina</li>
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-4 sm:mb-6">
+    <div class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <!-- Título e breadcrumbs -->
+        <div class="w-full sm:w-auto flex-1 min-w-0">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Nova Disciplina</h1>
+          
+          <!-- Breadcrumbs -->
+          <div class="text-xs sm:text-sm overflow-x-auto">
+            <ul class="flex flex-nowrap gap-2 pb-1">
+              <li>
+                <%= link_to @escola.nome,
+                escola_disciplinas_path(@escola),
+                class: "text-green-600 hover:text-green-800 transition-colors duration-200 truncate max-w-[100px] sm:max-w-[150px] md:max-w-none inline-block" %>
+              </li>
+              <li class="text-gray-400 flex-shrink-0">/</li>
+              <li>
+                <%= link_to "Disciplinas",
+                escola_disciplinas_path(@escola),
+                class: "text-green-600 hover:text-green-800 transition-colors duration-200 whitespace-nowrap" %>
+              </li>
+              <li class="text-gray-400 flex-shrink-0">/</li>
+              <li class="text-gray-600 whitespace-nowrap">
+                Nova disciplina
+              </li>
             </ul>
           </div>
         </div>
-        <%= link_to "Voltar", disciplinas_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+
+        <!-- Botão Voltar -->
+        <%= link_to escola_disciplinas_path(@escola), class: "w-full sm:w-auto text-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-all hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Voltar</span>
+        <% end %>
       </div>
     </div>
   </div>
 
   <!-- Form Container -->
-  <div class="px-6">
+  <div class="px-3 sm:px-4 lg:px-6 pb-6">
     <div class="max-w-4xl mx-auto">
       <%= render 'form', disciplina: @disciplina %>
     </div>
   </div>
-
 </div>

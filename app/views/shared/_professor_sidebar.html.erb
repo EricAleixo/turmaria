@@ -20,37 +20,39 @@
         </div>
 
         <!-- Card da Escola -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-300">
-          <div class="flex items-start gap-3">
-            <!-- Ícone da Escola com destaque -->
-            <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg"
-                  class="h-7 w-7 text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6" />
-              </svg>
-            </div>
+        <%= link_to minha_escola_professor_path, class: "cursor-pointer" do%>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-300">
+            <div class="flex items-start gap-3">
+              <!-- Ícone da Escola com destaque -->
+              <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-7 w-7 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6" />
+                </svg>
+              </div>
 
-            <div class="flex-1 min-w-0">
-              <p class="text-[10px] text-green-200 font-semibold uppercase tracking-wider mb-1">Sua Escola</p>
-              <h3 class="text-sm font-bold text-white leading-tight truncate">
-                <%= current_professor.escola.nome %>
-              </h3>
-              <div class="mt-2">
-                <span class="inline-flex items-center gap-1 text-[10px] bg-green-500/30 text-white px-2 py-0.5 rounded-full font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
-                  Portal do Professor
-                </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] text-green-200 font-semibold uppercase tracking-wider mb-1">Sua Escola</p>
+                <h3 class="text-sm font-bold text-white leading-tight truncate">
+                  <%= current_professor.escola.nome %>
+                </h3>
+                <div class="mt-2">
+                  <span class="inline-flex items-center gap-1 text-[10px] bg-green-500/30 text-white px-2 py-0.5 rounded-full font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                    </svg>
+                    Portal do Professor
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        <% end %>
       </div>
     </div>
 

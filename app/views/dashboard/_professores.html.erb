@@ -77,98 +77,293 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       
       <%# Calendar - Attendance %>
-      <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
-            <div class="bg-green-100 p-3 rounded-xl">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-2xl font-bold text-gray-800">Frequência - <%= I18n.t('date.month_names')[Date.current.month] %></h2>
-              <p class="text-gray-600 text-sm">Acompanhe a presença dos alunos</p>
-            </div>
-          </div>
-          
-          <% if @disciplinas_e_turmas&.any? %>
-            <select class="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none font-medium">
-              <% @disciplinas_e_turmas.each do |item| %>
-                <option><%= "#{item[:turma]} - #{item[:disciplina]}" %></option>
-              <% end %>
-            </select>
+<div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="bg-green-100 p-3 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">Frequência - <%= I18n.t('date.month_names')[Date.current.month] %></h2>
+        <p class="text-gray-600 text-sm">Acompanhe a presença dos alunos</p>
+      </div>
+    </div>
+    
+    <%# Filtros %>
+    <div class="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+        </svg>
+        <span class="text-sm font-semibold text-gray-700">Filtrar por:</span>
+      </div>
+      
+      <%# Dropdown Disciplina %>
+      <div class="flex-1 min-w-[200px]">
+        <select id="disciplina-select" 
+                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-200 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none font-medium transition-all shadow-sm hover:border-gray-300"
+                onchange="filtrarPorDisciplina()">
+          <option value="">Todas as Disciplinas</option>
+          <% @disciplinas_professor&.each do |disciplina| %>
+            <option value="<%= disciplina[:id] %>">
+              <%= disciplina[:nome] %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      
+      <%# Dropdown Turma %>
+      <div class="flex-1 min-w-[200px]">
+        <select id="turma-select" 
+                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-200 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none font-medium transition-all shadow-sm hover:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                onchange="aplicarFiltros()"
+                disabled>
+          <option value="">Todas as Turmas</option>
+        </select>
+      </div>
+      
+      <%# Botão Limpar Filtros %>
+      <button id="limpar-btn" 
+              onclick="limparFiltros()" 
+              class="hidden px-5 py-2.5 rounded-lg bg-white border-2 border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-semibold transition-all shadow-sm items-center gap-2 whitespace-nowrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Limpar Filtros
+      </button>
+    </div>
+  </div>
+
+  <%# Calendar Grid %>
+  <div id="calendario-container">
+    <% if @calendario_presenca&.any? %>
+      <div class="mb-4">
+        <div class="grid grid-cols-7 gap-2 mb-4">
+          <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each do |day| %>
+            <div class="text-center font-semibold text-gray-600 text-sm py-2"><%= day %></div>
           <% end %>
         </div>
-
-        <%# Calendar Grid %>
-        <% if @calendario_presenca&.any? %>
-          <div class="mb-4">
-            <div class="grid grid-cols-7 gap-2 mb-4">
-              <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each do |day| %>
-                <div class="text-center font-semibold text-gray-600 text-sm py-2"><%= day %></div>
-              <% end %>
-            </div>
-            
-            <div class="grid grid-cols-7 gap-2">
-              <%# Empty cells for month start %>
-              <% start_day = Date.today.beginning_of_month.wday %>
-              <% start_day.times do %>
-                <div class="aspect-square"></div>
-              <% end %>
+        
+        <div id="calendario-dias" class="grid grid-cols-7 gap-2">
+          <%# Empty cells for month start %>
+          <% start_day = Date.today.beginning_of_month.wday %>
+          <% start_day.times do %>
+            <div class="aspect-square"></div>
+          <% end %>
+          
+          <%# Days of month %>
+          <% (1..Date.today.end_of_month.day).each do |day| %>
+            <%
+              dado_dia = @calendario_presenca.find { |d| d[:dia] == day }
               
-              <%# Days of month %>
-              <% (1..Date.today.end_of_month.day).each do |day| %>
-                <%
-                  data_atual = Date.new(Date.today.year, Date.today.month, day)
-                  dado_dia = @calendario_presenca.find { |d| d[:dia] == day }
-                  
-                  attendance_class = if dado_dia
-                    taxa = dado_dia[:taxa_presenca]
-                    if taxa >= 90
-                      'bg-green-100 text-green-700 hover:bg-green-200'
-                    elsif taxa >= 70
-                      'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                    else
-                      'bg-red-100 text-red-700 hover:bg-red-200'
-                    end
-                  else
-                    'bg-gray-50 text-gray-400'
-                  end
-                  
-                  is_today = day == Date.today.day
-                  today_ring = is_today ? 'ring-2 ring-green-500 ring-offset-2' : ''
-                %>
-                <div class="aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all <%= attendance_class %> <%= today_ring %>">
-                  <%= day %>
-                </div>
-              <% end %>
+              attendance_class = if dado_dia
+                taxa = dado_dia[:taxa_presenca]
+                if taxa >= 90
+                  'bg-green-100 text-green-700 hover:bg-green-200'
+                elsif taxa >= 70
+                  'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                else
+                  'bg-red-100 text-red-700 hover:bg-red-200'
+                end
+              else
+                'bg-gray-50 text-gray-400'
+              end
+              
+              is_today = day == Date.today.day
+              today_ring = is_today ? 'ring-2 ring-green-500 ring-offset-2' : ''
+            %>
+            <div class="aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all <%= attendance_class %> <%= today_ring %>" 
+                 data-dia="<%= day %>"
+                 data-taxa="<%= dado_dia ? dado_dia[:taxa_presenca] : 0 %>">
+              <%= day %>
             </div>
-          </div>
-
-          <%# Legend %>
-          <div class="flex items-center gap-6 pt-4 border-t border-gray-200 flex-wrap">
-            <div class="flex items-center gap-2">
-              <div class="w-4 h-4 rounded bg-green-200"></div>
-              <span class="text-sm text-gray-600">Presença Alta (90%+)</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-4 h-4 rounded bg-yellow-200"></div>
-              <span class="text-sm text-gray-600">Presença Média (70-89%)</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-4 h-4 rounded bg-red-200"></div>
-              <span class="text-sm text-gray-600">Presença Baixa (&lt;70%)</span>
-            </div>
-          </div>
-        <% else %>
-          <div class="text-center py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-            </svg>
-            <p class="text-gray-500">Nenhum dado de frequência disponível para este mês.</p>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
+
+      <%# Legend %>
+      <div class="flex items-center gap-6 pt-4 border-t border-gray-200 flex-wrap">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-green-200"></div>
+          <span class="text-sm text-gray-600">Presença Alta (90%+)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-yellow-200"></div>
+          <span class="text-sm text-gray-600">Presença Média (70-89%)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-red-200"></div>
+          <span class="text-sm text-gray-600">Presença Baixa (&lt;70%)</span>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <p class="text-gray-500">Nenhum dado de frequência disponível para este mês.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Dados vindos do backend
+  const dadosCompletos = <%= raw @disciplinas_e_turmas.to_json %>;
+  const calendarioCompleto = <%= raw @calendario_presenca.to_json %>;
+  
+  // Mapeamento de disciplinas e turmas
+  const disciplinasTurmas = {};
+  dadosCompletos.forEach(item => {
+    if (!disciplinasTurmas[item.disciplina_id]) {
+      disciplinasTurmas[item.disciplina_id] = [];
+    }
+    if (!disciplinasTurmas[item.disciplina_id].find(t => t.id === item.turma_id)) {
+      disciplinasTurmas[item.disciplina_id].push({
+        id: item.turma_id,
+        nome: item.turma
+      });
+    }
+  });
+  
+  function filtrarPorDisciplina() {
+    const disciplinaId = document.getElementById('disciplina-select').value;
+    const turmaSelect = document.getElementById('turma-select');
+    const limparBtn = document.getElementById('limpar-btn');
+    
+    // Limpar dropdown de turmas
+    turmaSelect.innerHTML = '<option value="">Todas as Turmas</option>';
+    
+    if (disciplinaId) {
+      // Habilitar e popular dropdown de turmas
+      turmaSelect.disabled = false;
+      
+      const turmas = disciplinasTurmas[disciplinaId] || [];
+      turmas.forEach(turma => {
+        const option = document.createElement('option');
+        option.value = turma.id;
+        option.textContent = turma.nome;
+        turmaSelect.appendChild(option);
+      });
+      
+      limparBtn.classList.remove('hidden');
+      limparBtn.classList.add('flex');
+    } else {
+      // Desabilitar dropdown de turmas
+      turmaSelect.disabled = true;
+      limparBtn.classList.add('hidden');
+      limparBtn.classList.remove('flex');
+    }
+    
+    aplicarFiltros();
+  }
+  
+  function aplicarFiltros() {
+    const disciplinaId = document.getElementById('disciplina-select').value;
+    const turmaId = document.getElementById('turma-select').value;
+    
+    // Construir URL corretamente - a rota está em /filtrar_calendario
+    const params = new URLSearchParams();
+    if (disciplinaId) params.append('disciplina_id', disciplinaId);
+    if (turmaId) params.append('turma_id', turmaId);
+    
+    // URL correta baseada no rails routes
+    const url = `/filtrar_calendario?${params.toString()}`;
+    
+    console.log('Fazendo requisição para:', url); // Debug
+    
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content || ''
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      console.log('Status da resposta:', response.status); // Debug
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Dados recebidos:', data); // Debug
+      atualizarCalendario(data.calendario_presenca);
+    })
+    .catch(error => {
+      console.error('Erro ao filtrar:', error);
+      alert('Erro ao carregar dados. Verifique o console para mais detalhes.');
+    });
+  }
+  
+  function atualizarCalendario(dadosCalendario) {
+    const calendarioDias = document.getElementById('calendario-dias');
+    const hoje = new Date().getDate();
+    
+    // Se não houver dados, mostrar mensagem
+    if (!dadosCalendario || dadosCalendario.length === 0) {
+      document.getElementById('calendario-container').innerHTML = `
+        <div class="text-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+          <p class="text-gray-500">Nenhum dado de frequência disponível para este filtro.</p>
+          <button onclick="limparFiltros()" class="mt-4 px-6 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-medium transition-colors">
+            Limpar Filtros e Ver Todos
+          </button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Atualizar cada dia do calendário
+    const todosDias = calendarioDias.querySelectorAll('[data-dia]');
+    todosDias.forEach(diaEl => {
+      const dia = parseInt(diaEl.getAttribute('data-dia'));
+      const dadoDia = dadosCalendario.find(d => d.dia === dia);
+      
+      // Remover classes antigas
+      diaEl.className = 'aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all';
+      
+      // Adicionar novas classes baseadas nos dados
+      if (dadoDia) {
+        const taxa = dadoDia.taxa_presenca;
+        if (taxa >= 90) {
+          diaEl.classList.add('bg-green-100', 'text-green-700', 'hover:bg-green-200');
+        } else if (taxa >= 70) {
+          diaEl.classList.add('bg-yellow-100', 'text-yellow-700', 'hover:bg-yellow-200');
+        } else {
+          diaEl.classList.add('bg-red-100', 'text-red-700', 'hover:bg-red-200');
+        }
+        diaEl.setAttribute('data-taxa', taxa);
+      } else {
+        diaEl.classList.add('bg-gray-50', 'text-gray-400');
+        diaEl.setAttribute('data-taxa', '0');
+      }
+      
+      // Destacar dia atual
+      if (dia === hoje) {
+        diaEl.classList.add('ring-2', 'ring-green-500', 'ring-offset-2');
+      }
+    });
+  }
+  
+  function limparFiltros() {
+    document.getElementById('disciplina-select').value = '';
+    document.getElementById('turma-select').value = '';
+    document.getElementById('turma-select').disabled = true;
+    document.getElementById('limpar-btn').classList.add('hidden');
+    document.getElementById('limpar-btn').classList.remove('flex');
+    
+    // Restaurar calendário completo
+    atualizarCalendario(calendarioCompleto);
+  }
+</script>
 
       <%# Weekly Attendance Stats %>
       <div class="bg-white rounded-2xl shadow-xl p-6">
