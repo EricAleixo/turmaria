@@ -1,127 +1,123 @@
-<%# app/views/professor/notas/registros/new.html.erb %>
-
 <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
   <div class="border-b-2 border-green-500 pb-4 mb-6">
     <h1 class="text-3xl font-extrabold text-gray-800 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-500"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
       </svg>
-      Lançamento de Notas
+      <%= @avaliacao_configuracao.persisted? ? 'Editar Avaliação' : 'Nova Avaliação' %>
     </h1>
     <p class="text-gray-500 mt-1">
-      <%= @avaliacao_configuracao.nome %> - <%= @bimestre %>º Bimestre
+      <%= @disciplina.nome %> - <%= @turma.nome %>
     </p>
   </div>
 
-  <%= form_with model: @registros_form, 
-                url: professor_turma_disciplina_notas_avaliaco_registros_path(@turma, @disciplina, @avaliacao_configuracao),
-                method: :post,
-                class: "space-y-4" do |form| %>
+  <%= form_with model: @avaliacao_configuracao,
+        url: @avaliacao_configuracao.persisted? ?
+              professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, @avaliacao_configuracao) :
+              professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+        method: @avaliacao_configuracao.persisted? ? :patch : :post,
+        class: "space-y-4",
+        data: {
+          filter_url: filter_by_bimestre_professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+          avaliacao_original_id: @avaliacao_configuracao.avaliacao_original_id
+        } do |form| %>
 
-    <div class="overflow-x-auto">
-      <table class="table table-zebra w-full">
-        <thead>
-          <tr>
-            <th>Aluno</th>
-            <th class="text-center">Nota (0 a 10)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @registros.each do |registro| %>
-            <tr>
-              <td class="font-medium"><%= registro.aluno.nome %></td>
-              <td class="text-center">
-                <%= text_field_tag "open_struct[registros][#{registro.aluno.id}][valor]",
-                                   registro.valor&.to_s&.gsub('.', ','),
-                                   class: 'input input-bordered input-sm w-24 text-center input-nota',
-                                   placeholder: '0,0',
-                                   pattern: '[0-9]{1,2}[,.]?[0-9]{0,2}',
-                                   inputmode: 'decimal' %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <!-- NOME -->
+    <div>
+      <label class="label font-semibold">Nome da Avaliação</label>
+      <%= form.text_field :nome,
+            class: 'input input-bordered w-full',
+            required: true %>
+    </div>
+
+    <!-- BIMESTRE -->
+    <div>
+      <label class="label font-semibold">Bimestre</label>
+      <%= form.select :bimestre,
+            options_for_select(
+              @turma.bimestres_disponiveis.map { |b| ["#{b}º Bimestre", b] },
+              @avaliacao_configuracao.bimestre
+            ),
+            { prompt: 'Selecione o bimestre' },
+            class: 'select select-bordered w-full',
+            id: 'bimestre-select' %>
+    </div>
+
+    <!-- RECUPERAÇÃO -->
+    <div class="flex items-center gap-3">
+      <%= form.check_box :is_recuperacao,
+            class: 'checkbox checkbox-success',
+            id: 'is-recuperacao' %>
+      <span class="font-medium">Avaliação de recuperação</span>
+    </div>
+
+    <!-- SUBSTITUI -->
+    <div id="avaliacao-original-wrapper"
+         class="<%= @avaliacao_configuracao.is_recuperacao? ? '' : 'hidden' %>">
+      <label class="label font-semibold">Avaliação que será substituída</label>
+      <%= form.select :avaliacao_original_id,
+            [],
+            { prompt: 'Selecione a avaliação' },
+            class: 'select select-bordered w-full',
+            id: 'avaliacao-original-select' %>
     </div>
 
     <div class="flex justify-between pt-6 border-t border-gray-200">
-      <%= link_to '← Voltar', 
-                  professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
-                  class: 'btn btn-ghost text-gray-600' %>
-      
-      <%= form.submit 'Salvar Notas', 
-                      class: 'btn bg-green-500 hover:bg-green-700 text-white font-bold' %>
+      <%= link_to '← Voltar',
+            professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+            class: 'btn btn-ghost' %>
+
+      <%= form.submit class: 'btn bg-green-500 hover:bg-green-700 text-white font-bold' %>
     </div>
+
   <% end %>
 </div>
-
 <script>
-  // 🎯 SOLUÇÃO: Aceita tanto PONTO quanto VÍRGULA
-  document.addEventListener('DOMContentLoaded', function() {
-    const notaInputs = document.querySelectorAll('.input-nota');
-    
-    notaInputs.forEach(input => {
-      // Converte automaticamente ao digitar
-      input.addEventListener('input', function(e) {
-        // Permite apenas números, vírgula e ponto
-        let valor = this.value.replace(/[^0-9.,]/g, '');
-        
-        // Remove múltiplos separadores decimais
-        const parts = valor.split(/[.,]/);
-        if (parts.length > 2) {
-          valor = parts[0] + ',' + parts.slice(1).join('');
-        }
-        
-        // Converte ponto para vírgula
-        valor = valor.replace('.', ',');
-        
-        this.value = valor;
-      });
-      
-      // Valida e formata ao sair do campo
-      input.addEventListener('blur', function() {
-        let valor = this.value.trim();
-        
-        if (!valor) return;
-        
-        // Converte vírgula para ponto temporariamente para validar
-        const valorNumerico = parseFloat(valor.replace(',', '.'));
-        
-        // Valida range
-        if (isNaN(valorNumerico)) {
-          alert('Digite um número válido');
-          this.value = '';
-          return;
-        }
-        
-        if (valorNumerico < 0 || valorNumerico > 10) {
-          alert('A nota deve estar entre 0 e 10');
-          this.value = '';
-          return;
-        }
-        
-        // Formata com 1 casa decimal (opcional)
-        // this.value = valorNumerico.toFixed(1).replace('.', ',');
-      });
-      
-      // Permite navegar com Enter
-      input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const inputs = Array.from(notaInputs);
-          const index = inputs.indexOf(this);
-          if (index < inputs.length - 1) {
-            inputs[index + 1].focus();
-          }
-        }
-      });
-    });
-  });
-</script>
+document.addEventListener('DOMContentLoaded', () => {
+  const isRecuperacao = document.getElementById('is-recuperacao')
+  const wrapper = document.getElementById('avaliacao-original-wrapper')
+  const selectOriginal = document.getElementById('avaliacao-original-select')
+  const bimestreSelect = document.getElementById('bimestre-select')
+  const form = document.querySelector('form')
 
-<style>
-  .input-nota:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  const filterUrl = form.dataset.filterUrl
+  const preselectedId = form.dataset.avaliacaoOriginalId
+
+  function carregarAvaliacoes() {
+    const bimestre = bimestreSelect.value
+    if (!bimestre || !isRecuperacao.checked) return
+
+    fetch(`${filterUrl}?bimestre=${bimestre}`)
+      .then(r => r.json())
+      .then(data => {
+        selectOriginal.innerHTML = '<option value="">Selecione a avaliação</option>'
+
+        data.forEach(av => {
+          const opt = document.createElement('option')
+          opt.value = av.id
+          opt.textContent = av.nome
+
+          if (preselectedId && String(av.id) === String(preselectedId)) {
+            opt.selected = true
+          }
+
+          selectOriginal.appendChild(opt)
+        })
+      })
   }
-</style>
+
+  isRecuperacao.addEventListener('change', () => {
+    wrapper.classList.toggle('hidden', !isRecuperacao.checked)
+    carregarAvaliacoes()
+  })
+
+  bimestreSelect.addEventListener('change', carregarAvaliacoes)
+
+  // 🔥 CARREGA AUTOMATICAMENTE NO EDIT
+  if (isRecuperacao.checked && bimestreSelect.value) {
+    carregarAvaliacoes()
+  }
+})
+</script>
