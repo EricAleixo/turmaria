@@ -77,11 +77,23 @@ class Professor::FrequenciasController < Professor::BaseController
   end
 
   def new
+    # Pega a data do parâmetro, ou usa a data atual como fallback
+    data_aula = params[:data_aula].present? ? Date.parse(params[:data_aula]) : Date.current
+    
+    @frequencia = @turma.frequencias.build(
+      professor: current_professor,
+      data_aula: data_aula
+    )
+
+    @alunos = @turma.alunos.order(:nome)
+    @disciplinas = current_professor.disciplinas.order(:nome)
+  rescue ArgumentError
+    # Se a data for inválida, usa a data atual
     @frequencia = @turma.frequencias.build(
       professor: current_professor,
       data_aula: Date.current
     )
-
+    
     @alunos = @turma.alunos.order(:nome)
     @disciplinas = current_professor.disciplinas.order(:nome)
   end

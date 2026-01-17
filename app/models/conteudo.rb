@@ -8,6 +8,8 @@ class Conteudo < ApplicationRecord
 
   enum tipo: { material: 0, atividade: 1 }
 
+  validates :titulo, presence: true
+
   validates :bimestre, presence: true,
                        numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :tipo, presence: true

@@ -330,7 +330,7 @@
 
               <!-- Botões de ação -->
               <div class="flex flex-col gap-3">
-                <%= link_to "#",
+                <%= link_to new_professor_turma_frequencia_path(@turma),
                 id: "btn-registrar-frequencia",
                 class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
                         bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
@@ -464,7 +464,7 @@
 
             <!-- Botões de ação -->
             <div class="flex flex-col sm:flex-row gap-3">
-              <%= link_to "#",
+              <%= link_to new_professor_turma_frequencia_path(@turma),
               id: "btn-registrar-frequencia",
               class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
                       bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
@@ -625,12 +625,12 @@
       painelNovaFreq.classList.remove('hidden');
       document.getElementById('nova-freq-data').textContent = dataTexto;
       
-      // Atualiza os links com a data
-      document.querySelectorAll('.nova-freq-disciplina-link').forEach(link => {
-        const url = new URL(link.href);
-        url.searchParams.set('data_aula', dataIso);
-        link.href = url.toString();
-      });
+      // Atualiza o link "Registrar frequências" com a data
+      const linkRegistrar = document.getElementById('btn-registrar-frequencia');
+      if (linkRegistrar) {
+        const baseUrl = linkRegistrar.getAttribute('href').split('?')[0];
+        linkRegistrar.href = `${baseUrl}?data_aula=${dataIso}`;
+      }
     }
 
     // Mobile
@@ -643,12 +643,12 @@
       
       document.getElementById('mobile-nova-freq-data').textContent = dataTexto;
       
-      // Atualiza os links mobile com a data
-      document.querySelectorAll('.mobile-nova-freq-link').forEach(link => {
-        const url = new URL(link.href);
-        url.searchParams.set('data_aula', dataIso);
-        link.href = url.toString();
-      });
+      // Atualiza o link mobile "Registrar frequências" com a data
+      const linkRegistrarMobile = painelMobile.querySelector('#btn-registrar-frequencia');
+      if (linkRegistrarMobile) {
+        const baseUrl = linkRegistrarMobile.getAttribute('href').split('?')[0];
+        linkRegistrarMobile.href = `${baseUrl}?data_aula=${dataIso}`;
+      }
 
       if (window.innerWidth < 1024) {
         setTimeout(() => painelMobile.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);

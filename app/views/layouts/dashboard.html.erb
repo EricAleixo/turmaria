@@ -194,7 +194,8 @@
       <!-- Dynamic Sidebar -->
       <%= render_user_sidebar %>
     </div>
-     <footer class="w-full bg-gray-900 text-white flex flex-col items-center justify-center p-5 ">
+    
+    <footer class="w-full bg-gray-900 text-white flex flex-col items-center justify-center p-5 ">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" 
            class="size-8 text-white 
                     md: size-10
@@ -217,6 +218,10 @@
           <a href="#" class="text-sm text-white hover:underline hover:text-blue-500 transition-colors duration-400
                               md:text-base">Contatos</a>
         </nav>
+      </div>
     </footer>
+
+    <!-- Renderiza todos os modais aqui, fora de qualquer container -->
+    <%= yield :modals %>
   </body>
 </html>

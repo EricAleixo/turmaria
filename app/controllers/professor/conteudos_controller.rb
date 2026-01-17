@@ -14,16 +14,8 @@ class Professor::ConteudosController < ApplicationController
 
   # GET /conteudos
   def index
-    if current_user.is_a?(SuperAdmin)
-      # SuperAdmin vê TUDO
-      @conteudos = Conteudo.all.order(created_at: :desc)
-    elsif current_user.is_a?(Admin)
-      # Admin vê apenas o conteúdo das escola que ele administra
-      @conteudos = Conteudo.where(escola_id: current_user.escola.pluck(:id)).order(created_at: :desc)
-    else
       @turma = Turma.find(params[:turma_id])
       @conteudos = @turma.conteudos.where(professor_id: current_user.id).order(created_at: :desc)
-    end
   end
 
 
