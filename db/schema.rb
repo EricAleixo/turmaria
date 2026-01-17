@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_13_160820) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_17_140613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -441,12 +441,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_160820) do
   add_foreign_key "alunos", "turmas"
   add_foreign_key "ano_letivos", "escolas"
   add_foreign_key "area_disciplinas", "escolas"
-  add_foreign_key "avaliacoes_bimestrais", "alunos"
+  add_foreign_key "avaliacoes_bimestrais", "alunos", on_delete: :cascade
   add_foreign_key "avaliacoes_bimestrais", "disciplinas"
   add_foreign_key "avaliacoes_bimestrais", "turmas"
   add_foreign_key "avaliacoes_configuracoes", "avaliacoes_configuracoes", column: "avaliacao_original_id"
   add_foreign_key "avaliacoes_configuracoes", "disciplinas"
-  add_foreign_key "avaliacoes_configuracoes", "turmas"
+  add_foreign_key "avaliacoes_configuracoes", "turmas", on_delete: :cascade
   add_foreign_key "cidades", "estados"
   add_foreign_key "conteudos", "disciplinas"
   add_foreign_key "conteudos", "escolas"
@@ -464,7 +464,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_160820) do
   add_foreign_key "frequencias", "disciplinas"
   add_foreign_key "frequencias", "professors"
   add_foreign_key "frequencias", "turmas"
-  add_foreign_key "professor_disciplinas", "disciplinas"
+  add_foreign_key "professor_disciplinas", "disciplinas", on_delete: :cascade
   add_foreign_key "professor_disciplinas", "professors"
   add_foreign_key "professor_turmas", "professors"
   add_foreign_key "professor_turmas", "turmas"
@@ -473,7 +473,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_160820) do
   add_foreign_key "registros_de_notas", "alunos"
   add_foreign_key "registros_de_notas", "avaliacoes_configuracoes", column: "avaliacao_configuracao_id"
   add_foreign_key "turma_disciplinas", "disciplinas"
-  add_foreign_key "turma_disciplinas", "turmas"
+  add_foreign_key "turma_disciplinas", "turmas", on_delete: :cascade
   add_foreign_key "turmas", "ano_letivos"
   add_foreign_key "turmas", "escolas"
 end

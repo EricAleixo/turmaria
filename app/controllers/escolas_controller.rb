@@ -147,6 +147,7 @@ class EscolasController < ApplicationController
   def destroy
     authorize @escola
     @escola.destroy
+    ActiveStorage::Blob.unattached.find_each(&:purge)
     redirect_to escolas_path, notice: "Escola excluída com sucesso."
   end
 

@@ -29,7 +29,9 @@ class Aluno < ApplicationRecord
            dependent: :destroy
   
   has_many :avaliacoes_configuracoes,
-           through: :registros_de_notas
+         through: :registros_de_notas,
+         source: :avaliacao_configuracao,
+         dependent: :destroy
 
   # === Active Storage ===
   has_one_attached :foto
