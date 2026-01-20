@@ -234,7 +234,9 @@ end
         end
 
         # Conteúdos
-        resources :conteudos, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+        resources :conteudos, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+          delete :remove_material, on: :member
+        end
 
         # Disciplinas
         resources :disciplinas, only: [:index] do

@@ -275,12 +275,18 @@
                               class: "text-sm font-medium text-gray-700 hover:text-teal-600 truncate transition-colors" %>
                           </div>
                           
-                          <%= link_to "Remover",
-                            remove_material_professor_turma_conteudo_path(conteudo.turma, conteudo, arquivo_id: arquivo.id),
-                            data: { turbo_method: :delete, turbo_confirm: "Remover este arquivo?" },
-                            class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
-                          %>
-                        </li>
+                          <%= delete_button_with_modal(
+                            path: remove_material_professor_turma_conteudo_path(
+                              conteudo.turma,
+                              conteudo,
+                              arquivo_id: arquivo.id
+                            ),
+                            modal_id: dom_id(arquivo, :delete),
+                            title: "Remover arquivo",
+                            message: "Tem certeza que deseja remover este arquivo",
+                            item_name: arquivo.filename.to_s,
+                            btn_class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
+                          ) %>
                       <% end %>
                     </ul>
                   </div>

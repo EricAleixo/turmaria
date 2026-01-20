@@ -83,46 +83,25 @@ class Professor::ConteudosController < ApplicationController
 
   # PATCH/PUT /conteudos/1
   def update
-    # Normaliza materiais como array se necessário
     materiais = params.dig(:conteudo, :materiais)
     if materiais.present? && !materiais.is_a?(Array)
       params[:conteudo][:materiais] = [materiais]
     end
 
-    respond_to do |format|
-      if @conteudo.update(conteudo_params)
-        # Processa materiais apenas após update bem-sucedido
-        begin
-          processar_materiais(@conteudo) if @conteudo.materiais.attached?
-        rescue => e
-          Rails.logger.error "Erro ao processar materiais: #{e.message}"
-          # Opcionalmente, pode adicionar um flash warning
-        end
-
-        format.html { 
-          redirect_to professor_turma_conteudos_path(@conteudo.turma), 
-          notice: "Conteúdo atualizado com sucesso." 
-        }
-        format.turbo_stream { 
-          render turbo_stream: [
-            turbo_stream.update('conteudo_form', partial: 'conteudos/success_message'),
-            turbo_stream.replace("conteudo_#{@conteudo.id}", partial: 'conteudos/conteudo', locals: { conteudo: @conteudo })
-          ]
-        }
-        format.json { render :show, status: :ok, location: @conteudo }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @conteudo.errors, status: :unprocessable_entity }
-        format.turbo_stream { 
-          render turbo_stream: turbo_stream.replace(
-            'conteudo_form', 
-            partial: 'form', 
-            locals: { conteudo: @conteudo }
-          ), status: :unprocessable_entity 
-        }
+    if @conteudo.update(conteudo_params)
+      begin
+        processar_materiais(@conteudo) if @conteudo.materiais.attached?
+      rescue => e
+        Rails.logger.error "Erro ao processar materiais: #{e.message}"
       end
+
+      redirect_to professor_turma_conteudos_path(@conteudo.turma),
+                  notice: "Conteúdo atualizado com sucesso."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
+
 
   # DELETE /conteudos/1
   def destroy
@@ -145,14 +124,11 @@ class Professor::ConteudosController < ApplicationController
   end
 
   def remove_material
-    # @conteudo já é carregado pelo set_conteudo
     arquivo = @conteudo.materiais.find(params[:arquivo_id])
     arquivo.purge
 
-    respond_to do |format|
-      format.turbo_stream 
-      format.html { redirect_to [current_user, @conteudo], notice: "Arquivo removido com sucesso." }
-    end
+    redirect_to request.referer || [current_user, @conteudo],
+              notice: "Arquivo removido com sucesso."
   end
 
   def search_escola

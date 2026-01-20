@@ -124,6 +124,18 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0 0l-4-4m4 4l4-4m-4-8V4" />
                 </svg>
               <% end %>
+             <%= delete_button_with_modal(
+                path: remove_material_professor_turma_conteudo_path(
+                              @conteudo.turma,
+                              @conteudo,
+                              arquivo_id: arquivo.id
+                            ),
+                modal_id: dom_id(arquivo, :delete),
+                title: "Remover arquivo",
+                message: "Tem certeza que deseja remover este arquivo",
+                item_name: arquivo.filename.to_s,
+                btn_class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors"
+              ) %>
             </td>
           </tr>
         <% end %>

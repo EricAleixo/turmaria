@@ -139,10 +139,8 @@ class AdminConteudosController < ApplicationController
     arquivo = @conteudo.materiais.find(params[:arquivo_id])
     arquivo.purge
 
-    respond_to do |format|
-      format.turbo_stream
-      format.html { redirect_to conteudo_path(@conteudo), notice: "Arquivo removido com sucesso." }
-    end
+    redirect_to request.referer || [current_user, @conteudo],
+              notice: "Arquivo removido com sucesso."
   end
 
   # GET /conteudos/search_escolas
