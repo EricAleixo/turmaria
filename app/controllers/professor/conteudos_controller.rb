@@ -83,26 +83,43 @@ class Professor::ConteudosController < ApplicationController
 
   # PATCH/PUT /conteudos/1
   def update
-    if params[:conteudo][:materiais].present? && !params[:conteudo][:materiais].is_a?(Array)
-      params[:conteudo][:materiais] = [params[:conteudo][:materiais]]
+    # Normaliza materiais como array se necessário
+    materiais = params.dig(:conteudo, :materiais)
+    if materiais.present? && !materiais.is_a?(Array)
+      params[:conteudo][:materiais] = [materiais]
     end
 
     respond_to do |format|
-      if @conteudo.update(conteudo_params.except(:materiais))
-        if params[:conteudo][:materiais].present?
-          @conteudo.materiais.attach(params[:conteudo][:materiais])
+      if @conteudo.update(conteudo_params)
+        # Processa materiais apenas após update bem-sucedido
+        begin
+          processar_materiais(@conteudo) if @conteudo.materiais.attached?
+        rescue => e
+          Rails.logger.error "Erro ao processar materiais: #{e.message}"
+          # Opcionalmente, pode adicionar um flash warning
         end
 
-        processar_materiais(@conteudo)
-
-        format.html { redirect_to professor_conteudos_path, notice: "Conteúdo atualizado com sucesso." }
-        format.turbo_stream { redirect_to professor_conteudos_path, notice: "Conteúdo atualizado com sucesso." }
+        format.html { 
+          redirect_to professor_turma_conteudos_path(@conteudo.turma), 
+          notice: "Conteúdo atualizado com sucesso." 
+        }
+        format.turbo_stream { 
+          render turbo_stream: [
+            turbo_stream.update('conteudo_form', partial: 'conteudos/success_message'),
+            turbo_stream.replace("conteudo_#{@conteudo.id}", partial: 'conteudos/conteudo', locals: { conteudo: @conteudo })
+          ]
+        }
         format.json { render :show, status: :ok, location: @conteudo }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @conteudo.errors, status: :unprocessable_entity }
-        # Adiciona resposta turbo para erros de update
-        format.turbo_stream { render turbo_stream: turbo_stream.replace('conteudo_form', partial: 'form', locals: { conteudo: @conteudo }), status: :unprocessable_entity }
+        format.turbo_stream { 
+          render turbo_stream: turbo_stream.replace(
+            'conteudo_form', 
+            partial: 'form', 
+            locals: { conteudo: @conteudo }
+          ), status: :unprocessable_entity 
+        }
       end
     end
   end

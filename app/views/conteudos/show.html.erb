@@ -194,7 +194,7 @@
                       Baixar
                     <% end %>
                     <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-                      <%= link_to remove_material_escola_conteudo_path(@escola, @conteudo, arquivo_id: arquivo.id),
+                      <%= link_to remove_material_conteudo_path(@conteudo, arquivo_id: arquivo.id),
                                   data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
                                   class: "btn btn-sm bg-red-600 hover:bg-red-700 text-white border-0",
                                   title: "Remover" do %>
@@ -268,7 +268,7 @@
                           </svg>
                         <% end %>
                         <% if @escola.present? && (current_user.is_a?(Admin) || current_user.is_a?(SuperAdmin)) %>
-                          <%= link_to remove_material_escola_conteudo_path(@escola, @conteudo, arquivo_id: arquivo.id),
+                          <%= link_to remove_material_conteudo_path(@conteudo, arquivo_id: arquivo.id),
                                       data: { turbo_method: :delete, turbo_confirm: 'Tem certeza que deseja remover este arquivo?' },
                                       class: "rounded-full p-1 text-red-600 hover:bg-red-100/50 hover:text-red-800 transition-colors",
                                       title: "Remover" do %>

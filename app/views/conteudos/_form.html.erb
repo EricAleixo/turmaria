@@ -1,7 +1,14 @@
-<% 
+<%
   if @escola.present?
     disciplinas = @escola.disciplinas
-    scope = escola_conteudos_path(@escola)
+
+    scope =
+      if @conteudo&.persisted?
+        escola_conteudo_path(@escola, @conteudo)
+      else
+        escola_conteudos_path(@escola)
+      end
+
   end
 %>
 

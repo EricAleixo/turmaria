@@ -1,17 +1,25 @@
 <% 
-  # Detecta o contexto e define as variáveis adequadamente
   if defined?(current_professor) && current_professor.present?
-    # Contexto: Professor acessando suas próprias views
     disciplinas = current_professor.disciplinas
-    scope = professor_painel_conteudos_path
+    if @conteudo.persisted?
+      form_url = professor_turma_conteudo_path(@conteudo.turma, @conteudo)
+    else
+      form_url = professor_turma_conteudos_path(params[:turma_id])
+    end
   elsif @escola.present?
-    # Contexto: Admin acessando via escola específica
     disciplinas = @escola.disciplinas
-    scope = escola_conteudos_path(@escola)
+    if conteudo.persisted?
+      form_url = escola_conteudo_path(@escola, conteudo)
+    else
+      form_url = escola_conteudos_path(@escola)
+    end
   else
-    # Fallback: Sem contexto específico
     disciplinas = []
-    scope = conteudos_path
+    if conteudo.persisted?
+      form_url = conteudo_path(conteudo)
+    else
+      form_url = conteudos_path
+    end
   end
 %>
 
@@ -21,11 +29,11 @@
   <div class="w-full max-w-4xl bg-white rounded-xl shadow-none">
 
     <%= form_with(model: conteudo, 
-                  url: scope,
+                  url: form_url,
                   id: 'conteudo_form', 
                   class: "space-y-0",
                   multipart: true) do |f| %>
-    <%= hidden_field_tag :turma_id, params[:turma_id] %>
+    <%= hidden_field_tag :turma_id, params[:turma_id] || conteudo.turma_id %>
 
       <div class="px-8 py-6 border-b border-black/10 space-y-4">
         
@@ -60,7 +68,7 @@
       {
         prompt: "Selecionar disciplina",
         disabled: ->(disciplina) do
-          !@disciplinas_da_turma_ids.include?(disciplina.id)
+          @disciplinas_da_turma_ids && !@disciplinas_da_turma_ids.include?(disciplina.id)
         end
       },
       {
@@ -86,7 +94,7 @@
       Bimestre <span class="text-red-500">*</span>
     </span>
   </label>
-  <% bimestres_opcoes = (1..@bimestres).map { |b| ["#{b}º Bimestre", b] } %>
+  <% bimestres_opcoes = @bimestres ? (1..@bimestres).map { |b| ["#{b}º Bimestre", b] } : [] %>
 
   <%= f.select :bimestre,
       bimestres_opcoes,
@@ -105,7 +113,7 @@
   <% end %>
 </div>
           
-          <%# --- Bloco "Marcar como Atividade" (Atualizado com daisyUI Toggle) --- %>
+          <%# --- Bloco "Marcar como Atividade" --- %>
           <div class="form-control flex-shrink-0">
   <label class="label cursor-pointer gap-3">
     <span class="label-text text-sm font-medium text-gray-700">Marcar como Atividade</span> 
@@ -267,13 +275,12 @@
                               class: "text-sm font-medium text-gray-700 hover:text-teal-600 truncate transition-colors" %>
                           </div>
                           
-                            <span><%= arquivo.filename %></span>
-                            <%= link_to "Remover",
-                              remove_material_conteudo_path(conteudo, arquivo_id: arquivo.id),
-                              data: { turbo_method: :delete, turbo_confirm: "Remover este arquivo?" },
-                              class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
-                            %>
-                          </li>
+                          <%= link_to "Remover",
+                            remove_material_professor_turma_conteudo_path(conteudo.turma, conteudo, arquivo_id: arquivo.id),
+                            data: { turbo_method: :delete, turbo_confirm: "Remover este arquivo?" },
+                            class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
+                          %>
+                        </li>
                       <% end %>
                     </ul>
                   </div>
@@ -336,7 +343,7 @@
         </div>
 
         <div class="mt-8 flex justify-end">
-          <%= f.submit "Salvar Conteúdo",
+          <%= f.submit conteudo.persisted? ? "Atualizar Conteúdo" : "Salvar Conteúdo",
                 class: "group relative inline-flex items-center gap-2 px-8 py-3.5 text-base font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200" %>
         </div>
       </div>

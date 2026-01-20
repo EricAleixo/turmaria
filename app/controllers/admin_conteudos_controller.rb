@@ -88,7 +88,6 @@ class AdminConteudosController < ApplicationController
 
   # PATCH/PUT /conteudos/1
   def update
-    # Validação adicional de segurança para Admin
     if current_user.is_a?(Admin) && @conteudo.escola_id.present?
       unless current_user.escolas.pluck(:id).include?(@conteudo.escola_id)
         respond_to do |format|
@@ -307,17 +306,24 @@ class AdminConteudosController < ApplicationController
 
   def processar_docx(arquivo)
     require 'docx'
-    arquivo_path = ActiveStorage::Blob.service.send(:path_for, arquivo.blob.key)
-    doc = Docx::Document.open(arquivo_path)
-    doc.paragraphs.each { |p| puts p.text }
+
+    arquivo.blob.open do |file|
+      doc = Docx::Document.open(file.path)
+      doc.paragraphs.each { |p| puts p.text }
+    end
   end
+
 
   def processar_pdf(arquivo)
     require 'combine_pdf'
-    arquivo_path = ActiveStorage::Blob.service.send(:path_for, arquivo.blob.key)
-    pdf = CombinePDF.load(arquivo_path)
-    puts pdf.pages.count
+    require 'tempfile'
+
+    arquivo.blob.open do |file|
+      pdf = CombinePDF.load(file.path)
+      puts pdf.pages.count
+    end
   end
+
 
   def conteudo_params
     params.require(:conteudo).permit(

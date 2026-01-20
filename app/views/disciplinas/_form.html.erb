@@ -60,7 +60,7 @@
             </svg>
           </div>
           <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-full mt-2 max-h-60 overflow-y-auto">
-            <% (@disciplinas_areas || []).each do |area| %>
+            <% (@area_disciplinas || []).each do |area| %>
               <li>
                 <a class="area-option flex items-center gap-2" data-area="<%= area.nome %>" data-cor="<%= area.cor %>">
                   <span class="w-4 h-4 rounded-full" style="background-color: <%= area.cor %>"></span>

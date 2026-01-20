@@ -1,8 +1,4 @@
-<% content_for :head do %>
-  <meta name="turbo-cache-control" content="no-cache">
-<% end %>
 
- 
 <div class="min-h-screen bg-gray-100">
   <!-- Dashboard Header -->
   <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
@@ -687,10 +683,6 @@
     const escolasData = <%= raw @escolas.present? ? @escolas.map(&:nome).to_json : '[]' %>;
     const turmasData = <%= raw @escolas.present? ? @escolas.map { |e| e.turmas.count }.to_json : '[]' %>;
     const alunosData = <%= raw @escolas.present? ? @escolas.map { |e| e.alunos.count }.to_json : '[]' %>;
-
-    console.log('Dados das escolas:', escolasData);
-    console.log('Dados das turmas:', turmasData);
-    console.log('Dados dos alunos:', alunosData);
 
     // Cores verdes para os gráficos
     const greenBackgroundColors = [
