@@ -133,30 +133,12 @@
                     </span>
                 <% end %>
               </li>
-              <li>
-                <%= button_to escola_professor_path(@escola,professor), method: :delete, data: { confirm: "Deseja excluir este professor?" } do %>
-                    <span class="flex items-center gap-2 text-red-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                           viewBox="0 0 24 24" stroke-width="1.5"
-                           stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M14.74 9l-.346 9m-4.788
-                                 0L9.26 9m9.968-3.21c.342.052.682.107
-                                 1.022.166m-1.022-.165L18.16
-                                 19.673a2.25 2.25 0
-                                 01-2.244 2.077H8.084a2.25
-                                 2.25 0 01-2.244-2.077L4.772
-                                 5.79m14.456 0a48.108 48.108 0
-                                 00-3.478-.397m-12 .562c.34-.059.68-.114
-                                 1.022-.165m0 0a48.11 48.11 0
-                                 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
-                                 51.964 0 00-3.32 0c-1.18.037-2.09
-                                 1.022-2.09 2.201v.916m7.5
-                                 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                      Excluir professor
-                    </span>
-                <% end %>
+              <li class="text-red-500">
+                <%= delete_modal_trigger(
+                      modal_id: dom_id(professor, :delete),
+                      text: "Excluir professor",
+                      icon: true
+                    ) %>
               </li>
             </ul>
           </div>
@@ -314,31 +296,12 @@
                   <% end %>
                 </li>
 
-                <li>
-                  <%= button_to escola_ano_letivo_path(@escola, ano), method: :delete,
-                        data: { confirm: "Deseja excluir este ano letivo?" } do %>
-                    <span class="flex items-center gap-2 text-red-600 w-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                           viewBox="0 0 24 24" stroke-width="1.5"
-                           stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M14.74 9l-.346 9m-4.788
-                                 0L9.26 9m9.968-3.21c.342.052.682.107
-                                 1.022.166m-1.022-.165L18.16
-                                 19.673a2.25 2.25 0
-                                 01-2.244 2.077H8.084a2.25
-                                 2.25 0 01-2.244-2.077L4.772
-                                 5.79m14.456 0a48.108 48.108 0
-                                 00-3.478-.397m-12 .562c.34-.059.68-.114
-                                 1.022-.165m0 0a48.11 48.11 0
-                                 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
-                                 51.964 0 00-3.32 0c-1.18.037-2.09
-                                 1.022-2.09 2.201v.916m7.5
-                                 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                      Excluir ano letivo
-                    </span>
-                  <% end %>
+                <li class="text-red-500">
+                  <%= delete_modal_trigger(
+                        modal_id: dom_id(ano, :delete),
+                        text: "Excluir ano letivo",
+                        icon: true
+                      ) %>
                 </li>
               </ul>
             </div>
@@ -498,27 +461,12 @@ else
                     </span>
                   <% end %>
                 </li>
-                <li>
-                  <%= button_to escola_turma_path(@escola, turma), method: :delete, data: { confirm: "Deseja excluir esta turma?" } do %>
-                    <span class="flex w-full items-center gap-2 text-red-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788
-                           0L9.26 9m9.968-3.21c.342.052.682.107
-                           1.022.166m-1.022-.165L18.16
-                           19.673a2.25 2.25 0
-                           01-2.244 2.077H8.084a2.25
-                           2.25 0 01-2.244-2.077L4.772
-                           5.79m14.456 0a48.108 48.108 0
-                           00-3.478-.397m-12 .562c.34-.059.68-.114
-                           1.022-.165m0 0a48.11 48.11 0
-                           013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
-                           51.964 0 00-3.32 0c-1.18.037-2.09
-                           1.022-2.09 2.201v.916m7.5
-                           0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                      Excluir turma
-                    </span>
-                  <% end %>
+                <li class="text-red-500">
+                  <%= delete_modal_trigger(
+                        modal_id: dom_id(turma, :delete),
+                        text: "Excluir turma",
+                        icon: true
+                      ) %>
                 </li>
               </ul>
             </div>
@@ -658,14 +606,14 @@ else
                         Editar aluno
                       <% end %>
                     </li>
-                    <li>
-                      <%= button_to escola_aluno_path(aluno.escola, aluno), method: :delete, data: { turbo_confirm: "Tem certeza que deseja excluir este aluno?" }, class: "flex items-center gap-2 text-red-600" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                        Excluir aluno
-                      <% end %>
+                    <li class="text-red-500">
+                      <%= delete_modal_trigger(
+                            modal_id: dom_id(aluno, :delete),
+                            text: "Excluir aluno",
+                            icon: true
+                          ) %>
                     </li>
+
                   <% else %>
                     <li><div class="text-slate-400 px-2 py-1">Sem escola</div></li>
                   <% end %>
@@ -853,33 +801,13 @@ else
                     </span>
                   <% end %>
                 </li>
-
-                <li>
-                  <%= button_to disciplina_path(disciplina), method: :delete,
-                        data: { confirm: "Deseja excluir esta disciplina?" } do %>
-                    <span class="flex items-center gap-2 text-red-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                           viewBox="0 0 24 24" stroke-width="1.5"
-                           stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M14.74 9l-.346 9m-4.788
-                                 0L9.26 9m9.968-3.21c.342.052.682.107
-                                 1.022.166m-1.022-.165L18.16
-                                 19.673a2.25 2.25 0
-                                 01-2.244 2.077H8.084a2.25
-                                 2.25 0 01-2.244-2.077L4.772
-                                 5.79m14.456 0a48.108 48.108 0
-                                 00-3.478-.397m-12 .562c.34-.059.68-.114
-                                 1.022-.165m0 0a48.11 48.11 0
-                                 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
-                                 51.964 0 00-3.32 0c-1.18.037-2.09
-                                 1.022-2.09 2.201v.916m7.5
-                                 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                      Excluir disciplina
-                    </span>
-                  <% end %>
-                </li>
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(disciplina, :delete),
+                          text: "Excluir disciplina",
+                          icon: true
+                        ) %>
+                  </li>
               </ul>
             </div>
           </div>
@@ -1065,32 +993,12 @@ else
                     <% end %>
                   </li>
 
-                  <li>
-                    <%= button_to escola_conteudo_path(@escola, conteudo), method: :delete,
-    data: { confirm: "Deseja excluir este conteúdo?" } do %>
-                      <span class="flex items-center gap-2 text-red-600">
-                        <!-- Ícone excluir -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" stroke-width="1.5"
-                             stroke="currentColor" class="w-4 h-4">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M14.74 9l-.346 9m-4.788
-                                   0L9.26 9m9.968-3.21c.342.052.682.107
-                                   1.022.166m-1.022-.165L18.16
-                                   19.673a2.25 2.25 0
-                                   01-2.244 2.077H8.084a2.25
-                                   2.25 0 01-2.244-2.077L4.772
-                                   5.79m14.456 0a48.108 48.108 0
-                                   00-3.478-.397m-12 .562c.34-.059.68-.114
-                                   1.022-.165m0 0a48.11 48.11 0
-                                   013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
-                                   51.964 0 00-3.32 0c-1.18.037-2.09
-                                   1.022-2.09 2.201v.916m7.5
-                                   0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                        Excluir conteúdo
-                      </span>
-                    <% end %>
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(conteudo, :delete),
+                          text: "Excluir conteúdo",
+                          icon: true
+                        ) %>
                   </li>
                 </ul>
               </div>
@@ -1215,15 +1123,12 @@ else
                       </span>
                     <% end %>
                   </li>
-                  <li>
-                    <%= button_to escola_frequencia_path(@escola, frequencia), method: :delete, data: { confirm: "Deseja excluir esta frequência?" } do %>
-                      <span class="flex items-center gap-2 text-red-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                        Excluir frequência
-                      </span>
-                    <% end %>
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(frequencia, :delete),
+                          text: "Excluir frequência",
+                          icon: true
+                        ) %>
                   </li>
                 </ul>
               </div>

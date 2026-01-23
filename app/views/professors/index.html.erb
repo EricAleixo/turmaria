@@ -275,27 +275,14 @@
                             <% end %>
 
                             <%# button_to CORRIGIDO E SIMPLIFICADO %>
-                           <%= button_to professor_path(professor),
-                              method: :delete,
-                              data: { turbo_confirm: "Tem certeza que deseja excluir este professor?" },
-                              class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-100 shadow-lg",
-                              title: "Deletar professor" do %>
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="w-4 h-4">
-                              <path d="M4.5 7.5h15"/>
-                              <path d="M10.5 11.25v6"/>
-                              <path d="M13.5 11.25v6"/>
-                              <path d="M6.75 7.5l.75 12a2.25 2.25 0 0 0 2.25 2.25h4.5a2.25 2.25 0 0 0 2.25-2.25l.75-12"/>
-                              <path d="M9.75 7.5v-1.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75v1.5"/>
-                            </svg>
-                          <% end %>
+                          <%= delete_button_with_modal(
+                              path: professor_path(professor),
+                              modal_id: dom_id(professor, :delete),
+                              title: "Excluir professor",
+                              message: "Tem certeza que deseja excluir este professor",
+                              item_name: professor.nome,
+                              btn_class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-100 shadow-lg"
+                            )%>
                           </div>
                         </td>
                       </tr>
@@ -363,15 +350,10 @@
                               <% end %>
                             </li>
                             <li>
-                              <%= button_to professor_path(professor),
-                                method: :delete,
-                                data: { turbo_confirm: "Tem certeza que deseja excluir este professor?" },
-                                class: "w-full text-left text-red-600 flex items-center gap-2" do %>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Excluir professor
-                              <% end %>
+                              <%= delete_modal_trigger(
+                                modal_id: dom_id(professor, :delete),
+                                text: "Excluir professor"
+                              ) %>
                             </li>
                           </ul>
                         </div>

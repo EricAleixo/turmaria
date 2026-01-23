@@ -70,14 +70,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                       </svg>
                     <% end %>
-                    <%= link_to escola_turma_path(escola, turma),
-                                method: :delete,
-                                data: { turbo_confirm: 'Tem certeza que deseja excluir esta turma?' },
-                                class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                    <% end %>
+                    <%= delete_button_with_modal(
+                        path: escola_turma_path(escola, turma),
+                        modal_id: dom_id(turma, :delete),
+                        title: "Excluir turma",
+                        message: "Tem certeza que deseja excluir esta turma",
+                        item_name: turma.nome,
+                        btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                      ) %>
+
                   </div>
                 </td>
               </tr>
@@ -204,113 +205,21 @@
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   <% end %>
 
-                  <%= button_to escola_professor_path(@escola,professor), method: :delete,
-                    data: { turbo_confirm: 'Tem certeza que deseja excluir este professor?' },
-                    class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800",
-                    title: "Excluir professor" do %>
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  <% end %>
+                  <%= delete_button_with_modal(
+                    path: escola_professor_path(@escola, professor),
+                    modal_id: dom_id(professor, :delete),
+                    title: "Excluir professor",
+                    message: "Tem certeza que deseja excluir este professor",
+                    item_name: professor.nome,
+                    btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                  ) %>
+
                 </div>
               </td>
             </tr>
           <% end %>
         </tbody>
       </table>
-    </div>
-
-    <%# Cards para Dispositivos Móveis (Mobile) %>
-    <div class="md:hidden space-y-4 pt-4">
-      <% @professores.each do |professor| %>
-        <%# Lógica de cores baseada na sua formação (mantida do seu código original) %>
-        <% card_classes = case professor.formacao.to_s
-          when 'doutorado'
-            "bg-gradient-to-br from-blue-50/40 via-blue-100/40 to-blue-200/60 border border-blue-300/50"
-          when 'mestrado'
-            "bg-gradient-to-br from-red-50/40 via-red-100/40 to-red-200/60 border border-red-300/50"
-          when 'pos_graduado'
-            "bg-gradient-to-br from-yellow-50/40 via-yellow-100/40 to-yellow-200/60 border border-yellow-300/50"
-          when 'graduado'
-            "bg-gradient-to-br from-green-50/40 via-green-100/40 to-green-200/60 border border-green-300/50"
-          else
-            "bg-white border border-gray-200"
-          end %>
-
-        <% bg_pattern = case professor.formacao
-          when 'doutorado'
-            "bg-gradient-to-br from-blue-50/20 via-transparent to-blue-100/30"
-          when 'mestrado'
-            "bg-gradient-to-br from-red-50/20 via-transparent to-red-100/30"
-          when 'pos_graduado'
-            "bg-gradient-to-br from-yellow-50/20 via-transparent to-yellow-100/30"
-          when "graduado"
-            "bg-gradient-to-br from-green-50/20 via-transparent to-green-100/30"
-          else
-            "bg-gradient-to-br from-gray-50/20 via-transparent to-gray-100/30"
-          end %>
-
-        <div class="relative overflow-hidden <%= card_classes %> rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div class="absolute inset-0 <%= bg_pattern %> pointer-events-none"></div>
-
-          <div class="relative z-10">
-            <div class="flex justify-between items-start mb-4">
-              <div class="flex-1">
-                <div class="flex items-center space-x-3 mb-2">
-                  <%# Inicial do Professor %>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white font-semibold shadow-sm border border-blue-400">
-                    <%= professor.nome[0].upcase %>
-                  </div>
-                  <h3 class="text-xl font-bold text-gray-900"><%= professor.nome %></h3>
-                </div>
-              </div>
-
-              <%# Tipo do Professor %>
-              <div class="ml-4">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
-                  <%= professor.tipo_professor&.titleize || "Tipo não informado"%>
-                </span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="col-span-2 bg-white/70 backdrop-blur-sm border border-blue-200/50 rounded-xl p-4 shadow-sm">
-                <p class="text-xs font-medium text-blue-700 uppercase tracking-wide mb-2">Matérias</p>
-                <div class="flex flex-wrap gap-1">
-                  <% if professor.disciplinas.any? %>
-                    <%= disciplinas_badges(professor) %>
-                  <% else %>
-                    <span class="text-sm text-gray-500">Sem matérias atribuídas</span>
-                  <% end %>
-                </div>
-              </div>
-              <%# Formação (Movido para linha separada para manter a estrutura) %>
-              <div class="col-span-2 bg-gradient-to-br from-blue-100 to-blue-200/80 border border-blue-300/50 rounded-xl p-4 text-center shadow-sm">
-                 <p class="text-xs font-medium text-blue-800 uppercase tracking-wide">Formação</p>
-                 <p class="text-sm font-semibold text-gray-900 mt-1"><%= professor.formacao&.humanize&.titleize || "Não informada" %></p>
-              </div>
-            </div>
-
-            <div class="flex justify-center space-x-2 pt-4 border-t border-blue-200/50">
-              <%# Links de Ação - Usando rotas globais %>
-              <%= link_to professor_path(professor), class: "flex items-center px-4 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105", data: { turbo: false } do %>
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                Ver
-              <% end %>
-              <%= link_to edit_professor_path(professor), class: "flex items-center px-4 py-2.5 text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105", data: { turbo: false } do %>
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                Editar
-              <% end %>
-              <%= button_to professor_path(professor), method: :delete,
-                data: { confirm: "Tem certeza que deseja excluir esta professor?" },
-                class: "flex items-center px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105",
-                form: { data: { turbo_frame: "_top" } } do %>
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                Excluir
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
     </div>
   <% else %>
     <%# Mensagem para quando não há professores, no estilo da tabela de alunos %>
@@ -430,14 +339,15 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                   <% end %>
-                  <%= link_to escola_aluno_path(escola, aluno),
-                              method: :delete,
-                              data: { turbo_confirm: 'Tem certeza que deseja excluir este aluno?' },
-                              class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  <% end %>
+                  <%= delete_button_with_modal(
+                    path: escola_aluno_path(escola, aluno),
+                    modal_id: dom_id(aluno, :delete),
+                    title: "Excluir aluno",
+                    message: "Tem certeza que deseja excluir este aluno",
+                    item_name: aluno.nome,
+                    btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                  ) %>
+
                 </div>
               </td>
             </tr>
@@ -541,12 +451,15 @@
                     <%= link_to edit_escola_ano_letivo_path(escola, ano), class: "rounded-full p-1 text-yellow-600 transition-colors hover:bg-yellow-100/50 hover:text-yellow-800" do %>
                       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     <% end %>
-                    <%= link_to escola_ano_letivo_path(escola, ano),
-                                method: :delete,
-                                data: { turbo_confirm: 'Tem certeza que deseja excluir este ano letivo?' },
-                                class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    <% end %>
+                    <%= delete_button_with_modal(
+                      path: escola_ano_letivo_path(escola, ano),
+                      modal_id: dom_id(ano, :delete),
+                      title: "Excluir ano letivo",
+                      message: "Tem certeza que deseja excluir este ano letivo",
+                      item_name: ano.ano,
+                      btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                    ) %>
+
                   </div>
                 </td>
               </tr>
@@ -655,12 +568,15 @@
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             <% end %>
 
-            <%= link_to escola_disciplina_path(escola, d),
-                        method: :delete,
-                        data: { turbo_confirm: 'Tem certeza que deseja excluir este ano letivo?' },
-                        class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            <% end %>
+            <%= delete_button_with_modal(
+                path: escola_disciplina_path(escola, d),
+                modal_id: dom_id(d, :delete),
+                title: "Excluir disciplina",
+                message: "Tem certeza que deseja excluir a disciplina",
+                item_name: d.nome,
+                btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+              ) %>
+
           </div>
         </td>
       </tr>
@@ -735,14 +651,15 @@
                     </svg>
                   <% end %>
 
-<%= button_to escola_conteudo_path(escola, conteudo),
-              method: :delete,
-              data: { confirm: 'Tem certeza que deseja excluir este conteúdo?' },
-              class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-  </svg>
-<% end %>
+                <%= delete_button_with_modal(
+                  path: escola_conteudo_path(escola, conteudo),
+                  modal_id: dom_id(conteudo, :delete),
+                  title: "Excluir conteúdo",
+                  message: "Tem certeza que deseja excluir o conteúdo",
+                  item_name: conteudo.titulo,
+                  btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                ) %>
+
 
                 </div>
               </td>
@@ -884,14 +801,14 @@
                     </svg>
                   <% end %>
 
-                  <%= button_to escola_frequencia_path(escola, frequencia),
-                                method: :delete,
-                                data: { confirm: 'Tem certeza que deseja excluir esta frequência?' },
-                                class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800" do %>
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  <% end %>
+                  <%= delete_button_with_modal(
+                      path: escola_frequencia_path(escola, frequencia),
+                      modal_id: dom_id(frequencia, :delete),
+                      title: "Excluir frequência",
+                      message: "Tem certeza que deseja excluir esta frequência",
+                      item_name: frequencia.data.strftime("%d/%m/%Y"),
+                      btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                    ) %>  
                 </div>
               </td>
             </tr>
