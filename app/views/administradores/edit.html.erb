@@ -17,7 +17,7 @@
   
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Form Card -->
-    <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+    <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg" data-controller="admin-photo">
       <div class="flex items-center gap-3 mb-6">
         <div class="bg-yellow-100 p-3 rounded-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,10 +132,14 @@
       <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <div class="flex items-center gap-4 mb-6">
           <div class="avatar placeholder">
-            <div class="bg-green-500 text-white rounded-full w-16 h-16 relative ring-4 ring-green-500/20 transition-all duration-300" id="preview-avatar">
-              <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="preview-initial">
-                <%= @admin.nome.present? ? @admin.nome.first.upcase : @admin.email.first.upcase %>
-              </span>
+            <div class="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center ring-4 ring-green-500/20 transition-all duration-300 overflow-hidden relative" id="preview-avatar">
+              <% if @admin.foto.attached? %>
+                <img src="<%= url_for(@admin.foto) %>" alt="Foto" class="w-full h-full object-cover" id="preview-photo">
+              <% else %>
+                <span class="text-xl font-bold absolute top-1/2 left-1/2 -translate-1/2" id="preview-initial">
+                  <%= @admin.nome.present? ? @admin.nome.first.upcase : @admin.email.first.upcase %>
+                </span>
+              <% end %>
             </div>
           </div>
           <div>
@@ -205,26 +209,83 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const nomeInput = document.getElementById('nome-input');
-  const emailInput = document.getElementById('email-input');
-  const previewName = document.getElementById('preview-name');
-  const previewEmail = document.getElementById('preview-email');
-  const previewInitial = document.getElementById('preview-initial');
+(function() {
+  'use strict';
 
-  function updatePreview() {
-    const nome = nomeInput.value || 'Nome do Administrador';
-    const email = emailInput.value || 'email@exemplo.com';
-    const initial = nome.charAt(0).toUpperCase() || 'A';
+  function initializePreview() {
+    const nomeInput = document.getElementById('nome-input');
+    const emailInput = document.getElementById('email-input');
+    const previewName = document.getElementById('preview-name');
+    const previewEmail = document.getElementById('preview-email');
+    const previewInitial = document.getElementById('preview-initial');
+    const previewAvatar = document.getElementById('preview-avatar');
+
+    // FORÇA a inicialização imediata com os valores atuais dos inputs
+    if (nomeInput && previewName) {
+      previewName.textContent = nomeInput.value || 'Nome do Administrador';
+    }
     
-    previewName.textContent = nome;
-    previewEmail.textContent = email;
-    if (previewInitial) {
+    if (emailInput && previewEmail) {
+      previewEmail.textContent = emailInput.value || 'email@exemplo.com';
+    }
+    
+    if (nomeInput && previewInitial) {
+      const initial = (nomeInput.value || 'A').charAt(0).toUpperCase();
       previewInitial.textContent = initial;
+    }
+
+    function updatePreview() {
+      const nome = nomeInput?.value || 'Nome do Administrador';
+      const email = emailInput?.value || 'email@exemplo.com';
+      const initial = nome.charAt(0).toUpperCase() || 'A';
+      
+      if (previewName) previewName.textContent = nome;
+      if (previewEmail) previewEmail.textContent = email;
+      if (previewInitial) previewInitial.textContent = initial;
+    }
+
+    if (nomeInput) nomeInput.addEventListener('input', updatePreview);
+    if (emailInput) emailInput.addEventListener('input', updatePreview);
+
+    // Observer para detectar mudanças na foto
+    if (previewAvatar) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList' || mutation.type === 'attributes') {
+            const img = previewAvatar.querySelector('img');
+            if (img && previewInitial) {
+              previewInitial.style.display = 'none';
+            }
+          }
+        });
+      });
+
+      observer.observe(previewAvatar, {
+        childList: true,
+        subtree: true,
+        attributes: true
+      });
     }
   }
 
-  nomeInput.addEventListener('input', updatePreview);
-  emailInput.addEventListener('input', updatePreview);
-});
+  // Event listener global para atualizações de foto
+  document.addEventListener('admin-photo:uploaded', (event) => {
+    const previewAvatar = document.getElementById('preview-avatar');
+    
+    if (event.detail?.url && previewAvatar) {
+      previewAvatar.innerHTML = `<img src="${event.detail.url}" alt="Foto" class="w-full h-full object-cover" id="preview-photo">`;
+    }
+  });
+
+  // Executa imediatamente se DOM já estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePreview);
+  } else {
+    // DOM já está pronto, executa imediatamente
+    initializePreview();
+  }
+
+  // Suporte para Turbo
+  document.addEventListener('turbo:load', initializePreview);
+})();
 </script>

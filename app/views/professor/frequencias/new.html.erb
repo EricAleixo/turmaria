@@ -21,7 +21,8 @@
               class: "py-4 sm:p-6",
               url: professor_turma_frequencias_path(@turma),
               method: :post,
-              local: true do |form| %>
+              local: true,
+              id: "form-frequencia" do |form| %>
         
         <!-- Data e Turma -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -40,8 +41,8 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div>
+        <div class="grid grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div id="disciplina-container">
             <%= dropdown(
                 form: form,
                 method: :disciplina_id,
@@ -50,8 +51,22 @@
                   [d.nome, d.id, { disabled: disabled }] 
                 },
                 placeholder: "Selecione a disciplina",
-                label: "Disciplina *"
+                label: "Disciplina *",
+                required: true,
+                html_options: { 
+                  required: true,
+                  data: { 
+                    required: "true",
+                    validate: "disciplina" 
+                  } 
+                }
               ) %>
+            <p class="text-xs text-red-600 mt-1 hidden" id="disciplina-erro">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              Por favor, selecione uma disciplina antes de registrar a frequência.
+            </p>
           </div>
         </div>
 
@@ -219,6 +234,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   const btnAcoes = document.getElementById('btn-acoes-rapidas');
   const menuAcoes = document.getElementById('menu-acoes');
+  const formFrequencia = document.getElementById('form-frequencia');
   
   if (btnAcoes && menuAcoes) {
     btnAcoes.addEventListener('click', function(e) {
@@ -233,6 +249,63 @@ document.addEventListener('DOMContentLoaded', function() {
         menuAcoes.classList.add('hidden');
       }
     });
+  }
+
+  // Validação do formulário
+  if (formFrequencia) {
+    formFrequencia.addEventListener('submit', function(e) {
+      // CORRIGIDO: Procura pelo hidden field, não por select
+      const disciplinaField = document.querySelector('input[name="frequencia[disciplina_id]"]');
+      const disciplinaErro = document.getElementById('disciplina-erro');
+      const disciplinaContainer = document.getElementById('disciplina-container');
+      const dropdownSummary = disciplinaContainer?.querySelector('summary');
+      
+      if (!disciplinaField || !disciplinaField.value || disciplinaField.value === '') {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Mostra mensagem de erro
+        if (disciplinaErro) {
+          disciplinaErro.classList.remove('hidden');
+        }
+        
+        // Adiciona classe de erro visual ao dropdown
+        if (dropdownSummary) {
+          dropdownSummary.classList.add('border-red-500', 'bg-red-50');
+          dropdownSummary.classList.remove('border-gray-300');
+        }
+        
+        // Scroll suave até o campo
+        if (disciplinaContainer) {
+          disciplinaContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        return false;
+      }
+    });
+    
+    // Remove erro quando o usuário selecionar uma disciplina
+    const disciplinaField = document.querySelector('input[name="frequencia[disciplina_id]"]');
+    if (disciplinaField) {
+      disciplinaField.addEventListener('change', function() {
+        const disciplinaErro = document.getElementById('disciplina-erro');
+        const disciplinaContainer = document.getElementById('disciplina-container');
+        const dropdownSummary = disciplinaContainer?.querySelector('summary');
+        
+        if (this.value && this.value !== '') {
+          // Remove mensagem de erro
+          if (disciplinaErro) {
+            disciplinaErro.classList.add('hidden');
+          }
+          
+          // Remove classe de erro visual
+          if (dropdownSummary) {
+            dropdownSummary.classList.remove('border-red-500', 'bg-red-50');
+            dropdownSummary.classList.add('border-gray-300');
+          }
+        }
+      });
+    }
   }
 
   // Ações do menu

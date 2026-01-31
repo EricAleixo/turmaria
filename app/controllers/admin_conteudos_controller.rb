@@ -161,6 +161,7 @@ class AdminConteudosController < ApplicationController
   private
 
   def prepare_form_data
+    @escola = @conteudo.escola
     @turmas = @escola.turmas
   end
   

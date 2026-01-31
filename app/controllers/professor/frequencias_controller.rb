@@ -3,6 +3,7 @@ class Professor::FrequenciasController < Professor::BaseController
   before_action :authenticate_professor!
   before_action :set_frequencia, only: [:show, :edit, :update, :destroy, :update_presencas]
   before_action :set_turma, only: [:new, :create, :edit, :update, :update_presencas]
+  before_action :validate_disciplina, only: [:create]
 
   def index
     # 1. Carregamento da Tabela (O seu código original)
@@ -64,14 +65,6 @@ class Professor::FrequenciasController < Professor::BaseController
     # ----------------------------------------------------
   end
 
-  def set_turma
-    @turma = current_professor.turmas.find(params[:turma_id])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to professor_turmas_path,
-               alert: 'Turma não encontrada ou você não tem permissão.'
-  end
-
-
   def show
     @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
   end
@@ -102,12 +95,6 @@ class Professor::FrequenciasController < Professor::BaseController
     @frequencia = @turma.frequencias.build(frequencia_params)
     @frequencia.professor = current_professor
 
-    unless current_professor.disciplinas.exists?(@frequencia.disciplina_id)
-      redirect_to professor_turmas_path,
-                  alert: 'Disciplina inválida.'
-      return
-    end
-
     if @frequencia.save
       if params[:alunos].present?
         params[:alunos].each do |aluno_id, dados|
@@ -131,15 +118,16 @@ class Professor::FrequenciasController < Professor::BaseController
     else
       @alunos = @turma.alunos.order(:nome)
       @disciplinas = current_professor.disciplinas.order(:nome)
+      flash.now[:alert] = "Erro ao registrar frequência: #{@frequencia.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end
-
 
   def edit
     @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
     @disciplina = @frequencia.disciplina
     @turma = @frequencia.turma
+    @disciplinas = current_professor.disciplinas.order(:nome)
   end
 
   def update
@@ -150,6 +138,8 @@ class Professor::FrequenciasController < Professor::BaseController
       @frequencia_alunos = @frequencia.frequencia_alunos.includes(:aluno).order('alunos.nome')
       @disciplina = @frequencia.disciplina
       @turma = @frequencia.turma
+      @disciplinas = current_professor.disciplinas.order(:nome)
+      flash.now[:alert] = "Erro ao atualizar frequência: #{@frequencia.errors.full_messages.join(', ')}"
       render :edit, status: :unprocessable_entity
     end
   end
@@ -177,11 +167,11 @@ class Professor::FrequenciasController < Professor::BaseController
 
   private
 
-  def verificar_disciplinas
-    if current_professor.disciplinas.empty?
-      redirect_to professor_turmas_path, 
-                  alert: 'Você precisa ter pelo menos uma disciplina cadastrada para registrar frequências.'
-    end
+  def set_turma
+    @turma = current_professor.turmas.find(params[:turma_id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to professor_turmas_path,
+               alert: 'Turma não encontrada ou você não tem permissão.'
   end
 
   def set_frequencia
@@ -191,23 +181,40 @@ class Professor::FrequenciasController < Professor::BaseController
                 alert: 'Frequência não encontrada ou você não tem permissão para acessá-la.'
   end
 
-  def set_turma_e_disciplina
-    @turma = current_professor.turmas.find(params[:turma_id])
-    @disciplina = current_professor.disciplinas.find(params[:disciplina_id])
-    
-    # Verificar se a disciplina pertence ao professor
-    unless current_professor.disciplinas.include?(@disciplina)
-      redirect_to professor_turmas_path, 
-                  alert: 'Você não tem permissão para registrar frequência nesta disciplina.'
+  def validate_disciplina
+    # Verifica se a disciplina foi enviada
+    if params[:frequencia].blank? || params[:frequencia][:disciplina_id].blank?
+      @frequencia = @turma.frequencias.build(frequencia_params.except(:disciplina_id))
+      @frequencia.professor = current_professor
+      @alunos = @turma.alunos.order(:nome)
+      @disciplinas = current_professor.disciplinas.order(:nome)
+      flash.now[:alert] = "Por favor, selecione uma disciplina antes de registrar a frequência."
+      render :new, status: :unprocessable_entity and return
     end
-  rescue ActiveRecord::RecordNotFound
-    redirect_to professor_turmas_path, 
-                alert: 'Turma ou disciplina não encontrada.'
+    
+    # Verifica se a disciplina pertence ao professor
+    unless current_professor.disciplinas.exists?(params[:frequencia][:disciplina_id])
+      @frequencia = @turma.frequencias.build(frequencia_params)
+      @frequencia.professor = current_professor
+      @alunos = @turma.alunos.order(:nome)
+      @disciplinas = current_professor.disciplinas.order(:nome)
+      flash.now[:alert] = "A disciplina selecionada não pertence a você."
+      render :new, status: :unprocessable_entity and return
+    end
+    
+    # Verifica se a disciplina pertence à turma
+    unless @turma.disciplinas.exists?(params[:frequencia][:disciplina_id])
+      @frequencia = @turma.frequencias.build(frequencia_params)
+      @frequencia.professor = current_professor
+      @alunos = @turma.alunos.order(:nome)
+      @disciplinas = current_professor.disciplinas.order(:nome)
+      flash.now[:alert] = "A disciplina selecionada não está associada a esta turma."
+      render :new, status: :unprocessable_entity and return
+    end
   end
 
   def frequencia_params
     params.require(:frequencia)
           .permit(:data_aula, :conteudo_trabalhado, :observacoes, :disciplina_id)
   end
-
 end

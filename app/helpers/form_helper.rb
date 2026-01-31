@@ -10,7 +10,9 @@ module FormHelper
     label: nil,
     hidden_field_id: nil,
     initial_value: nil,
-    disabled: false
+    disabled: false,
+    required: false,
+    html_options: {}
   )
 
     hidden_id =
@@ -41,7 +43,9 @@ module FormHelper
       # ---------- LABEL ----------
       label_html =
         if label.present?
-          tag.label(label, class: "label label-text text-gray-600 font-semibold", for: hidden_id)
+          label_class = "label label-text text-gray-600 font-semibold"
+          label_text = required ? "#{label}" : label
+          tag.label(label_text, class: label_class, for: hidden_id)
         elsif form
           form.label(method, class: "block text-sm font-medium text-gray-700 mb-2")
         else
@@ -49,11 +53,26 @@ module FormHelper
         end
 
       # ---------- HIDDEN FIELD ----------
+      # Mescla html_options com atributos padrão
+      hidden_attrs = {
+        id: hidden_id,
+        value: selected_value,
+        disabled: disabled
+      }
+      
+      # Adiciona required ao hidden field se necessário
+      hidden_attrs[:required] = true if required
+      hidden_attrs[:data] ||= {}
+      hidden_attrs[:data][:required] = true if required
+      
+      # Mescla com html_options fornecido
+      hidden_attrs = hidden_attrs.merge(html_options)
+
       hidden_html =
         if form
-          form.hidden_field(method, id: hidden_id, value: selected_value, disabled: disabled)
+          form.hidden_field(method, hidden_attrs)
         else
-          tag.input(type: "hidden", id: hidden_id, value: selected_value, disabled: disabled)
+          tag.input({ type: "hidden" }.merge(hidden_attrs))
         end
 
       # ---------- DROPDOWN ----------
@@ -64,23 +83,38 @@ module FormHelper
           data: {
             controller: "dropdown",
             "dropdown-hidden-field-id": hidden_id,
+            "dropdown-required": required,
             disabled: disabled
           }
         ) do
 
           # ---------- SUMMARY ----------
+          summary_classes = [
+            "w-full flex items-center justify-between rounded-md px-3 py-2 list-none",
+            disabled ?
+              "bg-gray-100 border border-gray-300 cursor-not-allowed text-gray-400" :
+              "bg-white border border-gray-300 cursor-pointer hover:border-black focus:border-black focus:outline-none"
+          ]
+          
+          # Adiciona classe de campo obrigatório vazio
+          if required && (selected_value.nil? || selected_value.to_s.empty?)
+            summary_classes << "border-red-300"
+          end
+          
           summary_tag =
             content_tag(
               :summary,
-              class: [
-                "w-full flex items-center justify-between rounded-md px-3 py-2 list-none",
-                disabled ?
-                  "bg-gray-100 border border-gray-300 cursor-not-allowed text-gray-400" :
-                  "bg-white border border-gray-300 cursor-pointer hover:border-black focus:border-black focus:outline-none"
-              ].join(" "),
-              aria: { disabled: disabled }
+              class: summary_classes.join(" "),
+              aria: { 
+                disabled: disabled,
+                required: required
+              }
             ) do
-              content_tag(:span, selected_label, class: "dropdown-label") +
+              label_span_class = (required && (selected_value.nil? || selected_value.to_s.empty?)) ? 
+                "dropdown-label text-gray-400" : 
+                "dropdown-label"
+              
+              content_tag(:span, selected_label, class: label_span_class) +
               tag.svg(
                 class: [
                   "dropdown-arrow ml-2 h-5 w-5 transition-transform duration-300",

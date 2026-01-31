@@ -15,13 +15,24 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
   <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
     <div class="flex flex-col items-center text-center">
-      <div class="avatar placeholder mb-4">
-        <div class="bg-green-500 text-white rounded-full w-24 h-24 relative ring-4 ring-green-500/20">
-          <span class="text-3xl font-bold absolute top-1/2 -translate-y-1/2 -translate-x-1/2">
-            <%= @admin.nome.present? ? @admin.nome.first.upcase : @admin.email.first.upcase %>
-          </span>
-        </div>
+      <div class="avatar mb-4">
+        <% if @admin.foto.attached? %>
+          <div class="w-24 h-24 rounded-full ring-4 ring-green-500/20 overflow-hidden">
+            <%= image_tag @admin.foto,
+                  class: "w-full h-full object-cover",
+                  alt: @admin.nome || @admin.email %>
+          </div>
+        <% else %>
+          <div class="avatar placeholder">
+            <div class="bg-green-500 text-white rounded-full w-24 h-24 relative ring-4 ring-green-500/20">
+              <span class="text-3xl font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <%= @admin.nome.present? ? @admin.nome.first.upcase : @admin.email.first.upcase %>
+              </span>
+            </div>
+          </div>
+        <% end %>
       </div>
+
       
       <h2 class="text-2xl font-bold text-gray-900 mb-2">
         <%= @admin.nome.present? ? @admin.nome : 'Nome não informado' %>
