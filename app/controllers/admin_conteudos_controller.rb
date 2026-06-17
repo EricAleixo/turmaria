@@ -5,7 +5,7 @@ class AdminConteudosController < ApplicationController
   before_action :set_scope_objects, only: [:new, :create, :index, :show, :edit, :update, :destroy]
   before_action :set_conteudo, only: %i[show edit update destroy remove_material]
   before_action :set_disciplinas, only: [:new, :edit, :create, :update]
-  before_action :prepare_form_data, only: [:new, :create, :edit, :update]
+  before_action :prepare_form_data, only: [:edit, :update]
 
 
 
@@ -18,7 +18,7 @@ class AdminConteudosController < ApplicationController
   end
 
 
-  # GET /conteudos/1
+  # GET /conteudos/
   def show
     render template: 'conteudos/show'
   end

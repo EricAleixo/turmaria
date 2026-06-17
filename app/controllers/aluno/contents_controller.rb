@@ -69,8 +69,8 @@ class Aluno::ContentsController < ApplicationController
     end
     
     # Define @area_cfg que contém :cor, :bg, e :text
-    if @content && @content.disciplina&.area.present?
-      @area_cfg = area_cfg(@content.disciplina.area.to_s)
+    if @content && @content.disciplina&.area_disciplina.present?
+      @area_cfg = area_cfg(@content.disciplina.area_disciplina.to_s)
     else
       # Fallback para o cinza definido em area_cfg
       @area_cfg = area_cfg(nil) 

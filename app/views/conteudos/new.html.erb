@@ -4,7 +4,7 @@
     <!-- Lado esquerdo -->
     <div class="flex items-center gap-4">
       <%= link_to "Voltar",
-          conteudos_path,
+          @escola ? escola_conteudos_path(@escola) : conteudos_path,
           class: "text-sm font-medium text-gray-600 hover:text-green-600 transition-colors" %>
 
       <div class="h-6 w-px bg-gray-300"></div>
@@ -26,7 +26,7 @@
       <button type="submit"
               form="conteudo_form"
               class="px-5 py-2.5 text-sm font-semibold rounded-lg bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow transition-all">
-        Publicar conteúdo
+        Salvar conteúdo
       </button>
 
     </div>

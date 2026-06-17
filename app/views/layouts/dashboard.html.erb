@@ -106,36 +106,36 @@
                       </svg>
                     </div>
 
-                    <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
-                      <div class="flex items-center gap-3 px-3 py-2 border-b border-gray-100">
-                        <div class="avatar placeholder">
+                    <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl !w-64 max-w-[16rem] border border-gray-100 mt-2 animate-fadeIn">
+                      <div class="flex items-center gap-3 px-3 py-2 border-b border-gray-100 w-full overflow-hidden">
+                        <div class="avatar placeholder flex-shrink-0">
                           <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
                             <%= image_tag current_any_user.foto.variant(resize_to_fill: [32, 32]), class: "object-cover rounded-full w-10 h-10" %>
                           <% else %>
-                          <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
-                            <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                              <% if current_any_user&.nome.present? %>
-                                <%= current_any_user.nome.first.upcase %>
-                              <% elsif current_any_user&.email.present? %>
-                                <%= current_any_user.email.first.upcase %>
-                              <% else %>
-                                U
-                              <% end %>
-                            </span>
-                          </div>
+                            <div class="bg-green-500 text-white rounded-full w-8 h-8 relative">
+                              <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <% if current_any_user&.nome.present? %>
+                                  <%= current_any_user.nome.first.upcase %>
+                                <% elsif current_any_user&.email.present? %>
+                                  <%= current_any_user.email.first.upcase %>
+                                <% else %>
+                                  U
+                                <% end %>
+                              </span>
+                            </div>
                           <% end %>
                         </div>
-                        <div>
-                          <p class="text-sm font-medium text-gray-900">
+                        <div class="min-w-0 flex-1 overflow-hidden">
+                          <p class="text-sm font-medium text-gray-900 truncate">
                             <%= current_any_user&.nome.present? ? current_any_user.nome : current_user_type %>
                           </p>
-                          <p class="text-xs text-gray-500"><%= current_any_user&.email %></p>
+                          <p class="text-xs text-gray-500 truncate"><%= current_any_user&.email %></p>
                         </div>
                       </div>
 
                       <!-- Link: Meu Perfil -->
                       <%= link_to profile_path, class: "w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-green-50 text-gray-700 hover:text-green-700 focus:bg-green-50 active:bg-green-100 transition-colors duration-150 mt-2" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
                         <span class="flex-1 text-left">Meu Perfil</span>
@@ -145,7 +145,7 @@
 
                       <!-- Botão: Sair -->
                       <%= button_to destroy_user_session_path, method: :delete, class: "w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-50 text-red-600 focus:bg-red-50 active:bg-red-100 cursor-pointer transition-colors duration-150" do %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                         </svg>
                         <span class="flex-1 text-left">Sair</span>

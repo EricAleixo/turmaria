@@ -17,11 +17,11 @@
   <div class="drawer-content flex flex-col items-center">
     <div class="w-full p-8">
       
-      <main class="w-full max-w-7xl mx-auto">
+      <main class="w-full max-w-9xl mx-auto">
         
         <%# Breadcrumbs %>
         <div class="breadcrumbs text-sm mb-6 w-full">
-          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-white/20 w-fit sm:w-full">
+          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow border border-white/20 w-fit sm:w-full">
             <li><%= link_to "Escolas", escolas_menager_paths, class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
             <% if @escola %>
               <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>

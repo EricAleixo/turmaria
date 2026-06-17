@@ -1,13 +1,13 @@
 <%= content_for :title, @titulo_pagina %>
 
-<div class="max-w-5xl mx-auto">
+<div class="max-w-9xl mx-auto">
   
   <%# Link de Voltar - Com ênfase no verde (MANTIDO ORIGINAL) %>
   <div class="mb-8">
     <% back_path = @content.material? ? aluno_meus_materiais_path : aluno_minhas_atividades_e_path %>
     <%= link_to back_path, class: "flex items-center text-lg font-medium text-green-700 hover:text-green-800 transition duration-150 group" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2 transition duration-150 group-hover:-translate-x-1">
-        <path fill-rule="evenodd" d="M12.5 1.5a.75.75 0 0 0-1.06 0l-7.5 7.5a.75.75 0 0 0 0 1.06l7.5 7.5a.75.75 0 1 0 1.06-1.06L5.81 11.25H22.5a.75.75 0 0 0 0-1.5H5.81l6.75-6.75a.75.75 0 0 0 0-1.06Z" clip-rule="evenodd" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
       Voltar para <%= @content.material? ? 'Materiais de Estudo' : 'Atividades' %>
     <% end %>

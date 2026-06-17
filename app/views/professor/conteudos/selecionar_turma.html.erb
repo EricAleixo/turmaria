@@ -4,7 +4,7 @@
   <div class="container mx-auto px-4 py-6 sm:py-10">
     
     <!-- Header compacto -->
-    <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+    <div class="max-w-9xl mx-auto mb-6 sm:mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div class="flex items-center gap-3 mb-2">
@@ -63,7 +63,7 @@
       </div>
     <% else %>
       <!-- Lista de Turmas -->
-      <div class="max-w-7xl mx-auto">
+      <div class="max-w-9xl mx-auto">
         <% @turmas.group_by(&:ano_letivo).each_with_index do |(ano_letivo, turmas_ano), index| %>
           
           <div class="mb-8">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html data-theme="light">
   <head>
-    <title>SistemaAcademico</title>
+    <title>Turmaria</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <%= csrf_meta_tags %>
@@ -108,14 +108,26 @@
                           <% if current_any_user.respond_to?(:foto) && current_any_user.foto.attached? %>
                             <%= image_tag current_any_user.foto.variant(resize_to_fill: [32, 32]), class: "object-cover rounded-full w-10 h-10" %>
                           <% else %>
-                          <div class="bg-green-500 text-white rounded-full w-10 h-10 relative">
-                            <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                          <div class="flex items-center gap-2 max-w-xs">
+                            <!-- Avatar -->
+                            <div class="bg-green-500 text-white rounded-full w-10 h-10 relative flex-shrink-0">
+                              <span class="text-xs font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <% if current_any_user&.nome.present? %>
+                                  <%= current_any_user.nome.first.upcase %>
+                                <% elsif current_any_user&.email.present? %>
+                                  <%= current_any_user.email.first.upcase %>
+                                <% else %>
+                                  U
+                                <% end %>
+                              </span>
+                            </div>
+
+                            <!-- Nome ou email truncado -->
+                            <span class="text-sm font-medium text-gray-700 truncate max-w-[150px]">
                               <% if current_any_user&.nome.present? %>
-                                <%= current_any_user.nome.first.upcase %>
+                                <%= current_any_user.nome %>
                               <% elsif current_any_user&.email.present? %>
-                                <%= current_any_user.email.first.upcase %>
-                              <% else %>
-                                U
+                                <%= current_any_user.email %>
                               <% end %>
                             </span>
                           </div>

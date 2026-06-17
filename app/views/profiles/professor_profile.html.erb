@@ -191,7 +191,7 @@
               }
               
               # Usa a cor da disciplina ou cor padrão baseada na área
-              disciplina_cor = disciplina.cor_nome.presence || cores_padrao[disciplina.area] || '#6b7280'
+              disciplina_cor = disciplina.cor_nome.presence || cores_padrao[disciplina.area_disciplina] || '#6b7280'
             %>
             
             <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer" 

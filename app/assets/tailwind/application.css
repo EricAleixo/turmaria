@@ -12,6 +12,10 @@
   --color-secondary: teal
 } */
 
+button{
+  cursor:pointer;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

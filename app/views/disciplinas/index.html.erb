@@ -18,10 +18,10 @@
         <% end %>
       </div>
 
-      <main class="w-full max-w-7xl mx-auto">
+      <main class="w-full max-w-9xl mx-auto">
         <!-- Breadcrumbs -->
         <div class="breadcrumbs text-sm mb-6">
-          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-white/20">
+          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow border border-white/20">
             <li><%= link_to "Escolas", escolas_menager_paths, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
             <% if @escola %>
               <li><%= link_to @escola.nome, escola_path(@escola), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
@@ -84,7 +84,7 @@
           <!-- Lista de disciplinas -->
             <% if @disciplinas&.any? %>
               <!-- Tabela desktop -->
-              <div class="hidden md:block overflow-x-auto rounded-xl border border-gray-200">
+              <div class="hidden md:block rounded-xl border border-gray-200">
                 <table class="table table-zebra w-full">
                   <thead class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
                     <tr>
@@ -133,8 +133,8 @@
                                 <% end %>
                                 <% if professores.count > 3 %>
                                   <div class="avatar placeholder">
-                                    <div class="bg-gray-400 text-white w-8 h-8 rounded-full ring ring-white">
-                                      <span class="text-xs">+<%= professores.count - 3 %></span>
+                                    <div class="bg-gray-400 text-white w-8 h-8 rounded-full ring ring-white relative">
+                                      <span class="text-xs absolute top-1/2 left-1/2 -translate-1/2">+<%= professores.count - 3 %></span>
                                     </div>
                                   </div>
                                 <% end %>
