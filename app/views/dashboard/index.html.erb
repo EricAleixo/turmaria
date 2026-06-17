@@ -1,0 +1,42 @@
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <%# --- LÓGICA CONDICIONAL --- %>
+     
+    <% if current_super_admin %>
+      <%= render 'dashboard/super_admin' %>
+      
+    <% elsif current_professor %>
+      <%= render 'dashboard/professores' %>
+    
+    <% elsif current_admin %>
+      <%= render 'dashboard/admin' %>
+
+    <% elsif current_aluno %>
+      <%= render 'dashboard/aluno' %>
+      
+    <% else %>
+      <div class="w-full p-8 max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800">Bem-vindo(a) ao Painel!</h1>
+        <p class="text-lg text-gray-600 mt-2">Selecione uma opção no menu lateral para começar.</p>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<%# Inicializa o script de gráficos da partial correta %>
+<%= javascript_tag do %>
+  // Verifica qual função de inicialização de gráfico existe na página renderizada
+  if (typeof initializeCharts === 'function') {
+    // Para Super Admin
+    initializeCharts();
+  } else if (typeof initializeProfessorCharts === 'function') {
+    // Para Professor
+    initializeProfessorCharts();
+  }
+<% end %>

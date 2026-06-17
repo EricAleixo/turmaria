@@ -1,0 +1,85 @@
+<%= form_with(model: [@escola, turma], class: "bg-white p-8 rounded-lg shadow-md") do |form| %>
+
+  <% if turma.errors.any? %>
+    <div class="alert alert-error mb-6">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>
+          <h3 class="font-bold">Erro ao salvar!</h3>
+          <ul class="list-disc list-inside">
+            <% turma.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </span>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-8 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">
+      <%= turma.persisted? ? "Editar Turma" : "Nova Turma" %>
+    </h1>
+    <%= link_to "Voltar para Turmas", escola_turmas_path(@escola), class: "btn btn-outline btn-sm" %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :nome, "Nome da Turma *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: 1º ano A", required: true %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    <%= form.label :serie, "Série *", class: "label label-text text-gray-600 font-semibold" %>
+    <%= form.number_field :serie, class: "input input-bordered w-full", placeholder: "1, 2 ou 3", required: true %>
+  </div>
+
+  <div class="form-control w-full mb-6">
+    
+    <%= dropdown(
+          form: form,
+          method: :turno,
+          collection: [["Manhã","manha"],["Tarde","tarde"],["Noite","noite"],["Integral","integral"]],
+          placeholder: "Selecione o turno",
+          label: "Turno *"
+        ) %>
+  </div>
+
+
+  <div class="form-control w-full mb-6">
+
+    <%= dropdown(
+          form: form,
+          method: :ano_letivo_id,
+          collection: @anos_letivos,
+          label_field: :ano,
+          value_field: :id,
+          placeholder: "Selecione o Ano Letivo",
+          disabled: @anos_letivos.blank?,
+          label: "Ano letivo *"
+        ) %>
+
+    <!-- O BOTÃO CONTINUA IGUAL -->
+    <div class="border-t border-gray-200 p-2 mt-2">
+      <%= link_to new_escola_ano_letivo_path(@escola),
+                  id: "botao-criar-ano-letivo",
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  class: "flex items-center gap-2 text-green-600 hover:bg-green-50 px-3 py-2 rounded cursor-pointer font-medium transition-colors duration-200 ease-in-out active:!bg-green-500 active:!text-white" do %>
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        <span class="flex-1">Criar novo Ano Letivo</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex justify-end mt-10">
+
+    <%= form.submit turma.persisted? ? "Atualizar" : "Criar Turma",
+          class: "btn bg-green-500 hover:bg-green-600 text-white w-32" %>
+  </div>
+
+<% end %>

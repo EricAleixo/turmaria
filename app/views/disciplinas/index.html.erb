@@ -1,0 +1,332 @@
+<%= content_for :page_title, "Disciplinas" %>
+
+<div class="drawer lg:drawer-open bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 min-h-screen">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    <div class="w-full p-4">
+      <!-- Mobile Header with Gradient -->
+      <div class="flex items-center mb-6 lg:hidden bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl p-4 shadow-lg">
+        <label for="my-drawer" class="btn btn-square btn-ghost text-white hover:bg-white/20">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+
+        <% if @escola %>
+          <h1 class="text-xl font-bold ml-2">Disciplinas - <%= @escola.nome %></h1>
+        <% else %>
+          <h1 class="text-xl font-bold ml-2">Todas as Disciplinas</h1>
+        <% end %>
+      </div>
+
+      <main class="w-full max-w-9xl mx-auto">
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs text-sm mb-6">
+          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow border border-white/20">
+            <li><%= link_to "Escolas", escolas_menager_paths, class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+            <% if @escola %>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-emerald-600 hover:text-emerald-800 font-medium transition-colors" %></li>
+            <% end %>
+            <li class="text-slate-500 font-medium">Disciplinas</li>
+          </ul>
+        </div>
+
+        <!-- Premium Card Container -->
+        <div class="bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-white/20">
+          <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl p-6 mb-8 shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex flex-col items-start space-y-2 flex-grow">
+                <h1 class="text-2xl lg:text-4xl font-bold">
+                  <% if @escola %>
+                    Disciplinas da Escola <%= @escola.nome %>
+                  <% else %>
+                    Todas as Disciplinas
+                  <% end %>
+                </h1>
+                <div class="badge badge-lg bg-white/20 text-white border-white/30">
+                  <%= @disciplinas&.count || 0 %> <%= (@disciplinas&.count || 0) == 1 ? 'disciplina' : 'disciplinas' %>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <% if @escola %>
+                  <%= link_to new_escola_disciplina_path(@escola), class: "btn btn-md bg-white text-emerald-600 hover:bg-emerald-50 border-0 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Nova
+                  <% end %>
+                <% end %>
+                <%= link_to escolas_menager_paths, class: "btn btn-md bg-white/20 text-white hover:bg-white/30 border-white/30 shadow-lg hover:scale-105 transition-all duration-300" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                  </svg>
+                  Escolas
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search & Filters -->
+          <div class="mb-6">
+            <%= form_with url: disciplinas_path, method: :get, data: { turbo_frame: "disciplinas" }, class: 'flex flex-wrap gap-4 items-end' do |form| %>
+              <div class="flex-1 min-w-0">
+                <div class="flex gap-3 w-full items-end">
+                  <div class="flex-1">
+                    <%= form.text_field :busca, placeholder: "Buscar por nome da disciplina...", value: params[:busca], class: "input input-bordered w-full bg-white border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" %>
+                  </div>
+
+                  <%= link_to "Limpar", disciplinas_path, class: "btn btn-outline border-gray-300 text-gray-700 hover:bg-emerald-50 hover:border-emerald-500 px-6" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Lista de disciplinas -->
+            <% if @disciplinas&.any? %>
+              <!-- Tabela desktop -->
+              <div class="hidden md:block rounded-xl border border-gray-200">
+                <table class="table table-zebra w-full">
+                  <thead class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                    <tr>
+                      <th class="text-white">Nome</th>
+                      <th class="text-white">Área</th>
+                      <th class="text-white">Escola</th>
+                      <th class="text-white">Professores</th>
+                      <th class="text-white text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @disciplinas.each do |disciplina| %>
+                      <tr class="hover:bg-emerald-50/50 transition-colors">
+                        <td>
+                          <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: <%= disciplina.cor_nome || '#10B981' %>;"></div>
+                            <span class="font-semibold text-gray-900"><%= disciplina.nome %></span>
+                          </div>
+                        </td>
+                        <td>
+                          <% if disciplina.area_disciplina.present? %>
+                            <div class="badge badge-lg gap-2 shadow-sm border-0" style="background-color: <%= disciplina.area_disciplina.cor %>20; color: <%= disciplina.area_disciplina.cor %>;">
+                              <div class="w-2 h-2 rounded-full" style="background-color: <%= disciplina.area_disciplina.cor %>;"></div>
+                              <%= disciplina.area_disciplina.nome %>
+                            </div>
+                          <% else %>
+                            <span class="text-gray-500 text-sm">-</span>
+                          <% end %>
+                        </td>
+                        <td>
+                          <span class="text-gray-700">
+                            <%= link_to_if disciplina.escola, disciplina.escola&.nome || "-", escola_path(disciplina.escola), class: "text-green-600 hover:text-green-700 hover:underline transition-colors" %>
+                          </span>
+                        </td>
+                        <td>
+                          <% professores = disciplina.professores %>
+                          <% if professores.any? %>
+                            <div class="flex items-center gap-2">
+                              <div class="avatar-group -space-x-3">
+                                <% professores.first(3).each do |prof| %>
+                                  <div class="avatar placeholder">
+                                    <div class="bg-emerald-500 text-white w-8 h-8 rounded-full ring ring-white relative">
+                                      <span class="text-xs font-medium absolute top-1/2 left-1/2 -translate-1/2"><%= prof.nome.split.map(&:first).join[0..1].upcase %></span>
+                                    </div>
+                                  </div>
+                                <% end %>
+                                <% if professores.count > 3 %>
+                                  <div class="avatar placeholder">
+                                    <div class="bg-gray-400 text-white w-8 h-8 rounded-full ring ring-white relative">
+                                      <span class="text-xs absolute top-1/2 left-1/2 -translate-1/2">+<%= professores.count - 3 %></span>
+                                    </div>
+                                  </div>
+                                <% end %>
+                              </div>
+                              
+                              <div class="dropdown dropdown-hover">
+                                <label tabindex="0" class="btn btn-ghost btn-xs text-emerald-600 hover:text-emerald-700">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                  </svg>
+                                </label>
+                                <div tabindex="0" class="dropdown-content card card-compact bg-white shadow-xl rounded-xl p-4 w-64 z-50 border border-gray-200">
+                                  <div class="card-body p-0">
+                                    <h3 class="font-semibold text-gray-800 mb-2 text-sm">Professores:</h3>
+                                    <ul class="space-y-2">
+                                      <% professores.each do |prof| %>
+                                        <li class="flex items-center gap-2 text-sm">
+                                          <div class="avatar placeholder">
+                                            <div class="bg-emerald-500 text-white w-6 h-6 rounded-full relative">
+                                              <span class="text-xs absolute top-1/2 left-1/2 -translate-1/2"><%= prof.nome.split.map(&:first).join[0..1].upcase %></span>
+                                            </div>
+                                          </div>
+                                          <span class="text-gray-700"><%= prof == current_professor ? "Você" : prof.nome %></span>
+                                        </li>
+                                      <% end %>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          <% else %>
+                            <span class="text-gray-400 text-sm">Nenhum professor</span>
+                          <% end %>
+                        </td>
+                        <td>
+                          <div class="flex gap-1 justify-center">
+                            <%= link_to escola_disciplina_path(disciplina.escola,disciplina), class: "btn btn-ghost btn-sm text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50", title: "Ver disciplina", data: { turbo_frame: "_top" } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            <% end %>
+                            <%= link_to edit_disciplina_path(disciplina), class: "btn btn-ghost btn-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50", title: "Editar disciplina", data: { turbo_frame: "_top" } do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+                            <% end %>
+                            <%= delete_button_with_modal(
+                              path: disciplina_path(disciplina),
+                              modal_id: dom_id(disciplina, :delete),
+                              title: "Excluir disciplina",
+                              message: "Tem certeza que deseja excluir a disciplina",
+                              item_name: disciplina.nome,
+                              btn_class: "btn btn-ghost btn-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                            ) %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Cards mobile -->
+              <div class="md:hidden space-y-4">
+                <% @disciplinas.each do |disciplina| %>
+                  <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200">
+                    <div class="card-body p-5">
+                      <!-- Header do Card -->
+                      <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3 flex-1">
+                          <div class="w-4 h-4 rounded-full shadow-sm flex-shrink-0" style="background-color: <%= disciplina.cor_nome || '#10B981' %>;"></div>
+                          <h3 class="text-lg font-bold text-gray-900 line-clamp-2"><%= disciplina.nome %></h3>
+                        </div>
+                        
+                        <!-- Dropdown ações -->
+                        <div class="dropdown dropdown-end">
+                          <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                            </svg>
+                          </label>
+                          <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-white rounded-xl w-52 z-50 border border-gray-200">
+                            <li>
+                              <%= link_to escola_disciplina_path(disciplina.escola,disciplina), data: { turbo: false } do %>
+                                <span class="flex items-center gap-2 text-emerald-600">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                  </svg>
+                                  Ver disciplina
+                                </span>
+                              <% end %>
+                            </li>
+                            <li>
+                              <%= link_to edit_disciplina_path(disciplina), data: { turbo: false } do %>
+                                <span class="flex items-center gap-2 text-blue-600">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+                                  </svg>
+                                  Editar disciplina
+                                </span>
+                              <% end %>
+                            </li>
+                            <li class="text-red-500">
+                              <%= delete_modal_trigger(
+                                    modal_id: dom_id(disciplina, :delete),
+                                    text: "Excluir disciplina",
+                                    icon: true
+                                  ) %>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <!-- Área Badge -->
+                      <% if disciplina.area_disciplina.present? %>
+                        <div class="mb-3">
+                          <div class="badge badge-lg gap-2 shadow-sm border-0" style="background-color: <%= disciplina.area_disciplina.cor %>20; color: <%= disciplina.area_disciplina.cor %>;">
+                            <div class="w-2 h-2 rounded-full" style="background-color: <%= disciplina.area_disciplina.cor %>;"></div>
+                            <%= disciplina.area_disciplina.nome %>
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <!-- Informações -->
+                      <div class="space-y-3">
+                        <!-- Escola -->
+                        <div class="flex items-center gap-2 text-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                          </svg>
+                          <span class="text-gray-700"><%= disciplina.escola&.nome || "Não informado" %></span>
+                        </div>
+
+                        <!-- Professores -->
+                        <% professores = disciplina.professores %>
+                        <div class="flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                          </svg>
+                          
+                          <% if professores.any? %>
+                            <div class="flex items-center gap-2 flex-1">
+                              <div class="avatar-group -space-x-3">
+                                <% professores.first(3).each do |prof| %>
+                                  <div class="avatar placeholder">
+                                    <div class="bg-emerald-500 text-white w-8 h-8 rounded-full relative ring-2 ring-white">
+                                      <span class="text-xs font-medium absolute top-1/2 left-1/2 -translate-1/2"><%= prof.nome.split.map(&:first).join[0..1].upcase %></span>
+                                    </div>
+                                  </div>
+                                <% end %>
+                                <% if professores.count > 3 %>
+                                  <div class="avatar placeholder">
+                                    <div class="bg-gray-400 text-white w-8 h-8 rounded-full ring-2 ring-white">
+                                      <span class="text-xs">+<%= professores.count - 3 %></span>
+                                    </div>
+                                  </div>
+                                <% end %>
+                              </div>
+                              <span class="text-sm text-gray-600"><%= professores.count %> <%= professores.count == 1 ? 'professor' : 'professores' %></span>
+                            </div>
+                          <% else %>
+                            <span class="text-sm text-gray-400">Nenhum professor</span>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+            <% else %>
+              <!-- Empty State -->
+              <div class="text-center py-16">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-300 mb-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhuma disciplina encontrada</h3>
+                <p class="text-gray-500 mb-6">Comece criando sua primeira disciplina</p>
+                <% if @escola %>
+                  <%= link_to new_escola_disciplina_path(@escola), class: "btn btn-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-0 shadow-lg hover:scale-105 transition-all" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Nova Disciplina
+                  <% end %>
+                  <% end %>
+              </div>
+            <% end %>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Estados Brasileiros</h1>
+      <p class="text-gray-500">Gerencie informações sobre os estados e suas cidades</p>
+    </div>
+    <%= link_to '+ Adicionar Estado', new_estado_path, class: "bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded" %>
+  </div>
+
+  <!-- Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white shadow-sm border rounded p-4 text-center">
+      <p class="text-gray-600 text-sm">Total de Estados</p>
+      <p class="text-2xl font-bold text-gray-800"><%= Estado.count %></p>
+    </div>
+    <div class="bg-white shadow-sm border rounded p-4 text-center">
+      <p class="text-gray-600 text-sm">Total de Cidades</p>
+      <p class="text-2xl font-bold text-green-600"><%= Estado.sum(:cidades) %></p>
+    </div>
+    <div class="bg-white shadow-sm border rounded p-4 text-center">
+      <p class="text-gray-600 text-sm">Maior Estado</p>
+      <% maior = Estado.order(cidades: :desc).first %>
+      <p class="text-2xl font-bold text-blue-600"><%= maior&.nome || "N/A" %></p>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-200 rounded shadow-sm">
+      <thead class="bg-gray-100 text-gray-700 text-sm uppercase text-left">
+        <tr>
+          <th class="px-4 py-3 border">#</th>
+          <th class="px-4 py-3 border">Nome do Estado</th>
+          <th class="px-4 py-3 border">UF</th>
+          <th class="px-4 py-3 border">Região</th>
+          <th class="px-4 py-3 border">Cidades</th>
+          <th class="px-4 py-3 border text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-700">
+        <% @estados.each_with_index do |estado, index| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2 border"><%= index + 1 %></td>
+            <td class="px-4 py-2 border"><%= estado.nome %></td>
+            <td class="px-4 py-2 border">
+              <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs font-semibold"><%= estado.uf %></span>
+            </td>
+            <td class="px-4 py-2 border">
+              <% cores = {
+                "Norte" => "bg-red-200 text-red-800",
+                "Nordeste" => "bg-yellow-200 text-yellow-800",
+                "Centro-Oeste" => "bg-purple-200 text-purple-800",
+                "Sudeste" => "bg-blue-200 text-blue-800",
+                "Sul" => "bg-green-200 text-green-800"
+              } %>
+              <% classe = cores[estado.regiao] || "bg-gray-200 text-gray-700" %>
+              <span class="px-2 py-1 rounded text-xs font-semibold <%= classe %>"><%= estado.regiao %></span>
+            </td>
+            <td class="px-4 py-2 border"><%= estado.cidades %> municípios</td>
+            <td class="px-4 py-2 border text-center space-x-2">
+              <%= link_to '👁️', estado_path(estado), class: "hover:underline" %>
+              <%= link_to '✏️', edit_estado_path(estado), class: "hover:underline" %>
+              <%= link_to '🗑️', estado_path(estado), method: :delete, data: { confirm: 'Tem certeza?' }, class: "hover:underline text-red-600" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  <div class="mt-6 flex justify-center">
+    <span class="text-sm text-gray-500">Mostrando <%= @estados.size %> estados</span>
+  </div>
+</div>

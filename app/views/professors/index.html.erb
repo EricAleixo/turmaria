@@ -1,0 +1,591 @@
+<%# app/views/professors/index.html.erb (CÓDIGO COMPLETO COM DRAWER E PAGINAÇÃO E BUSCA POR PÁGINA) %>
+
+<%= content_for :page_title, "Professores" %>
+
+<%#====================================================%>
+<%# 1. ESTRUTURA PRINCIPAL: DRAWER (FILTRO LATERAL) %>
+<%#====================================================%>
+<%# drawer-end: abre da direita para a esquerda %>
+<div class="drawer drawer-end min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
+  
+  <%# Checkbox oculta que controla o estado do drawer. ID: 'filtro-drawer' %>
+  <input id="filtro-drawer" type="checkbox" class="drawer-toggle" />
+  
+  <%#========================================%>
+  <%# 2. CONTEÚDO PRINCIPAL (Lista de Professores) %>
+  <%#========================================%>
+  <div class="drawer-content flex flex-col items-center">
+    <div class="w-full p-8">
+      
+      <main class="w-full max-w-9xl mx-auto">
+        
+        <%# Breadcrumbs %>
+        <div class="breadcrumbs text-sm mb-6 w-full">
+          <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow border border-white/20 w-fit sm:w-full">
+            <li><%= link_to "Escolas", escolas_menager_paths, class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+            <% if @escola %>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+            <% end %>
+            <li class="text-slate-500 font-medium">Professores</li>
+          </ul>
+        </div>
+
+
+        <div class="bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-white/20">
+          
+          <%# HEADER COM TÍTULO E BOTÕES %>
+          <div class="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl p-6 mb-8 shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex flex-col items-start space-y-2 flex-grow min-w-0">
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold break-words">
+                  <% if @escola %>
+                    Professores da Escola <%= @escola.nome %>
+                  <% else %>
+                    Todos os Professores
+                  <% end %>
+                </h1>
+                <div class="badge badge-lg bg-blue-400 text-white border-white/30 font-semibold">
+                  <%= @professores&.total_count || 0 %> <%= (@professores&.total_count || 0) == 1 ? 'professor' : 'professores' %>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
+                
+                <%# Botão para abrir o FILTRO LATERAL (Drawer) %>
+                <label for="filtro-drawer"
+                      class="btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg hover:scale-105 transition-all duration-300 font-semibold whitespace-nowrap text-xs sm:text-sm">
+                  
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 mr-1">
+                    <path d="M3 4.5h18l-7 8v6l-4 2v-8l-7-8Z" />
+                  </svg>
+
+                  Filtros
+                </label>
+
+                
+                <%# BOTÃO "NOVO PROFESSOR" %>
+                <% if @escola %>
+                  <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
+                      class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm" do %>
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 mr-1">
+                      <path d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+
+                    <span class="hidden sm:inline">Novo Professor</span>
+                    <span class="sm:hidden">Novo</span>
+                  <% end %>
+                <% end %>
+
+
+                <%# BOTÃO "ESCOLAS" %>
+                <%= link_to escolas_path,
+                    class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg hover:scale-105 transition-all duration-300 font-semibold whitespace-nowrap text-xs sm:text-sm" do %>
+
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+                </svg>
+                  Escolas
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+
+          <!-- Search & Filters -->
+          <div class="mb-6">
+            <%= form_with url: professors_path, method: :get, data: { turbo_frame: "professors" }, class: 'flex flex-col sm:flex-row gap-3 items-stretch sm:items-end' do |form| %>
+              <div class="flex-1 min-w-0">
+                <%= form.text_field :busca, placeholder: "Buscar por nome do professor...", value: params[:busca], class: "input input-bordered w-full bg-gray-50 border-gray-300 focus:border-green-600 focus:ring-green-600" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Filters modal (keeps previous options) -->
+          <% c1 = [["Concursado", "concursado"], ["Contratado", "contratado"]] %>
+          <% c2 = [["Todos os professores", ""], ["Mestres", "mestrado"], ["Doutores", "doutorado"], ["Pós-graduados", "pos_graduados"], ["Graduados", "graduados"]] %>
+
+          <input type="checkbox" id="filtro-modal" class="modal-toggle">
+          <div class="modal">
+            <div class="modal-box  overflow-y-auto bg-white border border-gray-200 shadow-lg">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-xl text-gray-800">Filtrar professores</h3>
+                <label for="filtro-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+              </div>
+
+              <%= form_with url: professors_path, method: :get, html: { id: "filtro-form" }, data: { turbo_frame: "professors" } do |form| %>
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Tipo</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <% c1.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success mt-1 flex-shrink-0">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 flex-1"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h4 class="font-semibold text-gray-700 mb-2">Formação</h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <% c2.each do |label, value| %>
+                      <label class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg border border-gray-100 w-full">
+                        <input type="checkbox" name="filtros[]" value="<%= value %>" class="checkbox checkbox-success mt-1 flex-shrink-0">
+                        <span class="text-sm font-medium text-gray-800 break-words min-w-0 flex-1"><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="modal-action mt-4">
+                  <%= form.submit "Aplicar", class: "btn bg-green-600 text-white hover:bg-green-700 px-6" %>
+                  <label for="filtro-modal" class="btn bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 px-6">Cancelar</label>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Content: turbo frame -->
+            <% if @professores.blank? %>
+              <%# Bloco de NENHUM RESULTADO %>
+              <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-green-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="max-w-md mx-auto">
+                  <div class="mb-4 inline-block">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-16 h-16 text-blue-500">
+                      <path d="M12 14.25L3.75 9.75 12 5.25l8.25 4.5L12 14.25Z" />
+                      <path d="M6.75 12v4.5c0 .621 2.52 1.875 5.25 1.875s5.25-1.254 5.25-1.875V12" />
+                    </svg>
+                  </div>
+
+                  <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum professor encontrado</h3>
+                  <p class="text-slate-500 mb-6">Ajuste os filtros ou adicione um novo professor.</p>
+                  
+                  <%# Links para adicionar professor %>
+                  <% if @professor %>
+                    <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
+                        class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
+
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="w-5 h-5 mr-2">
+                        <path d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      Adicionar Professor
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <%# Tabela para Desktop %>
+              <div class="hidden md:block overflow-x-auto">
+                <table class="table w-full shadow-xl rounded-xl overflow-hidden">
+                  <thead>
+                    <tr class="bg-gradient-to-r from-blue-500 to-green-500 text-white">
+                      <th class="py-3 font-bold text-sm rounded-tl-xl">NOME</th>
+                      <th class="py-3 font-bold text-sm">DISCIPLINAS</th>
+                      <th class="py-3 font-bold text-sm">FORMAÇÃO</th>
+                      <th class="py-3 font-bold text-sm">TIPO</th>
+                      <th class="py-3 font-bold text-sm rounded-tr-xl">AÇÕES</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white">
+                    <% @professores.each do |professor| %>
+                      <tr class="hover:bg-gray-50/50 transition-all duration-300 border-b border-gray-200 group">
+                        <td class="py-4">
+                          <div class="flex items-center gap-3">
+                            <div class="avatar">
+                              <% if professor.foto&.attached? %>
+                                <div class="w-12 h-12 rounded-full">
+                                  <%= image_tag professor.foto.variant(resize_to_fill: [48, 48]), class: "rounded-full object-cover w-12 h-12" %>
+                                </div>
+                              <% else %>
+                                <div class="avatar placeholder bg-gradient-to-br from-blue-500 to-green-500 text-white rounded-full w-10 h-10 font-bold flex-shrink-0 relative">
+                                  <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg"><%= professor.nome.first.upcase %></span>
+                                </div>
+                              <% end %>
+                            </div>
+                            <span class="font-semibold text-slate-700"><%= professor.nome %></span>
+                          </div>
+                        </td>
+                        <td><%= disciplinas_badges(professor) || "-" %></td>
+                        <td><span class="text-slate-600"><%= professor.formacao&.humanize&.titleize || "-" %></span></td>
+                        <td><span class="text-slate-600"><%= professor.tipo_professor&.titleize || "-" %></span></td>
+
+                        <td>
+                          <div class="flex gap-2 opacity-70 group-hover:opacity-100 transition-all duration-100">
+                            <%= link_to escola_professor_path(professor.escola, professor),
+                                class: "btn btn-sm btn-circle text-green-500 border-0 hover:scale-108 transition-all duration-100 shadow-lg",
+                                title: "Ver professor" do %>
+
+                              <svg xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="w-4 h-4">
+                                <path d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                              </svg>
+                            <% end %>
+
+                            <%= link_to edit_professor_path(professor),
+                                class: "btn btn-sm btn-circle text-amber-500 border-0 hover:scale-108 transition-all duration-100 shadow-lg",
+                                title: "Editar professor" do %>
+
+                              <svg xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="w-4 h-4">
+                                <path d="M16.862 4.487a1.875 1.875 0 1 1 2.651 2.651L7.125 19.526 3 21l1.474-4.125L16.862 4.487Z"/>
+                                <path d="M19.5 7.125 16.875 4.5"/>
+                              </svg>
+                            <% end %>
+
+                            <%# button_to CORRIGIDO E SIMPLIFICADO %>
+                          <%= delete_button_with_modal(
+                              path: professor_path(professor),
+                              modal_id: dom_id(professor, :delete),
+                              title: "Excluir professor",
+                              message: "Tem certeza que deseja excluir este professor",
+                              item_name: professor.nome,
+                              btn_class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-100 shadow-lg"
+                            )%>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <%# Cards para Mobile %>
+              <div class="grid grid-cols-1 gap-4 md:hidden">
+                <% @professores.each do |professor| %>
+                  <div class="bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg border border-gray-100">
+                    <div class="card-body p-4">
+                      <!-- Header com foto e info -->
+                      <div class="flex items-start gap-3 mb-3">
+                        <div class="avatar placeholder flex-shrink-0">
+                          <% if professor.foto&.attached? %>
+                            <div class="w-12 h-12 rounded-full overflow-hidden">
+                              <%= image_tag professor.foto.variant(resize_to_fill: [48,48]), class: "rounded-full object-cover w-12 h-12" %>
+                            </div>
+                          <% else %>
+                            <div class="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full w-12 h-12 relative font-bold text-lg">
+                              <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                            </div>
+                          <% end %>
+                        </div>
+                        
+                        <div class="min-w-0 flex-1">
+                          <h2 class="font-bold text-slate-700 text-base break-words"><%= professor.nome %></h2>
+                          <div class="flex flex-col gap-1 mt-2">
+                            <span class="badge badge-sm bg-green-600 text-white border-0 font-medium whitespace-nowrap w-fit">
+                              <%= professor.tipo_professor&.titleize || "Não informado" %>
+                            </span>
+                            <span class="badge badge-sm bg-slate-500 text-white border-0 font-medium whitespace-nowrap w-fit">
+                              <%= professor.formacao&.titleize || "Não informada" %>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Dropdown de ações -->
+                        <div class="dropdown dropdown-end flex-shrink-0">
+                          <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"/>
+                            </svg>
+                          </label>
+
+                          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            <li>
+                              <%= link_to escola_professor_path(professor.escola, professor), class: "flex items-center gap-2" do %>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Ver professor
+                              <% end %>
+                            </li>
+                            <li>
+                              <%= link_to edit_professor_path(professor), class: "flex items-center gap-2" do %>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                                Editar professor
+                              <% end %>
+                            </li>
+                            <li>
+                              <%= delete_modal_trigger(
+                                modal_id: dom_id(professor, :delete),
+                                text: "Excluir professor"
+                              ) %>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <!-- Divider -->
+                      <div class="divider my-2"></div>
+
+                      <!-- Disciplinas -->
+                      <div class="flex flex-wrap gap-2 overflow-hidden">
+                        <% if professor.disciplinas.any? %>
+                          <%= disciplinas_badges(professor) %>
+                        <% else %>
+                          <span class="text-sm font-medium text-gray-500">Sem disciplinas</span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+<!-- Mensagem de nenhum resultado (adicione fora do loop, após o grid) -->
+<% if @professores.empty? %>
+  <div class="md:hidden text-center py-16 bg-gradient-to-br from-slate-50 to-green-50 rounded-3xl border-2 border-dashed border-slate-200">
+    <div class="max-w-md mx-auto px-4">
+      <div class="mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3L2 9l10 6 10-6-10-6zm0 12l-8-4v6l8 4 8-4v-6l-8 4z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-700 mb-2">Nenhum professor encontrado</h3>
+      <p class="text-gray-500 mb-6">Adicione o primeiro professor da escola</p>
+      <%= link_to (@escola ? new_escola_professor_path(@escola) : new_professor_path),
+        class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Adicionar Professor
+      <% end %>
+    </div>
+  </div>
+<% end %>
+              
+              <%# 🚨 PAGINAÇÃO KAMINARI COM INPUT DE PÁGINA (ALTERADO) 🚨 %>
+              <% if @professores.total_pages > 1 %>
+                <div class="mt-8 mb-4 flex flex-col sm:flex-row justify-center items-center gap-4">
+                  
+                  <%# 1. Paginação Padrão do Kaminari %>
+                  <%= paginate @professores, data: { turbo_frame: "professors" } %>
+
+                  <%# 2. Input para Digitar o Número da Página %>
+                  <div class="flex items-center gap-2 bg-white/70 backdrop-blur-sm p-2 rounded-lg shadow-md border border-gray-200 flex-shrink-0">
+                    <span class="text-sm font-medium text-gray-700 whitespace-nowrap">Ir para página:</span>
+                    
+                    <%# O formulário aponta para a URL atual, mantendo todos os parâmetros %>
+                    <%= form_with url: request.params.except(:page), method: :get, data: { turbo_frame: "professors" }, class: "flex items-center gap-2", id: "page-jump-form" do |form| %>
+                      
+                      <%# Manter todos os parâmetros de filtro/busca atuais no formulário (exceto 'page', 'commit', etc.) %>
+                      <% params.except(:page, :commit, :action, :controller).each do |key, value| %>
+                        <% if value.is_a?(Array) %>
+                          <% value.each do |v| %>
+                            <%= hidden_field_tag "#{key}[]", v %>
+                          <% end %>
+                        <% else %>
+                          <%= form.hidden_field key, value: value %>
+                        <% end %>
+                      <% end %>
+
+                      <%= form.number_field :page, 
+                            value: @professores.current_page, 
+                            min: 1, 
+                            max: @professores.total_pages,
+                            class: "input input-sm w-16 bg-white border-gray-300 text-center font-medium",
+                            placeholder: @professores.current_page %>
+                      
+                      <span class="text-gray-500 text-sm"> / <%= @professores.total_pages %></span>
+
+                      <%= form.submit "Ir", class: "btn btn-sm bg-green-600 text-white hover:bg-green-700 border-0" %>
+                      
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+            <% end %>
+
+        </div> </main>
+    </div>
+  </div> <%# Fim do drawer-content %>
+  
+  <%#========================================%>
+  <%# 3. PAINEL LATERAL (O DRAWER) %>
+  <%#========================================%>
+  <div class="drawer-side z-50">
+    <label for="filtro-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+    
+    <%# Área do Formulário de Filtro %>
+    <div class="p-6 w-80 sm:w-96 min-h-full bg-white text-base-content shadow-2xl">
+      <div class="flex justify-between items-center pb-4 border-b border-gray-200 mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Filtrar Professores</h2>
+        <%# Botão 'X' para fechar o Drawer %>
+        <label for="filtro-drawer" class="btn btn-sm btn-ghost hover:bg-gray-100 btn-circle">
+          <svg xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </label>
+      </div>
+
+      <%# Constantes (Assumindo os ENUMs do Professor.rb) %>
+      <% c1_tipo = [["Concursado", "concursado"], ["Contratado", "contratado"]] %>
+      <% c2_formacao = [["Mestrado", "mestrado"], ["Doutorado", "doutorado"], ["Pós-graduação", "pos_graduado"], ["Graduação", "graduado"]] %>
+
+
+      <%# Formulário de Filtros: ID 'filtro-avancado-form' é crucial para o JS e submissão %>
+      <%= form_with url: professors_path, method: :get, id: "filtro-avancado-form", data: { turbo_frame: "professors", turbo: true } do |form| %>
+
+        <%# Manter a busca textual rápida no filtro avançado, se estiver ativa %>
+        <%= form.hidden_field :busca, value: params[:busca] %>
+        <%= form.hidden_field :escola_id, value: @escola.id if @escola %>
+
+        <%# --- SEÇÃO: TIPO DE VÍNCULO --- %>
+        <div class="mb-6">
+          <h4 class="font-semibold text-gray-700 mb-3">Tipo de Vínculo</h4>
+          <div class="grid grid-cols-1 gap-2">
+            <% c1_tipo.each do |label, value| %>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <%= check_box_tag "filtros[]", value, params[:filtros].to_a.include?(value), class: "checkbox checkbox-success flex-shrink-0" %>
+                <span class="text-sm font-medium text-gray-800"><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+        
+        <hr class="border-gray-100">
+
+        <%# --- SEÇÃO: FORMAÇÃO ACADÊMICA --- %>
+        <div class="mb-8 pt-4">
+          <h4 class="font-semibold text-gray-700 mb-3">Formação Acadêmica</h4>
+          <div class="grid grid-cols-1 gap-2">
+            <% c2_formacao.each do |label, value| %>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <%= check_box_tag "filtros[]", value, params[:filtros].to_a.include?(value), class: "checkbox checkbox-success flex-shrink-0" %>
+                <span class="text-sm font-medium text-gray-800"><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <%# --- AÇÕES DO DRAWER --- %>
+        <div class="mt-10 border-t pt-6 flex justify-between gap-3 bg-white">
+          <%# Limpar Filtros AVANÇADOS (mantém apenas a busca textual e escopo da escola) %>
+          <%= link_to "Limpar Filtros", @escola ? escola_professors_path(@escola, busca: params[:busca]) : professors_path(busca: params[:busca]),
+            class: "btn bg-white border-gray-300 text-gray-700 hover:bg-gray-200",
+            data: { turbo_frame: "professors", turbo_action: "replace" } %>
+              
+          <%# Botão de submit que aplica os filtros. %>
+          <%= form.submit "Aplicar Filtros", class: "btn bg-green-600 text-white hover:bg-green-700" %>
+        </div>
+      <% end %>
+    </div>
+  </div> <%# Fim do drawer-side %>
+</div> <%# Fim do drawer %>
+
+<%#========================================%>
+<%# 4. LÓGICA JAVASCRIPT (NA VIEW) (ALTERADO) %>
+<%#========================================%>
+<script>
+  document.addEventListener("turbo:load", () => {
+    
+    // --- Lógica de Debounce para a Busca Textual Rápida (EXISTENTE) ---
+    const buscaRapidaForm = document.getElementById('busca-rapida-form');
+    const buscaInput = buscaRapidaForm ? buscaRapidaForm.querySelector('input[name="busca"]') : null;
+    let timeout;
+
+    if (buscaInput) {
+      buscaInput.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          buscaRapidaForm.requestSubmit();
+        }, 300); // 300ms de atraso
+      });
+    }
+
+    // --- Lógica para Fechar o Drawer após Aplicar Filtros (e re-marcar) (EXISTENTE) ---
+    const filtroForm = document.getElementById('filtro-avancado-form');
+    const drawerToggle = document.getElementById('filtro-drawer');
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // 1. Fechar o Drawer após a submissão via Turbo
+    if (filtroForm && drawerToggle) {
+        filtroForm.addEventListener('turbo:submit-end', (event) => {
+            if (event.detail.success) {
+                // Desmarca a checkbox para fechar visualmente o Drawer
+                drawerToggle.checked = false; 
+            }
+        });
+    }
+
+    // 2. Re-marca Checkboxes na Recarga
+    const filtrosAtivos = urlParams.getAll('filtros[]');
+    
+    if (filtroForm) {
+      filtroForm.querySelectorAll('input[type="checkbox"][name="filtros[]"]').forEach(checkbox => {
+        checkbox.checked = filtrosAtivos.includes(checkbox.value);
+      });
+      
+      // Sincroniza a busca textual avançada com o campo principal
+      const buscaAvancadaInput = filtroForm.querySelector('input[name="busca"]');
+      if (buscaAvancadaInput) {
+        buscaAvancadaInput.value = urlParams.get('busca') || '';
+      }
+    }
+
+    // --- Lógica de Pulo de Página (NOVO CÓDIGO) ---
+    const pageJumpForm = document.getElementById('page-jump-form');
+    const pageInput = pageJumpForm ? pageJumpForm.querySelector('input[name="page"]') : null;
+
+    if (pageInput) {
+      pageInput.addEventListener("keydown", (e) => {
+        // Verifica se a tecla pressionada é Enter
+        if (e.key === 'Enter') {
+          e.preventDefault(); // Impede o envio padrão do enter
+          pageJumpForm.requestSubmit(); // Envia o formulário via Turbo
+        }
+      });
+    }
+  });
+</script>

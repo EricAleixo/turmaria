@@ -1,0 +1,96 @@
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2"><%= @ano_letivo.ano %></h1>
+      </div>
+
+      <main class="w-full max-w-6xl mx-auto">
+        <div class="text-sm breadcrumbs mb-4">
+          <ul>
+            <li><%= link_to "Escolas", escolas_menager_paths, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to "Anos Letivos", escola_ano_letivos_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600"><%= @ano_letivo.ano %></li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-md mb-6">
+          <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Detalhes do Ano Letivo</h2>
+            <%= link_to edit_escola_ano_letivo_path(@escola, @ano_letivo), class: "btn btn-warning text-white", title: "Editar Ano Letivo" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              Editar
+            <% end %>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="stat bg-blue-50 rounded-lg p-4">
+              <div class="stat-title text-blue-600">Ano</div>
+              <div class="stat-value text-blue-800"><%= @ano_letivo.ano %></div>
+            </div>
+            <div class="stat bg-green-50 rounded-lg p-4">
+              <div class="stat-title text-green-600">Início</div>
+              <div class="stat-value text-green-800"><%= @ano_letivo.data_inicio.present? ? @ano_letivo.data_inicio.strftime("%d/%m/%Y") : "Não informado" %></div>
+            </div>
+            <div class="stat bg-purple-50 rounded-lg p-4">
+              <div class="stat-title text-purple-600">Fim</div>
+              <div class="stat-value text-purple-800"><%= @ano_letivo.data_fim.present? ? @ano_letivo.data_fim.strftime("%d/%m/%Y") : "Não informado" %></div>
+            </div>
+          </div>
+        </div>
+
+        <% if @ano_letivo.turmas.any? %>
+          <div class="bg-white p-8 rounded-lg shadow-md mb-6">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+              <h2 class="text-2xl font-bold text-gray-800">Turmas do Ano Letivo</h2>
+              <%= link_to new_escola_ano_letivo_turma_path(@escola, @ano_letivo ), class: "btn btn-primary", title: "Adicionar nova turma" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nova Turma
+              <% end %>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <% @ano_letivo.turmas.each do |turma| %>
+                <div class="card bg-base-100 shadow-md border hover:shadow-lg transition-shadow">
+                  <div class="card-body">
+                    <h3 class="card-title text-lg">
+                      <%= turma.nome %>
+                      <div class="badge bg-teal-300"><%= turma.serie %>º ano</div>
+                    </h3>
+                    <div class="card-actions justify-end">
+                      <%= link_to escola_ano_letivo_turma_path(@escola, @ano_letivo, turma ), class: "btn btn-info btn-sm", title: "Ver detalhes da turma" do %>
+                        Ver Turma
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhuma turma cadastrada</h3>
+            <p class="text-gray-500 mb-4">Comece criando uma turma para este ano letivo</p>
+            <%= link_to new_escola_ano_letivo_turma_path(@escola, @ano_letivo), class: "btn btn-primary" do %>
+              Criar uma turma
+            <% end %>
+          </div>
+        <% end %>
+      </main>
+    </div>
+  </div>
+
+</div>

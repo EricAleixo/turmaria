@@ -1,0 +1,61 @@
+<div class="container mx-auto p-4 md:p-8">
+  <%# --- NOVO ÍCONE NO CABEÇALHO (VERDE) --- %>
+  <h2 class="flex items-center text-3xl font-extrabold mb-8 text-gray-800 border-b-4 border-green-600/50 pb-3">
+    <%# Ícone do Cabeçalho: Gráfico de Barras/Tabela (agora em verde) %>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-green-600 mr-3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+    </svg>
+    Acesso aos Boletins
+  </h2>
+
+  <% if @anos_letivos.any? %>
+    <p class="text-lg text-gray-600 mb-6">Selecione um ano letivo abaixo para visualizar seu boletim completo com notas e frequência detalhadas.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @anos_letivos.each do |ano_letivo| %>
+        
+        <%# O link_to usa o objeto AnoLetivo para gerar o path %>
+        <%= link_to por_ano_aluno_boletins_path(ano_letivo), 
+                    class: "group block p-6 bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-2xl hover:border-green-500 transition duration-300 ease-in-out transform hover:scale-[1.02]" do %>
+          
+          <div class="flex justify-between items-center">
+            
+            <div class="flex items-center">
+              <%# Ícone de Documento com Pessoa (agora em verde) %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8 text-green-600 group-hover:text-green-800 mr-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+              </svg>
+              
+              <div>
+                <span class="font-bold text-xl text-gray-800 group-hover:text-green-600 transition-colors">
+                  Ano Letivo: <%= ano_letivo.ano %>
+                </span>
+                <p class="text-sm text-gray-500 mt-1">
+                  Período: <%= ano_letivo.data_inicio.year %> a <%= ano_letivo.data_fim.year %>
+                </p>
+              </div>
+            </div>
+            
+            <%# Seta indicando link (agora em verde) %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-green-500 transition-transform transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            
+          </div>
+          
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <%# MENSAGEM DE ERRO/AVISO (MANTIDA, o amarelo já é neutro/alerta) %>
+    <div class="p-8 bg-yellow-50 border-t-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.398 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <div>
+        <h3 class="font-bold text-xl mb-1">Nenhum Registro Disponível</h3>
+        <p class="text-base">Não encontramos boletins ou registros de notas associados à sua matrícula neste momento. Por favor, aguarde o lançamento das notas ou entre em contato com a secretaria da escola para verificar sua situação.</p>
+      </div>
+    </div>
+  <% end %>
+</div>

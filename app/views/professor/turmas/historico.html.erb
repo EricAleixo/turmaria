@@ -1,0 +1,739 @@
+<div class="min-h-screen bg-gray-100 p-3 sm:p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-4 sm:mb-6">
+      <div class="flex flex-col gap-3">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+            Histórico de Frequências
+          </h1>
+          <p class="text-sm sm:text-base text-gray-600">
+            Turma: <span class="font-medium"><%= @turma.nome %></span> - <%= @turma.escola.nome %>
+          </p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <%= link_to professor_turmas_path, class: "w-full sm:w-auto text-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Voltar para Turmas
+          <% end %>
+          
+          <!-- Filtro de Disciplinas -->
+          <% if current_professor.disciplinas.count > 1 %>
+            <div class="relative w-full sm:w-auto">
+              <%= form_with url: historico_turma_path(@turma), method: :get, local: true, class: "flex gap-2" do |f| %>
+                <%= f.hidden_field :mes, value: @mes %>
+                <%= f.hidden_field :ano, value: @ano %>
+                
+                <%= select_tag :disciplina_id,
+                    options_for_select(
+                      current_professor.disciplinas.map { |d| [d.nome, d.id] },
+                      @disciplina_ativa.id
+                    ),
+                    class: "flex-1 bg-white px-4 py-2 border border-gray-300 rounded-lg",
+                    onchange: "this.form.submit()"
+                %>
+
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex items-center">
+          <div class="p-2 sm:p-3 rounded-full bg-purple-100 text-purple-600 mr-3">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs sm:text-sm font-medium text-gray-600">Aulas Registradas</p>
+            <p class="text-xl sm:text-2xl font-bold text-gray-900"><%= @frequencias.count %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex items-center">
+          <div class="p-2 sm:p-3 rounded-full bg-blue-100 text-blue-600 mr-3">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs sm:text-sm font-medium text-gray-600">Total de Alunos</p>
+            <p class="text-xl sm:text-2xl font-bold text-gray-900"><%= @turma.alunos.count %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex items-center">
+          <div class="p-2 sm:p-3 rounded-full bg-green-100 text-green-600 mr-3">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs sm:text-sm font-medium text-gray-600">Média de Presença</p>
+            <p class="text-xl sm:text-2xl font-bold text-green-600">
+              <%= @estatisticas_mes[:media_presenca] ? number_to_percentage(@estatisticas_mes[:media_presenca], precision: 1) : "0%" %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Calendário -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2">
+              <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <h2 class="text-lg sm:text-xl font-bold text-gray-900" id="mes-ano-titulo">
+                <%= I18n.l(@data_inicio, format: "%B de %Y").capitalize %>
+              </h2>
+            </div>
+            
+            <!-- Navegação -->
+            <div class="flex items-center gap-2">
+              <%= link_to historico_turma_path(@turma, mes: @mes == 1 ? 12 : @mes - 1, ano: @mes == 1 ? @ano - 1 : @ano, disciplina_id: params[:disciplina_id]), class: "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              <% end %>
+              
+              <%= link_to historico_turma_path(@turma, disciplina_id: params[:disciplina_id]), class: "px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors" do %>
+                Hoje
+              <% end %>
+              
+              <%= link_to historico_turma_path(@turma, mes: @mes == 12 ? 1 : @mes + 1, ano: @mes == 12 ? @ano + 1 : @ano, disciplina_id: params[:disciplina_id]), class: "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Legenda -->
+          <div class="flex flex-wrap gap-3 mb-6 text-xs">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-600">Registrada</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-gray-600">Sem Registro</span>
+            </div>
+          </div>
+
+          <!-- Grid do Calendário -->
+          <div class="grid grid-cols-7 gap-1">
+            <!-- Cabeçalho dos dias -->
+            <% %w[Dom Seg Ter Qua Qui Sex Sáb].each do |dia| %>
+              <div class="p-2 text-center text-xs font-medium text-gray-500 bg-gray-50 rounded">
+                <%= dia %>
+              </div>
+            <% end %>
+
+            <!-- Dias vazios antes do primeiro dia -->
+            <% @data_inicio.wday.times do %>
+              <div class="aspect-square"></div>
+            <% end %>
+
+            <!-- Dias do mês -->
+            <% (@data_inicio..@data_fim).each do |data| %>
+              <% 
+                frequencia_dia = @frequencias.find { |f| f.data_aula == data }
+                eh_hoje = data == Date.current
+                eh_passado = data <= Date.current
+              %>
+              
+              <div class="relative aspect-square">
+                <% if frequencia_dia %>
+                  <!-- Dia com frequência -->
+                  <button type="button" 
+                          class="dia-com-frequencia w-full h-full flex flex-col items-center justify-center p-1 rounded-lg transition-all hover:shadow-md <%= eh_hoje ? 'bg-blue-500 text-white' : 'bg-green-500 text-white hover:bg-green-600' %>"
+                          data-frequencia-id="<%= frequencia_dia.id %>"
+                          data-data="<%= frequencia_dia.data_aula.strftime('%d de %B de %Y') %>"
+                          data-disciplina="<%= frequencia_dia.disciplina.nome %>"
+                          data-total="<%= @turma.alunos.count %>"
+                          data-presentes="<%= frequencia_dia.total_presentes %>"
+                          data-faltas="<%= frequencia_dia.total_faltas %>"
+                          data-justificadas="<%= frequencia_dia.total_justificadas %>"
+                          data-conteudo="<%= frequencia_dia.conteudo_trabalhado %>"
+                          data-observacoes="<%= frequencia_dia.observacoes %>"
+                          data-edit-url="<%= edit_professor_turma_frequencia_path(@turma, frequencia_dia) %>"
+                          data-show-url="<%= professor_turma_frequencia_path(@turma, frequencia_dia) %>">
+                    <span class="text-xs font-bold"><%= data.day %></span>
+                    <svg class="w-3 h-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                <% elsif eh_passado %>
+                  <!-- Dia passado sem frequência -->
+                  <button type="button"
+                          class="dia-sem-frequencia w-full h-full flex items-center justify-center p-1 rounded-lg transition-all hover:bg-gray-300 <%= eh_hoje ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600 hover:text-gray-800' %>"
+                          data-data="<%= data.strftime('%d de %B de %Y') %>"
+                          data-data-iso="<%= data.iso8601 %>"
+                          data-turma-id="<%= @turma.id %>">
+                    <span class="text-xs font-medium"><%= data.day %></span>
+                  </button>
+                <% else %>
+                  <!-- Dia futuro -->
+                  <div class="w-full h-full flex items-center justify-center p-1 rounded-lg <%= eh_hoje ? 'bg-blue-100 text-blue-600' : 'text-gray-400' %>">
+                    <span class="text-xs"><%= data.day %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Lateral Desktop -->
+      <div class="lg:col-span-1 hidden lg:block">
+        <div id="painel-detalhes" class="bg-white rounded-lg shadow-md sticky top-6">
+          <!-- Estado vazio -->
+          <div id="painel-vazio" class="p-6 text-center">
+            <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p class="text-sm text-gray-500">Clique em uma data para ver os detalhes ou cadastrar frequência</p>
+          </div>
+
+          <!-- Conteúdo com frequência -->
+          <div id="painel-conteudo" class="hidden">
+            <div class="p-6">
+              <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-900" id="detail-data"></h3>
+                <p class="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span id="detail-disciplina"></span>
+                </p>
+              </div>
+
+              <!-- Estatísticas -->
+              <div class="space-y-3 mb-6">
+                <div class="bg-blue-50 rounded-lg p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Total de Alunos</span>
+                    <span class="text-lg font-bold text-gray-900" id="detail-total">0</span>
+                  </div>
+                </div>
+
+                <div class="bg-green-50 rounded-lg p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Presentes</span>
+                    <span class="text-lg font-bold text-green-600" id="detail-presentes">0</span>
+                  </div>
+                </div>
+
+                <div class="bg-red-50 rounded-lg p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Faltas</span>
+                    <span class="text-lg font-bold text-red-600" id="detail-faltas">0</span>
+                  </div>
+                </div>
+
+                <div class="bg-yellow-50 rounded-lg p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Justificadas</span>
+                    <span class="text-lg font-bold text-yellow-600" id="detail-justificadas">0</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Conteúdo -->
+              <div class="mb-4" id="detail-conteudo-container">
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">Conteúdo Trabalhado</h4>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p class="text-sm text-gray-700" id="detail-conteudo"></p>
+                </div>
+              </div>
+
+              <!-- Observações -->
+              <div class="mb-6" id="detail-observacoes-container">
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">Observações</h4>
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <p class="text-sm text-gray-700" id="detail-observacoes"></p>
+                </div>
+              </div>
+
+              <!-- Ações -->
+              <div class="space-y-2">
+                <a href="#" id="btn-ver-detalhes" class="block w-full text-center px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors text-sm">
+                  Ver Detalhes Completos
+                </a>
+                <a href="#" id="btn-editar" class="block w-full text-center px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-colors text-sm">
+                  Editar Frequência
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulário de nova frequência -->
+          <div id="painel-nova-frequencia" class="hidden">
+            <div class="p-6">
+              <!-- Cabeçalho com ícone -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-5 mb-6 border border-blue-100">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">Nova Frequência</h3>
+                    <p class="text-sm text-gray-600">Registrar presença</p>
+                  </div>
+                </div>
+                
+                <!-- Data selecionada -->
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Data selecionada</p>
+                  <p class="text-xl font-bold text-gray-800" id="nova-freq-data"></p>
+                </div>
+              </div>
+
+              <!-- Informações adicionais -->
+              <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <div class="flex gap-3">
+                  <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-amber-800">
+                      Certifique-se de estar no local correto antes de registrar sua frequência.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botões de ação -->
+              <div class="flex flex-col gap-3">
+                <%= link_to new_professor_turma_frequencia_path(@turma),
+                id: "btn-registrar-frequencia",
+                class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                        bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
+                        shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40
+                        hover:from-green-700 hover:to-green-800
+                        transform hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Registrar frequências</span>
+                <% end %>
+                
+                <button
+                  type="button"
+                  id="btn-cancelar-nova"
+                  class="cursor-pointer flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                          bg-white text-gray-700 font-semibold border-2 border-gray-200
+                          hover:bg-gray-50 hover:border-gray-300
+                          transform hover:scale-[1.02] active:scale-[0.98]
+                          transition-all duration-200">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <span>Cancelar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Mobile -->
+      <div id="painel-mobile" class="lg:hidden mt-6 bg-white rounded-lg shadow-md hidden">
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900" id="mobile-detail-data"></h3>
+              <p class="text-sm text-gray-600 mt-1" id="mobile-detail-disciplina"></p>
+            </div>
+            <button type="button" id="btn-fechar-mobile" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Conteúdo com frequência -->
+          <div id="mobile-conteudo-frequencia">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-blue-50 rounded-lg p-3">
+                <p class="text-xs font-medium text-gray-600 mb-1">Total</p>
+                <p class="text-xl font-bold text-gray-900" id="mobile-detail-total">0</p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3">
+                <p class="text-xs font-medium text-gray-600 mb-1">Presentes</p>
+                <p class="text-xl font-bold text-green-600" id="mobile-detail-presentes">0</p>
+              </div>
+              <div class="bg-red-50 rounded-lg p-3">
+                <p class="text-xs font-medium text-gray-600 mb-1">Faltas</p>
+                <p class="text-xl font-bold text-red-600" id="mobile-detail-faltas">0</p>
+              </div>
+              <div class="bg-yellow-50 rounded-lg p-3">
+                <p class="text-xs font-medium text-gray-600 mb-1">Justificadas</p>
+                <p class="text-xl font-bold text-yellow-600" id="mobile-detail-justificadas">0</p>
+              </div>
+            </div>
+
+            <div class="mb-4" id="mobile-conteudo-container">
+              <h4 class="text-sm font-semibold text-gray-700 mb-2">Conteúdo Trabalhado</h4>
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p class="text-sm text-gray-700" id="mobile-detail-conteudo"></p>
+              </div>
+            </div>
+
+            <div class="mb-4" id="mobile-observacoes-container">
+              <h4 class="text-sm font-semibold text-gray-700 mb-2">Observações</h4>
+              <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                <p class="text-sm text-gray-700" id="mobile-detail-observacoes"></p>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <a href="#" id="mobile-btn-ver-detalhes" class="block w-full text-center px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors text-sm">
+                Ver Detalhes
+              </a>
+              <a href="#" id="mobile-btn-editar" class="block w-full text-center px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-colors text-sm">
+                Editar
+              </a>
+            </div>
+          </div>
+
+          <!-- Formulário nova frequência mobile -->
+          <div id="mobile-nova-frequencia" class="hidden">
+            <!-- Cabeçalho com ícone -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6 border border-blue-100">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-800">Nova Frequência</h3>
+                  <p class="text-sm text-gray-600">Registrar presença</p>
+                </div>
+              </div>
+              
+              <!-- Data selecionada -->
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <p class="text-sm text-gray-500 mb-1">Data selecionada</p>
+                <p class="text-2xl font-bold text-gray-800" id="mobile-nova-freq-data"></p>
+              </div>
+            </div>
+
+            <!-- Informações adicionais (opcional) -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <div class="flex gap-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-amber-800">
+                    Certifique-se de estar no local correto antes de registrar sua frequência.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <%= link_to new_professor_turma_frequencia_path(@turma),
+              id: "btn-registrar-frequencia",
+              class: "flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                      bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold 
+                      shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40
+                      hover:from-green-700 hover:to-green-800
+                      transform hover:scale-[1.02] active:scale-[0.98]
+                      transition-all duration-200 cursor-pointer" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Registrar frequências</span>
+              <% end %>
+              
+              <button
+                type="button"
+                id="btn-cancelar-nova"
+                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl
+                        bg-white text-gray-700 font-semibold border-2 border-gray-200
+                        hover:bg-gray-50 hover:border-gray-300
+                        transform hover:scale-[1.02] active:scale-[0.98]
+                        transition-all duration-200 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>Cancelar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.dia-com-frequencia.active {
+  box-shadow: 0 0 0 2px #3b82f6;
+  transform: scale(1.05);
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Mostrar detalhes de frequência existente
+  function mostrarDetalhes(btn) {
+    const data = {
+      id: btn.dataset.frequenciaId,
+      data: btn.dataset.data,
+      disciplina: btn.dataset.disciplina,
+      presentes: btn.dataset.presentes,
+      faltas: btn.dataset.faltas,
+      justificadas: btn.dataset.justificadas,
+      total: btn.dataset.total,
+      conteudo: btn.dataset.conteudo,
+      observacoes: btn.dataset.observacoes,
+      editUrl: btn.dataset.editUrl,
+      showUrl: btn.dataset.showUrl
+    };
+
+    // Remove active de todos
+    document.querySelectorAll('.dia-com-frequencia').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Esconde os outros painéis
+    document.getElementById('painel-vazio')?.classList.add('hidden');
+    document.getElementById('painel-nova-frequencia')?.classList.add('hidden');
+    
+    // Mostra painel de conteúdo - Desktop
+    const painelConteudo = document.getElementById('painel-conteudo');
+    if (painelConteudo) {
+      painelConteudo.classList.remove('hidden');
+      
+      document.getElementById('detail-data').textContent = data.data;
+      document.getElementById('detail-disciplina').textContent = data.disciplina;
+      document.getElementById('detail-total').textContent = data.total;
+      document.getElementById('detail-presentes').textContent = data.presentes;
+      document.getElementById('detail-faltas').textContent = data.faltas;
+      document.getElementById('detail-justificadas').textContent = data.justificadas;
+      
+      const conteudoContainer = document.getElementById('detail-conteudo-container');
+      if (data.conteudo && data.conteudo.trim()) {
+        document.getElementById('detail-conteudo').textContent = data.conteudo;
+        conteudoContainer.classList.remove('hidden');
+      } else {
+        conteudoContainer.classList.add('hidden');
+      }
+
+      const obsContainer = document.getElementById('detail-observacoes-container');
+      if (data.observacoes && data.observacoes.trim()) {
+        document.getElementById('detail-observacoes').textContent = data.observacoes;
+        obsContainer.classList.remove('hidden');
+      } else {
+        obsContainer.classList.add('hidden');
+      }
+
+      document.getElementById('btn-ver-detalhes').href = data.showUrl;
+      document.getElementById('btn-editar').href = data.editUrl;
+    }
+
+    // Mobile
+    const painelMobile = document.getElementById('painel-mobile');
+    if (painelMobile) {
+      painelMobile.classList.remove('hidden');
+      
+      document.getElementById('mobile-conteudo-frequencia').classList.remove('hidden');
+      document.getElementById('mobile-nova-frequencia').classList.add('hidden');
+      
+      document.getElementById('mobile-detail-data').textContent = data.data;
+      document.getElementById('mobile-detail-disciplina').textContent = data.disciplina;
+      document.getElementById('mobile-detail-total').textContent = data.total;
+      document.getElementById('mobile-detail-presentes').textContent = data.presentes;
+      document.getElementById('mobile-detail-faltas').textContent = data.faltas;
+      document.getElementById('mobile-detail-justificadas').textContent = data.justificadas;
+
+      const mobileConteudoContainer = document.getElementById('mobile-conteudo-container');
+      if (data.conteudo && data.conteudo.trim()) {
+        document.getElementById('mobile-detail-conteudo').textContent = data.conteudo;
+        mobileConteudoContainer.classList.remove('hidden');
+      } else {
+        mobileConteudoContainer.classList.add('hidden');
+      }
+
+      const mobileObsContainer = document.getElementById('mobile-observacoes-container');
+      if (data.observacoes && data.observacoes.trim()) {
+        document.getElementById('mobile-detail-observacoes').textContent = data.observacoes;
+        mobileObsContainer.classList.remove('hidden');
+      } else {
+        mobileObsContainer.classList.add('hidden');
+      }
+
+      document.getElementById('mobile-btn-ver-detalhes').href = data.showUrl;
+      document.getElementById('mobile-btn-editar').href = data.editUrl;
+
+      if (window.innerWidth < 1024) {
+        setTimeout(() => painelMobile.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      }
+    }
+  }
+
+  // Mostrar formulário de nova frequência
+  function mostrarNovaFrequencia(btn) {
+    const dataTexto = btn.dataset.data;
+    const dataIso = btn.dataset.dataIso;
+    const turmaId = btn.dataset.turmaId;
+
+    // Remove active de todos
+    document.querySelectorAll('.dia-com-frequencia, .dia-sem-frequencia').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Desktop
+    document.getElementById('painel-vazio')?.classList.add('hidden');
+    document.getElementById('painel-conteudo')?.classList.add('hidden');
+    
+    const painelNovaFreq = document.getElementById('painel-nova-frequencia');
+    if (painelNovaFreq) {
+      painelNovaFreq.classList.remove('hidden');
+      document.getElementById('nova-freq-data').textContent = dataTexto;
+      
+      // Atualiza o link "Registrar frequências" com a data
+      const linkRegistrar = document.getElementById('btn-registrar-frequencia');
+      if (linkRegistrar) {
+        const baseUrl = linkRegistrar.getAttribute('href').split('?')[0];
+        linkRegistrar.href = `${baseUrl}?data_aula=${dataIso}`;
+      }
+    }
+
+    // Mobile
+    const painelMobile = document.getElementById('painel-mobile');
+    if (painelMobile) {
+      painelMobile.classList.remove('hidden');
+      
+      document.getElementById('mobile-conteudo-frequencia').classList.add('hidden');
+      document.getElementById('mobile-nova-frequencia').classList.remove('hidden');
+      
+      document.getElementById('mobile-nova-freq-data').textContent = dataTexto;
+      
+      // Atualiza o link mobile "Registrar frequências" com a data
+      const linkRegistrarMobile = painelMobile.querySelector('#btn-registrar-frequencia');
+      if (linkRegistrarMobile) {
+        const baseUrl = linkRegistrarMobile.getAttribute('href').split('?')[0];
+        linkRegistrarMobile.href = `${baseUrl}?data_aula=${dataIso}`;
+      }
+
+      if (window.innerWidth < 1024) {
+        setTimeout(() => painelMobile.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      }
+    }
+  }
+
+  // Fechar painel mobile
+  function fecharMobile() {
+    const painelMobile = document.getElementById('painel-mobile');
+    if (painelMobile) painelMobile.classList.add('hidden');
+    
+    document.querySelectorAll('.dia-com-frequencia, .dia-sem-frequencia').forEach(b => b.classList.remove('active'));
+  }
+
+  // Cancelar nova frequência
+  function cancelarNovaFrequencia() {
+    document.getElementById('painel-nova-frequencia')?.classList.add('hidden');
+    document.getElementById('painel-vazio')?.classList.remove('hidden');
+    
+    document.querySelectorAll('.dia-sem-frequencia').forEach(b => b.classList.remove('active'));
+  }
+
+  function cancelarNovaFrequenciaMobile() {
+    const painelMobile = document.getElementById('painel-mobile');
+    if (painelMobile) painelMobile.classList.add('hidden');
+    
+    document.querySelectorAll('.dia-sem-frequencia').forEach(b => b.classList.remove('active'));
+  }
+
+  // Init
+  function init() {
+    // Event delegation para os dias
+    document.addEventListener('click', (e) => {
+      // Dias com frequência
+      const btnFreq = e.target.closest('.dia-com-frequencia');
+      if (btnFreq) {
+        e.preventDefault();
+        mostrarDetalhes(btnFreq);
+        return;
+      }
+
+      // Dias sem frequência
+      const btnSemFreq = e.target.closest('.dia-sem-frequencia');
+      if (btnSemFreq) {
+        e.preventDefault();
+        mostrarNovaFrequencia(btnSemFreq);
+        return;
+      }
+    });
+
+    // Botão fechar mobile
+    const btnFecharMobile = document.getElementById('btn-fechar-mobile');
+    if (btnFecharMobile) {
+      btnFecharMobile.addEventListener('click', (e) => {
+        e.preventDefault();
+        fecharMobile();
+      });
+    }
+
+    // Botões cancelar
+    const btnCancelar = document.getElementById('btn-cancelar-nova');
+    if (btnCancelar) {
+      btnCancelar.addEventListener('click', (e) => {
+        e.preventDefault();
+        cancelarNovaFrequencia();
+      });
+    }
+
+    const btnCancelarMobile = document.getElementById('mobile-btn-cancelar-nova');
+    if (btnCancelarMobile) {
+      btnCancelarMobile.addEventListener('click', (e) => {
+        e.preventDefault();
+        cancelarNovaFrequenciaMobile();
+      });
+    }
+
+    console.log('Calendário de frequências pronto!');
+  }
+
+  // Executar quando DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

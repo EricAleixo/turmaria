@@ -1,0 +1,75 @@
+<%# app/views/professor/notas/resultados/detalhes.html.erb %>
+
+<%# Este arquivo renderiza o conteúdo da modal via Turbo Frame %>
+
+<%# 🚨 CORREÇÃO PRINCIPAL: Envolver todo o conteúdo da modal no frame com ID="modal" %>
+<%# app/views/professor/notas/resultados/_detalhes.html.erb %>
+
+<%# app/views/professor/notas/resultados/_detalhes.html.erb %>
+
+<%# 🚨 CORREÇÃO: Estrutura da Modal com Z-index para Overlay e Conteúdo %>
+<turbo-frame id="modal">
+  <!-- Contêiner global: ocupa toda a viewport -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true" data-controller="modal" data-action="keydown.esc->modal#hide">
+
+    <!-- OVERLAY: absoluto, z menor -->
+    <div
+      data-modal-overlay
+      class="absolute inset-0 bg-opacity-0 backdrop-blur bg-black/20 transition-opacity"
+      style="z-index: 500;"
+      data-action="click->modal#hide"
+      aria-hidden="true"></div>
+
+    <!-- MODAL: fixed/relative com z maior -->
+    <div
+      data-modal-panel
+      class="relative w-full max-w-lg mx-4 sm:mx-0 rounded-xl bg-white shadow-2xl transform transition-all"
+      style="z-index: 510;">
+      
+      <!-- Cabeçalho -->
+      <div class="bg-blue-50 px-4 py-3 flex items-center justify-between rounded-t-xl">
+        <h3 id="modal-title" class="text-lg font-bold text-gray-900">Detalhes do Bimestre <%= @media_bimestral.bimestre %></h3>
+        <p class="text-sm text-gray-600"><strong><%= @media_bimestral.aluno.nome %></strong></p>
+      </div>
+
+      <!-- Corpo -->
+      <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4 bg-white">
+        <!-- seu conteúdo aqui (mantive igual ao seu) -->
+        <div class="divide-y divide-gray-200">
+          <% if @avaliacoes_configuracoes.any? %>
+            <% @avaliacoes_configuracoes.each do |config| %>
+              <% registro = @registros_de_nota[config.id] 
+                 nota_individual = registro ? registro.valor : nil
+                 nota_formatada = nota_individual ? number_to_currency(nota_individual, unit: "", separator: ",", delimiter: ".", precision: 1) : '—'
+                 cor_nota = nota_individual.to_f >= 6.0 ? 'text-green-600' : 'text-red-600'
+              %>
+              <div class="py-3 flex justify-between items-center">
+                <div>
+                  <p class="text-sm font-medium text-gray-700"><%= config.nome %></p>
+                  <% if config.respond_to?(:is_recuperacao?) && config.is_recuperacao? %>
+                    <span class="text-xs text-yellow-600">Recuperação</span>
+                  <% end %>
+                </div>
+                <p class="text-lg font-extrabold <%= cor_nota %>"><%= nota_formatada %></p>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-gray-500 italic py-4">Nenhuma avaliação configurada para este bimestre.</p>
+          <% end %>
+        </div>
+
+        <div class="pt-4 mt-4 border-t border-gray-300 flex justify-between items-center">
+          <p class="text-base font-bold text-gray-800">Média Final do Bimestre:</p>
+          <% cor_final = @media_bimestral.nota_bimestre_final.to_f >= 6.0 ? 'text-green-700' : 'text-red-700' %>
+          <p class="text-xl font-extrabold <%= cor_final %>"><%= number_to_currency(@media_bimestral.nota_bimestre_final, unit: "", separator: ",", delimiter: ".", precision: 1) %></p>
+        </div>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="bg-gray-50 px-4 py-3 flex justify-end rounded-b-xl">
+        <%= link_to "Fechar", "#", data: { action: "click->modal#hide" }, class: "inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-100" %>
+      </div>
+    </div>
+  </div>
+</turbo-frame>
+

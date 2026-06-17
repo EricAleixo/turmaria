@@ -1,0 +1,581 @@
+<div class="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+  <main class="container mx-auto p-4 sm:px-6 lg:px-8 max-w-9xl">
+    
+    <%# Header %>
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            Olá, <%= @professor_nome || 'Professor(a)' %>!
+          </h1>
+        </div>
+        <%= link_to professor_turmas_path, class: "bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          </svg>
+          Lançar Notas/Faltas
+        <% end %>
+      </div>
+    </div>
+
+    <%# Quick Stats %>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-green-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-green-600">Total</span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @alunos_unicos || 0 %></h3>
+        <p class="text-gray-600 text-sm">Alunos Totais</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-blue-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-blue-600"><%= @media_geral_notas ? (@media_geral_notas.to_f >= 7.0 ? '↑' : '↓') : '-' %></span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @media_geral_notas || '-' %></h3>
+        <p class="text-gray-600 text-sm">Média Geral</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-teal-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-teal-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-teal-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-teal-600"><%= @media_presenca || '-' %></span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @media_presenca || '-' %></h3>
+        <p class="text-gray-600 text-sm">Taxa de Presença</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <div class="bg-green-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-green-600"><%= @turmas_ativas || 0 %> turmas</span>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1"><%= @disciplinas_contagem || 0 %></h3>
+        <p class="text-gray-600 text-sm">Disciplinas Únicas</p>
+      </div>
+    </div>
+
+    <%# Main Content Grid %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      
+      <%# Calendar - Attendance %>
+<div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6">
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="bg-green-100 p-3 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">Frequência - <%= I18n.t('date.month_names')[Date.current.month] %></h2>
+        <p class="text-gray-600 text-sm">Acompanhe a presença dos alunos</p>
+      </div>
+    </div>
+    
+    <%# Filtros %>
+    <div class="flex flex-wrap items-center gap-3 p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+        </svg>
+        <span class="text-sm font-semibold text-gray-700">Filtrar por:</span>
+      </div>
+      
+      <%# Dropdown Disciplina %>
+      <div class="flex-1 min-w-[200px]">
+        <select id="disciplina-select" 
+                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-200 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none font-medium transition-all shadow-sm hover:border-gray-300"
+                onchange="filtrarPorDisciplina()">
+          <option value="">Todas as Disciplinas</option>
+          <% @disciplinas_professor&.each do |disciplina| %>
+            <option value="<%= disciplina[:id] %>">
+              <%= disciplina[:nome] %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      
+      <%# Dropdown Turma %>
+      <div class="flex-1 min-w-[200px]">
+        <select id="turma-select" 
+                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-200 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none font-medium transition-all shadow-sm hover:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                onchange="aplicarFiltros()"
+                disabled>
+          <option value="">Todas as Turmas</option>
+        </select>
+      </div>
+      
+      <%# Botão Limpar Filtros %>
+      <button id="limpar-btn" 
+              onclick="limparFiltros()" 
+              class="hidden px-5 py-2.5 rounded-lg bg-white border-2 border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 font-semibold transition-all shadow-sm items-center gap-2 whitespace-nowrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Limpar Filtros
+      </button>
+    </div>
+  </div>
+
+  <%# Calendar Grid %>
+  <div id="calendario-container">
+    <% if @calendario_presenca&.any? %>
+      <div class="mb-4">
+        <div class="grid grid-cols-7 gap-2 mb-4">
+          <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each do |day| %>
+            <div class="text-center font-semibold text-gray-600 text-sm py-2"><%= day %></div>
+          <% end %>
+        </div>
+        
+        <div id="calendario-dias" class="grid grid-cols-7 gap-2">
+          <%# Empty cells for month start %>
+          <% start_day = Date.today.beginning_of_month.wday %>
+          <% start_day.times do %>
+            <div class="aspect-square"></div>
+          <% end %>
+          
+          <%# Days of month %>
+          <% (1..Date.today.end_of_month.day).each do |day| %>
+            <%
+              dado_dia = @calendario_presenca.find { |d| d[:dia] == day }
+              
+              attendance_class = if dado_dia
+                taxa = dado_dia[:taxa_presenca]
+                if taxa >= 90
+                  'bg-green-100 text-green-700 hover:bg-green-200'
+                elsif taxa >= 70
+                  'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                else
+                  'bg-red-100 text-red-700 hover:bg-red-200'
+                end
+              else
+                'bg-gray-50 text-gray-400'
+              end
+              
+              is_today = day == Date.today.day
+              today_ring = is_today ? 'ring-2 ring-green-500 ring-offset-2' : ''
+            %>
+            <div class="aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all <%= attendance_class %> <%= today_ring %>" 
+                 data-dia="<%= day %>"
+                 data-taxa="<%= dado_dia ? dado_dia[:taxa_presenca] : 0 %>">
+              <%= day %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Legend %>
+      <div class="flex items-center gap-6 pt-4 border-t border-gray-200 flex-wrap">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-green-200"></div>
+          <span class="text-sm text-gray-600">Presença Alta (90%+)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-yellow-200"></div>
+          <span class="text-sm text-gray-600">Presença Média (70-89%)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-red-200"></div>
+          <span class="text-sm text-gray-600">Presença Baixa (&lt;70%)</span>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <p class="text-gray-500">Nenhum dado de frequência disponível para este mês.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Dados vindos do backend
+  const dadosCompletos = <%= raw @disciplinas_e_turmas.to_json %>;
+  const calendarioCompleto = <%= raw @calendario_presenca.to_json %>;
+  
+  // Mapeamento de disciplinas e turmas
+  const disciplinasTurmas = {};
+  dadosCompletos.forEach(item => {
+    if (!disciplinasTurmas[item.disciplina_id]) {
+      disciplinasTurmas[item.disciplina_id] = [];
+    }
+    if (!disciplinasTurmas[item.disciplina_id].find(t => t.id === item.turma_id)) {
+      disciplinasTurmas[item.disciplina_id].push({
+        id: item.turma_id,
+        nome: item.turma
+      });
+    }
+  });
+  
+  function filtrarPorDisciplina() {
+    const disciplinaId = document.getElementById('disciplina-select').value;
+    const turmaSelect = document.getElementById('turma-select');
+    const limparBtn = document.getElementById('limpar-btn');
+    
+    // Limpar dropdown de turmas
+    turmaSelect.innerHTML = '<option value="">Todas as Turmas</option>';
+    
+    if (disciplinaId) {
+      // Habilitar e popular dropdown de turmas
+      turmaSelect.disabled = false;
+      
+      const turmas = disciplinasTurmas[disciplinaId] || [];
+      turmas.forEach(turma => {
+        const option = document.createElement('option');
+        option.value = turma.id;
+        option.textContent = turma.nome;
+        turmaSelect.appendChild(option);
+      });
+      
+      limparBtn.classList.remove('hidden');
+      limparBtn.classList.add('flex');
+    } else {
+      // Desabilitar dropdown de turmas
+      turmaSelect.disabled = true;
+      limparBtn.classList.add('hidden');
+      limparBtn.classList.remove('flex');
+    }
+    
+    aplicarFiltros();
+  }
+  
+  function aplicarFiltros() {
+    const disciplinaId = document.getElementById('disciplina-select').value;
+    const turmaId = document.getElementById('turma-select').value;
+    
+    // Construir URL corretamente - a rota está em /filtrar_calendario
+    const params = new URLSearchParams();
+    if (disciplinaId) params.append('disciplina_id', disciplinaId);
+    if (turmaId) params.append('turma_id', turmaId);
+    
+    // URL correta baseada no rails routes
+    const url = `/filtrar_calendario?${params.toString()}`;
+    
+    console.log('Fazendo requisição para:', url); // Debug
+    
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content || ''
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      console.log('Status da resposta:', response.status); // Debug
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Dados recebidos:', data); // Debug
+      atualizarCalendario(data.calendario_presenca);
+    })
+    .catch(error => {
+      console.error('Erro ao filtrar:', error);
+      alert('Erro ao carregar dados. Verifique o console para mais detalhes.');
+    });
+  }
+  
+  function atualizarCalendario(dadosCalendario) {
+    const calendarioDias = document.getElementById('calendario-dias');
+    const hoje = new Date().getDate();
+    
+    // Se não houver dados, mostrar mensagem
+    if (!dadosCalendario || dadosCalendario.length === 0) {
+      document.getElementById('calendario-container').innerHTML = `
+        <div class="text-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+          <p class="text-gray-500">Nenhum dado de frequência disponível para este filtro.</p>
+          <button onclick="limparFiltros()" class="mt-4 px-6 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-medium transition-colors">
+            Limpar Filtros e Ver Todos
+          </button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Atualizar cada dia do calendário
+    const todosDias = calendarioDias.querySelectorAll('[data-dia]');
+    todosDias.forEach(diaEl => {
+      const dia = parseInt(diaEl.getAttribute('data-dia'));
+      const dadoDia = dadosCalendario.find(d => d.dia === dia);
+      
+      // Remover classes antigas
+      diaEl.className = 'aspect-square flex items-center justify-center rounded-xl text-sm font-semibold cursor-pointer transition-all';
+      
+      // Adicionar novas classes baseadas nos dados
+      if (dadoDia) {
+        const taxa = dadoDia.taxa_presenca;
+        if (taxa >= 90) {
+          diaEl.classList.add('bg-green-100', 'text-green-700', 'hover:bg-green-200');
+        } else if (taxa >= 70) {
+          diaEl.classList.add('bg-yellow-100', 'text-yellow-700', 'hover:bg-yellow-200');
+        } else {
+          diaEl.classList.add('bg-red-100', 'text-red-700', 'hover:bg-red-200');
+        }
+        diaEl.setAttribute('data-taxa', taxa);
+      } else {
+        diaEl.classList.add('bg-gray-50', 'text-gray-400');
+        diaEl.setAttribute('data-taxa', '0');
+      }
+      
+      // Destacar dia atual
+      if (dia === hoje) {
+        diaEl.classList.add('ring-2', 'ring-green-500', 'ring-offset-2');
+      }
+    });
+  }
+  
+  function limparFiltros() {
+    document.getElementById('disciplina-select').value = '';
+    document.getElementById('turma-select').value = '';
+    document.getElementById('turma-select').disabled = true;
+    document.getElementById('limpar-btn').classList.add('hidden');
+    document.getElementById('limpar-btn').classList.remove('flex');
+    
+    // Restaurar calendário completo
+    atualizarCalendario(calendarioCompleto);
+  }
+</script>
+
+      <%# Weekly Attendance Stats %>
+      <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="bg-teal-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-teal-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Esta Semana</h2>
+            <p class="text-gray-600 text-sm">Visão semanal</p>
+          </div>
+        </div>
+
+        <% if @presenca_semanal&.any? %>
+          <div class="space-y-4">
+            <% @presenca_semanal.each do |dia_semana| %>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-semibold text-gray-700"><%= dia_semana[:dia] %></span>
+                  <span class="text-sm text-gray-600"><%= dia_semana[:presentes] %>/<%= dia_semana[:total] %></span>
+                </div>
+                <div class="flex gap-2 h-8">
+                  <div class="bg-green-500 rounded-lg transition-all hover:bg-green-600" style="width: <%= dia_semana[:percentual_presentes] %>%"></div>
+                  <div class="bg-red-300 rounded-lg transition-all hover:bg-red-400" style="width: <%= dia_semana[:percentual_ausentes] %>%"></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Taxa Média</span>
+              <span class="text-2xl font-bold text-green-600"><%= @media_presenca || '-' %></span>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-gray-500">Nenhum dado de presença semanal disponível.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Bottom Section %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <%# My Classes %>
+      <div class="bg-white rounded-2xl shadow-xl">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="bg-indigo-100 p-3 rounded-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-indigo-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800">Minhas Turmas</h3>
+              <p class="text-gray-600 text-sm">O que você está lecionando</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 max-h-96 overflow-y-auto">
+          <% if @disciplinas_e_turmas&.any? %>
+            <% @disciplinas_e_turmas.each_with_index do |item, index| %>
+              <div class="flex items-center justify-between p-4 rounded-xl hover:bg-green-50 transition-colors <%= 'mb-3' unless index == @disciplinas_e_turmas.length - 1 %>">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <%= item[:turma].to_s[0] || 'T' %>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-gray-800 text-lg"><%= item[:disciplina] %></div>
+                    <div class="text-sm text-gray-500">Turma: <%= item[:turma] %></div>
+                  </div>
+                </div>
+                
+                <%= link_to 'Gerenciar', professor_turma_disciplinas_path(item[:turma_id], disciplina_id: item[:disciplina_id], target: :nota), class: "text-green-600 hover:text-green-800 font-semibold text-sm transition-colors" %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+              <p class="text-gray-500">Nenhuma disciplina ou turma atribuída.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Performance Chart %>
+      <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="bg-blue-100 p-3 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-800">Desempenho por Disciplina</h3>
+            <p class="text-gray-600 text-sm">Média de notas</p>
+          </div>
+        </div>
+        
+        <% if @grafico_desempenho_disciplinas && @grafico_desempenho_disciplinas[:labels]&.any? %>
+          <div class="h-80">
+            <canvas id="disciplinesPerformanceChart"></canvas>
+          </div>
+        <% else %>
+          <div class="h-80 flex items-center justify-center">
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+              <p class="text-gray-500">Nenhum dado de desempenho disponível.</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let disciplinesPerformanceChart;
+
+function initializeProfessorCharts() {
+  if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
+
+  const perfCtx = document.getElementById('disciplinesPerformanceChart');
+  const perfData = <%= raw (@grafico_desempenho_disciplinas || {}).to_json %>;
+
+  if (perfCtx && perfData.labels && perfData.data) {
+    disciplinesPerformanceChart = new Chart(perfCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: perfData.labels,
+        datasets: [{
+          label: 'Média de Notas',
+          data: perfData.data,
+          backgroundColor: [
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(168, 85, 247, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+          ],
+          borderColor: [
+            'rgb(16, 185, 129)',
+            'rgb(59, 130, 246)',
+            'rgb(168, 85, 247)',
+            'rgb(249, 115, 22)',
+          ],
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleFont: { size: 14 },
+            bodyFont: { size: 13 },
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          y: { 
+            beginAtZero: true, 
+            max: 10,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              font: { size: 12 }
+            },
+            title: { 
+              display: true, 
+              text: 'Média de Nota (0-10)',
+              font: { size: 13, weight: 'bold' }
+            } 
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: { size: 12 }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initializeProfessorCharts);
+document.addEventListener('turbo:load', initializeProfessorCharts);
+
+document.addEventListener('turbo:before-cache', function() {
+  if (disciplinesPerformanceChart) disciplinesPerformanceChart.destroy();
+});
+</script>

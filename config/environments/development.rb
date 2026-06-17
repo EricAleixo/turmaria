@@ -7,16 +7,19 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
   address:              'smtp.gmail.com',
-  port:                 587,
+  port:                 ENV['EMAIL_PORT'],
   domain:               'gmail.com',
-  user_name:            'leonardocontadeteste01@gmail.com',
-  password:             'eocyusjmjoqlnebf',
+  user_name:            ENV['EMAIL_USERNAME'],
+  password:             ENV['EMAIL_PASSWORD'],
   authentication:       'plain',
   enable_starttls_auto: true
 }
   
 # Para desenvolvimento rápido, Rails Async funciona
 config.active_job.queue_adapter = :async
+
+Aws.config.update(logger: Rails.logger, log_level: :debug)
+
 
 # Se quiser usar Sidekiq
 # config.active_job.queue_adapter = :sidekiq
@@ -52,7 +55,7 @@ config.active_job.queue_adapter = :async
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  config.active_storage.service = :amazon
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

@@ -1,0 +1,691 @@
+<div class="drawer lg:drawer-open bg-gray-100" data-escola-id="<%= @escola.id %>" data-turma-id="<%= @turma.id %>">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <div class="flex items-center mb-6 lg:hidden">
+        <label for="my-drawer" class="btn btn-square btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </label>
+        <h1 class="text-xl font-bold ml-2">Alocar Professores</h1>
+      </div>
+
+      <main class="w-full max-w-9xl mx-auto">
+        <!-- Breadcrumb -->
+        <div class="text-sm breadcrumbs mb-5">
+          <ul>
+            <li><%= link_to "Escolas", escolas_path, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600">Alocar Professores</li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-md mb-6">
+          <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-700">Alocar Professores para <%= @turma.nome %></h1>
+              <p class="text-gray-600"><%= @turma.serie %>º ano - <%= @turma.turno_humanizado %></p>
+            </div>
+            <%= link_to "Voltar", escola_turma_path(@escola, @turma), class: "btn btn-ghost" %>
+          </div>
+
+          <div class="space-y-8">
+            <!-- Professores Já Alocados nesta Turma -->
+            <div>
+              <h2 class="text-xl font-semibold text-gray-700 mb-4">
+                Professores Alocados 
+                <span class="badge bg-green-100 text-green-800"><%= @allocated_professores.count %></span>
+              </h2>
+              <div class="mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <!-- Search Input -->
+                  <div class="relative">
+                    <input type="text" 
+                           id="search-allocated" 
+                           name="allocated_search"
+                           value="<%= params[:allocated_search] %>"
+                           placeholder="Pesquisar professores alocados..." 
+                           class="input input-bordered w-full pl-10 pr-4 py-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                         fill="none" 
+                         viewBox="0 0 24 24" 
+                         stroke-width="1.5" 
+                         stroke="currentColor" 
+                         class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                  </div>
+                  
+                  <!-- Type Filter -->
+                  <select name="allocated_type_filter" id="type-filter-allocated" class="select select-bordered select-sm">
+                    <option value="">Todos os tipos</option>
+                    <option value="titular" <%= 'selected' if params[:allocated_type_filter] == 'titular' %>>Titular</option>
+                    <option value="substituto" <%= 'selected' if params[:allocated_type_filter] == 'substituto' %>>Substituto</option>
+                    <option value="auxiliar" <%= 'selected' if params[:allocated_type_filter] == 'auxiliar' %>>Auxiliar</option>
+                  </select>
+                  
+                  <!-- Order Filter -->
+                  <select name="allocated_order_filter" id="order-filter-allocated" class="select select-bordered select-sm">
+                    <option value="recent" <%= 'selected' if params[:allocated_order_filter] == 'recent' %>>Mais recentes</option>
+                    <option value="oldest" <%= 'selected' if params[:allocated_order_filter] == 'oldest' %>>Mais antigos</option>
+                    <option value="name_asc" <%= 'selected' if params[:allocated_order_filter] == 'name_asc' %>>Nome A-Z</option>
+                    <option value="name_desc" <%= 'selected' if params[:allocated_order_filter] == 'name_desc' %>>Nome Z-A</option>
+                  </select>
+                  
+                  <!-- Apply Filters Button -->
+                  <button type="button" id="apply-filters-allocated" class="btn btn-primary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    Filtrar
+                  </button>
+                </div>
+              </div>
+              <% if @allocated_professores.any? %>
+                <!-- Desktop Table -->
+                <div class="hidden md:block overflow-x-auto relative">
+                  <table class="table w-full">
+                    <thead class="sticky top-0 bg-base-200 z-10">
+                      <tr class="bg-base-200">
+                        <th class="w-12">
+                          <label>
+                            <input type="checkbox" class="checkbox checkbox-primary" id="select-all-allocated" />
+                          </label>
+                        </th>
+                        <th class="text-left">Professor</th>
+                        <th class="text-center">Disciplinas</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Formação</th>
+                        <th class="text-center">Telefone</th>
+                        <th class="text-center w-24">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @allocated_professores.each do |professor| %>
+                        <tr class="hover:bg-base-100 transition-colors">
+                          <td>
+                            <label>
+                              <input type="checkbox" class="checkbox checkbox-primary allocated-checkbox" data-professor-id="<%= professor.id %>" />
+                            </label>
+                          </td>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <div class="avatar">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                  <% if professor.foto.present? %>
+                                    <img src="<%= professor.foto %>" alt="<%= professor.nome %>" class="w-full h-full rounded-full object-cover" />
+                                  <% else %>
+                                    <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                                  <% end %>
+                                </div>
+                              </div>
+                              <div>
+                                <div class="font-semibold text-gray-900"><%= professor.nome %></div>
+                                <div class="text-xs text-gray-500"><%= professor.email %></div>
+                                <div class="text-sm text-green-600 font-medium">● Alocado</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <div class="flex flex-wrap gap-1 justify-center max-w-[250px]">
+                              <% if professor.disciplinas.any? %>
+                                <% professor.disciplinas.each do |disciplina| %>
+                                  <span class="badge badge-sm whitespace-nowrap" 
+                                        style="background-color: <%= disciplina.cor_nome || '#6B7280' %>; color: white; border: none;"
+                                        title="<%= disciplina.nome %>">
+                                    <%= disciplina.nome.truncate(15) %>
+                                  </span>
+                                <% end %>
+                              <% else %>
+                                <span class="badge badge-ghost badge-sm">Sem disciplinas</span>
+                              <% end %>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <div class="badge badge-primary badge-sm whitespace-nowrap">
+                              <%= professor.tipo_professor&.humanize || "Não informado" %>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <div class="badge badge-outline badge-sm whitespace-nowrap max-w-[200px]" title="<%= professor.formacao %>">
+                              <%= professor.formacao&.truncate(30) || "Não informada" %>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <div class="text-sm text-gray-600">
+                              <%= professor.telefone || "N/A" %>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <button type="button" 
+                                class="btn btn-sm btn-circle btn-ghost text-red-600 hover:text-white hover:bg-red-500 transition-all remove-professor-btn"
+                                title="Remover <%= professor.nome %>"
+                                data-professor-id="<%= professor.id %>"
+                                data-professor-name="<%= professor.nome %>"
+                                onclick="openRemoveModal('<%= professor.id %>', '<%= professor.nome %>'); return false;">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                    <tfoot class="sticky bottom-0 bg-white z-10">
+                      <tr>
+                        <td colspan="7" class="p-0">
+                          <!-- Bulk Remove Actions -->
+                          <div id="bulk-remove-section" class="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200 transition-all duration-300 hidden opacity-0 scale-95">
+                            <div class="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                              </svg>
+                              <span class="text-sm font-medium text-gray-700">
+                                <span id="allocated-count" class="font-bold text-red-600">0</span> professor(es) selecionado(s)
+                              </span>
+                            </div>
+                            <button type="button" id="bulk-remove-btn" class="btn btn-error btn-sm text-white flex items-center gap-2" style="display: none;" onclick="openBulkRemoveModal(); return false;">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Remover selecionados
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden space-y-4">
+                  <!-- Mobile Select All -->
+                  <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" class="checkbox checkbox-primary" id="select-all-allocated-mobile" />
+                      <span class="text-sm font-medium">Selecionar todos</span>
+                    </label>
+                    <span class="text-sm text-gray-600"><%= @allocated_professores.count %> professores</span>
+                  </div>
+
+                    <!-- Mobile Cards List -->
+                    <% @allocated_professores.each do |professor| %>
+                      <div class="card bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="card-body p-4">
+                          <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3 flex-1 min-w-0">
+                              <label class="cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary allocated-checkbox" data-professor-id="<%= professor.id %>" />
+                              </label>
+                              <div class="avatar">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 relative">
+                                  <% if professor.foto.present? %>
+                                    <img src="<%= professor.foto %>" alt="<%= professor.nome %>" class="w-full h-full rounded-full object-cover" />
+                                  <% else %>
+                                    <span class="text-white font-bold text-base absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                                  <% end %>
+                                </div>
+                              </div>
+                              <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-gray-900 truncate"><%= professor.nome %></div>
+                                <div class="text-xs text-gray-500 truncate"><%= professor.email %></div>
+                                <div class="text-sm text-green-600 font-medium">● Alocado</div>
+                              </div>
+                            </div>
+                            <button type="button" 
+                                class="btn btn-sm btn-circle btn-ghost text-red-600 hover:text-white hover:bg-red-500 transition-all remove-professor-btn flex-shrink-0"
+                                title="Remover <%= professor.nome %>"
+                                data-professor-id="<%= professor.id %>"
+                                data-professor-name="<%= professor.nome %>"
+                                onclick="openRemoveModal('<%= professor.id %>', '<%= professor.nome %>'); return false;">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="flex flex-wrap gap-2 mt-3">
+                            <!-- Disciplinas Badges -->
+                            <% if professor.disciplinas.any? %>
+                              <% professor.disciplinas.each do |disciplina| %>
+                                <span class="badge badge-sm whitespace-nowrap" 
+                                      style="background-color: <%= disciplina.cor_nome || '#6B7280' %>; color: white; border: none;"
+                                      title="<%= disciplina.nome %>">
+                                  📚 <%= disciplina.nome.truncate(12) %>
+                                </span>
+                              <% end %>
+                            <% else %>
+                              <span class="badge badge-ghost badge-sm">📚 Sem disciplinas</span>
+                            <% end %>
+                            
+                            <div class="badge badge-primary badge-sm whitespace-nowrap">
+                              👨‍🏫 <%= professor.tipo_professor&.humanize || "Tipo não informado" %>
+                            </div>
+                            <div class="badge badge-outline badge-sm whitespace-nowrap max-w-full" title="<%= professor.formacao %>">
+                              🎓 <%= professor.formacao&.truncate(25) || "Formação não informada" %>
+                            </div>
+                            <% if professor.telefone.present? %>
+                              <div class="badge badge-ghost badge-sm whitespace-nowrap">
+                                📞 <%= professor.telefone %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+
+                    <!-- Mobile Bulk Actions -->
+                    <div id="bulk-remove-section-mobile" class="flex flex-col gap-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200 transition-all duration-300 hidden opacity-0 scale-95">
+                      <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">
+                          <span id="allocated-count-mobile" class="font-bold text-red-600">0</span> professor(es) selecionado(s)
+                        </span>
+                      </div>
+                      <button type="button" id="bulk-remove-btn-mobile" class="btn btn-error btn-sm text-white w-full flex items-center justify-center gap-2" style="display: none;" onclick="openBulkRemoveModal(); return false;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Remover selecionados
+                      </button>
+                    </div>
+                  </div>
+                    <% else %>
+                      <div class="text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-500 mt-2">Nenhum professor alocado</h3>
+                        <p class="text-gray-400">Esta turma ainda não possui professores</p>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <!-- Professores Não Alocados -->
+                  <div>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">
+                      Professores Disponíveis 
+                      <span class="badge bg-blue-100 text-blue-800"><%= @unallocated_professores.count %></span>
+                    </h2>
+                    <div class="mb-4">
+                      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Search Input -->
+                        <div class="relative">
+                          <input type="text" 
+                                id="search-available" 
+                                name="available_search"
+                                value="<%= params[:available_search] %>"
+                                placeholder="Pesquisar professores disponíveis..." 
+                                class="input input-bordered w-full pl-10 pr-4 py-2 text-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" 
+                              fill="none" 
+                              viewBox="0 0 24 24" 
+                              stroke-width="1.5" 
+                              stroke="currentColor" 
+                              class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                          </svg>
+                        </div>
+                        
+                        <!-- Type Filter -->
+                        <select name="available_type_filter" id="type-filter-available" class="select select-bordered select-sm">
+                          <option value="">Todos os tipos</option>
+                          <option value="titular" <%= 'selected' if params[:available_type_filter] == 'titular' %>>Titular</option>
+                          <option value="substituto" <%= 'selected' if params[:available_type_filter] == 'substituto' %>>Substituto</option>
+                          <option value="auxiliar" <%= 'selected' if params[:available_type_filter] == 'auxiliar' %>>Auxiliar</option>
+                        </select>
+                        
+                        <!-- Order Filter -->
+                        <select name="available_order_filter" id="order-filter-available" class="select select-bordered select-sm">
+                          <option value="recent" <%= 'selected' if params[:available_order_filter] == 'recent' %>>Mais recentes</option>
+                          <option value="oldest" <%= 'selected' if params[:available_order_filter] == 'oldest' %>>Mais antigos</option>
+                          <option value="name_asc" <%= 'selected' if params[:available_order_filter] == 'name_asc' %>>Nome A-Z</option>
+                          <option value="name_desc" <%= 'selected' if params[:available_order_filter] == 'name_desc' %>>Nome Z-A</option>
+                        </select>
+                        
+                        <!-- Apply Filters Button -->
+                        <button type="button" id="apply-filters-available" class="btn btn-primary btn-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                          </svg>
+                          Filtrar
+                        </button>
+                      </div>
+                    </div>
+                    <% if @unallocated_professores.any? %>
+                      <!-- Desktop Table -->
+                    <div class="hidden md:block overflow-x-auto max-h-96 relative">
+                      <table class="table w-full">
+                        <thead class="sticky top-0 bg-base-200 z-10">
+                          <tr class="bg-base-200">
+                            <th class="w-12">
+                              <label>
+                                <input type="checkbox" class="checkbox checkbox-primary" id="select-all-available" />
+                              </label>
+                            </th>
+                            <th class="text-left">Professor</th>
+                            <th class="text-center">Disciplinas</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Formação</th>
+                            <th class="text-center">Telefone</th>
+                            <th class="text-center w-24">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% @unallocated_professores.each do |professor| %>
+                            <tr class="hover:bg-base-100 transition-colors">
+                              <td>
+                                <label>
+                                  <input type="checkbox" class="checkbox checkbox-primary professor-checkbox" data-professor-id="<%= professor.id %>" />
+                                </label>
+                              </td>
+                              <td>
+                                <div class="flex items-center gap-3">
+                                  <div class="avatar">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                      <% if professor.foto.present? %>
+                                        <img src="<%= professor.foto %>" alt="<%= professor.nome %>" class="w-full h-full rounded-full object-cover" />
+                                      <% else %>
+                                        <span class="text-white font-bold text-sm text-center absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                                      <% end %>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div class="font-semibold text-gray-900"><%= professor.nome %></div>
+                                    <div class="text-xs text-gray-500"><%= professor.email %></div>
+                                    <div class="text-sm text-green-600 font-medium">● Disponível</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td class="text-center">
+                                <div class="flex flex-wrap gap-1 justify-center max-w-[250px]">
+                                  <% if professor.disciplinas.any? %>
+                                    <% professor.disciplinas.each do |disciplina| %>
+                                      <span class="badge badge-sm whitespace-nowrap" 
+                                            style="background-color: <%= disciplina.cor_nome || '#6B7280' %>; color: white; border: none;"
+                                            title="<%= disciplina.nome %>">
+                                        <%= disciplina.nome.truncate(15) %>
+                                      </span>
+                                    <% end %>
+                                  <% else %>
+                                    <span class="badge badge-ghost badge-sm">Sem disciplinas</span>
+                                  <% end %>
+                                </div>
+                              </td>
+                              <td class="text-center">
+                                <div class="badge badge-primary badge-sm whitespace-nowrap">
+                                  <%= professor.tipo_professor&.humanize || "Não informado" %>
+                                </div>
+                              </td>
+                              <td class="text-center">
+                                <div class="badge badge-outline badge-sm whitespace-nowrap max-w-[200px]" title="<%= professor.formacao %>">
+                                  <%= professor.formacao&.truncate(30) || "Não informada" %>
+                                </div>
+                              </td>
+                              <td class="text-center">
+                                <div class="text-sm text-gray-600">
+                                  <%= professor.telefone || "N/A" %>
+                                </div>
+                              </td>
+                              <td class="text-center">
+                                <%= button_to assign_professor_escola_turma_path(@escola, @turma), 
+                                    params: { professor_id: professor.id },
+                                    method: :patch,
+                                    class: "btn btn-sm btn-circle btn-ghost text-green-600 hover:text-white hover:bg-green-500 transition-all",
+                                    title: "Alocar #{professor.nome}",
+                                    onclick: "return openAllocateModal('#{professor.id}', '#{professor.nome}')" do %>
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                  </svg>
+                                <% end %>
+                              </td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                        <tfoot class="sticky bottom-0 bg-white z-10">
+                          <tr>
+                            <td colspan="7" class="p-0">
+                              <!-- Bulk Actions -->
+                              <div id="bulk-assign-section" class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 transition-all duration-300 hidden opacity-0 scale-95">
+                                <div class="flex items-center gap-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span class="text-sm font-medium text-gray-700">
+                                    <span id="selected-count" class="font-bold text-blue-600">0</span> professor(es) selecionado(s)
+                                  </span>
+                                </div>
+                                <%= form_tag assign_professors_escola_turma_path(@escola, @turma), method: :patch, id: 'bulk-assign-form' do %>
+                                  <div id="selected-professors-inputs"></div>
+                                  <button type="submit" id="bulk-assign-btn" class="btn btn-primary btn-sm gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                                    </svg>
+                                    Alocar Selecionados
+                                  </button>
+                                <% end %>
+                              </div>
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="md:hidden space-y-4 max-h-96 overflow-y-auto">
+                          <!-- Mobile Select All -->
+                          <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg sticky top-0 z-10">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" class="checkbox checkbox-primary" id="select-all-available-mobile" />
+                              <span class="text-sm font-medium">Selecionar todos</span>
+                            </label>
+                            <span class="text-sm text-gray-600"><%= @unallocated_professores.count %> professores</span>
+                          </div>
+
+                          <!-- Mobile Cards List -->
+                          <% @unallocated_professores.each do |professor| %>
+                            <div class="card bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                              <div class="card-body p-4">
+                                <div class="flex items-start justify-between">
+                                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <label class="cursor-pointer">
+                                      <input type="checkbox" class="checkbox checkbox-primary professor-checkbox" data-professor-id="<%= professor.id %>" />
+                                    </label>
+                                    <div class="avatar">
+                                      <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                        <% if professor.foto.present? %>
+                                          <img src="<%= professor.foto %>" alt="<%= professor.nome %>" class="w-full h-full rounded-full object-cover" />
+                                        <% else %>
+                                          <span class="text-white font-bold text-base absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                                        <% end %>
+                                      </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                      <div class="font-semibold text-gray-900 truncate"><%= professor.nome %></div>
+                                      <div class="text-xs text-gray-500 truncate"><%= professor.email %></div>
+                                      <div class="text-sm text-green-600 font-medium">● Disponível</div>
+                                    </div>
+                                  </div>
+                                  <%= button_to assign_professor_escola_turma_path(@escola, @turma), 
+                                      params: { professor_id: professor.id },
+                                      method: :patch,
+                                      class: "btn btn-sm btn-circle btn-ghost text-green-600 hover:text-white hover:bg-green-500 transition-all flex-shrink-0",
+                                      title: "Alocar #{professor.nome}",
+                                      onclick: "return openAllocateModal('#{professor.id}', '#{professor.nome}')" do %>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                  <% end %>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                  <!-- Disciplinas Badges -->
+                                  <% if professor.disciplinas.any? %>
+                                    <% professor.disciplinas.each do |disciplina| %>
+                                      <span class="badge badge-sm whitespace-nowrap" 
+                                            style="background-color: <%= disciplina.cor_nome || '#6B7280' %>; color: white; border: none;"
+                                            title="<%= disciplina.nome %>">
+                                        📚 <%= disciplina.nome.truncate(12) %>
+                                      </span>
+                                    <% end %>
+                                  <% else %>
+                                    <span class="badge badge-ghost badge-sm">📚 Sem disciplinas</span>
+                                  <% end %>
+                                  
+                                  <div class="badge badge-primary badge-sm whitespace-nowrap">
+                                    👨‍🏫 <%= professor.tipo_professor&.humanize || "Tipo não informado" %>
+                                  </div>
+                                  <div class="badge badge-outline badge-sm whitespace-nowrap max-w-full" title="<%= professor.formacao %>">
+                                    🎓 <%= professor.formacao&.truncate(25) || "Formação não informada" %>
+                                  </div>
+                                  <% if professor.telefone.present? %>
+                                    <div class="badge badge-ghost badge-sm whitespace-nowrap">
+                                      📞 <%= professor.telefone %>
+                                    </div>
+                                  <% end %>
+                                </div>
+                              </div>
+                            </div>
+                          <% end %>
+
+                          <!-- Mobile Bulk Actions -->
+                          <div id="bulk-assign-section-mobile" class="flex flex-col gap-3 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 transition-all duration-300 hidden opacity-0 scale-95 sticky bottom-0 z-10">
+                            <div class="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span class="text-sm font-medium text-gray-700">
+                                <span id="selected-count-mobile" class="font-bold text-blue-600">0</span> professor(es) selecionado(s)
+                              </span>
+                            </div>
+                            <%= form_tag assign_professors_escola_turma_path(@escola, @turma), method: :patch, id: 'bulk-assign-form-mobile' do %>
+                              <div id="selected-professors-inputs-mobile"></div>
+                              <button type="submit" id="bulk-assign-btn-mobile" class="btn btn-primary btn-sm w-full flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                                </svg>
+                                Alocar Selecionados
+                              </button>
+                            <% end %>
+                          </div>
+                        </div>
+                          <% else %>
+                            <div class="text-center py-8">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                              </svg>
+                              <h3 class="text-lg font-medium text-gray-500 mt-2">Nenhum professor disponível</h3>
+                              <p class="text-gray-400">Todos os professores já estão alocados em turmas</p>
+                            </div>
+                          <% end %>
+                        </div>
+                    </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Allocate Professor Modal -->
+  <dialog id="allocate-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+        </svg>
+        Alocar Professor
+      </h3>
+      <p class="py-4">Tem certeza que deseja alocar <strong id="allocate-professor-name"></strong> para a turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeAllocateModal()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmAllocate()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Confirmar Alocação
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Bulk Allocate Modal -->
+  <dialog id="bulk-allocate-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 016.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+        </svg>
+        Alocar Selecionados
+      </h3>
+      <p class="py-4">Tem certeza que deseja alocar <strong id="bulk-allocate-count">0</strong> professor(es) selecionado(s) para a turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeBulkAllocateModal()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmBulkAllocate()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Confirmar Alocação
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Remove Professor Modal -->
+  <dialog id="remove-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        Remover Professor
+      </h3>
+      <p class="py-4">Tem certeza que deseja remover <strong id="remove-professor-name"></strong> da turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeRemoveModal()">Cancelar</button>
+        <button class="btn btn-error" onclick="confirmRemove()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Confirmar Remoção
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Bulk Remove Modal -->
+  <dialog id="bulk-remove-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.552.236 3.374 1.948 3.374h14.71c1.713 0 2.814-1.822 1.948-3.374L13.949 3.378c-.866-1.552-3.032-1.552-3.898 0L1.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        Remover Selecionados
+      </h3>
+      <p class="py-4">Tem certeza que deseja remover <strong id="bulk-remove-count">0</strong> professor(es) selecionado(s) da turma <strong><%= @turma.nome %></strong>?</p>
+      <div class="modal-action">
+        <button class="btn" onclick="closeBulkRemoveModal()">Cancelar</button>
+        <button class="btn btn-error" onclick="confirmBulkRemove()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Confirmar Remoção
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+</div>
+
+<%= javascript_include_tag 'assign_professors' %>

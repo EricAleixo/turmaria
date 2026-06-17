@@ -14,3 +14,10 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  # ... (outras regras)
+
+  # CORREÇÃO PARA "NOTA"
+  inflect.irregular 'nota', 'notas'
+end

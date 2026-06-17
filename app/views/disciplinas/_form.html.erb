@@ -1,0 +1,575 @@
+<%= form_with model: [@escola, @disciplina],
+              class: "bg-white rounded-lg shadow-sm border border-gray-200",
+              local: true do |form| %>
+
+  <% if @disciplina&.errors&.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-red-800">Erro ao salvar!</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc list-inside space-y-1">
+              <% @disciplina.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Header -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">
+      <%= @disciplina&.persisted? ? "Editar disciplina" : "Nova disciplina" %>
+    </h2>
+    <p class="mt-1 text-sm text-gray-600">
+      <%= @disciplina&.persisted? ? "Atualize as informações abaixo." : "Preencha os dados da disciplina abaixo." %>
+    </p>
+  </div>
+
+  <!-- Form Body -->
+  <div class="px-6 py-6">
+    <h3 class="text-base font-medium text-gray-900 mb-4">Informações Básicas</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Nome -->
+      <div class="mb-4">
+        <%= form.label :nome, "Nome", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <button 
+          type="button" 
+          id="abrir-modal-nome" 
+          class="w-full bg-white border border-gray-300 text-black rounded-md px-3 py-2 text-left cursor-pointer hover:border-black focus:border-black focus:outline-none "
+        >
+          <%= @disciplina.nome.presence || "Criar nome" %>
+        </button>
+      </div>
+
+      <!-- Área com DaisyUI Dropdown -->
+      <div>
+        <%= form.label :area_nome_temp, "Área da Disciplina", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        
+        <div class="dropdown w-full">
+          <div tabindex="0" role="button" class="btn btn-outline w-full justify-between" id="area-dropdown-btn">
+            <span id="area-selecionada-texto"><%= @disciplina.area_disciplina&.nome || "Selecione a área" %></span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-full mt-2 max-h-60 overflow-y-auto">
+            <% (@area_disciplinas || []).each do |area| %>
+              <li>
+                <a class="area-option flex items-center gap-2" data-area="<%= area.nome %>" data-cor="<%= area.cor %>">
+                  <span class="w-4 h-4 rounded-full" style="background-color: <%= area.cor %>"></span>
+                  <%= area.nome %>
+                </a>
+              </li>
+            <% end %>
+            <li class="border-t border-gray-200 mt-2 pt-2">
+              <a id="criar-nova-area-option" class="text-green-600 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Criar nova área
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+    <div class="flex justify-between">
+      <%= link_to "Cancelar", escola_disciplinas_path(@disciplina.escola), class: "btn btn-ghost" %>
+      <%= form.submit @disciplina&.persisted? ? "Atualizar disciplina" : "Criar disciplina", class: "btn btn-success text-white" %>
+    </div>
+  </div>
+
+  <!-- Hidden fields -->
+  <%= form.hidden_field :cor_nome, id: "disciplina-cor-nome", value: @disciplina.cor_nome %>
+  <%= form.hidden_field :nome, id: "disciplina-nome", value: @disciplina.nome %>
+  <%= form.hidden_field :area_nome_temp, id: "area-nome-temp-field", value: @disciplina.area_disciplina&.nome %>
+  <%= form.hidden_field :area_cor_temp, id: "area-cor-temp-field", value: @disciplina.area_disciplina&.cor || "#6B7280" %>
+<% end %>
+
+<!-- Modal Escola -->
+<dialog id="modal-escola" class="modal">
+  <div class="modal-box max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">Selecionar Escola</h3>
+      <button type="button" id="fechar-modal-escola" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
+      <input 
+        type="text" 
+        id="filtro-nome-escola" 
+        placeholder="Buscar por nome..." 
+        class="input input-bordered flex-1 focus:outline-none focus:border-green-500 mb-2 md:mb-0"
+      >
+      <div class="flex-none w-36">
+        <%= dropdown(
+              select_id: "filtro-tipo-escola",
+              collection: [
+                ["Todas", ""],
+                ["Pública", "publica"],
+                ["Privada", "privada"]
+              ],
+              initial_value: "",
+              placeholder: "Tipo da escola",
+            ) %>
+      </div>
+    </div>
+
+    <div id="lista-escolas" class="max-h-64 overflow-y-auto rounded-lg divide-y divide-green-500 p-2 bg-gray-50"></div>
+  </div>
+</dialog>
+
+<!-- Modal de Área -->
+<dialog id="modal-area" class="modal">
+  <div class="modal-box bg-white rounded-lg p-6 w-full max-w-md">
+    <h3 class="text-lg font-bold mb-4">Criar Nova Área</h3>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Nome da Área</label>
+      <input 
+        type="text" 
+        id="nova-area-nome" 
+        class="input input-bordered w-full focus:outline-none focus:border-green-500" 
+        placeholder="Digite o nome da área"
+      >
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Escolha a Cor</label>
+      <div id="cores-fixas" class="flex gap-2 flex-wrap">
+        <div class="grid grid-cols-5 gap-4 mt-4">
+          <% cores = {
+            "Vermelho" => "#EF4444", 
+            "Azul" => "#3B82F6",
+            "Verde" => "#22C55E",
+            "Amarelo" => "#EAB308",
+            "Roxo" => "#A855F7",
+            "Rosa" => "#EC4899",
+            "Laranja" => "#F97316",
+            "Indigo" => "#6366F1",
+            "Esmeralda" => "#10B981",
+            "Teal" => "#14B8A6",
+            "Violeta" => "#8B5CF6",
+            "Ciano" => "#06B6D4",
+            "Ambar" => "#F59E0B",
+            "Rose" => "#F9A8D4",
+            "Cinza" => "#6B7280"
+          } %>
+
+          <% cores.each do |nome, hex| %>
+            <label class="flex flex-col items-center cursor-pointer group">
+              <span class="w-8 h-8 rounded-full border-2 border-gray-300 block transition hover:scale-110" 
+                    data-cor="<%= hex %>" 
+                    style="background-color: <%= hex %>"></span>
+              <p class="text-xs text-gray-700 mt-1 group-hover:text-black"><%= nome %></p>
+            </label>
+          <% end %>
+
+          <label class="flex flex-col items-center cursor-pointer relative">
+            <input type="color" id="color-picker" class="absolute w-10 h-10 opacity-0 cursor-pointer">
+            <span id="custom-color" 
+                  class="w-10 h-10 rounded-full border border-gray-300 shadow-sm transition flex items-center justify-center hover:scale-110"
+                  style="background-color: #ffffff;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </span>
+            <span id="color-hex-preview" class="text-gray-600 text-sm font-mono mt-1">#ffffff</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button type="button" id="cancelar-btn-area" class="btn btn-ghost">Cancelar</button>
+      <button type="button" id="salvar-btn-area" class="btn btn-success text-white">Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Modal Nome -->
+<dialog id="modal-nome" class="modal">
+  <div class="modal-box bg-white rounded-lg p-6 w-full max-w-md">
+    <h3 class="text-lg font-bold mb-4">Definir Nome</h3>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+      <input 
+        type="text" 
+        id="input-nome" 
+        class="input input-bordered w-full focus:outline-none focus:border-green-500" 
+        placeholder="Digite o nome"
+        value="<%= @disciplina.nome %>"
+      >
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Escolha a Cor</label>
+      <div id="cores-nome" class="flex gap-2 flex-wrap">
+        <div class="grid grid-cols-5 gap-4 mt-4">
+          <% cores.each do |nome, hex| %>
+            <label class="flex flex-col items-center cursor-pointer group">
+              <span class="w-8 h-8 rounded-full border-2 border-gray-300 block transition hover:scale-110" 
+                    data-cor="<%= hex %>" 
+                    style="background-color: <%= hex %>"></span>
+              <p class="text-xs text-gray-700 mt-1 group-hover:text-black"><%= nome %></p>
+            </label>
+          <% end %>
+
+          <label class="flex flex-col items-center cursor-pointer relative">
+            <input type="color" id="color-picker-nome" class="absolute w-10 h-10 opacity-0 cursor-pointer">
+            <span id="custom-color-nome" 
+                  class="w-10 h-10 rounded-full border border-gray-300 shadow-sm transition flex items-center justify-center hover:scale-110"
+                  style="background-color: #ffffff;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </span>
+            <span id="color-hex-preview-nome" class="text-gray-600 text-sm font-mono mt-1">#ffffff</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button type="button" id="cancelar-btn-nome" class="btn btn-ghost">Cancelar</button>
+      <button type="button" id="salvar-btn-nome" class="btn btn-success text-white">Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+document.addEventListener("turbo:load", function() {
+  console.log("DEBUG: JS inicializado");
+
+  if (window.modalAreaInit) {
+    console.log("DEBUG: JS já foi inicializado");
+    return;
+  }
+  window.modalAreaInit = true;
+
+  // Campos hidden
+  const hiddenNome = document.getElementById("disciplina-nome");
+  const hiddenCorNome = document.getElementById("disciplina-cor-nome");
+  const areaNomeTempField = document.getElementById("area-nome-temp-field");
+  const areaCorTempField = document.getElementById("area-cor-temp-field");
+
+  console.log("DEBUG: Campos hidden", {
+    hiddenNome: hiddenNome ? "✓" : "✗",
+    hiddenCorNome: hiddenCorNome ? "✓" : "✗",
+    areaNomeTempField: areaNomeTempField ? "✓" : "✗",
+    areaCorTempField: areaCorTempField ? "✓" : "✗"
+  });
+
+
+  // DROPDOWN ÁREA
+  const areaDropdownBtn = document.getElementById("area-dropdown-btn");
+  const areaTexto = document.getElementById("area-selecionada-texto");
+  const areaOptions = document.querySelectorAll(".area-option");
+  const criarNovaAreaOption = document.getElementById("criar-nova-area-option");
+  const modalArea = document.getElementById("modal-area");
+  const cancelarBtnArea = document.getElementById("cancelar-btn-area");
+  const salvarBtnArea = document.getElementById("salvar-btn-area");
+
+  // Variáveis para cores da área
+  let corSelecionadaArea = "#6B7280"; // Cor padrão
+  const coresFixasArea = document.querySelectorAll("#cores-fixas span[data-cor]");
+  const inputCorCustomArea = document.getElementById("color-picker");
+  const bolinhaCustomArea = document.getElementById("custom-color");
+  const previewHexArea = document.getElementById("color-hex-preview");
+
+  if (areaOptions) {
+    areaOptions.forEach(option => {
+      option.addEventListener("click", (e) => {
+        e.preventDefault();
+        const areaNome = option.dataset.area;
+        const areaCor = option.dataset.cor;
+        
+        if (areaTexto) areaTexto.textContent = areaNome;
+        if (areaNomeTempField) areaNomeTempField.value = areaNome;
+        if (areaCorTempField) areaCorTempField.value = areaCor;
+        
+        const dropdown = document.activeElement;
+        if (dropdown) dropdown.blur();
+        
+        console.log("DEBUG: Área selecionada", {areaNome, areaCor});
+      });
+    });
+  }
+
+  if (criarNovaAreaOption) {
+    criarNovaAreaOption.addEventListener("click", (e) => {
+      e.preventDefault();
+      modalArea.showModal();
+    });
+  }
+
+  // Seleção de cores para área
+  if (coresFixasArea) {
+    coresFixasArea.forEach(c => {
+      c.addEventListener("click", () => {
+        corSelecionadaArea = c.dataset.cor;
+        resetBordasArea();
+        c.style.borderColor = "#000000";
+        c.style.borderWidth = "3px";
+        console.log("DEBUG: Cor fixa área selecionada", corSelecionadaArea);
+      });
+    });
+  }
+
+  if (inputCorCustomArea && bolinhaCustomArea && previewHexArea) {
+    bolinhaCustomArea.addEventListener("click", () => inputCorCustomArea.click());
+    inputCorCustomArea.addEventListener("input", () => {
+      corSelecionadaArea = inputCorCustomArea.value;
+      bolinhaCustomArea.style.backgroundColor = corSelecionadaArea;
+      previewHexArea.textContent = corSelecionadaArea;
+      resetBordasArea();
+      console.log("DEBUG: Cor custom área selecionada", corSelecionadaArea);
+    });
+  }
+
+  if (cancelarBtnArea) {
+    cancelarBtnArea.addEventListener("click", () => {
+      modalArea.close();
+      corSelecionadaArea = "#6B7280"; // Reset
+      resetBordasArea();
+    });
+  }
+
+  if (salvarBtnArea) {
+    salvarBtnArea.addEventListener("click", () => {
+      const nomeEl = document.getElementById("nova-area-nome");
+      const nome = nomeEl ? nomeEl.value.trim() : "";
+      
+      if (!nome) { 
+        alert("Digite o nome da nova área"); 
+        return; 
+      }
+
+      const novaCor = corSelecionadaArea;
+      
+      console.log("DEBUG: Salvando área", { nome, novaCor });
+
+      if (areaTexto) areaTexto.textContent = nome;
+      if (areaNomeTempField) areaNomeTempField.value = nome;
+      if (areaCorTempField) areaCorTempField.value = novaCor;
+
+      // Adiciona nova opção ao dropdown
+      const dropdownMenu = document.querySelector(".dropdown-content");
+      if (dropdownMenu && criarNovaAreaOption) {
+        const areaJaExiste = Array.from(document.querySelectorAll(".area-option"))
+          .some(option => option.dataset.area.toLowerCase() === nome.toLowerCase());
+        
+        if (!areaJaExiste) {
+          const novaLi = document.createElement("li");
+          const novoLink = document.createElement("a");
+          novoLink.className = "area-option flex items-center gap-2";
+          novoLink.dataset.area = nome;
+          novoLink.dataset.cor = novaCor;
+          novoLink.innerHTML = `
+            <span class="w-4 h-4 rounded-full" style="background-color: ${novaCor}"></span>
+            ${nome}
+          `;
+          
+          novoLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (areaTexto) areaTexto.textContent = nome;
+            if (areaNomeTempField) areaNomeTempField.value = nome;
+            if (areaCorTempField) areaCorTempField.value = novaCor;
+            const dropdown = document.activeElement;
+            if (dropdown) dropdown.blur();
+          });
+          
+          novaLi.appendChild(novoLink);
+          
+          const criarNovaLi = criarNovaAreaOption.closest('li');
+          if (criarNovaLi && criarNovaLi.parentElement) {
+            criarNovaLi.parentElement.insertBefore(novaLi, criarNovaLi);
+            console.log("DEBUG: Nova área adicionada ao dropdown");
+          }
+        } else {
+          console.log("DEBUG: Área já existe no dropdown");
+        }
+      }
+
+      modalArea.close();
+      if (nomeEl) nomeEl.value = "";
+      corSelecionadaArea = "#6B7280"; // Reset
+      resetBordasArea();
+      
+      console.log("DEBUG: Modal área fechado e resetado");
+    });
+  }
+
+  if (modalArea) {
+    modalArea.addEventListener("click", (event) => {
+      const box = modalArea.querySelector(".modal-box");
+      if (!box) return;
+      const rect = box.getBoundingClientRect();
+      if (!(event.clientX >= rect.left && event.clientX <= rect.right &&
+            event.clientY >= rect.top && event.clientY <= rect.bottom)) {
+        modalArea.close();
+        corSelecionadaArea = "#6B7280"; // Reset
+        resetBordasArea();
+      }
+    });
+  }
+
+  function resetBordasArea() {
+    coresFixasArea.forEach(c => {
+      c.style.borderColor = "#D1D5DB";
+      c.style.borderWidth = "2px";
+    });
+    if (bolinhaCustomArea) {
+      bolinhaCustomArea.style.borderColor = "#D1D5DB";
+      bolinhaCustomArea.style.borderWidth = "1px";
+    }
+  }
+
+  // MODAL NOME
+  const abrirModalNomeBtn = document.getElementById("abrir-modal-nome");
+  const modalNome = document.getElementById("modal-nome");
+  const cancelarBtnNome = document.getElementById("cancelar-btn-nome");
+  const salvarBtnNome = document.getElementById("salvar-btn-nome");
+  const inputNome = document.getElementById("input-nome");
+
+  // Variáveis para cores do nome
+  let corSelecionadaNome = null;
+  const coresFixasNome = document.querySelectorAll("#cores-nome span[data-cor]");
+  const inputCorCustomNome = document.getElementById("color-picker-nome");
+  const bolinhaCustomNome = document.getElementById("custom-color-nome");
+  const previewHexNome = document.getElementById("color-hex-preview-nome");
+
+  if (abrirModalNomeBtn && modalNome) {
+    abrirModalNomeBtn.addEventListener("click", () => {
+      modalNome.showModal();
+    });
+
+    if (cancelarBtnNome) {
+      cancelarBtnNome.addEventListener("click", () => {
+        modalNome.close();
+      });
+    }
+
+    if (salvarBtnNome && inputNome) {
+      salvarBtnNome.addEventListener("click", () => {
+        const novoNome = inputNome.value.trim();
+        
+        if (novoNome !== "") {
+          abrirModalNomeBtn.textContent = novoNome;
+          
+          if (hiddenNome) {
+            hiddenNome.value = novoNome;
+          }
+          
+          if (hiddenCorNome && corSelecionadaNome) {
+            hiddenCorNome.value = corSelecionadaNome;
+          }
+        } else {
+          alert("Por favor, digite um nome para a disciplina");
+          return;
+        }
+        
+        modalNome.close();
+      });
+    }
+
+    modalNome.addEventListener("click", (event) => {
+      const box = modalNome.querySelector(".modal-box");
+      if (!box) return;
+      const rect = box.getBoundingClientRect();
+      if (!(event.clientX >= rect.left && event.clientX <= rect.right &&
+            event.clientY >= rect.top && event.clientY <= rect.bottom)) {
+        modalNome.close();
+      }
+    });
+  }
+
+  // Seleção de cores para nome
+  if (coresFixasNome) {
+    coresFixasNome.forEach(c => {
+      c.addEventListener("click", () => {
+        corSelecionadaNome = c.dataset.cor;
+        resetBordasNome();
+        c.style.borderColor = "#000";
+        c.style.borderWidth = "3px";
+        if (previewHexNome) previewHexNome.textContent = corSelecionadaNome;
+        if (bolinhaCustomNome) {
+          bolinhaCustomNome.style.borderColor = "#D1D5DB";
+          bolinhaCustomNome.style.borderWidth = "1px";
+        }
+      });
+    });
+  }
+
+  if (inputCorCustomNome && bolinhaCustomNome && previewHexNome) {
+    bolinhaCustomNome.addEventListener("click", () => inputCorCustomNome.click());
+    inputCorCustomNome.addEventListener("input", () => {
+      corSelecionadaNome = inputCorCustomNome.value;
+      bolinhaCustomNome.style.backgroundColor = corSelecionadaNome;
+      previewHexNome.textContent = corSelecionadaNome;
+      resetBordasNome();
+    });
+  }
+
+  function resetBordasNome() {
+    coresFixasNome.forEach(c => {
+      c.style.borderColor = "#D1D5DB";
+      c.style.borderWidth = "2px";
+    });
+    if (bolinhaCustomNome) {
+      bolinhaCustomNome.style.borderColor = "#D1D5DB";
+      bolinhaCustomNome.style.borderWidth = "1px";
+    }
+  }
+
+  // ENTER EM MODAIS
+  document.querySelectorAll("dialog").forEach(modal => {
+    modal.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopPropagation();
+        const salvarBtn = modal.querySelector("button[id^='salvar-btn']");
+        if (salvarBtn) salvarBtn.click();
+      }
+    });
+  });
+
+  // LOG ANTES DE SUBMETER O FORMULÁRIO
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      console.log("📝 SUBMETENDO FORMULÁRIO:");
+      console.log("Nome:", hiddenNome?.value);
+      console.log("Cor Nome:", hiddenCorNome?.value);
+      console.log("Área Nome Temp:", areaNomeTempField?.value);
+      console.log("Área Cor Temp:", areaCorTempField?.value);
+      
+      if (!hiddenNome?.value) {
+        e.preventDefault();
+        alert("Por favor, defina um nome para a disciplina");
+        return false;
+      }
+      
+      if (!areaNomeTempField?.value) {
+        e.preventDefault();
+        alert("Por favor, selecione ou crie uma área para a disciplina");
+        return false;
+      }
+    });
+  }
+
+  console.log("DEBUG: JavaScript carregado");
+});
+</script>

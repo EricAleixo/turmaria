@@ -1,0 +1,70 @@
+<%# app/views/aluno/contents/_content_card.html.erb %>
+<%# Recebe 'content' como local: { content: Conteudo } %>
+
+<%# 
+  ATUALIZAÇÃO:
+  - O container principal agora é 'flex' (horizontal).
+  - A barra de destaque (agora 'w-1.5' e 'h-auto') foi movida para o início do flex.
+  - O restante do conteúdo foi agrupado em um div para manter o layout de coluna interna.
+%>
+
+<%# Container Principal: Agora é um flexbox horizontal %>
+<div class="bg-white rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 flex overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
+  
+  <%# ======== BARRA DE DESTAQUE LATERAL ESQUERDA ======== %>
+  <%# A barra é fixa (w-1.5) e se expande por toda a altura (h-auto) %>
+  <div class="w-1.5 bg-green-600 h-auto flex-shrink-0"></div>
+  <%# ==================================================== %>
+
+  <%# Conteúdo do Card: Ocupa o restante do espaço e usa flex-col para organizar verticalmente %>
+  <div class="flex flex-col justify-between w-full">
+    
+    <%# Corpo principal do Card (com padding) %>
+    <div class="p-6">
+      
+      <%# 1. Header Interno: Disciplina e Tipo %>
+      <div class="flex justify-between items-center mb-3">
+        <%# Nome da Disciplina como "categoria" principal %>
+        <span class="text-gray-900 font-semibold" style="color: <%= content.disciplina.try(:cor_nome) || content.disciplina.try(:cor) || '#10B981' %>;">
+  <%= content.disciplina.nome %>
+</span>
+        
+        <%# Badge (Etiqueta) para o tipo de conteúdo %>
+        <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+          <%= content.material? ? 'Material' : 'Atividade' %>
+        </span>
+      </div>
+
+      <%# 2. Título e Descrição %>
+      <h3 class="text-xl font-extrabold text-gray-900 mb-2 leading-snug">
+        <%= content.titulo %>
+      </h3>
+      
+      <p class="text-sm text-gray-600 mb-6 line-clamp-3 min-h-[3.75rem]">
+        <%= content.descricao.presence || "Sem descrição disponível." %>
+      </p>
+    </div>
+
+    <%# 3. Footer: Meta-info (Bimestre) e Ação (Botão) %>
+    <%# Separador visual limpo %>
+    <div class="bg-gray-50/70 border-t border-gray-100 px-6 py-4">
+      <div class="flex justify-between items-center">
+        
+        <%# Meta-info: Bimestre %>
+        <div class="flex items-center text-gray-500">
+          <%# Ícone para Bimestre (Calendário/Coleção) %>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mr-2 text-gray-400">
+            <path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h9.5A2.25 2.25 0 0 1 17 4.25v9.5A2.25 2.25 0 0 1 14.75 16h-9.5A2.25 2.25 0 0 1 3 13.75v-9.5Zm1.5 0c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25h-9.5a.25.25 0 0 0-.25.25v9.5Z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-medium text-sm">Bimestre:</span>
+          <span class="font-bold text-gray-800 text-sm ml-1.5"><%= content.bimestre %>º</span>
+        </div>
+
+        <%# Botão de Ação (CTA) %>
+        <%= link_to "Acessar", 
+              aluno_conteudo_path(content), 
+              class: "inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-xl transition-colors text-sm shadow-sm hover:shadow-md" %>
+      </div>
+    </div>
+  </div>
+</div>

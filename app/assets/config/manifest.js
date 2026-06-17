@@ -3,3 +3,7 @@
 //= link_tree ../../javascript .js
 //= link_tree ../../../vendor/javascript .js
 //= link_tree ../builds
+
+//= link assign_students.js
+//= link mascaras.js
+//= link assign_professors.js

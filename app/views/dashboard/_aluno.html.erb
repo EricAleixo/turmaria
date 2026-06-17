@@ -1,0 +1,523 @@
+<%= content_for :page_title, "Dashboard | #{@aluno&.nome&.split&.first || 'Aluno'}" %>
+
+<%# 1. Fundo da Página CLARO %>
+<div class="bg-slate-50 min-h-screen p-4 sm:p-8">
+  <div class="w-full max-w-9xl mx-auto">
+    
+    <%# Container principal mais leve e minimalista %>
+    <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-gray-100">
+      
+      <%# Cabeçalho mais sutil %>
+      <div class="mb-8 border-b border-gray-200 pb-4">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-2 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 text-blue-600 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+          </svg>
+          Bem-vindo(a), <%= @aluno&.nome&.split&.first || 'Aluno' %>!
+        </h1>
+        <p class="text-gray-500">Seu resumo acadêmico em tempo real.</p>
+      </div>
+
+      <%# --- ALERTA DE STATUS DE TURMA (Mantido) --- %>
+      <% if @turma_atual.blank? || !@turma_atual.respond_to?(:nome) %>
+        <div class="alert shadow-lg mb-6 bg-yellow-50 text-yellow-800 border-l-4 border-yellow-500 p-4 rounded-lg">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 flex-shrink-0 mr-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+            <span class="font-semibold">Atenção:</span> Você ainda não foi associado a uma turma ativa.
+          </div>
+        </div>
+      <% end %>
+      
+      <%# --- SEÇÃO DE DESEMPENHO (Resumo) - CARDS ATUALIZADOS --- %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        
+        <%# Card 1: Média Geral (Chart.js) %>
+        <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-100 transition-all duration-300 hover:shadow-xl hover:scale-[1.01]">
+            <p class="text-sm font-medium text-gray-500 mb-3 text-center flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+</svg>
+
+                Média Geral
+            </p>
+            <div class="relative h-48">
+                <canvas id="mediaChart" data-media="<%= @media_geral_notas %>"></canvas>
+            </div>
+        </div>
+
+        <%# Card 2: Frequência Geral (Chart.js) %>
+        <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-100 transition-all duration-300 hover:shadow-xl hover:scale-[1.01]">
+            <p class="text-sm font-medium text-gray-500 mb-3 text-center flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+                </svg>
+
+                Frequência Geral
+            </p>
+            <div class="relative h-48">
+                <canvas id="frequenciaChart" data-frequencia="<%= @frequencia_percentual.to_f %>"></canvas>
+            </div>
+        </div>
+
+
+        <%# Card 3: Total de Aulas (Design INVERTIDO: Status em cima, Total em baixo - ALINHAMENTO CORRIGIDO) %>
+        <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-100 transition-all duration-300 hover:shadow-xl hover:scale-[1.01] flex flex-col">
+            
+            <%# 1. STATUS (PRESENÇA E FALTAS) - No topo %>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                
+                <%# Subcard: Presenças %>
+                <div class="bg-green-50 rounded-lg p-3 border border-green-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm font-semibold text-green-800 mb-2">Presença</span>
+                    
+                    <div class="flex items-center space-x-2">
+                        <%# Ícone de Presença (Checkmark) %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        <span class="text-2xl font-extrabold text-green-900">
+                            <%= @total_presencas %>
+                        </span>
+                    </div>
+                    <span class="text-sm font-medium text-green-700 mt-1">
+                        (<%= "%.1f" % @perc_presencas %>%)
+                    </span>
+                </div>
+                
+                <%# Subcard: Faltas %>
+                <div class="bg-red-50 rounded-lg p-3 border border-red-100 flex flex-col items-center justify-center text-center">
+                    <span class="text-sm font-semibold text-red-800 mb-2">Faltas</span>
+                    
+                    <div class="flex items-center space-x-2">
+                        <%# Ícone de Faltas (Alerta/X) %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                        <span class="text-2xl font-extrabold text-red-900">
+                            <%= @total_faltas %>
+                        </span>
+                    </div>
+                    <span class="text-sm font-medium text-red-700 mt-1">
+                        (<%= "%.1f" % @perc_faltas %>%)
+                    </span>
+                </div>
+                
+            </div>
+
+            <%# 2. TOTAL DE AULAS - Parte de baixo (Alinhamento corrigido) %>
+            <div class="flex justify-between **items-center** pt-3 border-t border-gray-100">
+                <p class="text-gray-500 font-medium">Total de Aulas</p>
+                <span class="text-2xl font-extrabold text-blue-600">
+                    <%= @total_aulas %>
+                </span>
+            </div>
+            
+        </div>
+
+        <%# Card 4: Minha Turma Atual (Minimalista com ícone) %>
+        <div class="bg-blue-50 text-blue-900 rounded-xl shadow-lg p-5 border border-blue-100 flex flex-col justify-center items-center text-center transition-all duration-300 hover:shadow-xl hover:scale-[1.05]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+</svg>
+
+            <% if @turma_atual.present? %>
+                <p class="text-3xl font-extrabold"><%= @turma_atual.nome %></p>
+                <p class="text-sm font-medium text-blue-700 mt-2">Série/Ano: <%= @turma_atual.serie %>º</p>
+            <% else %>
+                <p class="text-3xl font-extrabold">N/A</p>
+                <p class="text-sm font-medium text-blue-700 mt-2">Não Associado</p>
+            <% end %>
+        </div>
+      </div>
+      
+      <hr class="border-gray-200 mt-4 mb-8"/>
+
+      <%# --- SEÇÃO DE GRÁFICOS DE DETALHAMENTO (ATUALIZADO) --- %>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-800 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+        </svg>
+
+        Análise Detalhada
+      </h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+        <%# GRÁFICO 3 (NOVO): Evolução da Média Geral (Gráfico de Linha) %>
+        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">Evolução da Média Geral (Mensal)</h3>
+          <div class="h-64">
+            <canvas id="evolucaoNotasChart" data-evolucao="<%= @evolucao_notas.to_json %>"></canvas>
+          </div>
+        </div>
+
+        <%# GRÁFICO 4: Frequência Mensal (Bar Chart) %>
+        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">Frequência Mensal</h3>
+          <div class="h-64">
+            <canvas id="frequenciaMensalChart" data-frequencia-mensal="<%= @frequencia_mensal.to_json %>"></canvas>
+          </div>
+        </div>
+      </div>
+
+
+      <%# --- SEÇÃO DE PROGRESSO POR DISCIPLINA (LISTA ROLÁVEL) --- %>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 mt-8 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+        Progresso por Disciplina
+      </h2>
+
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <% if @medias_por_disciplina.present? %>
+            <div class="max-h-96 overflow-y-auto bg-white"> <%# Max-h-96 é a altura máxima com scroll %>
+                <% @medias_por_disciplina.each do |nome, media| %>
+                    <% media_percentual = (media * 10).to_i # 8.5 -> 85 %>
+                    <% 
+                        cor_barra = case media
+                        when 0...6.0 then 'bg-red-500'
+                        when 6.0...7.0 then 'bg-yellow-500'
+                        else 'bg-green-500'
+                        end
+                    %>
+
+                    <div class="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition duration-150">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-semibold text-gray-700"><%= nome %></span>
+                            <span class="text-lg font-bold text-gray-800"><%= "%.1f" % media %></span>
+                        </div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="<%= cor_barra %> h-2.5 rounded-full" style="width: <%= media_percentual %>%"></div>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1 block">
+                            Status: 
+                            <% if media >= 7.0 %>
+                                <span class="text-green-600 font-medium">Aprovado</span>
+                            <% elsif media >= 6.0 %>
+                                <span class="text-yellow-600 font-medium">Recuperação</span>
+                            <% else %>
+                                <span class="text-red-600 font-medium">Alerta Crítico</span>
+                            <% end %>
+                        </span>
+                    </div>
+                <% end %>
+            </div>
+        <% else %>
+            <div class="text-center py-12 bg-gray-50">
+                <p class="text-slate-500">Nenhuma nota registrada até o momento.</p>
+            </div>
+        <% end %>
+      </div>
+
+
+      <hr class="border-gray-200 mt-8 mb-4"/>
+
+      <%# --- ÚLTIMOS REGISTROS DE FALTAS (Tabela Minimalista) --- %>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
+        </svg> Últimos Registros de Faltas
+      </h2>
+      
+      <div class="border border-gray-200 rounded-lg overflow-x-auto">
+        <% if @ultimas_faltas.present? %>
+          <table class="table w-full">
+            <thead>
+              <tr class="bg-slate-50 text-slate-700 text-sm uppercase">
+                <th class="rounded-tl-lg font-semibold p-4 text-left">Matéria</th>
+                <th class="font-semibold p-4 text-left">Status</th>
+                <th class="font-semibold p-4 text-left">Data da Aula</th>
+                <th class="font-semibold p-4 text-left">Turma</th>
+                <th class="rounded-tr-lg font-semibold p-4 text-left">Observações</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <% @ultimas_faltas.each do |frequencia_aluno| %>
+                <% frequencia = frequencia_aluno.frequencia %>
+                <% disciplina = frequencia.disciplina %>
+                <tr class="hover:bg-gray-50 transition-all duration-300 border-b border-gray-100 last:border-b-0">
+                  
+                  <td class="py-4 px-4">
+                    <% cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#4B5563' %>
+                    <span class="font-semibold" style="color: <%= cor_disciplina %>;">
+                      <%= disciplina&.nome || 'Sem Informação' %>
+                    </span>
+                  </td>
+                  
+                  <td class="text-slate-600 px-4">
+                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium <%= frequencia_aluno.status_cor %>">
+                      <%= frequencia_aluno.status_humanizado %>
+                    </span>
+                  </td>
+                  <td class="text-slate-600 px-4">
+                    <%= frequencia.data_aula&.strftime('%d/%m/%Y') || 'N/A' %>
+                  </td>
+                  <td class="text-slate-600 px-4">
+                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                      <%= frequencia.turma&.nome || 'N/A' %>
+                    </span>
+                  </td>
+                  <td class="text-slate-600 italic px-4">
+                    <%= frequencia_aluno.observacoes.present? ? frequencia_aluno.observacoes : 'Nenhuma observação.' %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          
+        <% else %>
+          <div class="text-center py-16 bg-gray-50">
+            <div class="max-w-md mx-auto">
+              <div class="text-6xl mb-4 mx-auto w-16 h-16 text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum registro de falta.</h3>
+              <p class="text-slate-500">Seu histórico de frequência está limpo!</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%# --- SCRIPTS DO CHART.JS --- %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // Plugin para desenhar o texto no centro do gráfico de rosca
+    const centerTextPlugin = {
+      id: 'centerText',
+      afterDraw: (chart) => {
+        if (chart.config.options.plugins.centerText) {
+          const { ctx, chartArea } = chart;
+          const { text, font, color } = chart.config.options.plugins.centerText;
+          
+          ctx.save();
+          ctx.font = font;
+          ctx.fillStyle = color;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const centerX = (chartArea.left + chartArea.right) / 2;
+          const centerY = (chartArea.top + chartArea.bottom) / 2;
+          
+          ctx.fillText(text, centerX, centerY);
+          ctx.restore();
+        }
+      }
+    };
+
+    // Registrar o plugin globalmente
+    Chart.register(centerTextPlugin);
+
+    // --- Gráfico 1 & 2: Média Geral e Frequência (Doughnut) (Mantido) ---
+    const mediaCanvas = document.getElementById('mediaChart');
+    if (mediaCanvas) {
+      const ctxMedia = mediaCanvas.getContext('2d');
+      const mediaValue = parseFloat(mediaCanvas.dataset.media) || 0;
+      const mediaRestante = (10 - mediaValue).toFixed(1);
+      
+      new Chart(ctxMedia, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [mediaValue, mediaRestante],
+            backgroundColor: [
+              '#2563EB', // Cor Principal (Azul)
+              '#E5E7EB'  // Cor de Fundo (Cinza)
+            ],
+            borderColor: '#FFFFFF',
+            borderWidth: 4,
+            borderRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%', 
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            centerText: {
+              text: mediaValue.toFixed(1), 
+              font: 'bold 2.5rem sans-serif',
+              color: '#1F2937' 
+            }
+          }
+        }
+      });
+    }
+
+    const frequenciaCanvas = document.getElementById('frequenciaChart');
+    if (frequenciaCanvas) {
+      const ctxFrequencia = frequenciaCanvas.getContext('2d');
+      const frequenciaValue = parseFloat(frequenciaCanvas.dataset.frequencia) || 0;
+      const frequenciaRestante = (100 - frequenciaValue).toFixed(1);
+      
+      const corPrincipal = frequenciaValue >= 75 ? '#16A34A' : (frequenciaValue >= 50 ? '#f3b808ff' : '#DC2626');
+      
+      new Chart(ctxFrequencia, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [frequenciaValue, frequenciaRestante],
+            backgroundColor: [
+              corPrincipal, 
+              '#E5E7EB' 
+            ],
+            borderColor: '#FFFFFF',
+            borderWidth: 4,
+            borderRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            centerText: {
+              text: `${frequenciaValue.toFixed(1)}%`, 
+              font: 'bold 2.5rem sans-serif',
+              color: '#1F2937'
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================
+    // 🆕 NOVO GRÁFICO 3: Evolução da Média Geral (Linha) 🆕
+    // =========================================================
+    const evolucaoCanvas = document.getElementById('evolucaoNotasChart');
+    if (evolucaoCanvas) {
+      const ctxEvolucao = evolucaoCanvas.getContext('2d');
+      const dataEvolucao = JSON.parse(evolucaoCanvas.dataset.evolucao || '[]');
+      
+      const labels = dataEvolucao.map(item => {
+        const [month, year] = item[0].split('-');
+        const date = new Date(year, month - 1);
+        return date.toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
+      });
+      const data = dataEvolucao.map(item => item[1]);
+
+      new Chart(ctxEvolucao, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Média Mensal',
+            data: data,
+            borderColor: 'rgb(37, 99, 235)',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: ${context.raw.toFixed(1)}`;
+                    }
+                }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 10,
+              title: {
+                display: true,
+                text: 'Média (0 - 10)'
+              },
+              grid: { color: '#f3f4f6' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // =========================================================
+    // GRÁFICO 4: Frequência Mensal (Barra Agrupada) (CORRIGIDO)
+    // =========================================================
+    const freqMensalCanvas = document.getElementById('frequenciaMensalChart');
+    if (freqMensalCanvas) {
+        const ctxFreqMensal = freqMensalCanvas.getContext('2d');
+        const dataFreq = JSON.parse(freqMensalCanvas.dataset.frequenciaMensal || '[]'); 
+        
+        const labels = dataFreq.map(item => {
+            const [month, year] = item.mes_ano.split('-');
+            const date = new Date(year, month - 1);
+            return date.toLocaleString('pt-BR', { month: 'short', year: 'numeric' }); 
+        });
+        
+        const presencaData = dataFreq.map(item => item.presencas);
+        const faltasData = dataFreq.map(item => item.faltas);
+
+        new Chart(ctxFreqMensal, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Presenças',
+                        data: presencaData,
+                        backgroundColor: 'rgba(22, 163, 74, 0.8)', 
+                        borderRadius: 2
+                    },
+                    {
+                        label: 'Faltas (Total)',
+                        data: faltasData,
+                        backgroundColor: 'rgba(220, 38, 38, 0.8)', 
+                        borderRadius: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: false }
+                },
+                scales: {
+                    x: { stacked: false }, 
+                    y: {
+                        stacked: false,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total de Aulas'
+                        },
+                        // CORREÇÃO: Escala de 1 em 1
+                        ticks: {
+                            precision: 0, 
+                            stepSize: 1 
+                        }
+                    }
+                }
+            }
+        });
+    }
+  });
+</script>

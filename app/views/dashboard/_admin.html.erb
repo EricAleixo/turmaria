@@ -1,0 +1,406 @@
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    
+    <div class="w-full p-4">
+      <main class="w-full max-w-9xl mx-auto">
+        <!-- Cabeçalho do Painel -->
+        <div class="flex flex-col gap-2 sm:flex-row justify-between items-center mb-8">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Painel do Administrador</h1>
+            <p class="text-gray-600 mt-1">Minhas Escolas - Visão Geral</p>
+          </div>
+          <div class="flex gap-3">
+            <%= link_to new_escola_path, class: "btn bg-green-500 hover:bg-green-600 text-white" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Adicionar Escola
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Cartões de Estatísticas Principais -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Cartão de Minhas Escolas -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600 mb-2"><%= @minhas_escolas %></div>
+              <div class="text-gray-600 font-medium">Minhas Escolas</div>
+              <div class="text-sm text-gray-400 mt-1">+<%= @escolas_mes_atual %> este mês</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Turmas -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-green-600 mb-2"><%= @total_turmas %></div>
+              <div class="text-gray-600 font-medium">Turmas</div>
+              <div class="text-sm text-gray-400 mt-1">Todas escolas</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Professores -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-purple-600 mb-2"><%= @total_professores %></div>
+              <div class="text-gray-600 font-medium">Professores</div>
+              <div class="text-sm text-gray-400 mt-1">Ativo no sistema</div>
+            </div>
+          </div>
+          
+          <!-- Cartão de Alunos -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-orange-600 mb-2"><%= @total_alunos %></div>
+              <div class="text-gray-600 font-medium">Alunos</div>
+              <div class="text-sm text-gray-400 mt-1">+<%= @alunos_mes_atual %> este mês</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cartões de Estatísticas Secundárias -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <!-- Média de Alunos por Escola -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-teal-600 mb-2"><%= @media_alunos_escola %></div>
+              <div class="text-gray-600 font-medium">Média Alunos/Escola</div>
+            </div>
+          </div>
+          
+          <!-- Média de Turmas por Escola -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-indigo-600 mb-2"><%= @media_turmas_escola %></div>
+              <div class="text-gray-600 font-medium">Média Turmas/Escola</div>
+            </div>
+          </div>
+          
+          <!-- Média de Alunos por Turma -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-pink-600 mb-2"><%= @media_alunos_turma %></div>
+              <div class="text-gray-600 font-medium">Média Alunos/Turma</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Gráfico de Distribuição de Escolas -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribuição de Escolas</h3>
+            <div class="h-64">
+              <canvas id="escolasChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- Gráfico de Crescimento -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Crescimento Mensal</h3>
+            <div class="h-64">
+              <canvas id="crescimentoChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Alunos por Escola - Largura Completa -->
+        <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Alunos por Escola</h3>
+          <div class="h-64">
+            <canvas id="alunosPorEscolaChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Seções de Gerenciamento -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <!-- Minhas Maiores Escolas -->
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+              <h3 class="text-xl font-semibold text-gray-800">Minhas Maiores Escolas</h3>
+              <p class="text-gray-600 text-sm">Por número de alunos</p>
+            </div>
+            <div class="p-6">
+              <% if @maiores_escolas.any? %>
+                <% @maiores_escolas.each_with_index do |escola, index| %>
+                  <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @maiores_escolas.length - 1 %>">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm mr-3">
+                        <%= index + 1 %>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-800"><%= escola.nome %></div>
+                        <div class="text-sm text-gray-500"><%= escola.tipo_humanizado %></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-blue-600 font-semibold"><%= escola.alunos_count %> alunos</div>
+                      <div class="text-xs text-gray-500 text-right"><%= escola.turmas_count %> turmas</div>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-gray-500 text-center py-4">Nenhuma escola encontrada</p>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Atividade Recente -->
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+              <h3 class="text-xl font-semibold text-gray-800">Escolas Recentes</h3>
+              <p class="text-gray-600 text-sm">Últimas escolas cadastradas</p>
+            </div>
+            <div class="p-6">
+              <% if @escolas_recentes.any? %>
+                <% @escolas_recentes.each_with_index do |escola, index| %>
+                  <div class="flex items-center justify-between py-3 <%= 'border-b border-gray-100' unless index == @escolas_recentes.length - 1 %>">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-semibold text-sm mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-800"><%= escola.nome %></div>
+                        <div class="text-sm text-gray-500"><%= time_ago_in_words(escola.created_at) %> atrás</div>
+                      </div>
+                    </div>
+                    <div class="text-gray-400">
+                      <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-800" do %>
+                        Ver
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-gray-500 text-center py-4">Nenhuma escola cadastrada ainda</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tipos de Escola -->
+        <div class="bg-white rounded-lg shadow-sm mb-8">
+          <div class="p-6 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-800">Distribuição por Tipo</h3>
+            <p class="text-gray-600 text-sm">Escolas públicas vs privadas</p>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="text-center p-6 bg-blue-50 rounded-lg">
+                <div class="text-3xl font-bold text-blue-600 mb-2"><%= @escolas_publicas %></div>
+                <div class="text-gray-600 font-medium">Escolas Públicas</div>
+                <div class="text-sm text-gray-500 mt-1"><%= @percentual_publicas %>% do total</div>
+              </div>
+              <div class="text-center p-6 bg-purple-50 rounded-lg">
+                <div class="text-3xl font-bold text-purple-600 mb-2"><%= @escolas_privadas %></div>
+                <div class="text-gray-600 font-medium">Escolas Privadas</div>
+                <div class="text-sm text-gray-500 mt-1"><%= @percentual_privadas %>% do total</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Todas as Escolas -->
+        <div class="bg-white rounded-lg shadow-sm">
+          <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800">Todas as Minhas Escolas</h3>
+              <p class="text-gray-600 text-sm">Acesso rápido às suas escolas</p>
+            </div>
+            <%= link_to "Ver Lista Completa", escolas_menager_paths, class: "text-blue-600 hover:text-blue-800 font-medium" %>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <% @todas_escolas.each do |escola| %>
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-2">
+                    <h4 class="font-semibold text-gray-800 text-sm"><%= escola.nome %></h4>
+                    <span class="px-2 py-1 text-xs rounded-full <%= escola.tipo == 'publica' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                      <%= escola.tipo_humanizado %>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                    <div class="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                      </svg>
+                      <span><%= escola.alunos_count %></span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                      </svg>
+                      <span><%= escola.turmas_count %></span>
+                    </div>
+                  </div>
+                  <%= link_to "Ver Detalhes", escola_path(escola), class: "block w-full text-center bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-medium transition-colors" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+</div>
+
+<!-- CDN do Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Script de Inicialização do Gráfico -->
+<script>
+let escolasChart, crescimentoChart, alunosPorEscolaChart;
+
+function initializeCharts() {
+  // Destruir gráficos existentes
+  if (escolasChart) escolasChart.destroy();
+  if (crescimentoChart) crescimentoChart.destroy();
+  if (alunosPorEscolaChart) alunosPorEscolaChart.destroy();
+
+  // Verificar elementos
+  const escolasCtx = document.getElementById('escolasChart');
+  const crescimentoCtx = document.getElementById('crescimentoChart');
+  const alunosCtx = document.getElementById('alunosPorEscolaChart');
+
+  if (!escolasCtx || !crescimentoCtx || !alunosCtx) {
+    console.log('Elementos dos gráficos não encontrados');
+    return;
+  }
+
+  // Gráfico de Pizza - Distribuição de Escolas
+  escolasChart = new Chart(escolasCtx.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Públicas', 'Privadas'],
+      datasets: [{
+        data: [<%= @escolas_publicas %>, <%= @escolas_privadas %>],
+        backgroundColor: ['#3B82F6', '#8B5CF6'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Gráfico de Linha - Crescimento
+  crescimentoChart = new Chart(crescimentoCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: <%= raw @crescimento_labels.to_json %>,
+      datasets: [{
+        label: 'Alunos',
+        data: <%= raw @crescimento_alunos.to_json %>,
+        borderColor: '#F59E0B',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }, {
+        label: 'Turmas',
+        data: <%= raw @crescimento_turmas.to_json %>,
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
+    }
+  });
+
+  // Gráfico de Barras - Alunos por Escola
+  alunosPorEscolaChart = new Chart(alunosCtx.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: <%= raw @escolas_nomes.to_json %>,
+      datasets: [{
+        label: 'Alunos',
+        data: <%= raw @escolas_alunos.to_json %>,
+        backgroundColor: '#3B82F6',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: '#f3f4f6'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initializeCharts();
+});
+
+document.addEventListener('turbo:load', function() {
+  initializeCharts();
+});
+
+document.addEventListener('turbo:before-cache', function() {
+  if (escolasChart) {
+    escolasChart.destroy();
+    escolasChart = null;
+  }
+  if (crescimentoChart) {
+    crescimentoChart.destroy();
+    crescimentoChart = null;
+  }
+  if (alunosPorEscolaChart) {
+    alunosPorEscolaChart.destroy();
+    alunosPorEscolaChart = null;
+  }
+});
+</script>

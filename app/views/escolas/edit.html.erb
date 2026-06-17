@@ -1,0 +1,32 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+      <div class="flex flex-col justify-between md:flex-row md:items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Editar Escola</h1>
+          <div class="text-sm breadcrumbs mt-1">
+            <ul>
+              <li><%= link_to "Escolas", escolas_menager_paths, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+              <li class="text-gray-600">Editar</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <%= link_to "Ver Escola", escola_path(@escola), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+          <%= button_to "Excluir", escola_path(@escola), method: :delete, 
+              confirm: "Tem certeza que deseja excluir esta escola?",
+              class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="px-6">
+    <div class="max-w-4xl mx-auto">
+      <%= render 'form', escola: @escola %>
+    </div>
+  </div>
+</div>

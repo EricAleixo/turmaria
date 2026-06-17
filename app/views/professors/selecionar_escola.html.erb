@@ -1,0 +1,213 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+  <div class="max-w-9xl mx-auto">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Selecione a Escola e Professor</h1>
+      <p class="text-gray-600">Escolha uma escola para acessar seus professores</p>
+    </div>
+
+    <!-- Grid de Cards de Escolas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @escolas.each do |escola| %>
+        <% total_professores = escola.professors.count %>
+        <% professores_por_tipo = escola.professors.group_by(&:tipo_professor) %>
+        
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <!-- Header do Card -->
+          <div class="p-6 border-b border-gray-200">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 text-lg mb-1"><%= escola.nome %></h3>
+                <span class="inline-block px-3 py-1 text-xs rounded-full <%= escola.tipo == 'publica' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                  <%= escola.tipo_humanizado %>
+                </span>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 ml-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Estatísticas da Escola -->
+            <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                </svg>
+                <span><%= total_professores %> <%= total_professores == 1 ? 'professor' : 'professores' %></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                <span><%= professores_por_tipo.keys.compact.count %> <%= professores_por_tipo.keys.compact.count == 1 ? 'tipo' : 'tipos' %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Professores -->
+          <div class="p-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Professores Cadastrados:</h4>
+            
+            <% if escola.professors.any? %>
+              <% todos_professores = escola.professors.order(:nome) %>
+              <% professores_visiveis = todos_professores.limit(3) %>
+              
+              <div class="space-y-2">
+                <% professores_visiveis.each do |professor| %>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border-l-4 border-blue-500">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                      <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <% if professor.foto.present? %>
+                          <%= image_tag professor.foto, class: "w-10 h-10 rounded-full object-cover" %>
+                        <% else %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                          </svg>
+                        <% end %>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="font-medium text-gray-800 truncate"><%= professor.nome %></div>
+                        <div class="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                          <% if professor.tipo_professor.present? %>
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                              <%= professor.tipo_professor.titleize %>
+                            </span>
+                          <% end %>
+                          <% if professor.email.present? %>
+                            <span class="truncate"><%= professor.email %></span>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                    <%= link_to escola_professor_path(escola, professor), class: "ml-3 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors flex-shrink-0" do %>
+                      Ver
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <!-- Professores por Tipo -->
+                <% if professores_por_tipo.any? %>
+                  <div class="mt-4 space-y-2">
+                    <h5 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Distribuição por Tipo:</h5>
+                    <% professores_por_tipo.sort_by { |tipo, _| tipo || "Sem tipo" }.each do |tipo, profs| %>
+                      <div class="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-400">
+                        <span class="text-sm font-medium text-gray-700">
+                          <%= tipo.present? ? tipo.titleize : "Sem tipo definido" %>
+                        </span>
+                        <span class="text-xs font-bold text-blue-600 bg-white px-2 py-1 rounded-full shadow-sm">
+                          <%= profs.count %>
+                        </span>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <!-- Card Total de Professores -->
+                <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 mt-4">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-800">Total de Professores</div>
+                        <div class="text-xs text-gray-600">
+                          <%= professores_por_tipo.keys.compact.count %> <%= professores_por_tipo.keys.compact.count == 1 ? 'tipo diferente' : 'tipos diferentes' %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-2xl font-bold text-green-600">
+                      <%= total_professores %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card "Ver Mais Professores" quando há mais de 3 -->
+                <% if todos_professores.count > 3 %>
+                  <% professores_restantes = todos_professores.count - 3 %>
+                  <%= link_to escola_professors_path(escola), class: "block" do %>
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 group">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div class="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                              Mais <%= professores_restantes %> <%= professores_restantes == 1 ? 'professor' : 'professores' %>
+                            </div>
+                            <div class="text-xs text-gray-600">Clique para ver todos</div>
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+                            <%= total_professores %> total
+                          </span>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-300 mx-auto mb-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                </svg>
+                <p class="text-gray-500 text-sm mb-3">Nenhum professor cadastrado</p>
+                <%= link_to "Cadastrar Professor", new_escola_professor_path(escola), class: "inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Footer do Card -->
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+            <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-center gap-1" do %>
+              <span>Ver detalhes da escola</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Mensagem quando não há escolas -->
+    <% if @escolas.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhuma escola cadastrada</h3>
+        <p class="text-gray-600 mb-6">Comece criando sua primeira escola no sistema</p>
+        <%= link_to new_escola_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Criar Primeira Escola</span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Botão de Voltar -->
+    <div class="mt-8 text-center">
+      <%= link_to dashboard_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        <span>Voltar ao Dashboard</span>
+      <% end %>
+    </div>
+  </div>
+</div>

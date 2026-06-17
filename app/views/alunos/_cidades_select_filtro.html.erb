@@ -1,0 +1,19 @@
+<%# app/views/alunos/_cidades_select_filtro.html.erb %>
+
+<div>
+  <%= label_tag :cidade_id, 'Cidade', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+  
+  <%# 🛑 A variável 'cidades' agora é garantida pelo render no modal e pela action do controller 🛑 %>
+  <% if cidades.present? %>
+    <%= select_tag :cidade_id, 
+        options_from_collection_for_select(cidades, :id, :nome, cidade_selecionada_id), 
+        { include_blank: 'Todas as Cidades', class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500' } 
+    %>
+  <% else %>
+    <%= select_tag :cidade_id, 
+        options_for_select([['Todas as Cidades', '']]), 
+        { include_blank: true, disabled: true, class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2.5 focus:ring-indigo-500 focus:border-indigo-500' } 
+    %>
+    <p class="mt-1 text-xs text-gray-500">Selecione um Estado para carregar as cidades.</p>
+  <% end %>
+</div>

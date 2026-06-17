@@ -1,0 +1,319 @@
+<div class="bg-white rounded-lg overflow-hidden">
+  <!-- Versão Desktop - Tabela -->
+  <div class="hidden md:block p-4">
+    <div class="space-y-4">
+      <% @turma.alunos.order(:nome).each do |aluno| %>
+        <div class="bg-gray-50 rounded-lg aluno-row" data-aluno-id="<%= aluno.id %>">
+          <div class="flex items-center justify-between p-4">
+            <!-- Info do Aluno -->
+            <div class="flex items-center flex-1">
+              <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                <span class="text-sm font-bold text-white">
+                  <%= aluno.nome.split.map(&:first).join.upcase %>
+                </span>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900"><%= aluno.nome %></h3>
+                <p class="text-sm text-gray-500">Matrícula: <%= aluno.matricula %></p>
+              </div>
+            </div>
+
+            <!-- Botões de Status -->
+            <div class="flex items-center gap-3">
+              <!-- Presente -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn presente-btn active" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="presente"
+                      onclick="setStatusNew('<%= aluno.id %>', 'presente')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Presente
+              </button>
+
+              <!-- Falta -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn falta-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="falta"
+                      onclick="setStatusNew('<%= aluno.id %>', 'falta')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Falta
+              </button>
+
+              <!-- Justificada -->
+              <button type="button" 
+                      class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors status-btn justificada-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="justificada"
+                      onclick="setStatusNew('<%= aluno.id %>', 'justificada')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Justificada
+              </button>
+            </div>
+
+            <input type="hidden" 
+                   name="alunos[<%= aluno.id %>][status]" 
+                   value="presente" 
+                   id="status_<%= aluno.id %>">
+          </div>
+
+          <!-- Campo de Observações -->
+          <div class="px-4 pb-4">
+            <input type="text" 
+                   name="alunos[<%= aluno.id %>][observacoes]" 
+                   placeholder="Observações..." 
+                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Versão Mobile - Cards -->
+  <div class="block md:hidden p-3">
+    <div class="space-y-3">
+      <% @turma.alunos.order(:nome).each do |aluno| %>
+        <div class="bg-gray-50 rounded-lg shadow-sm aluno-row" data-aluno-id="<%= aluno.id %>">
+          <!-- Header do Card -->
+          <div class="flex items-center p-3 border-b border-gray-200">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+              <span class="text-xs font-bold text-white">
+                <%= aluno.nome.split.map(&:first).join.upcase %>
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-900 text-sm truncate"><%= aluno.nome %></h3>
+              <p class="text-xs text-gray-500">Mat: <%= aluno.matricula %></p>
+            </div>
+          </div>
+
+          <!-- Botões de Status em Grid -->
+          <div class="p-3">
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <!-- Presente -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn presente-btn active" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="presente"
+                      onclick="setStatusNew('<%= aluno.id %>', 'presente')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Presente</span>
+              </button>
+
+              <!-- Falta -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn falta-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="falta"
+                      onclick="setStatusNew('<%= aluno.id %>', 'falta')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>Falta</span>
+              </button>
+
+              <!-- Justificada -->
+              <button type="button" 
+                      class="flex flex-col items-center justify-center gap-1 px-2 py-3 text-xs font-medium rounded-lg border transition-colors status-btn justificada-btn" 
+                      data-aluno-id="<%= aluno.id %>" 
+                      data-status="justificada"
+                      onclick="setStatusNew('<%= aluno.id %>', 'justificada')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Justificada</span>
+              </button>
+            </div>
+
+            <!-- Campo de Observações -->
+            <input type="text" 
+                   name="alunos[<%= aluno.id %>][observacoes]" 
+                   placeholder="Observações..." 
+                   class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+.status-btn {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
+.status-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.presente-btn.active {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.falta-btn.active {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.justificada-btn.active {
+  background-color: #fefce8;
+  border-color: #ca8a04;
+  color: #a16207;
+}
+
+.aluno-row {
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.aluno-row.bg-green-50 {
+  background-color: #f0fdf4;
+  border-color: #16a34a;
+}
+
+.aluno-row.bg-red-50 {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+}
+
+.aluno-row.bg-yellow-50 {
+  background-color: #fefce8;
+  border-color: #ca8a04;
+}
+</style>
+
+<script>
+// ============================================
+// DEFINIR FUNÇÕES GLOBALMENTE PRIMEIRO
+// ============================================
+
+// Função específica para a tela NEW
+window.setStatusNew = function(alunoId, status) {
+  // Remover classe active de todos os botões deste aluno
+  const buttons = document.querySelectorAll(`[data-aluno-id="${alunoId}"].status-btn`);
+  buttons.forEach(btn => btn.classList.remove('active'));
+  
+  // Adicionar classe active ao botão clicado
+  const activeButtons = document.querySelectorAll(`[data-aluno-id="${alunoId}"][data-status="${status}"]`);
+  activeButtons.forEach(btn => btn.classList.add('active'));
+  
+  // Atualizar o campo hidden
+  const hiddenField = document.getElementById(`status_${alunoId}`);
+  if (hiddenField) {
+    hiddenField.value = status;
+  }
+  
+  // Atualizar cor da linha
+  window.updateRowColorNew(alunoId, status);
+  
+  // Atualizar contadores
+  if (typeof window.atualizarContadores === 'function') {
+    window.atualizarContadores();
+  }
+};
+
+window.updateRowColorNew = function(alunoId, status) {
+  const rows = document.querySelectorAll(`div.aluno-row[data-aluno-id="${alunoId}"]`);
+  
+  rows.forEach(row => {
+    row.classList.remove('bg-green-50', 'bg-red-50', 'bg-yellow-50');
+    
+    switch(status) {
+      case 'presente':
+        row.classList.add('bg-green-50');
+        break;
+      case 'falta':
+        row.classList.add('bg-red-50');
+        break;
+      case 'justificada':
+        row.classList.add('bg-yellow-50');
+        break;
+    }
+  });
+};
+
+window.marcarTodos = function(status) {
+  const alunos = document.querySelectorAll('[data-aluno-id]');
+  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+  
+  alunoIds.forEach(alunoId => {
+    window.setStatusNew(alunoId, status);
+  });
+};
+
+window.inverterSelecao = function() {
+  const alunos = document.querySelectorAll('.aluno-row[data-aluno-id]');
+  const alunoIds = [...new Set(Array.from(alunos).map(el => el.getAttribute('data-aluno-id')))];
+  
+  alunoIds.forEach(alunoId => {
+    const hiddenField = document.getElementById(`status_${alunoId}`);
+    if (hiddenField) {
+      const currentStatus = hiddenField.value;
+      let newStatus;
+      
+      if (currentStatus === 'presente') {
+        newStatus = 'falta';
+      } else if (currentStatus === 'falta') {
+        newStatus = 'presente';
+      } else {
+        return;
+      }
+      
+      window.setStatusNew(alunoId, newStatus);
+    }
+  });
+};
+
+window.atualizarContadores = function() {
+  const presente = document.querySelectorAll('input[id^="status_"][value="presente"]').length;
+  const ausente = document.querySelectorAll('input[id^="status_"][value="falta"]').length;
+  const justificado = document.querySelectorAll('input[id^="status_"][value="justificada"]').length;
+  
+  const contadorPresente = document.getElementById('contador-presente');
+  const contadorAusente = document.getElementById('contador-ausente');
+  const contadorJustificado = document.getElementById('contador-justificado');
+  
+  if (contadorPresente) contadorPresente.textContent = presente;
+  if (contadorAusente) contadorAusente.textContent = ausente;
+  if (contadorJustificado) contadorJustificado.textContent = justificado;
+};
+
+// ============================================
+// INICIALIZAÇÃO IMEDIATA
+// ============================================
+(function() {
+  // Inicializar cores imediatamente
+  function inicializarCores() {
+    document.querySelectorAll('.aluno-row[data-aluno-id]').forEach(row => {
+      const alunoId = row.getAttribute('data-aluno-id');
+      const hiddenField = document.getElementById(`status_${alunoId}`);
+      if (hiddenField) {
+        const status = hiddenField.value;
+        window.updateRowColorNew(alunoId, status);
+      }
+    });
+    
+    window.atualizarContadores();
+  }
+  
+  // Executar imediatamente se DOM já estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarCores);
+  } else {
+    inicializarCores();
+  }
+})();
+</script>

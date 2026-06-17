@@ -1,0 +1,53 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200 mb-4 sm:mb-6">
+    <div class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 lg:gap-4">
+        <!-- Título e breadcrumbs -->
+        <div class="flex-1 min-w-0">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Editar disciplina</h1>
+          
+          <!-- Breadcrumbs -->
+          <div class="text-xs sm:text-sm overflow-x-auto">
+            <ul class="flex flex-nowrap gap-2 whitespace-nowrap pb-1">
+              <li>
+                <%= link_to @escola.nome,
+                escola_path(@escola),
+                class: "text-green-600 hover:text-green-800 transition-colors duration-200 truncate max-w-[100px] sm:max-w-[150px] md:max-w-none inline-block" %>
+              </li>
+              <li class="text-gray-400">/</li>
+              <li>
+                <%= link_to "disciplinas",
+                disciplinas_path,
+                class: "text-green-600 hover:text-green-800 transition-colors duration-200" %>
+              </li>
+              <li class="text-gray-400">/</li>
+              <li>
+                <%= link_to @disciplina.nome,
+                disciplina_path(@disciplina),
+                class: "text-green-600 hover:text-green-800 transition-colors duration-200 truncate max-w-[100px] sm:max-w-[150px] md:max-w-none inline-block" %>
+              </li>
+              <li class="text-gray-400">/</li>
+              <li class="text-gray-600">Editar</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex flex-wrap gap-2 sm:gap-3">
+          <%= link_to "Ver disciplina", disciplina_path(@disciplina), class: "bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors flex-1 sm:flex-none text-center hover:shadow-lg hover:scale-105 transition-all" %>
+          <%= button_to "Excluir", disciplina_path(@disciplina), method: :delete, 
+          data: { confirm: "Tem certeza que deseja excluir esta disciplina?" },
+          class: "bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors flex-1 sm:flex-none hover:shadow-lg hover:scale-105 transition-all" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="px-3 sm:px-4 lg:px-6 pb-6">
+    <div class="max-w-4xl mx-auto">
+      <%= render 'form', disciplina: @disciplina %>
+    </div>
+  </div>
+</div>

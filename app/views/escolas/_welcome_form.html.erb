@@ -1,0 +1,126 @@
+<%= form_with(model: escola, local: true, multipart: true, class: "space-y-6") do |form| %>
+  <% if escola.errors.any? %>
+    <div class="alert alert-error mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Oops! Alguns erros foram encontrados:</h3>
+        <ul class="list-disc list-inside mt-2">
+          <% escola.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Informações Básicas -->
+    <div class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+        Informações Básicas
+      </h3>
+      
+      <div class="form-control">
+        <%= form.label :nome, class: "label" %>
+        <span class="label-text font-medium text-gray-700">Nome da Escola *</span>
+        <%= form.text_field :nome, class: "input input-bordered w-full focus:input-success", placeholder: "Ex: Escola Municipal João Silva" %>
+      </div>
+
+      <div class="form-control">
+        <%= form.label :cnpj, class: "label" %>
+        <span class="label-text font-medium text-gray-700">CNPJ</span>
+        <%= form.text_field :cnpj, class: "input input-bordered w-full focus:input-success", placeholder: "00.000.000/0000-00" %>
+      </div>
+
+      <div class="form-control">
+        <%= form.label :telefone, class: "label" %>
+        <span class="label-text font-medium text-gray-700">Telefone</span>
+        <%= form.text_field :telefone, class: "input input-bordered w-full focus:input-success", placeholder: "(11) 99999-9999" %>
+      </div>
+
+      <div class="form-control">
+        <%= form.label :email, class: "label" %>
+        <span class="label-text font-medium text-gray-700">E-mail</span>
+        <%= form.email_field :email, class: "input input-bordered w-full focus:input-success", placeholder: "contato@escola.com.br" %>
+      </div>
+
+      <div class="form-control">
+        <%= form.label :site, class: "label" %>
+        <span class="label-text font-medium text-gray-700">Site</span>
+        <%= form.url_field :site, class: "input input-bordered w-full focus:input-success", placeholder: "https://www.escola.com.br" %>
+      </div>
+    </div>
+
+    <!-- Endereço (Bloco Corrigido) -->
+    <div class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
+        Endereço
+      </h3>
+      
+      <%= form.fields_for :endereco do |endereco_form| %>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control">
+            <%= endereco_form.label :cep, class: "label" %>
+            <span class="label-text font-medium text-gray-700">CEP</span>
+            <%= endereco_form.text_field :cep, class: "input input-bordered w-full focus:input-success", placeholder: "00000-000" %>
+          </div>
+
+          <div class="form-control">
+            <%= endereco_form.label :numero, class: "label" %>
+            <span class="label-text font-medium text-gray-700">Número</span>
+            <%= endereco_form.text_field :numero, class: "input input-bordered w-full focus:input-success", placeholder: "123" %>
+          </div>
+        </div>
+
+        <div class="form-control">
+          <%= endereco_form.label :logradouro, class: "label" %>
+          <span class="label-text font-medium text-gray-700">Logradouro</span>
+          <%= endereco_form.text_field :logradouro, class: "input input-bordered w-full focus:input-success", placeholder: "Rua das Flores" %>
+        </div>
+
+        <div class="form-control">
+          <%= endereco_form.label :complemento, class: "label" %>
+          <span class="label-text font-medium text-gray-700">Complemento</span>
+          <%= endereco_form.text_field :complemento, class: "input input-bordered w-full focus:input-success", placeholder: "Apto 101, Bloco A" %>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control">
+            <%= endereco_form.label :bairro, class: "label" %>
+            <span class="label-text font-medium text-gray-700">Bairro</span>
+            <%= endereco_form.text_field :bairro, class: "input input-bordered w-full focus:input-success", placeholder: "Centro" %>
+          </div>
+          
+          <%# O campo de cidade foi removido deste grid para dar espaço total para o select agrupado. %>
+          <div class="col-span-1"></div> 
+        </div>
+
+        <div class="form-control">
+          <%= endereco_form.label :cidade_id, class: "label" %>
+          <span class="label-text font-medium text-gray-700">Estado / Cidade</span>
+          
+          <%# Usa a chave estrangeira :cidade_id e agrupa as cidades por Estado (assumindo a associação correta). %>
+          <%= endereco_form.grouped_collection_select :cidade_id, 
+              Estado.all.sort_by(&:sigla), # Coleção principal (Estados)
+              :cidades,                    # Método do Estado para obter os itens do grupo (Cidades)
+              :sigla,                      # Nome do grupo (Sigla do Estado)
+              :id,                         # Valor do item (ID da Cidade)
+              :nome,                       # Texto do item (Nome da Cidade)
+              { prompt: 'Selecione o estado e a cidade' },
+              { class: "select select-bordered w-full focus:select-success" } 
+          %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Botões de Ação -->
+  <div class="flex justify-center pt-8 border-t border-gray-200">
+    <div class="flex gap-4 items-center">
+      <%= link_to "Cancelar", dashboard_path, class: "btn btn-outline btn-neutral" %>
+      <%= form.submit "Criar Minha Escola", class: "btn btn-success btn-lg px-8" %>
+    </div>
+  </div>
+<% end %>

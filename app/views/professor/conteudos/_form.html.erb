@@ -1,0 +1,655 @@
+<% 
+  if defined?(current_professor) && current_professor.present?
+    disciplinas = current_professor.disciplinas
+    if @conteudo.persisted?
+      form_url = professor_turma_conteudo_path(@conteudo.turma, @conteudo)
+    else
+      form_url = professor_turma_conteudos_path(params[:turma_id])
+    end
+  elsif @escola.present?
+    disciplinas = @escola.disciplinas
+    if conteudo.persisted?
+      form_url = escola_conteudo_path(@escola, conteudo)
+    else
+      form_url = escola_conteudos_path(@escola)
+    end
+  else
+    disciplinas = []
+    if conteudo.persisted?
+      form_url = conteudo_path(conteudo)
+    else
+      form_url = conteudos_path
+    end
+  end
+%>
+
+<div data-controller="conteudo arquivos">
+
+<div class="flex justify-center min-h-screen bg-gray-50 py-12">
+  <div class="w-full max-w-6xl bg-white rounded-xl shadow-none">
+
+    <%= form_with(model: conteudo, 
+                  url: form_url,
+                  id: 'conteudo_form', 
+                  class: "space-y-0",
+                  multipart: true) do |f| %>
+    <%= hidden_field_tag :turma_id, params[:turma_id] || conteudo.turma_id %>
+
+      <div class="px-8 py-6 border-b border-black/10 space-y-4">
+        
+        <% if conteudo.errors.any? %>
+          <div class="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg">
+            <h2 class="font-bold text-lg mb-2"><%= pluralize(conteudo.errors.count, "Erro") %> impediu o salvamento:</h2>
+            <ul class="list-disc list-inside">
+              <% conteudo.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <%= f.text_field :titulo, 
+          placeholder: "Título do conteúdo...", 
+          class: "w-full text-4xl font-bold text-gray-400 placeholder-gray-400 border-0 outline-none focus:ring-0 focus:outline-none" %>
+
+        <div class="flex flex-wrap items-center gap-4 mt-2">
+
+          <%# --- Bloco de Disciplina (Obrigatório) --- %>
+<div>
+  <label class="label">
+    <span class="label-text text-sm font-medium text-gray-700">
+      Disciplina <span class="text-red-500">*</span>
+    </span>
+  </label>
+  <%= f.collection_select :disciplina_id,
+      @disciplinas || [],
+      :id,
+      :nome,
+      {
+        prompt: "Selecionar disciplina",
+        disabled: ->(disciplina) do
+          @disciplinas_da_turma_ids && !@disciplinas_da_turma_ids.include?(disciplina.id)
+        end
+      },
+      {
+        class: "select select-bordered w-56 font-medium text-gray-700
+                focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500
+                #{conteudo.errors[:disciplina_id].any? ? 'select-error' : ''}",
+        required: true
+      } %>
+
+  <% if conteudo.errors[:disciplina_id].any? %>
+    <label class="label">
+      <span class="label-text-alt text-error">
+        <%= conteudo.errors[:disciplina_id].first %>
+      </span>
+    </label>
+  <% end %>
+</div>
+
+          <%# --- Bloco de Bimestre (Obrigatório) --- %>
+<div>
+  <label class="label">
+    <span class="label-text text-sm font-medium text-gray-700">
+      Bimestre <span class="text-red-500">*</span>
+    </span>
+  </label>
+  <% bimestres_opcoes = @bimestres ? (1..@bimestres).map { |b| ["#{b}º Bimestre", b] } : [] %>
+
+  <%= f.select :bimestre,
+      bimestres_opcoes,
+      { prompt: "Selecionar bimestre" },
+      {
+        class: "select select-bordered w-56 font-medium text-gray-700 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 #{conteudo.errors[:bimestre].any? ? 'select-error' : ''}",
+        required: true
+      } %>
+
+  <% if conteudo.errors[:bimestre].any? %>
+    <label class="label">
+      <span class="label-text-alt text-error">
+        <%= conteudo.errors[:bimestre].first %>
+      </span>
+    </label>
+  <% end %>
+</div>
+          
+          <%# --- Bloco "Marcar como Atividade" --- %>
+          <div class="form-control flex-shrink-0">
+  <label class="label cursor-pointer gap-3">
+    <span class="label-text text-sm font-medium text-gray-700">Marcar como Atividade</span> 
+    <%= f.check_box :tipo, 
+          { class: "checkbox checkbox-success" }, 
+          "atividade", 
+          "material" %>
+  </label>
+</div>
+
+        </div>
+      </div>
+
+      <div class="px-8 py-2 space-y-2">
+        <%= f.text_area :descricao, 
+          placeholder: "Descrição breve...", 
+          rows: 2, 
+          class: "w-full text-gray-400 placeholder-gray-400 border-0 outline-none focus:ring-0 focus:outline-none resize-none text-base" %>
+
+        <div class="relative">
+          <%= f.text_area :markdown, id: "markdown-field", class: "hidden" %>
+          
+          <div id="editor-container" 
+               class="relative border-0 p-0 py-4 min-h-[500px] text-lg leading-relaxed text-gray-700 outline-none font-sans" 
+               contenteditable="true" 
+               data-placeholder="Digite seu conteúdo em Markdown..."><%= conteudo.markdown %></div>
+
+          <div class="hidden absolute z-[1000] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] rounded-xl p-1.5 gap-0.5 border border-gray-200 items-center pointer-events-auto" id="floating-toolbar">
+            <button type="button" data-action="bold" title="Negrito (Ctrl+B)" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100"><strong>B</strong></button>
+            <button type="button" data-action="italic" title="Itálico (Ctrl+I)" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100"><em>I</em></button>
+            <button type="button" data-action="strike" title="Tachado" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100"><s>S</s></button>
+            <button type="button" data-action="code" title="Código" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">&lt;/&gt;</button>
+            <div class="relative inline-block dropdown-wrapper">
+              <button type="button" id="heading-btn" title="Títulos" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">H</button>
+              <div class="dropdown-menu absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.1)] min-w-[180px] z-[1001] max-h-[300px] overflow-y-auto" id="heading-menu">
+                <button type="button" data-action="h1" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[2em] font-semibold">Título 1</button>
+                <button type="button" data-action="h2" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[1.6em] font-semibold">Título 2</button>
+                <button type="button" data-action="h3" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[1.3em] font-semibold">Título 3</button>
+                <button type="button" data-action="h4" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[1.1em] font-semibold">Título 4</button>
+                <button type="button" data-action="h5" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-base font-semibold">Título 5</button>
+                <button type="button" data-action="h6" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[0.9em] font-semibold text-gray-600">Título 6</button>
+              </div>
+            </div>
+            <div class="relative inline-block dropdown-wrapper">
+              <button type="button" id="size-btn" title="Tamanho" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">A</button>
+              <div class="dropdown-menu absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.1)] min-w-[180px] z-[1001] max-h-[300px] overflow-y-auto" id="size-menu">
+                <button type="button" data-action="size-small" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[0.875em]">Pequeno</button>
+                <button type="button" data-action="size-normal" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-base">Normal</button>
+                <button type="button" data-action="size-large" class="dropdown-item w-full px-4 py-2.5 text-left border-0 bg-transparent cursor-pointer transition-all duration-150 rounded-md m-0.5 leading-tight hover:bg-gray-100 text-[1.25em]">Grande</button>
+              </div>
+            </div>
+            <button type="button" data-action="bulletList" title="Lista com marcadores" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">•</button>
+            <button type="button" data-action="numberedList" title="Lista numerada" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">1.</button>
+            <button type="button" data-action="quote" title="Citação" class="bg-transparent border-0 px-3 py-2 cursor-pointer rounded-md text-sm font-medium text-gray-700 transition-all duration-150 min-w-[32px] h-8 flex items-center justify-center whitespace-nowrap hover:bg-gray-100">"</button>
+          </div>
+        </div>
+
+        <div class="mt-8" data-arquivos-target="container">
+          <label class="block text-lg font-semibold text-gray-800 mb-4">
+            Anexar materiais
+          </label>
+
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
+              
+              <div class="flex-1 min-w-0">
+                <div data-arquivos-target="dropzone"
+                     data-action="dragover->arquivos#highlightDropzone 
+                                 dragleave->arquivos#unhighlightDropzone 
+                                 drop->arquivos#handleDrop"
+                     class="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl py-10 bg-white hover:bg-gray-50 hover:border-teal-400 transition-all duration-300">
+                  
+                  <div class="flex flex-col items-center text-center px-4">
+                    <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M7 16a4 4 0 01-.88-7.906A5.002 5.002 0 0115 8h1a5 5 0 010 10H7z" />
+                      </svg>
+                    </div>
+                    
+                    <h3 class="text-base font-semibold text-gray-700 mb-2">
+                      Adicionar arquivos
+                    </h3>
+                    
+                    <p class="text-sm text-gray-500 mb-4">
+                      Arraste e solte ou clique para selecionar
+                    </p>
+
+                    <button type="button"
+                            data-action="click->arquivos#openFileDialog"
+                            class="px-6 py-2.5 bg-teal-500 text-white text-sm font-semibold rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow">
+                      Selecionar arquivos
+                    </button>
+                    
+                    <p class="text-xs text-gray-400 mt-3">
+                      PDF, DOCX, DOC, JPG, PNG, GIF (máx. 10MB)
+                    </p>
+                  </div>
+
+                  <%= f.file_field :materiais,
+                        data: { 
+                          arquivos_target: "input",
+                          action: "change->arquivos#handleFileSelect"
+                        },
+                        multiple: true,
+                        accept: ".pdf,.docx,.doc,.jpg,.jpeg,.png,.gif",
+                        class: "absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" %>
+                </div>
+
+                <div class="relative mt-6 w-full" data-arquivos-target="carouselWrapper">
+                  <button type="button"
+                          data-arquivos-target="prevBtn"
+                          data-action="click->arquivos#scrollLeft"
+                          class="hidden absolute -left-4 top-1/2 -translate-y-1/2 bg-white border-2 border-gray-300 rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-gray-50 hover:border-teal-400 z-20 transition-all duration-200"
+                          title="Anterior">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  <div class="w-full overflow-hidden px-1">
+                    <div data-arquivos-target="preview"
+                         data-action="scroll->arquivos#updateCarouselButtons"
+                         class="flex gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                      </div>
+                  </div>
+
+                  <button type="button"
+                          data-arquivos-target="nextBtn"
+                          data-action="click->arquivos#scrollRight"
+                          class="hidden absolute -right-4 top-1/2 -translate-y-1/2 bg-white border-2 border-gray-300 rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-gray-50 hover:border-teal-400 z-20 transition-all duration-200"
+                          title="Próximo">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+
+                <% if conteudo.persisted? && conteudo.materiais.attached? %>
+                  <div class="mt-6 bg-white rounded-xl border border-gray-200 p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <svg class="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Arquivos anexados
+                    </h4>
+                    <ul class="space-y-2">
+                      <% conteudo.materiais.each do |arquivo| %>
+                        <li id="arquivo_<%= arquivo.id %>" class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 group hover:bg-gray-100 transition-colors">
+                          <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <svg class="w-5 h-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            </div>
+                            <%= link_to arquivo.filename.to_s, 
+                              rails_blob_path(arquivo, disposition: "attachment"), 
+                              target: "_blank", 
+                              class: "text-sm font-medium text-gray-700 hover:text-teal-600 truncate transition-colors" %>
+                          </div>
+                          
+                          <%= delete_button_with_modal(
+                            path: remove_material_professor_turma_conteudo_path(
+                              conteudo.turma,
+                              conteudo,
+                              arquivo_id: arquivo.id
+                            ),
+                            modal_id: dom_id(arquivo, :delete),
+                            title: "Remover arquivo",
+                            message: "Tem certeza que deseja remover este arquivo",
+                            item_name: arquivo.filename.to_s,
+                            btn_class: "text-red-500 hover:text-red-700 text-xs font-medium px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
+                          ) %>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="mt-6 lg:mt-0 lg:w-64 flex-shrink-0 flex flex-col gap-4">
+                <div data-arquivos-target="counter" 
+                     class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs text-teal-700 font-medium mb-0.5">Selecionados</p>
+                      <p data-arquivos-target="counterText" class="text-sm font-bold text-teal-900">0 arquivos</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-xl p-4">
+                  <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3">Formatos aceitos</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        </svg>
+                      </div>
+                      <span class="text-xs font-medium text-gray-600">PDF</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        </svg>
+                      </div>
+                      <span class="text-xs font-medium text-gray-600">Word (DOCX, DOC)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span class="text-xs font-medium text-gray-600">Imagens (JPG, PNG, GIF)</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-500">
+                      <span class="font-medium text-gray-700">Tamanho máximo:</span> 10MB por arquivo
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+          <%= f.submit conteudo.persisted? ? "Atualizar Conteúdo" : "Salvar Conteúdo",
+                class: "group relative inline-flex items-center gap-2 px-8 py-3.5 text-base font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200" %>
+        </div>
+      </div>
+
+    <% end %>
+  </div>
+</div>
+
+<style>
+
+/* Placeholder do editor */
+#editor-container:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* ================================
+   EDITOR - seleção liberada
+==================================*/
+#editor-container,
+#editor-container * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Seleção visual */
+#editor-container ::selection,
+#editor-container *::selection {
+  background: rgba(0,122,255,.25);
+}
+
+/* ================================
+   TOOLBAR FLUTUANTE
+==================================*/
+#floating-toolbar {
+  position: absolute;
+  z-index: 10000;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-8px) scale(.95);
+  transition: opacity .15s cubic-bezier(.4,0,.2,1),
+              transform .15s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform;
+}
+
+#floating-toolbar.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#editor-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 450px);
+  min-height: 500px;
+  position: relative; 
+}
+
+
+#floating-toolbar {
+  position: absolute;
+  z-index: 10000;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden; 
+  transform: translateY(-8px) scale(.95);
+  transition: opacity .15s cubic-bezier(.4,0,.2,1),
+              visibility .15s cubic-bezier(.4,0,.2,1),
+              transform .15s cubic-bezier(.4,0,.2,1);
+  will-change: opacity, transform, visibility;
+}
+
+#floating-toolbar.show {
+  opacity: 1;
+  visibility: visible; 
+  transform: translateY(0) scale(1);
+}
+#floating-toolbar:not(.show) { pointer-events:none; }
+
+/* ================================
+   HANDLES — ocultos por padrão
+   só aparecem no mobile
+==================================*/
+.selection-handle {
+  display:none;              /* ← impede exibição desktop */
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 9999;
+  cursor:grab;
+  touch-action:none;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+  pointer-events:auto;
+  transition: transform .1s cubic-bezier(.4,0,.2,1);
+  animation: handleFadeIn .15s cubic-bezier(.4,0,.2,1);
+  
+}
+
+.selection-handle:active {
+  cursor:grabbing;
+  transform: scale(1.3);
+}
+
+/* -- Estilo 2 aplicado ao círculo -- */
+.selection-handle-circle {
+  width:14px;
+  height:14px;
+  background:#007aff;
+  border-radius:50%;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,.25),
+    0 0 0 3px rgba(0,122,255,.25);
+  transition:transform .15s, box-shadow .15s, background .2s;
+  pointer-events:none;
+}
+
+.selection-handle:active .selection-handle-circle {
+  transform:scale(1.23);
+  background:#1584ff;
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.3),
+    0 0 0 4px rgba(0,122,255,.35);
+}
+
+/* posição inicial dos dois handles */
+.selection-handle-start,
+.selection-handle-end {
+  transform:translate(-6px,-6px);
+}
+
+/* marcadores verticais */
+.selection-handle-start::before,
+.selection-handle-end::before {
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+
+.selection-handle::after {
+  content:'';
+  position:absolute;
+  width:44px; height:44px;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* animação */
+@keyframes handleFadeIn {
+  from { opacity:0; transform:scale(.5); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+
+@media(max-width:768px){
+  .selection-handle { display:block; } 
+
+  #floating-toolbar {
+    max-width:calc(100vw - 16px);
+  }
+}
+
+
+/* Elementos do editor markdown */
+#editor-container p { margin: 0.5em 0; }
+#editor-container strong { font-weight: 600; color: #111; }
+#editor-container em { font-style: italic; }
+#editor-container s { text-decoration: line-through; }
+
+#editor-container code {
+  background-color: #f7f6f3;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.9em;
+  color: #e03e3e;
+  display: inline-block;
+}
+
+#editor-container blockquote {
+  border-left: 3px solid #14b8a6;
+  padding-left: 16px;
+  color: #555;
+  margin: 12px 0;
+  font-style: italic;
+}
+
+#editor-container ul,
+#editor-container ol {
+  padding-left: 24px;
+  margin: 0.75em 0;
+}
+
+#editor-container ul { list-style-type: disc; }
+#editor-container ol { list-style-type: decimal; }
+#editor-container li { margin: 0.25em 0; display: list-item; }
+
+#editor-container h1,
+#editor-container h2,
+#editor-container h3,
+#editor-container h4,
+#editor-container h5,
+#editor-container h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+#editor-container h1 { font-size: 2em; margin: 1.5em 0 0.5em; }
+#editor-container h2 { font-size: 1.6em; margin: 1.5em 0 0.5em; }
+#editor-container h3 { font-size: 1.3em; margin: 1.2em 0 0.4em; }
+#editor-container h4 { font-size: 1.1em; margin: 1em 0 0.3em; }
+#editor-container h5 { font-size: 1em; margin: 1em 0 0.3em; }
+#editor-container h6 { font-size: 0.9em; margin: 1em 0 0.3em; color: #666; }
+
+#editor-container .text-small { font-size: 0.875em; }
+#editor-container .text-large { font-size: 1.25em; }
+
+/* Toolbar show/hide */
+#floating-toolbar.show { 
+  display: flex !important; 
+}
+
+/* Toolbar button active state */
+#floating-toolbar button.is-active { 
+  background: #14b8a6; 
+  color: white; 
+}
+
+/* Dropdown show/hide - esconde por padrão */
+.dropdown-menu { 
+  display: none;
+}
+
+.dropdown-menu.show { 
+  display: block !important; 
+}
+
+.dropdown-item.is-active { 
+  background: #e0f7f5; 
+  color: #14b8a6; 
+}
+
+/* Cards do carrossel com largura fixa */
+[data-arquivos-target="preview"] > div {
+  flex: 0 0 16rem;
+  min-width: 16rem;
+  max-width: 16rem;
+}
+
+/* Scrollbar customizada */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Responsividade */
+@media (max-width: 640px) {
+  #floating-toolbar {
+    flex-wrap: wrap;
+    max-width: 90vw;
+  }
+  
+  #floating-toolbar button {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 28px;
+    height: 28px;
+  }
+  
+  [data-arquivos-target="preview"] > div {
+    flex: 0 0 14rem;
+    min-width: 14rem;
+    max-width: 14rem;
+  }
+}
+</style>
+
+</div>

@@ -1,0 +1,2 @@
+module AreaDisciplinaHelper
+end

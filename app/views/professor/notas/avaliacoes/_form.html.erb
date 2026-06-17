@@ -1,0 +1,410 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+  <div class="max-w-9xl mx-auto">
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              <%= @avaliacao_configuracao.persisted? ? 'Editar Avaliação' : 'Nova Avaliação' %>
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+              <%= @disciplina.nome %> • <%= @turma.nome %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <%= form_with model: @avaliacao_configuracao,
+            url: @avaliacao_configuracao.persisted? ?
+                  professor_turma_disciplina_notas_avaliaco_path(@turma, @disciplina, @avaliacao_configuracao) :
+                  professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+            method: @avaliacao_configuracao.persisted? ? :patch : :post,
+            class: "space-y-6",
+            id: "avaliacao-form",
+            data: {
+              filter_url: filter_by_bimestre_professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+              avaliacao_original_id: @avaliacao_configuracao.avaliacao_original_id
+            } do |form| %>
+
+        <!-- Nome da Avaliação -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">Nome da Avaliação</span>
+          </label>
+          <%= form.text_field :nome,
+                class: 'input input-bordered w-full focus:input-success transition-all',
+                placeholder: 'Ex: Prova Bimestral, Trabalho em Grupo...',
+                required: true %>
+          <% if @avaliacao_configuracao.errors[:nome].any? %>
+            <label class="label">
+              <span class="label-text-alt text-error"><%= @avaliacao_configuracao.errors[:nome].first %></span>
+            </label>
+          <% end %>
+        </div>
+
+        <!-- Bimestre -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">Bimestre</span>
+          </label>
+          <%= form.select :bimestre,
+                options_for_select(
+                  @turma.bimestres_disponiveis.map { |b| ["#{b}º Bimestre", b] },
+                  @avaliacao_configuracao.bimestre
+                ),
+                { prompt: 'Selecione o bimestre' },
+                class: 'select select-bordered w-full focus:select-success transition-all',
+                id: 'bimestre-select' %>
+          <% if @avaliacao_configuracao.errors[:bimestre].any? %>
+            <label class="label">
+              <span class="label-text-alt text-error"><%= @avaliacao_configuracao.errors[:bimestre].first %></span>
+            </label>
+          <% end %>
+        </div>
+
+        <!-- Divisor -->
+        <div class="divider"></div>
+
+        <!-- Checkbox Recuperação -->
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+            <%= form.check_box :is_recuperacao,
+                  class: 'checkbox checkbox-success',
+                  id: 'is-recuperacao' %>
+            <div>
+              <span class="label-text font-semibold text-gray-700">Avaliação de recuperação</span>
+              <p class="text-xs text-gray-500 mt-1">Esta avaliação substituirá a nota de outra avaliação</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Select Avaliação Original -->
+        <div id="avaliacao-original-wrapper" 
+             class="form-control transition-all duration-300 <%= @avaliacao_configuracao.is_recuperacao? ? '' : 'hidden' %>">
+          <label class="label">
+            <span class="label-text font-semibold text-gray-700">Avaliação que será substituída</span>
+          </label>
+          
+          <div class="relative">
+            <%= form.select :avaliacao_original_id,
+                  [],
+                  { prompt: 'Selecione primeiro o bimestre' },
+                  class: 'select select-bordered w-full focus:select-success transition-all',
+                  id: 'avaliacao-original-select',
+                  disabled: true %>
+            
+            <!-- Loading Spinner -->
+            <div id="loading-spinner" 
+                 class="absolute right-12 top-1/2 transform -translate-y-1/2 hidden">
+              <svg class="animate-spin h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <label class="label">
+            <span class="label-text-alt text-gray-500">
+              Apenas avaliações padrão do bimestre selecionado aparecerão aqui
+            </span>
+          </label>
+          
+          <% if @avaliacao_configuracao.errors[:avaliacao_original_id].any? %>
+            <label class="label">
+              <span class="label-text-alt text-error"><%= @avaliacao_configuracao.errors[:avaliacao_original_id].first %></span>
+            </label>
+          <% end %>
+        </div>
+
+        <!-- Alert Info -->
+        <div id="alert-info" class="hidden">
+          <div class="alert alert-info shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Selecione um bimestre para ver as avaliações disponíveis</span>
+          </div>
+        </div>
+
+        <!-- Divisor -->
+        <div class="divider"></div>
+
+        <!-- Botões -->
+        <div class="flex items-center justify-between pt-4">
+          <%= link_to professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
+                class: 'btn btn-ghost gap-2' do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Cancelar
+          <% end %>
+
+          <%= form.submit @avaliacao_configuracao.persisted? ? 'Salvar Alterações' : 'Criar Avaliação',
+                class: 'btn bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white border-0 shadow-md gap-2' %>
+        </div>
+
+      <% end %>
+    </div>
+
+    <!-- Helper Card -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
+      <div class="flex items-start gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <h3 class="font-semibold text-blue-900 mb-2">Sobre avaliações de recuperação</h3>
+          <ul class="text-sm text-blue-800 space-y-1">
+            <li>• As avaliações de recuperação substituem automaticamente a nota da avaliação original</li>
+            <li>• Apenas a maior nota entre as duas será considerada</li>
+            <li>• Você só pode selecionar avaliações padrão (não-recuperação) do mesmo bimestre</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Força execução imediata sem esperar DOMContentLoaded
+(function() {
+  'use strict';
+  
+  function initAvaliacaoForm() {
+    console.log('✅ Inicializando script de avaliação');
+    
+    // Elementos
+    const form = document.getElementById('avaliacao-form');
+    const isRecuperacaoCheckbox = document.getElementById('is-recuperacao');
+    const bimestreSelect = document.getElementById('bimestre-select');
+    const wrapper = document.getElementById('avaliacao-original-wrapper');
+    const selectOriginal = document.getElementById('avaliacao-original-select');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const alertInfo = document.getElementById('alert-info');
+    
+    // Verifica se os elementos existem
+    if (!form || !isRecuperacaoCheckbox || !bimestreSelect) {
+      console.error('❌ Elementos não encontrados, tentando novamente...');
+      return false;
+    }
+    
+    console.log('✅ Todos os elementos encontrados');
+    
+    // Configurações
+    const filterUrl = form.dataset.filterUrl;
+    const preselectedId = form.dataset.avaliacaoOriginalId;
+    
+    console.log('📋 Configurações:', { filterUrl, preselectedId });
+
+    // Função para carregar avaliações
+    function carregarAvaliacoes() {
+      const bimestre = bimestreSelect.value;
+      
+      console.log('🔍 Tentando carregar avaliações para bimestre:', bimestre);
+      
+      // Se não tiver bimestre selecionado
+      if (!bimestre) {
+        console.warn('⚠️ Nenhum bimestre selecionado');
+        selectOriginal.innerHTML = '<option value="">Selecione primeiro o bimestre</option>';
+        selectOriginal.disabled = true;
+        alertInfo.classList.remove('hidden');
+        return;
+      }
+      
+      // Se não estiver marcado como recuperação
+      if (!isRecuperacaoCheckbox.checked) {
+        console.log('ℹ️ Não é recuperação, não precisa carregar');
+        return;
+      }
+      
+      // Esconde o alerta
+      alertInfo.classList.add('hidden');
+      
+      // Mostra loading
+      loadingSpinner.classList.remove('hidden');
+      selectOriginal.disabled = true;
+      selectOriginal.innerHTML = '<option value="">Carregando...</option>';
+      
+      // Faz a requisição
+      const url = `${filterUrl}?bimestre=${bimestre}`;
+      console.log('🌐 Fazendo requisição para:', url);
+      
+      fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(response => {
+          console.log('📥 Resposta recebida:', response.status);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('✅ Dados recebidos:', data);
+          
+          // Limpa o select
+          selectOriginal.innerHTML = '<option value="">Selecione a avaliação</option>';
+          
+          // Se não tiver avaliações
+          if (!data || data.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma avaliação disponível neste bimestre';
+            option.disabled = true;
+            selectOriginal.appendChild(option);
+            selectOriginal.disabled = true;
+            console.log('⚠️ Nenhuma avaliação encontrada');
+            return;
+          }
+          
+          // Popula o select
+          data.forEach(avaliacao => {
+            const option = document.createElement('option');
+            option.value = avaliacao.id;
+            option.textContent = avaliacao.nome;
+            
+            // Pré-seleciona se for a avaliação original
+            if (preselectedId && String(avaliacao.id) === String(preselectedId)) {
+              option.selected = true;
+              console.log('✓ Pré-selecionada:', avaliacao.nome);
+            }
+            
+            selectOriginal.appendChild(option);
+          });
+          
+          selectOriginal.disabled = false;
+          console.log(`✅ ${data.length} avaliações carregadas`);
+        })
+        .catch(error => {
+          console.error('❌ Erro ao carregar avaliações:', error);
+          selectOriginal.innerHTML = '<option value="">Erro ao carregar avaliações</option>';
+          selectOriginal.disabled = true;
+        })
+        .finally(() => {
+          loadingSpinner.classList.add('hidden');
+        });
+    }
+    
+    // Event: Mudança no checkbox de recuperação
+    isRecuperacaoCheckbox.addEventListener('change', (e) => {
+      const isChecked = e.target.checked;
+      console.log('🔄 Recuperação alterada:', isChecked);
+      
+      if (isChecked) {
+        // Mostra o campo
+        wrapper.classList.remove('hidden');
+        
+        // Carrega as avaliações se tiver bimestre
+        if (bimestreSelect.value) {
+          carregarAvaliacoes();
+        } else {
+          alertInfo.classList.remove('hidden');
+        }
+      } else {
+        // Esconde o campo e reseta
+        wrapper.classList.add('hidden');
+        alertInfo.classList.add('hidden');
+        selectOriginal.innerHTML = '<option value="">Selecione primeiro o bimestre</option>';
+        selectOriginal.disabled = true;
+      }
+    });
+    
+    // Event: Mudança no bimestre
+    bimestreSelect.addEventListener('change', () => {
+      console.log('🔄 Bimestre alterado:', bimestreSelect.value);
+      
+      if (isRecuperacaoCheckbox.checked) {
+        carregarAvaliacoes();
+      }
+    });
+    
+    // INICIALIZAÇÃO: Carrega automaticamente se for edição com recuperação
+    if (isRecuperacaoCheckbox.checked && bimestreSelect.value) {
+      console.log('🚀 Carregando avaliações automaticamente (modo edição)');
+      setTimeout(() => carregarAvaliacoes(), 100);
+    }
+    
+    return true;
+  }
+  
+  // Tenta inicializar imediatamente
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAvaliacaoForm);
+  } else {
+    // DOM já está pronto
+    initAvaliacaoForm();
+  }
+  
+  // Fallback: tenta novamente após 500ms se falhar
+  setTimeout(() => {
+    if (!document.getElementById('avaliacao-form')?.dataset.initialized) {
+      console.log('🔄 Tentando inicializar novamente...');
+      if (initAvaliacaoForm()) {
+        document.getElementById('avaliacao-form').dataset.initialized = 'true';
+      }
+    }
+  }, 500);
+  
+})();
+</script>
+
+<style>
+/* Animações suaves */
+.form-control {
+  transition: all 0.2s ease;
+}
+
+.input:focus, .select:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alert {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transição suave para mostrar/esconder */
+#avaliacao-original-wrapper {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+#avaliacao-original-wrapper:not(.hidden) {
+  max-height: 200px;
+  opacity: 1;
+}
+</style>

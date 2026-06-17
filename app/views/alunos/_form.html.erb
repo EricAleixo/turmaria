@@ -1,0 +1,793 @@
+<%
+  form_url = @turma ? [@escola, @turma, @aluno] : [@escola, @aluno]
+  editing = local_assigns[:editing]
+%>
+
+<%= form_with(model: form_url, class: "bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto", html: {multipart: true} , id: "student-form", data: { controller: "student-form" }) do |form| %>
+
+  <%= form.hidden_field :escola_id, value: @escola.id %>
+  
+  <% if @turma %>
+    <%= form.hidden_field :turma_id, value: @turma.id %>
+  <% end %>
+
+  <div class="alert alert-error mb-4 hidden" id="error-alert">
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>
+        <h3 class="font-bold">Erro ao salvar!</h3>
+        <ul id="error-list" class="list-disc list-inside">
+        </ul>
+      </span>
+    </div>
+  </div>
+
+  <div id="step-1" class="form-step">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700">
+        <%= editing ? "Editar Aluno - Etapa 1" : "Novo Aluno - Etapa 1" %>
+      </h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="form-control w-full">
+        <label for="aluno_nome" class="label label-text text-gray-600 font-semibold">Nome do Aluno</label>
+        <%= form.text_field :nome, class: "input input-bordered w-full", placeholder: "Ex: Francisco Ittalo Pessoa" %>
+      </div>
+      <div class="form-control w-full">
+      <%= form.label :data_nascimento, "Data de Nascimento", class: "label label-text text-gray-600 font-semibold" %>
+      <div class="relative">
+        <%= form.text_field :data_nascimento, 
+            class: "border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:border-black focus:border-black focus:outline-none w-full pr-10 datepicker-field text-black peer", 
+            placeholder: "", 
+            autocomplete: "off" %>
+        <span class="absolute left-4 top-2 text-gray-400 pointer-events-none peer-focus:opacity-0 peer-valid:opacity-0 transition !text-black">
+          Selecione a data
+        </span>
+        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div class="form-control w-full">
+        <label for="aluno_cpf" class="label label-text text-gray-600 font-semibold">CPF do Aluno</label>
+        <%= form.text_field :cpf, class: "input input-bordered w-full", placeholder: "000.000.000-00" %>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_rg" class="label label-text text-gray-600 font-semibold">RG do Aluno</label>
+        <%= form.text_field :rg, class: "input input-bordered w-full" %>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div class="form-control w-full">
+        <label for="aluno_email" class="label label-text text-gray-600 font-semibold">Email</label>
+        <%= form.email_field :email, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_password" class="label label-text text-gray-600 font-semibold">
+          Senha
+        </label>
+
+        <%= form.password_field :password,
+          class: "input input-bordered w-full",
+          placeholder: "Digite a senha do aluno" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <%= dropdown(
+            form: form,
+            method: :cidade_id,
+            select_id: "professor_cidade_id_select",
+            collection: Cidade.all.order(:nome),
+            label_field: :nome_com_estado,
+            value_field: :id,
+            placeholder: "Selecione a cidade",
+            hidden_field_id: "professor_cidade_id",
+            
+          ) %>
+      <div class="form-control w-full">
+        <label for="aluno_telefone" class="label label-text text-gray-600 font-semibold">Telefone</label>
+        <%= form.text_field :telefone, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
+      </div>
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <div class="flex gap-2">
+        <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white">
+          Salvar
+        </button>
+        <button type="button" id="next-step-1" class="btn btn-primary text-white w-24 flex items-center justify-center gap-1">
+          Próximo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="step-2" class="form-step hidden">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <h1 class="text-2xl font-bold text-gray-700">
+        <%= editing ? "Editar Aluno - Etapa 2" : "Novo Aluno - Etapa 2" %>
+      </h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="form-control w-full">
+ <%= dropdown(
+      form: form,
+      method: :sexo,
+      select_id: "aluno_sexo_select",
+      collection: [
+        ["Masculino", "Masculino"],
+        ["Feminino",  "Feminino"],
+        ["Outro",     "Outro"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_sexo"
+    ) %>
+
+  </div>
+
+  <div class="form-control w-full">
+<%= dropdown(
+      form: form,
+      method: :cor,
+      select_id: "aluno_cor_select",
+      collection: [
+        ["Branca", "Branca"],
+        ["Preta", "Preta"],
+        ["Parda", "Parda"],
+        ["Amarela", "Amarela"],
+        ["Indígena", "Indígena"],
+        ["Não declarada", "Não declarada"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_cor"
+    ) %>
+
+  </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+<%= dropdown(
+      form: form,
+      method: :tipo_sanguinio,
+      select_id: "aluno_tipo_sanguinio_select",
+      collection: [
+        ["A+","A+"],["A-","A-"],["B+","B+"],["B-","B-"],
+        ["AB+","AB+"],["AB-","AB-"],["O+","O+"],["O-","O-"]
+      ],
+      placeholder: "Selecione",
+      hidden_field_id: "aluno_tipo_sanguinio",
+      label: "Tipo sanguíneo"
+    ) %>
+    </div>
+    
+    <div class="form-control w-full mt-4">
+      <label class="label label-text text-gray-600 mb-2">Portador de Necessidade (PCD)</label>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <label class="label cursor-pointer">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox" }, "Nenhuma", nil %>
+          <span class="label-text">Nenhuma</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox" }, "Visual", nil %>
+          <span class="label-text">Visual</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox" }, "Auditiva", nil %>
+          <span class="label-text">Auditiva</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox" }, "Motora", nil %>
+          <span class="label-text">Motora</span> 
+        </label>
+        <label class="label cursor-pointer">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox" }, "Intelectual", nil %>
+          <span class="label-text">Intelectual</span> 
+        </label>
+        <label class="label cursor-pointer" for="outro-checkbox">
+          <%= form.check_box :necessidades_especiais_tipo, { multiple: true, class: "checkbox checkbox-primary necessidade-checkbox", id: "outro-checkbox" }, "Outro(a)", nil %>
+          <span class="label-text">Outro(a)</span>
+        </label> 
+      </div>
+    </div>
+    
+    <div id="outra-necessidade-field" class="form-control w-full mt-4 <%= 'hidden' unless @aluno.necessidades_especiais_tipo.present? && @aluno.necessidades_especiais_tipo.include?('Outro(a)') %>">
+      <label for="aluno_observacoes_pcd" class="label label-text text-gray-600 font-semibold">Observações</label>
+      <%= form.text_area :observacoes_pcd, class: "textarea textarea-bordered w-full", placeholder: "Insira observações adicionais sobre a necessidade do aluno." %>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div class="form-control w-full">
+        <label for="aluno_responsavel_1" class="label label-text text-gray-600 font-semibold">Nome Responsável 1</label>
+        <%= form.text_field :responsavel_1, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_responsavel_2" class="label label-text text-gray-600 font-semibold">Nome Responsável 2</label>
+        <%= form.text_field :responsavel_2, class: "input input-bordered w-full" %>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div class="form-control w-full">
+        <label for="aluno_telefone_responsavel_1" class="label label-text text-gray-600 font-semibold">Telefone Responsável 1</label>
+        <%= form.text_field :telefone_responsavel_1, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
+      </div>
+      <div class="form-control w-full">
+        <label for="aluno_telefone_responsavel_2" class="label label-text text-gray-600 font-semibold">Telefone Responsável 2</label>
+        <%= form.text_field :telefone_responsavel_2, class: "input input-bordered w-full", placeholder: "(00) 00000-0000" %>
+      </div>
+    </div>
+    <div class="flex justify-between mt-6">
+      <button type="button" id="prev-step-2" class="btn btn-ghost w-24 flex items-center justify-center">
+        Anterior
+      </button>
+      <div class="flex gap-2">
+        <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white">
+          Salvar
+        </button>
+        <button type="button" id="next-step-2" class="btn btn-primary text-white w-24 flex items-center justify-center gap-1">
+          Próximo
+        </button>
+      </div>
+    </div>
+  </div>
+
+ <!-- ETAPA 3 - UPLOAD DE ARQUIVOS -->
+<div id="step-3" class="form-step hidden">
+  <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-700">
+      <%= editing ? "Editar Aluno - Etapa 3" : "Novo Aluno - Etapa 3" %>
+    </h1>
+    <p class="text-xs text-gray-400">Campos opcionais</p>
+  </div>
+
+  <!-- ALERTA DE ERRO -->
+  <div id="upload-error-message" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded hidden" role="alert">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd"/>
+      </svg>
+      <span class="text-red-800 font-medium" id="upload-error-text"></span>
+    </div>
+  </div>
+
+  <!-- FOTO DO ALUNO -->
+  <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6 hover:border-primary transition-all duration-200">
+    <div class="flex items-center justify-between mb-4 flex-col gap-4 md:flex-row gap-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">Foto do Aluno</h3>
+          <p class="text-sm text-gray-500">Máximo 1 arquivo (JPG, PNG)</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm gap-2" onclick="openFotoCropModal()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Selecionar Foto
+      </button>
+    </div>
+
+    <%= form.file_field :foto, class: "hidden", id: "foto-upload", accept: "image/*" %>
+    <input type="file" class="hidden" id="foto-temp-input" accept="image/*">
+    
+    <div id="foto-preview" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div class="flex items-center gap-4">
+        <img id="foto-thumb" class="w-20 h-20 rounded-full object-cover border-2 border-gray-300" alt="Preview">
+        <div class="flex-1">
+          <p class="font-medium text-gray-800" id="foto-name"></p>
+          <p class="text-sm text-gray-500" id="foto-size"></p>
+        </div>
+        <button type="button" class="btn btn-circle btn-sm btn-error text-white" onclick="removeFoto()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPF DOCUMENTO -->
+  <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6 hover:border-primary transition-all duration-200">
+    <div class="flex items-center justify-between mb-4 flex-col gap-4 md:flex-row gap-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">Documento CPF</h3>
+          <p class="text-sm text-gray-500">Máximo 2 arquivos (frente e verso)</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm gap-2" onclick="document.getElementById('cpf_documento-upload').click()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Adicionar Arquivos
+      </button>
+    </div>
+
+    <%= form.file_field :cpf_documento, multiple: true, class: "hidden", id: "cpf_documento-upload", accept: "image/*,.pdf" %>
+    
+    <div id="cpf_documento-preview" class="hidden mt-4 space-y-2"></div>
+  </div>
+
+  <!-- COMPROVANTE DE RESIDÊNCIA -->
+  <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6 hover:border-primary transition-all duration-200">
+    <div class="flex items-center justify-between mb-4 flex-col gap-4 md:flex-row gap-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">Comprovante de Residência</h3>
+          <p class="text-sm text-gray-500">Máximo 2 arquivos (frente e verso)</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm gap-2" onclick="document.getElementById('comprovante-upload').click()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Adicionar Arquivos
+      </button>
+    </div>
+
+    <%= form.file_field :comprovante_residencia, multiple: true, class: "hidden", id: "comprovante-upload", accept: "image/*,.pdf" %>
+    
+    <div id="comprovante-preview" class="hidden mt-4 space-y-2"></div>
+  </div>
+
+  <!-- HISTÓRICO ACADÊMICO -->
+  <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6 hover:border-primary transition-all duration-200">
+    <div class="flex items-center justify-between mb-4 flex-col gap-4 md:flex-row gap-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">Histórico Acadêmico</h3>
+          <p class="text-sm text-gray-500">Máximo 1 arquivo (PDF ou imagem)</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm gap-2" onclick="document.getElementById('historico-upload').click()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Selecionar Arquivo
+      </button>
+    </div>
+
+    <%= form.file_field :historico_academico, class: "hidden", id: "historico-upload", accept: "image/*,.pdf" %>
+    
+    <div id="historico-preview" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium text-gray-800" id="historico-name"></p>
+          <p class="text-sm text-gray-500" id="historico-size"></p>
+        </div>
+        <button type="button" class="btn btn-circle btn-sm btn-error text-white" onclick="removeHistorico()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÕES DE NAVEGAÇÃO -->
+  <div class="flex justify-between mt-8">
+    <button type="button" id="prev-step-3" class="btn btn-ghost gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      Anterior
+    </button>
+    <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white gap-2" id="submit-btn">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <%= editing ? "Salvar Alterações" : "Criar Aluno" %>
+    </button>
+  </div>
+</div>
+
+<% end %>
+
+<!-- MODAL DE CROP DA FOTO -->
+<dialog id="foto-crop-modal" class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Recortar Foto do Aluno</h3>
+    
+    <div class="mb-4">
+      <div id="crop-container" class="max-h-96 overflow-hidden bg-gray-100 rounded-lg flex items-center justify-center">
+        <img id="crop-image" class="max-w-full" style="display: none;">
+      </div>
+    </div>
+    
+    <div class="flex gap-2 justify-end">
+      <button type="button" class="btn btn-ghost" onclick="closeFotoCropModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="applyCrop()">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Aplicar Recorte
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- MODAL DE SUCESSO -->
+<dialog id="success-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span id="success-message"></span>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Fechar</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast toast-end z-[99]">
+  <div id="alert-container"></div>
+</div>
+
+<!-- SCRIPT DE UPLOAD - FORA DO FORM -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script>
+// ============================================
+// CONFIGURAÇÃO GLOBAL
+// ============================================
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const fileStates = {
+  foto: null,
+  cpf_documento: [],
+  comprovante_residencia: [],
+  historico_academico: null
+};
+
+let cropper = null;
+let currentCropFile = null;
+
+// ============================================
+// UTILITÁRIOS
+// ============================================
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function showError(message) {
+  const errorDiv = document.getElementById('upload-error-message');
+  const errorText = document.getElementById('upload-error-text');
+  errorText.textContent = message;
+  errorDiv.classList.remove('hidden');
+  setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+}
+
+function validateFile(file, maxFiles = 1) {
+  if (file.size > MAX_FILE_SIZE) {
+    showError(`Arquivo muito grande: ${file.name}. Máximo: 10MB`);
+    return false;
+  }
+  return true;
+}
+
+// ============================================
+// CROP DA FOTO (com Cropper.js)
+// ============================================
+function openFotoCropModal() {
+  document.getElementById('foto-temp-input').click();
+}
+
+document.getElementById('foto-temp-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!validateFile(file)) {
+    e.target.value = '';
+    return;
+  }
+
+  currentCropFile = file;
+  const reader = new FileReader();
+  
+  reader.onload = function(event) {
+    const image = document.getElementById('crop-image');
+    image.src = event.target.result;
+    image.style.display = 'block';
+    
+    // Destrói cropper anterior se existir
+    if (cropper) {
+      cropper.destroy();
+    }
+    
+    // Inicializa o Cropper.js com modo circular
+    cropper = new Cropper(image, {
+      aspectRatio: 1,
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 1,
+      restore: false,
+      guides: false,
+      center: true,
+      highlight: false,
+      cropBoxMovable: true,
+      cropBoxResizable: true,
+      toggleDragModeOnDblclick: false,
+      ready: function() {
+        // Aplica estilo circular ao crop box
+        const cropBox = document.querySelector('.cropper-crop-box');
+        if (cropBox) {
+          cropBox.style.borderRadius = '50%';
+        }
+        const face = document.querySelector('.cropper-face');
+        if (face) {
+          face.style.borderRadius = '50%';
+        }
+      }
+    });
+    
+    // Abre o modal
+    document.getElementById('foto-crop-modal').showModal();
+  };
+  
+  reader.readAsDataURL(file);
+});
+
+function closeFotoCropModal() {
+  document.getElementById('foto-crop-modal').close();
+  document.getElementById('foto-temp-input').value = '';
+  
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+}
+
+function applyCrop() {
+  if (!cropper || !currentCropFile) return;
+  
+  // Obtém o canvas cropado
+  const canvas = cropper.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high'
+  });
+  
+  // Converte para blob
+  canvas.toBlob(function(blob) {
+    // Cria um novo arquivo com o blob cropado
+    const croppedFile = new File([blob], currentCropFile.name, {
+      type: currentCropFile.type,
+      lastModified: Date.now()
+    });
+    
+    // Atualiza o input real do Rails
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedFile);
+    document.getElementById('foto-upload').files = dataTransfer.files;
+    
+    // Salva no estado
+    fileStates.foto = croppedFile;
+    
+    // Mostra preview
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      document.getElementById('foto-thumb').src = event.target.result;
+      document.getElementById('foto-name').textContent = croppedFile.name;
+      document.getElementById('foto-size').textContent = formatFileSize(croppedFile.size);
+      document.getElementById('foto-preview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(croppedFile);
+    
+    // Fecha o modal
+    closeFotoCropModal();
+  }, currentCropFile.type);
+}
+
+function removeFoto() {
+  document.getElementById('foto-upload').value = '';
+  document.getElementById('foto-preview').classList.add('hidden');
+  fileStates.foto = null;
+}
+
+// ============================================
+// HISTÓRICO ACADÊMICO (has_one_attached)
+// ============================================
+document.getElementById('historico-upload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!validateFile(file)) {
+    e.target.value = '';
+    return;
+  }
+
+  fileStates.historico_academico = file;
+  
+  document.getElementById('historico-name').textContent = file.name;
+  document.getElementById('historico-size').textContent = formatFileSize(file.size);
+  document.getElementById('historico-preview').classList.remove('hidden');
+});
+
+function removeHistorico() {
+  document.getElementById('historico-upload').value = '';
+  document.getElementById('historico-preview').classList.add('hidden');
+  fileStates.historico_academico = null;
+}
+
+// ============================================
+// CPF DOCUMENTO (has_many_attached)
+// ============================================
+document.getElementById('cpf_documento-upload').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files);
+  
+  if (fileStates.cpf_documento.length + files.length > 2) {
+    showError('Máximo de 2 arquivos permitidos para CPF');
+    return;
+  }
+
+  files.forEach(file => {
+    if (!validateFile(file, 2)) return;
+    fileStates.cpf_documento.push(file);
+  });
+
+  renderCpfDocumento();
+  updateCpfInput();
+});
+
+function renderCpfDocumento() {
+  const container = document.getElementById('cpf_documento-preview');
+  container.innerHTML = '';
+  
+  if (fileStates.cpf_documento.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  
+  container.classList.remove('hidden');
+  
+  fileStates.cpf_documento.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200';
+    item.innerHTML = `
+      <div class="w-10 h-10 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-medium text-gray-800 truncate">${file.name}</p>
+        <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
+      </div>
+      <button type="button" class="btn btn-circle btn-sm btn-error text-white" onclick="removeCpfDocumento(${index})">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function removeCpfDocumento(index) {
+  fileStates.cpf_documento.splice(index, 1);
+  renderCpfDocumento();
+  updateCpfInput();
+}
+
+function updateCpfInput() {
+  const dataTransfer = new DataTransfer();
+  fileStates.cpf_documento.forEach(file => dataTransfer.items.add(file));
+  document.getElementById('cpf_documento-upload').files = dataTransfer.files;
+}
+
+// ============================================
+// COMPROVANTE DE RESIDÊNCIA (has_many_attached)
+// ============================================
+document.getElementById('comprovante-upload').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files);
+  
+  if (fileStates.comprovante_residencia.length + files.length > 2) {
+    showError('Máximo de 2 arquivos permitidos para Comprovante');
+    return;
+  }
+
+  files.forEach(file => {
+    if (!validateFile(file, 2)) return;
+    fileStates.comprovante_residencia.push(file);
+  });
+
+  renderComprovante();
+  updateComprovanteInput();
+});
+
+function renderComprovante() {
+  const container = document.getElementById('comprovante-preview');
+  container.innerHTML = '';
+  
+  if (fileStates.comprovante_residencia.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  
+  container.classList.remove('hidden');
+  
+  fileStates.comprovante_residencia.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200';
+    item.innerHTML = `
+      <div class="w-10 h-10 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-medium text-gray-800 truncate">${file.name}</p>
+        <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
+      </div>
+      <button type="button" class="btn btn-circle btn-sm btn-error text-white" onclick="removeComprovante(${index})">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function removeComprovante(index) {
+  fileStates.comprovante_residencia.splice(index, 1);
+  renderComprovante();
+  updateComprovanteInput();
+}
+
+function updateComprovanteInput() {
+  const dataTransfer = new DataTransfer();
+  fileStates.comprovante_residencia.forEach(file => dataTransfer.items.add(file));
+  document.getElementById('comprovante-upload').files = dataTransfer.files;
+}
+
+// ============================================
+// NAVEGAÇÃO ENTRE ETAPAS
+// ============================================
+document.getElementById('prev-step-3')?.addEventListener('click', function() {
+  document.getElementById('step-3').classList.add('hidden');
+  document.getElementById('step-2').classList.remove('hidden');
+});
+
+console.log('✅ Sistema de upload carregado com sucesso');
+</script>

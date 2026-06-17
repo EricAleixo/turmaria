@@ -1,0 +1,1220 @@
+
+
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+<div class="flex justify-between items-center">
+  <!-- Título -->
+  <h3 class="text-2xl font-bold text-gray-800 mb-6">Professores</h3>
+
+  <!-- Dropdown de ações -->
+  <div class="dropdown dropdown-end z-50">
+    <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+      </svg>
+    </label>
+
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+      <li>
+        <%= link_to escola_professors_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+            Ver professores
+          </span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to new_escola_professor_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Novo professor
+          </span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-4 md:hidden">
+  <% if professores.any? %>
+  <% professores&.each do |professor| %>
+    <div class="<%= gradient_mobile(professor.formacao) %> shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg">
+      <div class="card-body p-4">
+        <!-- Header -->
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-3">
+            <div class="avatar placeholder">
+              <% if professor.foto&.attached? %>
+                <div class="w-10 h-10 rounded-full overflow-hidden">
+                  <%= image_tag professor.foto.variant(resize_to_fill: [40,40]), class: "rounded-full object-cover w-10 h-10" %>
+                </div>
+              <% else %>
+                <div class="bg-gradient-to-br from-blue-400 to-green-300 text-white rounded-full w-10 h-10 relative font-bold">
+                  <span class="absolute top-1/2 left-1/2 -translate-1/2"><%= professor.nome.first.upcase %></span>
+                </div>
+              <% end %>
+            </div>
+            <div>
+              <h2 class="card-title text-slate-700"><%= professor.nome %></h2>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-green-400 text-white border-0 font-bold whitespace-nowrap">
+                  <%= professor.tipo_professor&.titleize || "Tipo não informado" %>
+                </span>
+                <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold whitespace-nowrap">
+                  <%= professor.formacao&.titleize || "Formação não informada" %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dropdown ações -->
+          <div class="dropdown dropdown-end">
+            <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+              </svg>
+            </label>
+            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li>
+                <%= link_to escola_professor_path(@escola,professor), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver professor
+                    </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to edit_escola_professor_path(@escola,professor), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M16.862 4.487l1.687-1.688a1.875
+                                 1.875 0 112.652 2.652L10.582
+                                 16.07a4.5 4.5 0 01-1.897
+                                 1.13L6 18l.8-2.685a4.5 4.5
+                                 0 011.13-1.897l8.932-8.931zm0
+                                 0L19.5 7.125M18 14v4.75A2.25
+                                 2.25 0 0115.75 21H5.25A2.25
+                                 2.25 0 013 18.75V8.25A2.25
+                                 2.25 0 015.25 6H10" />
+                      </svg>
+                      Editar professor
+                    </span>
+                <% end %>
+              </li>
+              <li class="text-red-500">
+                <%= delete_modal_trigger(
+                      modal_id: dom_id(professor, :delete),
+                      text: "Excluir professor",
+                      icon: true
+                    ) %>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="divider my-2"></div>
+
+        <!-- Disciplinas -->
+        <div class="flex flex-wrap gap-1">
+          <% if professor.disciplinas.any? %>
+            <%= disciplinas_badges(professor) %>
+          <% else %>
+            <span class="text-sm font-medium text-gray-500">Sem disciplinas</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" class = "mx-auto h-16 w-16 text-blue-400" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+        </svg>
+
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum professor cadastrado</h3>
+        <p class="mt-1 text-sm text-gray-500">Comece criando o primeiro professor desta escola.</p>
+        <div class="mt-6">
+          <%= link_to "Criar Primeiro professor", new_escola_professor_path(@escola), class: "rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-md transition-colors hover:bg-indigo-700" %>
+        </div>
+      </div>
+    <% end %>
+</div>
+
+</div>
+
+<!--Anos Letivos -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+  <div class="flex justify-between items-center">
+  <!-- Título -->
+  <h3 class="text-2xl font-bold text-gray-800 mb-6">Anos Letivos</h3>
+
+  <!-- Dropdown de ações -->
+  <div class="dropdown dropdown-end z-50">
+    <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+      </svg>
+    </label>
+
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+      <li>
+        <%= link_to escola_ano_letivos_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+            Ver anos letivos
+          </span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to new_escola_ano_letivo_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Novo ano letivo
+          </span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <div class="grid grid-cols-1 gap-4 md:hidden">
+    <% if anos_letivos.any? %>
+      <% anos_letivos.each do |ano| %>
+        <div class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg relative bg-gradient-to-br from-teal-50/40 via-teal-100/40 to-teal-200/60 p-6 mb-5 w-full">
+          
+          <!-- Cabeçalho com nome e badge de bimestres -->
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-3">
+              <h2 class="card-title text-gray-900 text-xl font-bold"><%= ano.ano %></h2>
+              <span class="badge badge-sm bg-gradient-to-r from-teal-500 to-cyan-400 text-white border-0 font-bold">
+                <%= "#{ano.numero_bimestre} bimestres" %>
+              </span>
+            </div>  
+
+            <!-- Dropdown de ações -->
+            <div class="dropdown dropdown-end z-10">
+              <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                </svg>
+              </label>
+
+              <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+                <li>
+                  <%= link_to escola_ano_letivo_path(@escola, ano), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver ano letivo
+                    </span>
+                  <% end %>
+                </li>
+
+                <li>
+                  <%= link_to edit_escola_ano_letivo_path(@escola, ano), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M16.862 4.487l1.687-1.688a1.875
+                                 1.875 0 112.652 2.652L10.582
+                                 16.07a4.5 4.5 0 01-1.897
+                                 1.13L6 18l.8-2.685a4.5 4.5
+                                 0 011.13-1.897l8.932-8.931zm0
+                                 0L19.5 7.125M18 14v4.75A2.25
+                                 2.25 0 0115.75 21H5.25A2.25
+                                 2.25 0 013 18.75V8.25A2.25
+                                 2.25 0 015.25 6H10" />
+                      </svg>
+                      Editar ano letivo
+                    </span>
+                  <% end %>
+                </li>
+
+                <li class="text-red-500">
+                  <%= delete_modal_trigger(
+                        modal_id: dom_id(ano, :delete),
+                        text: "Excluir ano letivo",
+                        icon: true
+                      ) %>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Badges de início e fim -->
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="badge badge-md bg-gradient-to-r from-green-400 to-teal-400 text-white border-0 font-semibold">
+              Início: <%= ano.data_inicio.strftime("%d/%m/%Y") %>
+            </span>
+            <span class="badge badge-md bg-gradient-to-r from-red-400 to-pink-400 text-white border-0 font-semibold">
+              Fim: <%= ano.data_fim.strftime("%d/%m/%Y") %>
+            </span>
+          </div>
+
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto h-16 w-16 text-purple-400">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum ano letivo cadastrado</h3>
+        <p class="mt-1 text-sm text-gray-500">Comece criando o primeiro ano letivo desta escola.</p>
+        <div class="mt-6">
+          <%= link_to "Criar Primeiro Ano Letivo", new_escola_ano_letivo_path(@escola), class: "btn btn-primary rounded-lg px-5 py-2.5 font-medium text-white shadow-md transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+
+<!-- Turmas -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+  <div class="flex justify-between items-center">
+  <!-- Título -->
+  <h3 class="text-2xl font-bold text-gray-800 mb-6">Turmas</h3>
+
+  <!-- Dropdown de ações -->
+  <div class="dropdown dropdown-end z-50">
+    <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+      </svg>
+    </label>
+
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+      <li>
+        <%= link_to escola_turmas_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+            Ver turmas
+          </span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to new_escola_turma_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Nova turma
+          </span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <% if turmas.any? %>
+    <% turmas.each do |turma| %>
+      <% card_classes = case turma.turno.to_s.downcase
+when "manha"
+  "bg-gradient-to-br from-white via-yellow-50 to-yellow-100 border border-yellow-200/50"
+when "tarde"
+  "bg-gradient-to-br from-white via-orange-50 to-orange-100 border border-orange-200/50"
+when "noite"
+  "bg-gradient-to-br from-white via-blue-50 to-blue-100 border border-blue-200/50"
+when "integral"
+  "bg-gradient-to-br from-white via-green-50 to-green-100 border border-green-200/50"
+else
+  "bg-white border border-gray-200"
+  end
+       %>
+
+      <div class="relative  <%= card_classes %> rounded-xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 mb-5 w-full">
+        <div class="absolute inset-0 pointer-events-none"></div>
+
+        <div class="relative z-10">
+          <!-- Header -->
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xl font-bold text-gray-900"><%= turma.nome %></h3>
+                <%=badge_turno(turma) %>
+            </div>
+
+            <!-- Dropdown ações -->
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                </svg>
+              </label>
+              <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                  <%= link_to escola_turma_path(@escola, turma), data: { turbo: false } do %>
+                    <span class="flex w-full items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                           7.51 7.36 4.5 12 4.5c4.638 0
+                           8.573 3.007 9.963 7.178.07.207.07.431
+                           0 .639C20.577 16.49 16.64 19.5
+                           12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver turma
+                    </span>
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to edit_escola_turma_path(@escola, turma), data: { turbo: false } do %>
+                    <span class="flex w-full items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875
+                           1.875 0 112.652 2.652L10.582
+                           16.07a4.5 4.5 0 01-1.897
+                           1.13L6 18l.8-2.685a4.5 4.5
+                           0 011.13-1.897l8.932-8.931zm0
+                           0L19.5 7.125M18 14v4.75A2.25
+                           2.25 0 0115.75 21H5.25A2.25
+                           2.25 0 013 18.75V8.25A2.25
+                           2.25 0 015.25 6H10" />
+                      </svg>
+                      Editar turma
+                    </span>
+                  <% end %>
+                </li>
+                <li class="text-red-500">
+                  <%= delete_modal_trigger(
+                        modal_id: dom_id(turma, :delete),
+                        text: "Excluir turma",
+                        icon: true
+                      ) %>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="divider my-2"></div>
+
+          <!-- Informações como badges -->
+          <div class="flex flex-wrap gap-2">
+            <span class="badge badge-md bg-gradient-to-r from-purple-400 to-purple-600 text-white border-0 font-semibold hover:scale-105 transition-transform duration-200">
+              Série: <%= turma.serie || "Não informado" %>
+            </span>
+            <span class="badge badge-md bg-gradient-to-r from-green-400 to-teal-400 text-white border-0 font-semibold hover:scale-105 transition-transform duration-200">
+              Alunos: <%= turma.alunos.count %>
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="py-12 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhuma turma cadastrada</h3>
+      <p class="mt-1 text-sm text-gray-500">Comece criando a primeira turma desta escola.</p>
+      <div class="mt-6">
+        <%= link_to "Criar Primeira Turma", new_escola_turma_path(@escola), class: "rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-md transition-colors hover:bg-indigo-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Cards de Alunos -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+<div class="flex justify-between items-center">
+  <!-- Título -->
+  <h3 class="text-2xl font-bold text-gray-800 mb-6">Alunos</h3>
+
+  <!-- Dropdown de ações -->
+  <div class="dropdown dropdown-end z-50">
+    <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+      </svg>
+    </label>
+
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+      <li>
+        <%= link_to escola_alunos_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+            Ver alunos
+          </span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to new_escola_aluno_path(@escola), data: { turbo: false } do %>
+          <span class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Novo aluno
+          </span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</div>
+
+  <div class="grid grid-cols-1 gap-4 md:hidden">
+    <% if alunos.any? %>
+      <% alunos.each do |aluno| %>
+        <% alocado = aluno.turma.present? %>
+        <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border <%= alocado ? 'border-blue-100' : 'border-slate-200' %>">
+          <div class="card-body p-4">
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-3">
+                <!-- Avatar -->
+                <div class="avatar placeholder">
+                  <div class="bg-gradient-to-br <%= alocado ? 'from-blue-400 to-green-300' : 'from-slate-400 to-gray-500' %> text-white rounded-full w-10 h-10 relative font-bold">
+                    <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <%= aluno.nome.first.upcase %>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Nome e status -->
+                <div>
+                  <h2 class="card-title text-slate-700"><%= aluno.nome %></h2>
+                  <div class="badge badge-lg bg-gradient-to-r <%= alocado ? 'from-blue-400 to-green-300' : 'from-slate-500 to-gray-600' %> text-white border-0 shadow-lg font-bold mt-1">
+                    <%= alocado ? 'Alocado' : 'Não Alocado' %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dropdown de ações -->
+              <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                  </svg>
+                </label>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <% if aluno.escola.present? %>
+                    <li>
+                      <%= link_to (aluno.turma.present? ? escola_turma_aluno_path(aluno.escola, aluno.turma, aluno) : escola_aluno_path(aluno.escola, aluno)) do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Ver aluno
+                      <% end %>
+                    </li>
+                    <li>
+                      <%= link_to edit_escola_aluno_path(aluno.escola, aluno) do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        Editar aluno
+                      <% end %>
+                    </li>
+                    <li class="text-red-500">
+                      <%= delete_modal_trigger(
+                            modal_id: dom_id(aluno, :delete),
+                            text: "Excluir aluno",
+                            icon: true
+                          ) %>
+                    </li>
+
+                  <% else %>
+                    <li><div class="text-slate-400 px-2 py-1">Sem escola</div></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider my-2"></div>
+
+            <!-- Informações do aluno -->
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span class="text-slate-500">Escola:</span>
+                <div class="badge badge-sm <%= alocado ? 'bg-gradient-to-r from-blue-400 to-green-300 text-white' : 'bg-gradient-to-r from-slate-400 to-gray-500 text-white' %> border-0 font-medium">
+                  Escola
+                </div>
+              </div>
+              <div>
+                <span class="text-slate-500">Turma:</span>
+                <span class="font-medium <%= alocado ? 'text-slate-700' : 'text-slate-400' %>">
+                  <%= alocado ? aluno.turma.nome : 'Sem turma' %>
+                </span>
+              </div>
+              <div>
+                <span class="text-slate-500">Nascimento:</span>
+                <span class="font-medium text-slate-700"><%= aluno.data_nascimento.present? ? aluno.data_nascimento.strftime("%d/%m/%Y") : "Não informado" %></span>
+              </div>
+              <div>
+                <span class="text-slate-500">Matrícula:</span>
+                <div class="badge badge-outline badge-sm <%= alocado ? 'border-blue-300 text-blue-600' : 'border-slate-300 text-slate-600' %> font-mono">
+                  <%= aluno.matricula.present? ? truncate(aluno.matricula, length: 12) : "Matrícula" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <svg class="mx-auto h-16 w-16 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum aluno cadastrado</h3>
+        <p class="mt-1 text-sm text-gray-500">Comece adicionando o primeiro aluno desta escola.</p>
+        <div class="mt-6">
+          <%= link_to "Criar Primeiro Aluno", new_escola_aluno_path(@escola), class: "btn btn-primary rounded-lg px-5 py-2.5 font-medium text-white shadow-md transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+<!--Disciplinas -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+<div class="flex justify-between">
+  <h3 class="text-2xl font-bold text-gray-800 mb-6">Disciplinas</h3>
+            <!-- Dropdown de ações -->
+            <div class="dropdown dropdown-end z-50">
+              <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                </svg>
+              </label>
+
+              <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+                <li>
+                  <%= link_to escola_disciplinas_path(@escola), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver disciplinas
+                    </span>
+                  <% end %>
+                </li>
+
+                <li>
+                  <%= link_to new_escola_disciplina_path(@escola), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                      Nova disciplina
+                    </span>
+                  <% end %>
+                </li>
+            </div>
+</div>
+
+
+<div class="grid grid-cols-1 gap-4 md:hidden">
+  <% if disciplinas.any? %>
+    <% disciplinas.each do |disciplina| %>
+      <div
+        class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg relative"
+        style="background: linear-gradient(
+          to bottom right,
+          white 0%,
+          <%= disciplina.cor_nome %>33 60%,
+          <%= disciplina.cor_nome %>55 100%
+        );"
+        onmouseover="this.querySelector('h2').dataset.originalColor=this.querySelector('h2').style.color; this.querySelector('h2').style.color='<%= disciplina.area_disciplina.cor %>'"
+        onmouseout="this.querySelector('h2').style.color=this.querySelector('h2').dataset.originalColor"
+      >
+        <div class="card-body p-4 relative">
+          <!-- Cabeçalho -->
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="card-title text-slate-700 transition-colors duration-300 cursor-pointer">
+                <%= disciplina.nome.capitalize %>
+              </h2>
+
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-green-400 text-white border-0 font-bold">
+                  <%= disciplina.escola&.nome || "Sem escola" %>
+                </span>
+
+                <span class="badge badge-sm bg-gradient-to-r from-yellow-500 to-orange-400 text-white border-0 font-bold">
+                  <%= disciplina.area_disciplina&.nome|| "Área não informada" %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Dropdown de ações -->
+            <div class="dropdown dropdown-end z-10">
+              <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                </svg>
+              </label>
+
+              <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+                <li>
+                  <%= link_to escola_disciplina_path(@escola, disciplina), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                 7.51 7.36 4.5 12 4.5c4.638 0
+                                 8.573 3.007 9.963 7.178.07.207.07.431
+                                 0 .639C20.577 16.49 16.64 19.5
+                                 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver disciplina
+                    </span>
+                  <% end %>
+                </li>
+
+                <li>
+                  <%= link_to edit_escola_disciplina_path(@escola, disciplina), data: { turbo: false } do %>
+                    <span class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                           viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M16.862 4.487l1.687-1.688a1.875
+                                 1.875 0 112.652 2.652L10.582
+                                 16.07a4.5 4.5 0 01-1.897
+                                 1.13L6 18l.8-2.685a4.5 4.5
+                                 0 011.13-1.897l8.932-8.931zm0
+                                 0L19.5 7.125M18 14v4.75A2.25
+                                 2.25 0 0115.75 21H5.25A2.25
+                                 2.25 0 013 18.75V8.25A2.25
+                                 2.25 0 015.25 6H10" />
+                      </svg>
+                      Editar disciplina
+                    </span>
+                  <% end %>
+                </li>
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(disciplina, :delete),
+                          text: "Excluir disciplina",
+                          icon: true
+                        ) %>
+                  </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="py-12 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto h-16 w-16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhuma disciplina cadastrada</h3>
+      <p class="mt-1 text-sm text-gray-500">Comece criando a primeira disciplina desta escola.</p>
+      <div class="mt-6">
+        <%= link_to "Criar Primeira Disciplina", new_escola_disciplina_path(@escola), class: "btn btn-primary rounded-lg px-5 py-2.5 font-medium text-white shadow-md transition-colors" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+</div>
+
+<!-- Conteúdos -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+  <div class="flex justify-between items-center">
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">Conteúdos</h3>
+
+    <!-- Dropdown principal -->
+    <div class="dropdown dropdown-end z-50">
+      <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+        </svg>
+      </label>
+
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+        <li>
+          <%= link_to escola_conteudos_path(@escola), data: { turbo: false } do %>
+            <span class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24" stroke-width="1.5"
+                   stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                         7.51 7.36 4.5 12 4.5c4.638 0
+                         8.573 3.007 9.963 7.178.07.207.07.431
+                         0 .639C20.577 16.49 16.64 19.5
+                         12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Ver conteúdos
+            </span>
+          <% end %>
+        </li>
+
+        <li>
+          <%= link_to new_escola_conteudo_path(@escola), data: { turbo: false } do %>
+            <span class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24" stroke-width="1.5"
+                   stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Novo conteúdo
+            </span>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Lista de conteúdos -->
+  <div class="grid grid-cols-1 gap-4 md:hidden">
+    <% if conteudos.any? %>
+      <% conteudos.each do |conteudo| %>
+        <% cor_disciplina = conteudo.disciplina&.cor_nome || "#3c3c3c" %>
+        <div class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg border border-gray-100"
+             style="background: linear-gradient(
+                      to bottom right,
+                      white 0%,
+                      <%= cor_disciplina %>33 60%,
+                      <%= cor_disciplina %>55 100%
+                    );">
+          <div class="card-body p-4 relative">
+            <!-- Cabeçalho -->
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="card-title text-slate-700 font-semibold text-lg cursor-pointer">
+                  <%= conteudo.titulo.capitalize %>
+                </h2>
+
+                <!-- Descrição -->
+                <p class="text-sm text-gray-600 mt-2">
+                  <%= truncate(conteudo.descricao, length: 80) %>
+                </p>
+
+                <!-- Divider -->
+                <div class="w-full border-t border-gray-300 my-3"></div>
+
+                <!-- Badges -->
+                <div class="flex flex-wrap gap-1 mt-2">
+                  <% if conteudo.disciplina.present? %>
+                    <span class="badge badge-sm text-white border-0 font-bold"
+                          style="background: linear-gradient(to right, <%= cor_disciplina %>, <%= cor_disciplina %>AA);">
+                      <%= conteudo.disciplina.nome %>
+                    </span>
+                  <% else %>
+                    <span class="badge badge-sm bg-gray-400 text-white border-0 font-bold">Sem disciplina</span>
+                  <% end %>
+
+                  <% if conteudo.professor.present? %>
+                    <span class="badge badge-sm text-white border-0 font-bold"
+                          style="background: linear-gradient(to right, #3b82f6, #10b981);">
+                      <%= conteudo.professor.nome %>
+                    </span>
+                  <% else %>
+                    <span class="badge badge-sm bg-gray-400 text-white border-0 font-bold">Sem professor</span>
+                  <% end %>
+
+                  <span class="badge badge-sm text-white border-0 font-bold"
+                        style="background: linear-gradient(to right, #facc15, #f97316);">
+                    <%= conteudo.created_at.strftime("%d/%m/%Y") %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Dropdown de ações -->
+              <div class="dropdown dropdown-end z-50">
+                <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                       viewBox="0 0 24 24" stroke-width="1.5"
+                       stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                  </svg>
+                </label>
+
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+                  <li>
+                    <%= link_to escola_conteudo_path(@escola, conteudo), data: { turbo: false } do %>
+                      <span class="flex items-center gap-2">
+                        <!-- Ícone ver conteúdo -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                                   7.51 7.36 4.5 12 4.5c4.638 0
+                                   8.573 3.007 9.963 7.178.07.207.07.431
+                                   0 .639C20.577 16.49 16.64 19.5
+                                   12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Ver conteúdo
+                      </span>
+                    <% end %>
+                  </li>
+
+                  <li>
+                    <%= link_to edit_escola_conteudo_path(@escola, conteudo), data: { turbo: false } do %>
+                      <span class="flex items-center gap-2">
+                        <!-- Ícone editar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.862 4.487l1.687-1.688a1.875
+                                   1.875 0 112.652 2.652L10.582
+                                   16.07a4.5 4.5 0 01-1.897
+                                   1.13L6 18l.8-2.685a4.5 4.5
+                                   0 011.13-1.897l8.932-8.931zm0
+                                   0L19.5 7.125M18 14v4.75A2.25
+                                   2.25 0 0115.75 21H5.25A2.25
+                                   2.25 0 013 18.75V8.25A2.25
+                                   2.25 0 015.25 6H10" />
+                        </svg>
+                        Editar conteúdo
+                      </span>
+                    <% end %>
+                  </li>
+
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(conteudo, :delete),
+                          text: "Excluir conteúdo",
+                          icon: true
+                        ) %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-16 text-gray-700 mx-auto">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+        </svg>
+
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum conteúdo cadastrado</h3>
+        <p class="mt-1 text-sm text-gray-500">Comece criando o primeiro conteúdo.</p>
+        <div class="mt-6">
+          <%= link_to "Criar Primeiro Conteúdo", new_escola_conteudo_path(@escola),
+                class: "btn btn-primary rounded-lg px-5 py-2.5 font-medium text-white shadow-md transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<!-- Frequências -->
+<div class="mt-8 px-4 py-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-300 md:hidden">
+  <div class="flex justify-between items-center">
+    <!-- Título -->
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">Frequências</h3>
+
+    <!-- Dropdown de ações -->
+    <div class="dropdown dropdown-end z-50">
+      <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+        </svg>
+      </label>
+
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 z-50">
+        <li>
+          <%= link_to escola_frequencias_path(@escola), data: { turbo: false } do %>
+            <span class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24" stroke-width="1.5"
+                   stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 010-.639C3.423
+                         7.51 7.36 4.5 12 4.5c4.638 0
+                         8.573 3.007 9.963 7.178.07.207.07.431
+                         0 .639C20.577 16.49 16.64 19.5
+                         12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Ver frequências
+            </span>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:hidden">
+    <% if frequencias.any? %>
+      <% frequencias.each do |frequencia| %>
+        <div class="shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg relative bg-gradient-to-br from-white via-green-50 to-green-100 border border-green-200/50">
+          <div class="card-body p-4 relative z-10 px-3">
+            <!-- Header -->
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-3">
+                <!-- Ícone de calendário -->
+                <div class="bg-gradient-to-br from-green-400 to-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                  </svg>
+                </div>
+                
+                <div>
+                  <h2 class="card-title text-slate-700 font-bold">
+                    <%= frequencia.data_aula.strftime("%d/%m/%Y") %>
+                  </h2>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <span class="badge badge-sm bg-gradient-to-r from-green-500 to-emerald-400 text-white border-0 font-bold">
+                      <%= frequencia.turma.nome %>
+                    </span>
+                    <% if frequencia.disciplina.present? %>
+                      <span class="badge badge-sm bg-gradient-to-r from-blue-500 to-cyan-400 text-white border-0 font-bold whitespace-nowrap">
+                        <%= frequencia.disciplina.nome %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dropdown ações -->
+              <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-sm btn-circle btn-ghost">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                  </svg>
+                </label>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li>
+                    <%= link_to escola_frequencia_path(@escola, frequencia), data: { turbo: false } do %>
+                      <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Ver frequência
+                      </span>
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to edit_escola_frequencia_path(@escola, frequencia), data: { turbo: false } do %>
+                      <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        Editar frequência
+                      </span>
+                    <% end %>
+                  </li>
+                  <li class="text-red-500">
+                    <%= delete_modal_trigger(
+                          modal_id: dom_id(frequencia, :delete),
+                          text: "Excluir frequência",
+                          icon: true
+                        ) %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider my-2"></div>
+
+            <!-- Professor -->
+            <% if frequencia.professor %>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="flex-shrink-0 h-8 w-8">
+                  <% if frequencia.professor.foto.attached? %>
+                    <%= image_tag frequencia.professor.foto, class: "h-8 w-8 rounded-full object-cover border-2 border-green-200" %>
+                  <% else %>
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span class="text-white text-xs font-bold">
+                        <%= frequencia.professor.nome.first.upcase %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-500">Professor</p>
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    <%= frequencia.professor.nome %>
+                  </p>
+                </div>
+              </div>
+            <%end%>
+
+            <!-- Estatísticas -->
+            <div class="grid grid-cols-3 gap-2 mt-3">
+              <div class="bg-white/70 backdrop-blur-sm border border-blue-200/50 rounded-lg p-2 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  <span class="text-lg font-bold text-blue-600"><%= frequencia.total_alunos %></span>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Total</p>
+              </div>
+
+              <div class="bg-white/70 backdrop-blur-sm border border-green-200/50 rounded-lg p-2 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-lg font-bold text-green-600"><%= frequencia.total_presentes %></span>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Presentes</p>
+              </div>
+
+              <div class="bg-white/70 backdrop-blur-sm border border-red-200/50 rounded-lg p-2 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-lg font-bold text-red-600"><%= frequencia.total_faltas %></span>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Faltas</p>
+              </div>
+            </div>
+
+            <!-- Conteúdo (se houver) -->
+            <% if frequencia.conteudo_trabalhado.present? %>
+              <div class="mt-3 bg-white/70 backdrop-blur-sm border border-green-200/50 rounded-lg p-3">
+                <p class="text-xs font-medium text-green-700 uppercase tracking-wide mb-1">Conteúdo Trabalhado</p>
+                <p class="text-sm text-gray-700">
+                  <%= truncate(frequencia.conteudo_trabalhado, length: 80) %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <svg class="mx-auto h-16 w-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhuma frequência registrada</h3>
+        <p class="mt-1 text-sm text-gray-500">Ainda não há registros de frequência para esta escola.</p>
+        <div class="mt-6">
+          <%= link_to "Ver Frequências", escola_frequencias_path(@escola), class: "rounded-lg bg-green-600 px-5 py-2.5 font-medium text-white shadow-md transition-colors hover:bg-green-700" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

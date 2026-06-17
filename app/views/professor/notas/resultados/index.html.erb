@@ -1,0 +1,81 @@
+<div class="container mx-auto p-4">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Resultados - <%= @turma.nome %> / <%= @disciplina.nome %></h1>
+    <span class="badge badge-lg bg-green-100 text-green-700 border-green-200">
+      Ano Letivo: <%= @turma.ano_letivo.ano %>
+    </span>
+  </div>
+
+  <%# Aqui você pode adicionar links para configurar avaliações (AvaliacaoConfiguracao) e lançar notas (RegistroDeNota) %>
+  <div class="mb-4 flex space-x-2">
+    <%# Exemplo de link para o Controller de Avaliacoes (Configuração) %>
+    <%= link_to 'Configurar Avaliações', professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+        class: "btn btn-sm bg-blue-500 hover:bg-blue-600 text-white" %>
+    
+    <%# Você pode adicionar um dropdown para selecionar o bimestre aqui %>
+  </div>
+
+  <div class="overflow-x-auto bg-white shadow-xl rounded-lg">
+    <table class="table w-full table-zebra">
+      <%# Cabeçalho da Tabela %>
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aluno</th>
+          
+          <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+          <% @turma.bimestres_disponiveis.each do |bimestre| %>
+            <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Bimestre <%= bimestre %></th>
+          <% end %>
+
+          <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Média Final</th>
+        </tr>
+      </thead>
+      
+      <%# Corpo da Tabela %>
+      <tbody>
+        <% @alunos.each do |aluno| %>
+          <tr class="hover:bg-gray-50">
+            <td class="text-left py-3 px-4 font-medium text-gray-700">
+              <%= aluno.nome %>
+            </td>
+
+            <% total_media = 0.0 %>
+            <% num_bimestres_calculados = 0 %>
+
+            <%# CORREÇÃO: Usa o método dinâmico bimestres_disponiveis %>
+            <% @turma.bimestres_disponiveis.each do |bimestre| %>
+              <td class="text-center py-3 px-4">
+                <% avaliacao_bimestral = @medias_finais[[aluno.id, bimestre]] %>
+                
+                <% if avaliacao_bimestral && avaliacao_bimestral.nota_bimestre_final %>
+                  <% nota = avaliacao_bimestral.nota_bimestre_final %>
+                  
+                  <%# Estiliza a nota (vermelho para baixa, verde para alta) %>
+                  <span class="font-bold <%= nota >= 7.0 ? 'text-green-600' : (nota < 5.0 ? 'text-red-600' : 'text-yellow-600') %>">
+                    <%= number_with_precision(nota, precision: 2) %>
+                  </span>
+                  <% total_media += nota %>
+                  <% num_bimestres_calculados += 1 %>
+                <% else %>
+                  <span class="text-gray-400">-</span>
+                <% end %>
+              </td>
+            <% end %>
+
+            <%# CÁLCULO DA MÉDIA FINAL GERAL %>
+            <td class="text-center py-3 px-4 font-bold">
+              <% if num_bimestres_calculados > 0 %>
+                <% media_geral = total_media / num_bimestres_calculados %>
+                <span class="<%= media_geral >= 7.0 ? 'text-green-700' : (media_geral < 5.0 ? 'text-red-700' : 'text-yellow-700') %>">
+                  <%= number_with_precision(media_geral, precision: 2) %>
+                </span>
+              <% else %>
+                <span class="text-gray-400">N/A</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

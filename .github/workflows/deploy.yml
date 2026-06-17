@@ -1,0 +1,43 @@
+name: Deploy EC2 Docker Rails
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "Entrando no projeto"
+            cd ${{ secrets.APP_PATH }}
+
+            echo "Git pull"
+            git pull --no-rebase
+
+            echo "Build das imagens"
+            docker compose build
+
+            echo "Tailwind / Assets build"
+            docker compose run --rm web bundle exec rails tailwindcss:build
+
+            echo "Migrations"
+            docker compose run --rm web bundle exec rails db:migrate
+
+            echo "Subindo containers"
+            docker compose up -d
+
+            echo "Limpando containers órfãos"
+            docker image prune -f
+
+            echo "Deploy finalizado com sucesso"

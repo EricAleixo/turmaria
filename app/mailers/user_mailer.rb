@@ -1,32 +1,35 @@
 class UserMailer < ApplicationMailer
-  default from: "leonardopereiracavalcante2025@gmail.com"
+  default from: ENV["EMAIL_USERNAME"]
 
-  def login_alert (user)
-    @user= user
-    @user_type = user.class.name
-    @reset_password_url = generate_reset_password_url(@user)
+  def login_alert(user)
+    @user = user
 
-    mail(
-      to: @user.email,
-      subject: "Turmaria - Alerta de login detectado"
-    )
-  end
+    # 1. Garante que o token de reset de senha exista
+    if @user.reset_password_token.nil? || @user.reset_password_sent_at.nil?
+      @user.send_reset_password_instructions
+      @user.reload
+    end
 
-  private
+    # 2. Determina o scope Devise e a rota correta
+    # O Devise cria rotas como: new_edit_aluno_password_url, new_edit_professor_password_url, etc.
+    scope = @user.class.name.underscore # Ex: "Aluno" vira "aluno"
 
-  def generate_reset_password_url(user)
-    
-    raw, enc = Devise.token_generator.generate(user.class, :reset_password_token)
+    # 3. Constrói o helper de URL dinamicamente
+    # Ex: monta "new_edit_aluno_password_url"
+    url_helper = "new_edit_#{scope}_password_url"
 
-    user.reset_password_token = enc 
-    user.reset_password_sent_at = Time.now.utc
-    user.save(validate:false)
+    # 4. Verifica se o helper existe (para segurança) e constrói a URL
+    if respond_to?(url_helper)
+      @reset_url = send(
+        url_helper,
+        reset_password_token: @user.reset_password_token,
+        host: "localhost:3000"
+      )
+    else
+      # Fallback caso a rota não seja encontrada (ajuste conforme a rota genérica que você deseja)
+      @reset_url = root_url(host: "localhost:3000") 
+    end
 
-    Rails.application.routes.url_helpers.send(
-      "edit_#{user.model_name.singular}_password_url",
-      reset_password_token:raw,
-      host: Rails.application.config.action_mailer.default_url_options[:host],
-      port: Rails.application.config.action_mailer.default_url_options[:port]
-    )
+    mail(to: @user.email, subject: "Alerta de login - Turmaria")
   end
 end

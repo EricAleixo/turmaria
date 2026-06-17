@@ -1,0 +1,203 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+  <div class="max-w-9xl mx-auto">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Selecione a Escola e Disciplina</h1>
+      <p class="text-gray-600">Escolha uma escola para acessar suas disciplinas por área</p>
+    </div>
+
+    <!-- Grid de Cards de Escolas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @escolas.each do |escola| %>
+        <% disciplinas_por_area = escola.disciplinas.includes(:area_disciplina).group_by(&:area_disciplina) %>
+        <% total_disciplinas = escola.disciplinas.count %>
+        <% total_areas = disciplinas_por_area.keys.compact.count %>
+        
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <!-- Header do Card -->
+          <div class="p-6 border-b border-gray-200">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 text-lg mb-1"><%= escola.nome %></h3>
+                <span class="inline-block px-3 py-1 text-xs rounded-full <%= escola.tipo == 'publica' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                  <%= escola.tipo_humanizado %>
+                </span>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 ml-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Estatísticas da Escola -->
+            <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <span><%= total_disciplinas %> <%= total_disciplinas == 1 ? 'disciplina' : 'disciplinas' %></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                <span><%= total_areas %> <%= total_areas == 1 ? 'área' : 'áreas' %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Disciplinas por Área -->
+          <div class="p-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Disciplinas por Área:</h4>
+            
+            <% if escola.disciplinas.any? %>
+              <% areas_ordenadas = disciplinas_por_area.sort_by { |area, _| area&.nome || "Sem área" } %>
+              <% areas_visiveis = areas_ordenadas.first(2) %>
+              
+              <div class="space-y-2">
+                <% areas_visiveis.each do |area, disciplinas| %>
+                  <div class="rounded-lg overflow-hidden hover:shadow-sm transition-all">
+                    <% if area %>
+                      <div class="px-3 py-2 flex items-center justify-between" style="background-color: <%= area.cor %>20; border-left: 4px solid <%= area.cor %>;">
+                        <span class="font-semibold text-gray-800 text-sm"><%= area.nome %></span>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white shadow-sm">
+                          <%= disciplinas.count %> <%= disciplinas.count == 1 ? 'disciplina' : 'disciplinas' %>
+                        </span>
+                      </div>
+                    <% else %>
+                      <div class="px-3 py-2 flex items-center justify-between bg-gray-100 border-l-4 border-gray-400">
+                        <span class="font-semibold text-gray-800 text-sm">Sem área</span>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white shadow-sm">
+                          <%= disciplinas.count %> <%= disciplinas.count == 1 ? 'disciplina' : 'disciplinas' %>
+                        </span>
+                      </div>
+                    <% end %>
+                    
+                    <!-- Lista de disciplinas da área (até 3) -->
+                    <div class="bg-white px-3 py-2 space-y-1">
+                      <% disciplinas.first(3).each do |disciplina| %>
+                        <div class="flex items-center gap-2 text-xs text-gray-700 py-1 px-2 rounded hover:bg-gray-50 transition-colors" style="border-left: 3px solid <%= disciplina.cor_nome %>;">
+                          <span class="font-medium"><%= disciplina.nome %></span>
+                        </div>
+                      <% end %>
+                      <% if disciplinas.count > 3 %>
+                        <div class="text-xs text-gray-500 italic px-2 pt-1">
+                          + <%= disciplinas.count - 3 %> <%= (disciplinas.count - 3) == 1 ? 'outra' : 'outras' %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Card Total de Disciplinas -->
+                <div class="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-indigo-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-800">Total de Disciplinas</div>
+                        <div class="text-xs text-gray-600"><%= total_areas %> <%= total_areas == 1 ? 'área' : 'áreas' %> diferentes</div>
+                      </div>
+                    </div>
+                    <div class="text-2xl font-bold text-indigo-600">
+                      <%= total_disciplinas %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card "Ver Mais Áreas" quando há mais de 2 -->
+                <% if areas_ordenadas.count > 2 %>
+                  <% areas_restantes = areas_ordenadas.count - 2 %>
+                  <%= link_to escola_disciplinas_path(escola), class: "block" do %>
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-dashed border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-300 group">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div class="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                              Mais <%= areas_restantes %> <%= areas_restantes == 1 ? 'área' : 'áreas' %>
+                            </div>
+                            <div class="text-xs text-gray-600">Clique para ver todas as disciplinas</div>
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+                            <%= total_areas %> <%= total_areas == 1 ? 'área' : 'áreas' %>
+                          </span>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+
+                <!-- Botão para ver todas as disciplinas -->
+                <%= link_to escola_disciplinas_path(escola), class: "block mt-2 p-3 text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors" do %>
+                  Ver Todas as Disciplinas
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-300 mx-auto mb-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <p class="text-gray-500 text-sm mb-3">Nenhuma disciplina cadastrada</p>
+                <%= link_to "Criar Disciplina", new_escola_disciplina_path(escola), class: "inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Footer do Card -->
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+            <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-center gap-1" do %>
+              <span>Ver detalhes da escola</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Mensagem quando não há escolas -->
+    <% if @escolas.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhuma escola cadastrada</h3>
+        <p class="text-gray-600 mb-6">Comece criando sua primeira escola no sistema</p>
+        <%= link_to new_escola_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Criar Primeira Escola</span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Botão de Voltar -->
+    <div class="mt-8 text-center">
+      <%= link_to dashboard_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        <span>Voltar ao Dashboard</span>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,458 @@
+<%= content_for :page_title, "Todos os Alunos" %>
+
+<main class="w-full max-w-9xl mx-auto p-4 lg:p-8 min-h-screen">
+  
+  <%# Breadcrumbs %>
+  <div class="breadcrumbs text-sm mb-6">
+    <ul class="bg-white/60 backdrop-blur-sm rounded-full px-6 py-3 shadow border border-white/20 <%= @escola ? "w-full" : "" %>">
+      <li><%= link_to "Escolas", escolas_menager_paths, class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+      <% if @escola %>
+        <li><%= link_to @escola.nome, escola_path(@escola), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+      <% end %>
+      <% if @turma %>
+        <li><%= link_to "Turmas", escola_turmas_path(@escola), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+        <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-blue-600 hover:text-blue-800 font-medium transition-colors" %></li>
+      <% end %>
+      <li class="text-slate-500 font-medium">Alunos</li>
+    </ul>
+  </div>
+
+
+  <div class="bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-white/20">
+    
+    <%# HEADER COM TÍTULO E BOTÕES %>
+    <div class="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl p-6 mb-8 shadow-xl">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex flex-col items-start space-y-2 flex-grow min-w-0">
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold break-words">
+            <% if @escola %>
+              Alunos da Escola <%= @escola.nome %>
+            <% else %>
+              Todos os Alunos
+            <% end %>
+          </h1>
+          <div class="badge badge-lg bg-blue-400 text-white border-white/30 font-semibold">
+            <%= @alunos_count || 0 %> <%= (@alunos_count || 0) == 1 ? 'aluno' : 'alunos' %>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
+          
+          <%# Botão para abrir o FILTRO MODAL (label for="filtro_modal") %>
+          <label for="filtro_modal"
+            class="btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg hover:scale-105 transition-all duration-300 font-semibold whitespace-nowrap text-xs sm:text-sm flex items-center gap-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-4 h-4">
+              <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3c2.755 0 5.455.232 8.083.678a.75.75 0 01.44 1.223L15.75 10.5v6.75a.75.75 0 01-.375.65l-3 1.75A.75.75 0 0111.25 19.5v-9L3.477 4.901a.75.75 0 01.44-1.223A48.454 48.454 0 0112 3z" />
+            </svg>
+
+            Filtros
+          </label>
+
+          
+          <%# BOTÃO "NOVO ALUNO" %>
+          <% if @escola %>
+            <%= link_to new_escola_aluno_path(@escola),
+              class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-green-50 border-0 shadow-lg hover:scale-105 transition-all duration-300 whitespace-nowrap text-xs sm:text-sm flex items-center gap-1" do %>
+
+              <svg xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-4 h-4">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+
+              <span class="hidden sm:inline">Novo Aluno</span>
+              <span class="sm:hidden">Novo</span>
+            <% end %>
+          <% end %>
+
+
+          <%# BOTÃO "ESCOLAS" %>
+          <%= link_to escolas_menager_paths,
+            class: "btn btn-sm sm:btn-md bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg hover:scale-105 transition-all duration-300 font-semibold whitespace-nowrap text-xs sm:text-sm flex items-center gap-1" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+              </svg>
+            Escolas
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+    
+    <%# FORMULÁRIO DE BUSCA RÁPIDA (Com Debounce via JS) %>
+    
+
+    <%# ---------------------------------------------------------------------- %>
+    <%# --- SEÇÃO: LISTAGEM DE ALUNOS (Turbo Frame) --- %>
+    <%# ---------------------------------------------------------------------- %>
+
+      <% if @alunos.blank? %>
+        <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border-2 border-dashed border-slate-200">
+          <div class="max-w-md mx-auto">
+
+            <!-- Ícone Empty State -->
+            <div class="mb-4 text-blue-500 mx-auto w-16 h-16 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-16">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+              </svg>
+
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">
+              Nenhum aluno encontrado
+            </h3>
+
+            <p class="text-slate-500 mb-6">
+              Ajuste os filtros ou adicione um novo aluno.
+            </p>
+
+            <!-- Botão Adicionar -->
+            <% if @escola %>
+              <%= link_to (@escola ? new_escola_aluno_path(@escola) : new_aluno_path),
+                class: "btn btn-lg bg-gradient-to-r from-blue-500 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full flex items-center gap-2 mx-auto" do %>
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-5 h-5">
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+
+                Adicionar Aluno
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <%# CÓDIGO DA TABELA DESKTOP (Usando Font Awesome) %>
+        <div class="hidden md:block overflow-x-auto">
+          <table class="table w-full shadow-xl rounded-xl overflow-hidden">
+            <thead>
+              <tr class="bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold">
+                <th class="py-3 font-bold text-sm rounded-tl-xl">NOME / MATRÍCULA</th>
+                <th class="py-3 font-bold text-sm">ESCOLA</th>
+                <th class="py-3 font-bold text-sm">TURMA</th>
+                <th class="py-3 font-bold text-sm">STATUS</th>
+                <th class="py-3 font-bold text-sm rounded-tr-xl">AÇÕES</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <% @alunos.each do |aluno| %>
+                <tr class="hover:bg-gray-50/50 border-b border-gray-100 group">
+                  <td class="py-3">
+                    <div class="flex items-center gap-3">
+                      <div class="avatar placeholder flex-shrink-0">
+                        <% if aluno.foto&.attached? %>
+                          <div class="w-10 h-10 rounded-full overflow-hidden">
+                            <%= image_tag aluno.foto.variant(resize_to_fill: [40,40]), class: "rounded-full object-cover w-10 h-10" %>
+                          </div>
+                        <% else %>
+                          <div class="bg-gradient-to-br from-blue-500 to-green-500 text-white rounded-full w-10 h-10 relative font-bold text-lg">
+                            <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg"><%= aluno.nome.first.upcase %></span>
+                          </div>
+                        <% end %>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-800"><%= aluno.nome %></div>
+                        <div class="text-xs text-gray-500 font-mono">Matrícula: <%= aluno.matricula.present? ? aluno.matricula.truncate(25) : "Não informada" %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-sm">
+                    <span class="text-gray-800"><%= aluno.escola&.nome || "---" %></span>
+                  </td>
+                  <td class="text-sm text-gray-600 font-medium">
+                    <%= aluno.turma&.nome || "---" %>
+                  </td>
+                  <td>
+                    <% status_text = aluno.turma_id.present? ? 'Alocado' : 'Pendente de Alocação' %>
+                    <% badge_class = (aluno.turma_id.present?) ? 'text-green-700' : 'text-orange-700' %>
+                    <span class="text-sm <%= badge_class %> font-medium">
+                      <%= status_text %>
+                    </span>
+                  </td>
+                  <td class="py-3">
+                    <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+                      <% 
+                        aluno_route_params = aluno.escola_id.present? ? [aluno.escola, aluno] : aluno
+                        edit_aluno_route_params = aluno.escola_id.present? ? edit_escola_aluno_path(aluno.escola, aluno) : edit_aluno_path(aluno)
+                      %>
+                      
+                      <%= link_to aluno_route_params,
+                        class: "btn btn-sm btn-circle text-green-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg flex items-center justify-center",
+                        title: "Ver Detalhes" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              class="w-4 h-4">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                      <% end %>
+
+                      
+                      <%= link_to edit_aluno_route_params,
+                        class: "btn btn-sm btn-circle text-amber-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg flex items-center justify-center",
+                        title: "Editar" do %>
+
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4">
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l9.932-9.93z" />
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M19.5 7.125V19.875A2.625 2.625 0 0116.875 22.5H4.125A2.625 2.625 0 011.5 19.875V7.125A2.625 2.625 0 014.125 4.5h8.25" />
+                        </svg>
+
+                      <% end %>
+
+
+                      <%= delete_button_with_modal(
+                        path: aluno_route_params,
+                        modal_id: dom_id(aluno, :delete),
+                        title: "Excluir aluno",
+                        message: "Tem certeza que deseja excluir o aluno",
+                        item_name: aluno.nome,
+                        btn_class: "btn btn-sm btn-circle text-red-500 border-0 hover:scale-108 transition-all duration-300 shadow-lg flex items-center justify-center"
+                      )%>
+
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <%# CÓDIGO DO MOBILE CARDS (Usando Font Awesome) %>
+        <div class="grid grid-cols-1 gap-4 md:hidden">
+          <% @alunos.each do |aluno| %>
+            <div class="bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg border border-gray-100">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-start gap-2">
+                  <div class="flex items-start gap-3 min-w-0 flex-1">
+                    <div class="avatar placeholder flex-shrink-0">
+                      <% if aluno.foto&.attached? %>
+                        <div class="w-12 h-12 rounded-full overflow-hidden">
+                          <%= image_tag aluno.foto.variant(resize_to_fill: [48,48]), class: "rounded-full object-cover w-12 h-12" %>
+                        </div>
+                      <% else %>
+                        <div class="bg-gradient-to-br from-blue-500 to-green-500 text-white rounded-full w-12 h-12 relative font-bold text-lg">
+                          <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"><%= aluno.nome.first.upcase %></span>
+                        </div>
+                      <% end %>
+                    </div>
+                    
+                    <div class="min-w-0 flex-1">
+                      <h2 class="font-bold text-slate-700 text-sm sm:text-base break-words"><%= aluno.nome %></h2>
+                      <span class="text-xs text-slate-500 block mb-1">Matrícula: <%= aluno.matricula || "-" %></span>
+                      <div class="flex flex-col gap-1 mt-2">
+                        <span class="badge badge-sm bg-blue-600 text-white border-0 font-medium truncate max-w-full">
+                          Turma: <%= aluno.turma&.nome || "Não informada" %>
+                        </span>
+                        <span class="badge badge-sm bg-slate-500 text-white border-0 font-medium truncate max-w-full">
+                          <% status_text = aluno.turma_id.present? ? 'Alocado' : 'Pendente de Alocação' %>
+                          Status: <%= status_text %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="dropdown dropdown-end flex-shrink-0">
+                    <label tabindex="0" class="btn btn-sm btn-circle btn-ghost flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4">
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zm0 5.25a.75.75 0 110-1.5.75.75 0 010 1.5zm0 5.25a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                        </svg>
+                      </label>
+
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                      <% 
+                        aluno_route_params = @escola ? [@escola, aluno] : aluno
+                        edit_aluno_route_params = @escola ? edit_escola_aluno_path(@escola, aluno) : edit_aluno_path(aluno)
+                      %>
+
+                      <li>
+                        <%= link_to aluno_route_params, data: { turbo: false }, class: "flex items-center gap-2" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              class="w-4 h-4">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+
+                          Ver aluno
+                        <% end %>
+
+                      </li>
+                      <li>
+                        <%= link_to edit_aluno_route_params, data: { turbo: false }, class: "flex items-center gap-2" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              class="w-4 h-4">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l9.932-9.93z" />
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M19.5 7.125V19.875A2.625 2.625 0 0116.875 22.5H4.125A2.625 2.625 0 011.5 19.875V7.125A2.625 2.625 0 014.125 4.5h8.25" />
+                          </svg>
+
+                          Editar aluno
+                        <% end %>
+
+                      </li>
+                      <li>
+                        <%= delete_modal_trigger(
+                              modal_id: dom_id(aluno, :delete),
+                              text: "Excluir aluno"
+                            ) %>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="divider my-2"></div>
+
+                <div class="flex flex-wrap gap-2 text-sm">
+                  <span class="text-xs font-semibold text-gray-700">Escola:</span>
+                  <span class="text-xs text-gray-600"><%= aluno.escola&.nome || "Não informada" %></span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <%# CÓDIGO DA PAGINAÇÃO COM INPUT DE PÁGINA (ADICIONAL) %>
+        <% if @alunos.total_pages > 1 %>
+          <div class="mt-8 mb-4 flex flex-col sm:flex-row justify-center items-center gap-4">
+            
+            <%# 1. Paginação Padrão do Kaminari %>
+            <%= paginate @alunos, data: { turbo_frame: "alunos" } %>
+
+            <%# 2. Input para Digitar o Número da Página %>
+            <div class="flex items-center gap-2 bg-white/70 backdrop-blur-sm p-2 rounded-lg shadow-md border border-gray-200 flex-shrink-0">
+              <span class="text-sm font-medium text-gray-700 whitespace-nowrap hidden sm:inline">Ir para página:</span>
+              
+              <%= form_with url: request.params.except(:page), method: :get, data: { turbo_frame: "alunos", controller: "page-jump" }, class: "flex items-center gap-2", id: "page-jump-form" do |form| %>
+                
+                <%# Manter todos os parâmetros de filtro/busca atuais no formulário (exceto 'page') %>
+                <% params.except(:page, :commit, :action, :controller).each do |key, value| %>
+                  <% if value.is_a?(Array) %>
+                    <% value.each do |v| %>
+                      <%= hidden_field_tag "#{key}[]", v %>
+                    <% end %>
+                  <% else %>
+                    <%= form.hidden_field key, value: value %>
+                  <% end %>
+                <% end %>
+
+                <%= form.number_field :page, 
+                      value: @alunos.current_page, 
+                      min: 1, 
+                      max: @alunos.total_pages,
+                      class: "input input-sm w-16 bg-white border-gray-300 text-center font-medium",
+                      data: { action: "keydown->page-jump#submitOnEnter", page_jump_target: "input" } %>
+                
+                <span class="text-gray-500 text-sm"> / <%= @alunos.total_pages %></span>
+
+                <%= form.submit "Ir", class: "btn btn-sm bg-green-600 text-white hover:bg-green-700 border-0", data: { action: "click->page-jump#submit" } %>
+                
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        
+      <% end %>
+
+
+  </div>
+</main>
+
+<%# 🎯 Chamada ORIGINAL para o Modal do Filtro: Corrigindo o erro! %>
+<%= render 'filtro_modal', alunos: @alunos, escola: @escola %>
+
+<%#========================================%>
+<%# LÓGICA JAVASCRIPT (NA VIEW) %>
+<%#========================================%>
+<script>
+  document.addEventListener("turbo:load", () => {
+    
+    // --- Lógica de Debounce para a Busca Textual Rápida ---
+    const buscaRapidaForm = document.getElementById('busca-rapida-form');
+    const buscaInput = buscaRapidaForm ? buscaRapidaForm.querySelector('input[name="busca"]') : null;
+    let timeout;
+
+    if (buscaInput) {
+      buscaInput.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          buscaRapidaForm.requestSubmit();
+        }, 300); // 300ms de atraso
+      });
+    }
+
+    // --- Lógica para re-marcar Checkboxes no Modal (O modal não se fecha automaticamente via Turbo) ---
+    const filtroForm = document.getElementById('filtro-avancado-form');
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Re-marca Checkboxes na Recarga
+    const filtrosAtivos = urlParams.getAll('filtros[]');
+    
+    if (filtroForm) {
+      filtroForm.querySelectorAll('input[type="checkbox"][name="filtros[]"]').forEach(checkbox => {
+        checkbox.checked = filtrosAtivos.includes(checkbox.value);
+      });
+      
+      // Sincroniza a busca textual avançada com o campo principal
+      const buscaAvancadaInput = filtroForm.querySelector('input[name="busca"]');
+      if (buscaAvancadaInput) {
+        buscaAvancadaInput.value = urlParams.get('busca') || '';
+      }
+    }
+  });
+</script>

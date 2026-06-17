@@ -1,0 +1,25 @@
+<turbo-stream action="append" target="anos-letivos-lista">
+  <template>
+    <li>
+      <a href="#" class="ano-letivo-option hover:bg-green-100 px-3 py-2 rounded cursor-pointer"
+         data-value="<%= ano_letivo.id %>"
+         data-label="<%= ano_letivo.ano %>">
+        <%= ano_letivo.ano %>
+      </a>
+    </li>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="append" target="body">
+  <template>
+    <script>
+      document.querySelector('#ano-letivo-label').textContent = "<%= ano_letivo.ano %>";
+      document.querySelector('#turma_ano_letivo').value = "<%= ano_letivo.id %>";
+    </script>
+  </template>
+</turbo-stream>
+
+
+<turbo-stream action="update" target="modal">
+  <template></template>
+</turbo-stream>
