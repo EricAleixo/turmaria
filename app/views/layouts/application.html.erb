@@ -228,7 +228,15 @@
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <script>AOS.init({ duration: 700, once: true, easing: 'ease-out-cubic' });</script> 
+    <script>
+      document.addEventListener('turbo:load', () => {
+        AOS.init({ duration: 700, once: true, easing: 'ease-out-cubic' });
+        AOS.refresh();
+      });
+      document.addEventListener('turbo:before-cache', () => {
+        AOS.refreshHard(); // reseta os elementos antes do cache
+      });
+    </script>
   </body>
 
   <style>
