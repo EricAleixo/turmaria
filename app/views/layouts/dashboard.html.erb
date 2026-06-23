@@ -71,12 +71,6 @@
                     </p>
                     <div class="flex items-center justify-end space-x-2">
                       <p class="text-xs text-gray-500"><%= current_user_type %></p>
-                      <!-- School Badge for Admin -->
-                      <% if current_admin&.escolas&.first.present? %>
-                        <div class="badge badge-xs bg-green-100 text-green-700 border-green-200">
-                          <%= current_admin.escolas.first.nome %>
-                        </div>
-                      <% end %>
                     </div>
                   </div>
                   

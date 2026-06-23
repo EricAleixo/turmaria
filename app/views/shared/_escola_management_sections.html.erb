@@ -49,7 +49,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 bg-white">
-            <% escola.turmas.each do |turma| %>
+            <% escola.turmas.limit(10).each do |turma| %>
               <tr class="transition-colors hover:bg-indigo-50/50">
                 <td class="whitespace-nowrap px-6 py-4">
                   <div class="text-sm font-medium text-gray-900"><%= turma.nome %></div>
@@ -85,6 +85,11 @@
             <% end %>
           </tbody>
         </table>
+        <% if escola.turmas.count > 10 %>
+          <div class="border-t border-gray-200 px-6 py-4 text-center">
+            <%= link_to "Ver todas as turmas (#{escola.turmas.count})", escola_turmas_path(escola), class: "font-semibold text-emerald-600 hover:text-emerald-800" %>
+          </div>
+        <% end %>
       </div>
     <% else %>
       <div class="py-12 text-center">
@@ -155,7 +160,7 @@
         </thead>
 
         <tbody class="divide-y divide-gray-100 bg-white">
-          <% @professores.each do |professor| %>
+          <% @professores.limit(10).each do |professor| %>
             <tr class="transition-colors hover:bg-emerald-50/50">
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex items-center space-x-3">
@@ -220,6 +225,11 @@
           <% end %>
         </tbody>
       </table>
+      <% if @professores.count > 10 %>
+        <div class="border-t border-gray-200 px-6 py-4 text-center">
+          <%= link_to "Ver todos os professores (#{@professores.count})", escola_professors_path(escola_id: @escola.id), class: "font-semibold text-emerald-600 hover:text-emerald-800" %>
+        </div>
+      <% end %>
     </div>
   <% else %>
     <%# Mensagem para quando não há professores, no estilo da tabela de alunos %>
@@ -527,7 +537,7 @@
             <tr>
               <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white" colspan="2">Nome</th>
 
-              <th class="hidden px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white sm:table-cell">Ações</th>
+              <th class="hidden px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-white sm:table-cell">Ações</th>
             </tr>
           </thead>
 <tbody>

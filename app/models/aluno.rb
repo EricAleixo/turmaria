@@ -4,7 +4,7 @@ class Aluno < ApplicationRecord
          :validatable
 
   # === Associações ===
-  belongs_to :escola
+  belongs_to :escola, counter_cache: true
   belongs_to :turma, optional: true
   belongs_to :cidade, optional: true
   
@@ -63,6 +63,8 @@ class Aluno < ApplicationRecord
   before_validation :generate_matricula, on: :create
   before_validation :set_default_email, on: :create
   before_validation :set_default_password, on: :create
+  after_create_commit  :invalidar_cache_admin
+  after_destroy_commit :invalidar_cache_admin
   
   # CORRIGIDO: Remove arquivos antigos do S3 apenas quando necessário
   before_save :purge_old_attachments_if_changed
@@ -147,6 +149,11 @@ class Aluno < ApplicationRecord
   # 🔒 MÉTODOS PRIVADOS
   # =========================================================
   private
+
+  def invalidar_cache_admin
+    return unless escola&.admin
+    escola.admin.touch # Isso invalida o cache_key do dashboard
+  end
 
   def set_default_email
     self.email = "aluno_#{SecureRandom.hex(4)}@temporario.com" if email.blank?

@@ -383,69 +383,113 @@ class DashboardController < ApplicationController
   end
 
   def load_admin_dashboard_data
-  # Pega apenas as escolas do admin logado
-  @escolas_do_admin = current_admin.escolas.includes(:turmas, :alunos)
-  
-  # Estatísticas principais
-  @minhas_escolas = @escolas_do_admin.count
-  @total_turmas = @escolas_do_admin.sum(&:turmas_count)
-  @total_alunos = @escolas_do_admin.sum(&:alunos_count)
-  
-  escola_ids = @escolas_do_admin.pluck(:id)
-  @total_professores = Professor.where(escola_id: escola_ids).count
-  
-  # Crescimento no mês atual
-  inicio_mes = Date.today.beginning_of_month
-  @escolas_mes_atual = @escolas_do_admin.where('created_at >= ?', inicio_mes).count
-  @alunos_mes_atual = Aluno.where(escola_id: escola_ids)
-                           .where('created_at >= ?', inicio_mes).count
-  
-  # Médias
-  @media_alunos_escola = @minhas_escolas > 0 ? (@total_alunos.to_f / @minhas_escolas).round(1) : 0
-  @media_turmas_escola = @minhas_escolas > 0 ? (@total_turmas.to_f / @minhas_escolas).round(1) : 0
-  @media_alunos_turma = @total_turmas > 0 ? (@total_alunos.to_f / @total_turmas).round(1) : 0
-  
-  # Distribuição por tipo
-  @escolas_publicas = @escolas_do_admin.publicas.count
-  @escolas_privadas = @escolas_do_admin.privadas.count
+  escola_ids = current_admin.escola_ids
+
+  cache_key = "admin_dashboard_#{current_admin.id}_#{current_admin.updated_at.to_i}"
+
+  cached = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+
+    if escola_ids.empty?
+      total_escolas = total_alunos = total_turmas = total_publicas = total_privadas = total_professores = 0
+      escolas_mes = alunos_mes = 0
+      labels = crescimento_alunos = crescimento_turmas = []
+      maiores_escolas = escolas_recentes = todas_escolas = escolas_grafico = []
+    else
+      result = ActiveRecord::Base.connection.execute(<<~SQL)
+        SELECT
+          COUNT(*) as total,
+          COALESCE(SUM(alunos_count), 0) as total_alunos,
+          COALESCE(SUM(turmas_count), 0) as total_turmas,
+          COALESCE(SUM(CASE WHEN tipo = 'publica' THEN 1 ELSE 0 END), 0) as publicas,
+          COALESCE(SUM(CASE WHEN tipo = 'privada' THEN 1 ELSE 0 END), 0) as privadas
+        FROM escolas
+        WHERE id IN (#{escola_ids.map { |id| "'#{id}'" }.join(',')})
+      SQL
+
+      row = result.first
+      total_escolas  = row['total'].to_i
+      total_alunos   = row['total_alunos'].to_i
+      total_turmas   = row['total_turmas'].to_i
+      total_publicas = row['publicas'].to_i
+      total_privadas = row['privadas'].to_i
+
+      total_professores = Professor.where(escola_id: escola_ids).count
+
+      inicio_mes  = Date.today.beginning_of_month
+      escolas_mes = Escola.where(id: escola_ids).where('created_at >= ?', inicio_mes).count
+      alunos_mes  = Aluno.where(escola_id: escola_ids).where('created_at >= ?', inicio_mes).count
+
+      seis_meses_atras = 6.months.ago.beginning_of_month
+
+      alunos_por_mes = Aluno.where(escola_id: escola_ids)
+                            .where('created_at >= ?', seis_meses_atras)
+                            .group("DATE_TRUNC('month', created_at)")
+                            .count
+
+      turmas_por_mes = Turma.where(escola_id: escola_ids)
+                            .where('created_at >= ?', seis_meses_atras)
+                            .group("DATE_TRUNC('month', created_at)")
+                            .count
+
+      acumulado_alunos = Aluno.where(escola_id: escola_ids).where('created_at < ?', seis_meses_atras).count
+      acumulado_turmas = Turma.where(escola_id: escola_ids).where('created_at < ?', seis_meses_atras).count
+
+      meses_pt = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez]
+      labels = []
+      crescimento_alunos = []
+      crescimento_turmas = []
+
+      6.downto(1) do |i|
+        data = i.months.ago.beginning_of_month
+        labels << meses_pt[data.month - 1]
+        acumulado_alunos += alunos_por_mes[data] || 0
+        acumulado_turmas += turmas_por_mes[data] || 0
+        crescimento_alunos << acumulado_alunos
+        crescimento_turmas << acumulado_turmas
+      end
+
+      maiores_escolas  = Escola.where(id: escola_ids).order(alunos_count: :desc).limit(5)
+      escolas_recentes = Escola.where(id: escola_ids).order(created_at: :desc).limit(5)
+      todas_escolas    = Escola.where(id: escola_ids).order(:nome)
+      escolas_grafico  = Escola.where(id: escola_ids).order(alunos_count: :desc).pluck(:nome, :alunos_count)
+    end
+
+    {
+      total_escolas:, total_alunos:, total_turmas:, total_professores:,
+      total_publicas:, total_privadas:,
+      escolas_mes:, alunos_mes:,
+      labels:, crescimento_alunos:, crescimento_turmas:,
+      maiores_escolas:, escolas_recentes:, todas_escolas:, escolas_grafico:
+    }
+  end
+
+  @minhas_escolas    = cached[:total_escolas]
+  @total_alunos      = cached[:total_alunos]
+  @total_turmas      = cached[:total_turmas]
+  @total_professores = cached[:total_professores]
+  @escolas_publicas  = cached[:total_publicas]
+  @escolas_privadas  = cached[:total_privadas]
+  @escolas_mes_atual = cached[:escolas_mes]
+  @alunos_mes_atual  = cached[:alunos_mes]
+  @crescimento_labels  = cached[:crescimento_labels] || cached[:labels]
+  @crescimento_alunos  = cached[:crescimento_alunos]
+  @crescimento_turmas  = cached[:crescimento_turmas]
+
+  @media_alunos_escola = @minhas_escolas > 0 ? (@total_alunos.to_f  / @minhas_escolas).round(1) : 0
+  @media_turmas_escola = @minhas_escolas > 0 ? (@total_turmas.to_f  / @minhas_escolas).round(1) : 0
+  @media_alunos_turma  = @total_turmas   > 0 ? (@total_alunos.to_f  / @total_turmas).round(1)   : 0
   @percentual_publicas = @minhas_escolas > 0 ? ((@escolas_publicas.to_f / @minhas_escolas) * 100).round(1) : 0
   @percentual_privadas = @minhas_escolas > 0 ? ((@escolas_privadas.to_f / @minhas_escolas) * 100).round(1) : 0
-  
-  # Maiores escolas (top 5)
-  @maiores_escolas = @escolas_do_admin.order(alunos_count: :desc).limit(5)
-  
-  # Escolas recentes (últimas 5)
-  @escolas_recentes = @escolas_do_admin.order(created_at: :desc).limit(5)
-  
-  # Todas as escolas para a grid
-  @todas_escolas = @escolas_do_admin.order(:nome)
-  
-  # Dados para gráfico de crescimento (últimos 6 meses)
-  # Array com nomes dos meses em português
-  meses_pt = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-  
-  @crescimento_labels = []
-  @crescimento_alunos = []
-  @crescimento_turmas = []
-  
-  6.downto(1) do |i|
-    data = i.months.ago.end_of_month
-    # Usa o array de meses em português
-    @crescimento_labels << meses_pt[data.month - 1]
-    
-    alunos_ate_data = Aluno.where(escola_id: escola_ids)
-                           .where('created_at <= ?', data).count
-    turmas_ate_data = Turma.where(escola_id: escola_ids)
-                           .where('created_at <= ?', data).count
-    
-    @crescimento_alunos << alunos_ate_data
-    @crescimento_turmas << turmas_ate_data
-  end
-  
-  # Dados para gráfico de barras (alunos por escola)
-  @escolas_nomes = @escolas_do_admin.order(alunos_count: :desc).pluck(:nome)
-  @escolas_alunos = @escolas_do_admin.order(alunos_count: :desc).pluck(:alunos_count)
-  end
+
+  # Objetos ActiveRecord fora do cache — não são serializáveis
+  @maiores_escolas  = cached[:maiores_escolas].presence  || Escola.where(id: escola_ids).order(alunos_count: :desc).limit(5)
+  @escolas_recentes = cached[:escolas_recentes].presence || Escola.where(id: escola_ids).order(created_at: :desc).limit(5)
+  @todas_escolas    = cached[:todas_escolas].presence    || Escola.where(id: escola_ids).order(:nome)
+
+  escolas_grafico  = cached[:escolas_grafico]
+  @escolas_nomes   = escolas_grafico.map(&:first)
+  @escolas_alunos  = escolas_grafico.map(&:last)
+end
 
   # 3. Método: Carrega dados para Professor (Mantido Intacto)
   def load_professor_dashboard_data
@@ -515,18 +559,16 @@ class DashboardController < ApplicationController
     end
     
     # 8. Lista combinada (para referência, se necessário)
-    @disciplinas_e_turmas = frequencias_base
-      .includes(:turma, :disciplina)
-      .select(:turma_id, :disciplina_id)
-      .distinct
-      .map do |freq|
+    @disciplinas_e_turmas = current_professor.turmas.flat_map do |turma|
+      current_professor.disciplinas.map do |disciplina|
         {
-          disciplina_id: freq.disciplina_id,
-          disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
-          turma_id: freq.turma_id,
-          turma: freq.turma&.nome || "Turma não encontrada"
+          disciplina_id: disciplina.id,
+          disciplina: disciplina.nome,
+          turma_id: turma.id,
+          turma: turma.nome
         }
       end
+    end
     
     # 9. Gráfico de desempenho (pendente)
     @grafico_desempenho_disciplinas = nil

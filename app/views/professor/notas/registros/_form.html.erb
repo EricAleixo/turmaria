@@ -37,42 +37,42 @@
       </thead>
       
       <tbody class="divide-y divide-gray-200">
-        
-        <% # Itera sobre a coleção de registros (AGORA, usando o objeto diretamente, sem depender do form.object) %>
-        <%= form.fields_for :registros, @registros do |registro_fields| %>
-          
-          <% registro = registro_fields.object %>
-          <% aluno = registro.aluno %>
-          
-          <!-- Linha com efeito hover e zebra stripe para melhor legibilidade -->
-          <tr class="odd:bg-white even:bg-gray-50 hover:bg-indigo-50 transition duration-150">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= aluno.matricula %> <%# OU USE aluno.matricula %>
-              </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-              <%= aluno.nome %>
-              <% if registro_fields.object.errors[:valor].any? %>
-                <!-- Estilo de Erro Aprimorado -->
-                <div class="mt-1 text-xs text-red-600 font-bold bg-red-50 p-1 rounded-md inline-block">
-                  <%= registro_fields.object.errors[:valor].join(', ') %>
-                </div>
-              <% end %>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <%= registro_fields.fields_for aluno.id.to_s, registro do |nota_field| %>
-                <%= nota_field.text_field :valor, 
-                                          step: '0.01', 
-                                          # Estilos de Input Aprimorados (transição, foco azul)
-                                          class: 'form-control text-center w-24 mx-auto border border-gray-300 rounded-lg shadow-sm p-2 transition duration-150 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500', 
-                                          placeholder: 'Nota',
-                                          value: nota_field.object.valor.to_s.gsub('.', ',') 
-                                          %>
-              <% end %>
-            </td>
-          </tr>
+  <% @registros.each do |registro| %>
+
+    <% aluno = registro.aluno %>
+
+    <tr class="odd:bg-white even:bg-gray-50 hover:bg-indigo-50 transition duration-150">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <%= aluno.matricula %>
+      </td>
+
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+        <%= aluno.nome %>
+
+        <% if registro.errors[:valor].any? %>
+          <div class="mt-1 text-xs text-red-600 font-bold bg-red-50 p-1 rounded-md inline-block">
+            <%= registro.errors[:valor].join(', ') %>
+          </div>
         <% end %>
-      </tbody>
+      </td>
+
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <input
+          type="hidden"
+          name="open_struct[registros][<%= aluno.id %>][aluno_id]"
+          value="<%= aluno.id %>">
+
+        <input
+          type="text"
+          name="open_struct[registros][<%= aluno.id %>][valor]"
+          value="<%= registro.valor.to_s.gsub('.', ',') %>"
+          placeholder="Nota"
+          class="form-control text-center w-24 mx-auto border border-gray-300 rounded-lg shadow-sm p-2 transition duration-150 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+      </td>
+    </tr>
+
+  <% end %>
+</tbody>
     </table>
   </div>
 

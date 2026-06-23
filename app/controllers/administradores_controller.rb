@@ -46,7 +46,7 @@ class AdministradoresController < ApplicationController
   end
 
   def minhas_escolas
-    @escolas = current_admin.escolas
+    @escolas = current_admin.escolas.order(updated_at: :desc)
   end
 
   def show; end

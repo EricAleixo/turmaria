@@ -1,7 +1,9 @@
 pt-BR:
   date:
     formats:
-      longs: "%d de %B de %Y"
+      default: "%d/%m/%Y"
+      short: "%d/%m/%Y"
+      long: "%d de %B de %Y"
     month_names:
       - ~
       - Janeiro
