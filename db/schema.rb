@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_17_140613) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -157,6 +157,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_17_140613) do
     t.decimal "nota_bimestre_final", precision: 4, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "conceito"
     t.index ["aluno_id", "turma_id", "disciplina_id", "bimestre"], name: "idx_unique_avaliacao_bimestral", unique: true
     t.index ["aluno_id"], name: "index_avaliacoes_bimestrais_on_aluno_id"
     t.index ["disciplina_id"], name: "index_avaliacoes_bimestrais_on_disciplina_id"
@@ -378,10 +379,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_17_140613) do
   create_table "registros_de_notas", force: :cascade do |t|
     t.uuid "aluno_id", null: false
     t.bigint "avaliacao_configuracao_id", null: false
-    t.decimal "valor", precision: 4, scale: 2, null: false
+    t.decimal "valor", precision: 4, scale: 2
     t.date "data_registro"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "conceito"
     t.index ["aluno_id", "avaliacao_configuracao_id"], name: "idx_unique_nota_registro_valor", unique: true
     t.index ["aluno_id"], name: "index_registros_de_notas_on_aluno_id"
   end
@@ -422,8 +424,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_17_140613) do
     t.datetime "updated_at", null: false
     t.uuid "escola_id", null: false
     t.bigint "ano_letivo_id", null: false
+    t.integer "tipo_avaliacao", default: 0, null: false
     t.index ["ano_letivo_id"], name: "index_turmas_on_ano_letivo_id"
     t.index ["escola_id"], name: "index_turmas_on_escola_id"
+    t.index ["tipo_avaliacao"], name: "index_turmas_on_tipo_avaliacao"
   end
 
   create_table "users", force: :cascade do |t|

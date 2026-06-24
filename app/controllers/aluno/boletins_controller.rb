@@ -17,44 +17,41 @@ class Aluno::BoletinsController < ApplicationController
 
   # GET /aluno/boletins/show_por_ano/:id
   def show_por_ano
-    @ano_letivo = current_aluno.anos_letivos_com_boletim.find(params[:id])
-    @turma = current_aluno.turmas_cursadas.find_by(ano_letivo_id: @ano_letivo.id)
+  @ano_letivo = AnoLetivo.find(params[:id])
 
-    if @turma
-      @aluno = current_aluno
-      
-      # 1. CARREGAR AVALIAÇÕES BIMESTRAIS
-      avaliacoes = AvaliacaoBimestral
-        .includes(:disciplina)
-        .where(aluno_id: @aluno.id, turma_id: @turma.id)
-        .order('disciplinas.nome', :bimestre)
-        
-      @boletim_disciplinas = avaliacoes.group_by(&:disciplina)
+  # Tenta via AvaliacaoBimestral (nota) ou via RegistroDeNota (conceito)
+  @turma = buscar_turma_do_aluno_no_ano(current_aluno, @ano_letivo)
 
-      # 2. CARREGAR DADOS DE FREQUÊNCIA POR DISCIPLINA
-      @frequencia_por_disciplina = calcular_frequencia_por_disciplina(@turma, @aluno)
-      
-      # --- RESPOND_TO PARA PDF ---
-      respond_to do |format|
-        format.html
-        
-        format.pdf do
-          # 1. Cria a instância do PDF
-          pdf = BoletimPdf.new(@aluno, @turma, @ano_letivo, @boletim_disciplinas, @frequencia_por_disciplina, view_context)
-          
-          # 2. Envia o arquivo para o navegador
-          send_data pdf.render, filename: "boletim_#{@aluno.matricula}_#{@ano_letivo.ano}.pdf", type: "application/pdf", disposition: "attachment"
-        end # FIM do format.pdf
-      end # FIM do respond_to
-    else
-      redirect_to aluno_boletins_path, alert: "Turma e notas não encontradas para o ano letivo #{@ano_letivo.ano}."
+  if @turma
+    @aluno = current_aluno
+
+    avaliacoes = AvaliacaoBimestral
+      .includes(:disciplina)
+      .where(aluno_id: @aluno.id, turma_id: @turma.id)
+      .order('disciplinas.nome', :bimestre)
+
+    @boletim_disciplinas = avaliacoes.group_by(&:disciplina)
+    @frequencia_por_disciplina = calcular_frequencia_por_disciplina(@turma, @aluno)
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        pdf = BoletimPdf.new(@aluno, @turma, @ano_letivo, @boletim_disciplinas, @frequencia_por_disciplina, view_context)
+        send_data pdf.render,
+                  filename: "boletim_#{@aluno.matricula}_#{@ano_letivo.ano}.pdf",
+                  type: "application/pdf",
+                  disposition: "attachment"
+      end
     end
+  else
+    redirect_to aluno_boletins_path, alert: "Turma não encontrada para o ano letivo #{@ano_letivo.ano}."
   end
+end
 
   def enviar_email
     @aluno = current_aluno
     @ano_letivo = AnoLetivo.find(params[:id])
-    @turma = @aluno.turma
+    @turma = buscar_turma_do_aluno_no_ano(@aluno, @ano_letivo)
     
     # Validação: verificar se a turma existe
     unless @turma
@@ -100,6 +97,25 @@ class Aluno::BoletinsController < ApplicationController
   end
 
   private
+
+  def buscar_turma_do_aluno_no_ano(aluno, ano_letivo)
+    # Primeiro tenta via AvaliacaoBimestral (turmas de nota)
+    turma = Turma.joins(:avaliacoes_bimestrais)
+                .where(ano_letivo_id: ano_letivo.id,
+                        avaliacoes_bimestrais: { aluno_id: aluno.id })
+                .first
+
+    # Se não encontrou, tenta via RegistroDeNota (turmas de conceito)
+    turma ||= Turma.joins(avaliacoes_configuracoes: :registros_de_notas)
+                  .where(ano_letivo_id: ano_letivo.id,
+                          registros_de_notas: { aluno_id: aluno.id })
+                  .first
+
+    # Fallback: turma atual do aluno
+    turma ||= aluno.turma if aluno.turma&.ano_letivo_id == ano_letivo.id
+
+    turma
+  end
 
   # Método para calcular Frequência: Total de Aulas e Total de Faltas por Disciplina
   def calcular_frequencia_por_disciplina(turma, aluno)

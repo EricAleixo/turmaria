@@ -173,44 +173,78 @@
       </h2>
 
       <div class="border border-gray-200 rounded-lg overflow-hidden">
-        <% if @medias_por_disciplina.present? %>
-            <div class="max-h-96 overflow-y-auto bg-white"> <%# Max-h-96 é a altura máxima com scroll %>
-                <% @medias_por_disciplina.each do |nome, media| %>
-                    <% media_percentual = (media * 10).to_i # 8.5 -> 85 %>
-                    <% 
-                        cor_barra = case media
-                        when 0...6.0 then 'bg-red-500'
-                        when 6.0...7.0 then 'bg-yellow-500'
-                        else 'bg-green-500'
-                        end
-                    %>
+        <% if @turma_atual&.usa_conceito? %>
 
-                    <div class="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition duration-150">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-semibold text-gray-700"><%= nome %></span>
-                            <span class="text-lg font-bold text-gray-800"><%= "%.1f" % media %></span>
-                        </div>
-                        
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="<%= cor_barra %> h-2.5 rounded-full" style="width: <%= media_percentual %>%"></div>
-                        </div>
-                        <span class="text-xs text-gray-500 mt-1 block">
-                            Status: 
-                            <% if media >= 7.0 %>
-                                <span class="text-green-600 font-medium">Aprovado</span>
-                            <% elsif media >= 6.0 %>
-                                <span class="text-yellow-600 font-medium">Recuperação</span>
-                            <% else %>
-                                <span class="text-red-600 font-medium">Alerta Crítico</span>
-                            <% end %>
-                        </span>
-                    </div>
-                <% end %>
+          <%# ——— TURMA DE CONCEITO ——— %>
+          <% if @conceitos_por_disciplina.present? %>
+            <div class="max-h-96 overflow-y-auto bg-white">
+              <% @conceitos_por_disciplina.each do |item| %>
+                <%
+                  conceito = item[:conceito].to_s
+                  label    = { "a" => "A — Excelente", "b" => "B — Bom", "c" => "C — Regular", "d" => "D — Insuficiente" }[conceito] || "—"
+                  cor_badge = case conceito
+                              when "a" then "bg-green-100 text-green-800"
+                              when "b" then "bg-blue-100 text-blue-800"
+                              when "c" then "bg-yellow-100 text-yellow-800"
+                              when "d" then "bg-red-100 text-red-800"
+                              else "bg-gray-100 text-gray-500"
+                              end
+                %>
+                <div class="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition duration-150 flex justify-between items-center">
+                  <span class="font-semibold text-gray-700"><%= item[:disciplina] %></span>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold <%= cor_badge %>">
+                    <%= label %>
+                  </span>
+                </div>
+              <% end %>
             </div>
-        <% else %>
+          <% else %>
             <div class="text-center py-12 bg-gray-50">
-                <p class="text-slate-500">Nenhuma nota registrada até o momento.</p>
+              <p class="text-slate-500">Nenhum conceito registrado até o momento.</p>
             </div>
+          <% end %>
+
+        <% else %>
+
+          <%# ——— TURMA DE NOTA ——— %>
+          <% if @medias_por_disciplina.present? %>
+            <div class="max-h-96 overflow-y-auto bg-white">
+              <% @medias_por_disciplina.each do |nome, media| %>
+                <% media_percentual = (media * 10).to_i %>
+                <%
+                  cor_barra = case media
+                              when 0...6.0 then 'bg-red-500'
+                              when 6.0...7.0 then 'bg-yellow-500'
+                              else 'bg-green-500'
+                              end
+                %>
+                <div class="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition duration-150">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="font-semibold text-gray-700"><%= nome %></span>
+                    <span class="text-lg font-bold text-gray-800"><%= "%.1f" % media %></span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="<%= cor_barra %> h-2.5 rounded-full" style="width: <%= media_percentual %>%"></div>
+                  </div>
+                  <span class="text-xs text-gray-500 mt-1 block">
+                    Status:
+                    <% if media >= 7.0 %>
+                      <span class="text-green-600 font-medium">Aprovado</span>
+                    <% elsif media >= 6.0 %>
+                      <span class="text-yellow-600 font-medium">Recuperação</span>
+                    <% else %>
+                      <span class="text-red-600 font-medium">Alerta Crítico</span>
+                    <% end %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-12 bg-gray-50">
+              <p class="text-slate-500">Nenhuma nota registrada até o momento.</p>
+            </div>
+          <% end %>
+
         <% end %>
       </div>
 

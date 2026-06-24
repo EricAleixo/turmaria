@@ -1,27 +1,27 @@
 <%= content_for :page_title, @titulo_pagina %>
 
+<% usa_conceito = @turma_atual&.usa_conceito? %>
+
 <div class="bg-gradient-to-br from-green-50 via-gray-50 to-gray-100 min-h-screen p-4 sm:p-8">
   <div class="w-full max-w-9xl mx-auto">
     <div class="bg-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl border border-green-100">
-      
+
       <div class="mb-8 border-b-2 border-green-200 pb-4 flex justify-between items-center flex-wrap">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-green-700 flex items-center">
-          <%# Ícone principal no cabeçalho %>
-          <svg class="w-8 h-8 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-          Minhas Notas
+          <svg class="w-8 h-8 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <%= usa_conceito ? "Meus Conceitos" : "Minhas Notas" %>
         </h1>
         <span class="text-lg font-semibold text-gray-600 mt-2 sm:mt-0">
-          Turma Atual: 
-          <%# Correção do erro de sintaxe do ERB %>
-          <%= @turma_atual ? "#{@turma_atual.serie} ° #{@turma_atual.nome}" : 'Nenhuma' %>
+          Turma Atual:
+          <%= @turma_atual ? "#{@turma_atual.serie}° #{@turma_atual.nome}" : 'Nenhuma' %>
         </span>
       </div>
 
-      <%# --- Lógica para Ausência de Dados vs. Tabela --- %>
       <% if @registros_notas.present? %>
-        
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Histórico Detalhado</h2>
-        
+
         <div class="overflow-x-auto shadow-xl rounded-xl">
           <table class="min-w-full divide-y divide-gray-200">
             <thead>
@@ -29,130 +29,139 @@
                 <th class="px-6 py-3 rounded-tl-xl">Disciplina</th>
                 <th class="px-6 py-3">Avaliação</th>
                 <th class="px-6 py-3 text-center">Bimestre</th>
-                <th class="px-6 py-3 text-center font-extrabold">Nota</th>
+                <th class="px-6 py-3 text-center font-extrabold">
+                  <%= usa_conceito ? "Conceito" : "Nota" %>
+                </th>
                 <th class="px-6 py-3 text-center rounded-tr-xl">Data Lançamento</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
               <% @registros_notas.each do |registro| %>
+                <% disciplina = registro.avaliacao_configuracao&.disciplina %>
+                <% config     = registro.avaliacao_configuracao %>
+
                 <tr class="hover:bg-green-50 transition duration-150 ease-in-out">
-                  <% disciplina = registro.avaliacao_configuracao&.disciplina %>
-                  <% config = registro.avaliacao_configuracao %>
-                  <% nota_valor = registro.valor.to_f %>
-                  
-                  <%# 1. DISCIPLINA %>
+
+                  <%# Disciplina %>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <% cor_disciplina = disciplina.try(:cor_nome) || disciplina.try(:cor) || '#10B981' %>
+                    <% cor_disciplina = disciplina.try(:cor_nome) || '#10B981' %>
                     <span class="font-semibold" style="color: <%= cor_disciplina %>;">
                       <%= disciplina&.nome || 'N/A' %>
                     </span>
                   </td>
-                  
-                  <%# 2. AVALIAÇÃO %>
+
+                  <%# Avaliação %>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-green-700 text-white">
-                      <%= config&.nome&.titleize || 'Registro Avulso' %> 
+                      <%= config&.nome&.titleize || 'Registro Avulso' %>
                     </span>
                   </td>
-                  
-                  <%# 3. BIMESTRE %>
+
+                  <%# Bimestre %>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
                     <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-teal-500 text-white">
                       <%= config&.bimestre || 'Avulso' %>
                     </span>
                   </td>
-                  
-                  <%# 4. NOTA (A cor aqui ainda é baseada na nota, para o histórico detalhado) %>
+
+                  <%# Nota ou Conceito %>
                   <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-extrabold">
-                    <% nota_formatada = '%.1f' % nota_valor %>
-                    <% 
-                      cor_nota_classe = case nota_valor
-                      when 9.0..10.0 then 'text-green-700 bg-green-100 px-3 py-1 rounded-full' # Excelente
-                      when 7.0...9.0 then 'text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full' # Bom
-                      when 5.0...7.0 then 'text-orange-700 bg-orange-100 px-3 py-1 rounded-full' # Atenção
-                      else 'text-red-700 bg-red-100 px-3 py-1 rounded-full' # Crítico
-                      end
-                    %>
-                    <span class="<%= cor_nota_classe %>">
-                      <%= nota_formatada %>
-                    </span>
+                    <% if usa_conceito %>
+                      <%
+                        conceito = registro.conceito.to_s
+                        label_conceito = { "a" => "A", "b" => "B", "c" => "C", "d" => "D" }[conceito]
+                        cor_conceito = case conceito
+                                       when "a" then "text-green-700 bg-green-100 px-3 py-1 rounded-full"
+                                       when "b" then "text-blue-700 bg-blue-100 px-3 py-1 rounded-full"
+                                       when "c" then "text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full"
+                                       when "d" then "text-red-700 bg-red-100 px-3 py-1 rounded-full"
+                                       else "text-gray-400"
+                                       end
+                      %>
+                      <span class="<%= cor_conceito %>">
+                        <%= label_conceito.presence || "—" %>
+                      </span>
+                    <% else %>
+                      <%
+                        nota_valor    = registro.valor.to_f
+                        nota_formatada = '%.1f' % nota_valor
+                        cor_nota_classe = case nota_valor
+                                          when 9.0..10.0 then "text-green-700 bg-green-100 px-3 py-1 rounded-full"
+                                          when 7.0...9.0 then "text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full"
+                                          when 5.0...7.0 then "text-orange-700 bg-orange-100 px-3 py-1 rounded-full"
+                                          else "text-red-700 bg-red-100 px-3 py-1 rounded-full"
+                                          end
+                      %>
+                      <span class="<%= cor_nota_classe %>">
+                        <%= nota_formatada %>
+                      </span>
+                    <% end %>
                   </td>
 
-                  <%# 5. DATA %>
+                  <%# Data %>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
                     <span class="inline-flex items-center text-base font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-500 text-white">
                       <%= registro.created_at&.strftime('%d/%m/%Y') || '-' %>
                     </span>
                   </td>
+
                 </tr>
               <% end %>
             </tbody>
           </table>
         </div>
 
-        <div class="mb-12"></div> <%# Espaçador entre a tabela e o resumo %>
+        <div class="mb-12"></div>
 
-        <%# ---------------------------------------------------- %>
-        <%# BLOCO DE MÉDIA POR DISCIPLINA (RESUMO) %>
-        <%# ---------------------------------------------------- %>
-        <% if @media_por_disciplina.present? %>
+        <%# Média por disciplina — só para turmas de nota %>
+        <% if @media_por_disciplina.present? && !usa_conceito %>
           <div class="mt-8 pt-6 border-t-2 border-green-200">
             <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
+              <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              </svg>
               Média Final por Disciplina
             </h2>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <% @media_por_disciplina.each do |media| %>
-                
-                <%# Prepara os dados %>
-                <% media_valor = media[:media].to_f %>
+                <% media_valor     = media[:media].to_f %>
                 <% media_formatada = '%.1f' % media_valor %>
-                
-                <%# 💡 CORREÇÃO: Força o uso do BG-GREEN-700 para todas as médias %>
-                <% status_cor = 'bg-green-600 text-white' %> 
-
                 <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200">
-                  
-                  <%# Nome da Disciplina com cor customizada %>
                   <h3 class="text-lg font-bold mb-2 truncate" style="color: <%= media[:cor] %>;">
                     <%= media[:nome] %>
                   </h3>
-                  
-                  <%# Badge de Média de Destaque %>
-                  <div class="text-3xl font-extrabold <%= status_cor %> inline-block px-3 py-1 rounded-lg shadow-sm">
+                  <div class="text-3xl font-extrabold bg-green-600 text-white inline-block px-3 py-1 rounded-lg shadow-sm">
                     <%= media_formatada %>
                   </div>
-
-                  <%# Detalhes Menores %>
                   <p class="text-sm text-gray-600 mt-3">
                     <span class="font-bold text-gray-700"><%= media[:provas_lancadas] %></span> Avaliações Lançadas
                   </p>
                   <p class="text-sm text-gray-600">
                     <span class="font-bold text-gray-700">Total: <%= '%.1f' % media[:total_notas] %></span> Pontos Somados
                   </p>
-
                 </div>
               <% end %>
             </div>
           </div>
         <% end %>
-        <%# ---------------------------------------------------- %>
 
       <% else %>
-        
-        <%# ESTADO VAZIO: Mensagem amigável quando NÃO HÁ NOTAS %>
         <div class="text-center py-16 bg-green-50 rounded-xl border-2 border-dashed border-green-200">
           <div class="max-w-md mx-auto">
-            <div class="text-6xl mb-4 text-green-400 flex justify-center">
-              <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <div class="flex justify-center mb-4">
+              <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
-            <h3 class="text-2xl font-bold text-slate-700 mb-2">Nenhum registro de nota encontrado.</h3>
-            <p class="text-slate-500">Suas notas aparecerão aqui assim que forem lançadas pelos professores.</p>
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">
+              <%= usa_conceito ? "Nenhum conceito registrado." : "Nenhum registro de nota encontrado." %>
+            </h3>
+            <p class="text-slate-500">
+              <%= usa_conceito ? "Seus conceitos aparecerão aqui assim que forem lançados." : "Suas notas aparecerão aqui assim que forem lançadas pelos professores." %>
+            </p>
             <p class="text-sm text-gray-400 mt-4">Verifique se você está alocado(a) na turma correta.</p>
           </div>
         </div>
-
       <% end %>
 
     </div>

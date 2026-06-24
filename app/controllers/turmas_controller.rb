@@ -65,11 +65,16 @@ class TurmasController < ApplicationController
 
   # DELETE /escolas/:escola_id/turmas/1 or /escolas/:escola_id/turmas/1.json
   def destroy
-    @turma.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to escola_path(@escola), status: :see_other, notice: "Turma foi excluída com sucesso." }
-      format.json { head :no_content }
+    if @turma.destroy
+      respond_to do |format|
+        format.html { redirect_to escola_path(@escola), status: :see_other, notice: "Turma excluída com sucesso." }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to escola_turma_path(@escola, @turma), alert: @turma.errors.full_messages.to_sentence }
+        format.json { render json: @turma.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -497,7 +502,7 @@ class TurmasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def turma_params
-      params.require(:turma).permit(:nome, :serie, :turno, :ano_letivo_id)
+      params.require(:turma).permit(:nome, :serie, :turno, :ano_letivo_id, :tipo_avaliacao)
     end
 end
  

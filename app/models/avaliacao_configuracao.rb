@@ -5,32 +5,39 @@ class AvaliacaoConfiguracao < ApplicationRecord
   belongs_to :turma
   belongs_to :disciplina
   has_many :registros_de_notas, class_name: 'RegistroDeNota', dependent: :destroy
-  
-  # Nova Associação para Recuperação (esta avaliação é uma recuperação de qual prova?)
-  belongs_to :avaliacao_original, class_name: 'AvaliacaoConfiguracao', 
-                                  foreign_key: 'avaliacao_original_id', 
-                                  optional: true
 
-  # Associações Inversas: Uma avaliação padrão pode ter várias recuperações
-  has_many :avaliacoes_recuperacao, class_name: 'AvaliacaoConfiguracao', 
-                                    foreign_key: 'avaliacao_original_id',
-                                    # 🚨 ALTERAÇÃO CRÍTICA: Apaga a recuperação se a original for apagada
-                                    dependent: :delete_all
-  
+  belongs_to :avaliacao_original, class_name: 'AvaliacaoConfiguracao',
+             foreign_key: 'avaliacao_original_id',
+             optional: true
+
+  has_many :avaliacoes_recuperacao, class_name: 'AvaliacaoConfiguracao',
+           foreign_key: 'avaliacao_original_id',
+           dependent: :delete_all
+
   # Validações
   validates :bimestre, presence: true, numericality: { greater_than_or_equal_to: 1 }
-  validates :nome, presence: true, uniqueness: { scope: [:turma_id, :disciplina_id, :bimestre] }
-  
-  # REGRA DE NEGÓCIO: Se for recuperação, DEVE ter uma avaliação original associada.
+  validates :nome, presence: true, uniqueness: { scope: [ :turma_id, :disciplina_id, :bimestre ] }
+
   validates :avaliacao_original_id, presence: true, if: :recuperacao?
-  # REGRA DE NEGÓCIO: Se NÃO for recuperação, NÃO PODE ter uma avaliação original associada.
   validates :avaliacao_original_id, absence: true, unless: :recuperacao?
 
-  # Scopes úteis (A ordem agora é implícita pelo created_at)
+  # Turmas de conceito não têm avaliações de recuperação
+  validate :recuperacao_incompativel_com_conceito
+
+  # Scopes
   scope :do_bimestre, ->(bimestre) { where(bimestre: bimestre) }
-  scope :padrao, -> { where(is_recuperacao: false) }
+  scope :padrao,      -> { where(is_recuperacao: false) }
   scope :recuperacao, -> { where(is_recuperacao: true) }
 
-  # Alias para clareza
   alias_attribute :recuperacao?, :is_recuperacao
+
+  private
+
+  def recuperacao_incompativel_com_conceito
+    return unless recuperacao? && turma.present?
+
+    if turma.usa_conceito?
+      errors.add(:is_recuperacao, "não é permitida em turmas com avaliação por conceito")
+    end
+  end
 end

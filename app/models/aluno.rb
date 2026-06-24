@@ -33,6 +33,12 @@ class Aluno < ApplicationRecord
          source: :avaliacao_configuracao,
          dependent: :destroy
 
+  has_many :turmas_cursadas_conceito,
+         -> { distinct },
+         through: :registros_de_notas,
+         source: :turma,
+         class_name: 'Turma'
+
   # === Active Storage ===
   has_one_attached :foto
   has_one_attached :historico_academico
@@ -90,7 +96,19 @@ class Aluno < ApplicationRecord
   end
 
   def anos_letivos_com_notas
-    anos_letivos_com_boletim.order(ano: :desc)
+    # Turmas com avaliações bimestrais (nota numérica)
+    ids_via_boletim = anos_letivos_com_boletim.pluck(:id)
+
+    # Turmas com registros de conceito (sem AvaliacaoBimestral)
+    ids_via_conceito = AnoLetivo
+      .joins(turmas: { avaliacoes_configuracoes: :registros_de_notas })
+      .where(registros_de_notas: { aluno_id: id })
+      .where.not(registros_de_notas: { conceito: nil })
+      .pluck(:id)
+
+    todos_ids = (ids_via_boletim + ids_via_conceito).uniq
+
+    AnoLetivo.where(id: todos_ids).order(ano: :desc)
   end
 
   # === Scopes ===

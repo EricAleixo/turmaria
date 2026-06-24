@@ -38,6 +38,11 @@
           <div class="flex gap-3 absolute -top-6 left-10">
             <span class="badge badge-lg bg-green-600 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.serie %>º ano</span>
             <span class="badge badge-lg bg-blue-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium"><%= @turma.turno_humanizado %></span>
+            <% if @turma.usa_conceito? %>
+              <span class="badge badge-lg bg-purple-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium">Avaliação por Conceito</span>
+            <% else %>
+              <span class="badge badge-lg bg-orange-500 text-white border-0 shadow-lg px-4 py-3 text-sm font-medium">Avaliação por Nota</span>
+            <% end %>
           </div>
 
           <!-- Action Buttons -->
