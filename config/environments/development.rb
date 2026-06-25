@@ -94,5 +94,4 @@ Aws.config.update(logger: Rails.logger, log_level: :debug)
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
-  config.hosts << "turmaria.onrender.com"
 end
