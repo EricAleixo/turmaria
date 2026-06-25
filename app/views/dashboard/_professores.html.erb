@@ -381,19 +381,78 @@
 
         <% if @presenca_semanal&.any? %>
           <div class="space-y-4">
-            <% @presenca_semanal.each do |dia_semana| %>
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-semibold text-gray-700"><%= dia_semana[:dia] %></span>
-                  <span class="text-sm text-gray-600"><%= dia_semana[:presentes] %>/<%= dia_semana[:total] %></span>
-                </div>
-                <div class="flex gap-2 h-8">
-                  <div class="bg-green-500 rounded-lg transition-all hover:bg-green-600" style="width: <%= dia_semana[:percentual_presentes] %>%"></div>
-                  <div class="bg-red-300 rounded-lg transition-all hover:bg-red-400" style="width: <%= dia_semana[:percentual_ausentes] %>%"></div>
-                </div>
+        <% @presenca_semanal.each do |dia_semana| %>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-semibold text-gray-700">
+                <%= dia_semana[:dia] %>
+              </span>
+
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500">
+                  <%= dia_semana[:percentual_presentes] %>%
+                </span>
+
+                <span class="text-sm text-gray-600">
+                  <%= dia_semana[:presentes] %>/<%= dia_semana[:total] %>
+                </span>
               </div>
-            <% end %>
+            </div>
+
+            <div class="flex gap-2 h-8">
+              <div
+                class="bg-green-500 rounded-lg transition-all hover:bg-green-600"
+                style="width: <%= dia_semana[:percentual_presentes] %>%">
+              </div>
+
+              <div
+                class="bg-red-300 rounded-lg transition-all hover:bg-red-400"
+                style="width: <%= dia_semana[:percentual_ausentes] %>%">
+              </div>
+            </div>
           </div>
+        <% end %>
+</div>
+
+<hr class="my-6 border-gray-200">
+
+<div>
+  <h4 class="text-sm font-semibold text-gray-800 mb-4">
+    Últimas Chamadas
+  </h4>
+
+  <div class="space-y-3">
+    <% @ultimas_chamadas.each do |chamada| %>
+      <div class="border border-gray-100 rounded-xl p-3 hover:bg-gray-50 transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-medium text-gray-800">
+              <%= chamada[:disciplina] %>
+            </p>
+
+            <p class="text-sm text-gray-500">
+              <%= chamada[:turma] %>
+            </p>
+          </div>
+
+          <span class="text-xs text-gray-500">
+            <%= chamada[:data].strftime("%d/%m/%Y") %>
+          </span>
+        </div>
+
+        <div class="mt-2 flex items-center justify-between">
+          <span class="text-sm text-green-600 font-medium">
+            <%= chamada[:presentes] %>/<%= chamada[:total] %> presentes
+          </span>
+
+          <span class="text-xs text-gray-500">
+            <%= chamada[:percentual] %>%
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
 
           <div class="mt-6 pt-6 border-t border-gray-200">
             <div class="flex items-center justify-between">
@@ -492,9 +551,6 @@
 
   </main>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 let disciplinesPerformanceChart;
 

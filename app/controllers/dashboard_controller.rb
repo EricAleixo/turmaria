@@ -565,7 +565,10 @@ end
     end
     
     # 9. Gráfico de desempenho (pendente)
-    @grafico_desempenho_disciplinas = nil
+    @grafico_desempenho_disciplinas = {
+      labels: ["Matemática", "Português"],
+      data: [8.5, 7.2]
+    }
     
     # 10. 📅 CALENDÁRIO DE PRESENÇA DO MÊS (REAL e FILTRADO)
     @calendario_presenca = frequencias_mes
@@ -583,8 +586,53 @@ end
         }
       end
     
-    # 11. Presença semanal (pendente)
-    @presenca_semanal = nil
+    # 11. Presença semanal
+    @presenca_semanal = frequencias
+    .joins(:frequencia_alunos)
+    .group("EXTRACT(DOW FROM frequencias.data_aula)")
+    .pluck(
+      Arel.sql("EXTRACT(DOW FROM frequencias.data_aula)"),
+      Arel.sql("SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END)"),
+      Arel.sql("COUNT(frequencia_alunos.id)")
+    )
+    .map do |dow, presentes, total|
+
+      percentual_presentes = total.positive? ? ((presentes.to_f / total) * 100).round : 0
+
+        {
+          dia: {
+            0 => "Domingo",
+            1 => "Segunda",
+            2 => "Terça",
+            3 => "Quarta",
+            4 => "Quinta",
+            5 => "Sexta",
+            6 => "Sábado"
+          }[dow.to_i],
+        presentes: presentes,
+        total: total,
+        percentual_presentes: percentual_presentes,
+        percentual_ausentes: 100 - percentual_presentes
+      }
+    end
+    @ultimas_chamadas = frequencias
+      .includes(:turma, :disciplina, :frequencia_alunos)
+      .order(data_aula: :desc)
+      .limit(5)
+      .map do |frequencia|
+
+        total = frequencia.frequencia_alunos.count
+        presentes = frequencia.frequencia_alunos.where(status: 'presente').count
+
+        {
+          data: frequencia.data_aula,
+          turma: frequencia.turma&.nome,
+          disciplina: frequencia.disciplina&.nome,
+          presentes: presentes,
+          total: total,
+          percentual: total.positive? ? ((presentes.to_f / total) * 100).round : 0
+        }
+      end
   end
 
 

@@ -10,6 +10,7 @@
 
   <div class="relative z-10 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
+    <%# ── Coluna esquerda: texto ── %>
     <div class="flex flex-col gap-7">
 
       <div data-aos="fade-up"
@@ -27,24 +28,18 @@
 
       <p data-aos="fade-up" data-aos-delay="200"
          class="text-lg text-gray-500 max-w-md leading-relaxed">
-        Controle alunos, professores, frequência, notas, matrículas e comunicação com praticidade e segurança.
+        Controle alunos, professores, frequência, notas e matrículas, com praticidade e segurança.
       </p>
 
-      <div data-aos="fade-up" data-aos-delay="300"
-           class="flex flex-wrap gap-4 mt-1">
-        <button class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg shadow-blue-500/30">
-          Solicitar demonstração
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
+            <div data-aos="fade-up" data-aos-delay="300"
+        class="flex flex-wrap gap-3 mt-1">
+        <button type="button" onclick="scrollToContact('solicitar_acesso')"
+          class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg shadow-blue-500/30 cursor-pointer">
+          Solicitar acesso
         </button>
-        <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 transition-colors text-gray-800 font-semibold px-6 py-3.5 rounded-xl border border-gray-200 shadow-sm">
-          <span class="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </span>
-          Conhecer funcionalidades
+        <button type="button" onclick="scrollToContact('conhecer_sistema')"
+          class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 transition-colors text-gray-800 font-semibold px-6 py-3.5 rounded-xl border border-gray-200 shadow-sm cursor-pointer">
+          Fale conosco
         </button>
       </div>
 
@@ -78,16 +73,60 @@
 
     </div>
 
+    <%# ── Coluna direita: MacBook mockup ── %>
     <div data-aos="fade-left" data-aos-delay="200"
-         class="relative w-full self-stretch">
-      <div class="w-full h-[94%] bg-gray-100 rounded-2xl shadow-2xl shadow-black/40 p-3 flex items-center justify-center">
-        <%= image_tag "dashboard-mockup.png", class: "w-full h-fit object-contain object-top rounded-xl block", alt: "Painel do Turmaria" %>
+         class="flex items-center justify-center px-4 sm:px-6 lg:px-0">
+
+      <%# Wrapper único que agrupa tela + base em coluna %>
+      <div class="flex flex-col items-center w-full max-w-[566px]">
+
+        <%# — Tela (bezel) — %>
+        <div class="relative w-full border-[8px] border-gray-800 bg-gray-800 rounded-t-xl shadow-2xl">
+
+          <%# Webcam %>
+          <div class="absolute -top-[6px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-gray-600 z-10"></div>
+
+          <%# Barra de URL %>
+          <div class="flex items-center gap-1.5 px-2 py-1.5 bg-gray-900">
+            <%# Bolinhas %>
+            <span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
+            <span class="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+            <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+            <%# Campo de URL %>
+            <div class="flex-1 flex items-center gap-1.5 bg-gray-700 rounded px-2 py-0.5 mx-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <span class="text-gray-300 font-mono truncate" style="font-size: 9px;">app.turmaria.com</span>
+            </div>
+          </div>
+
+          <%# Vídeo %>
+          <div class="overflow-hidden rounded-b-[2px] bg-slate-100" style="aspect-ratio: 16/10;">
+            <video
+              class="w-full h-full object-cover object-top block"
+              autoplay muted loop playsinline preload="metadata"
+              aria-label="Demonstração do painel do Turmaria"
+            >
+              <source src="<%= asset_path '/media/hero.mp4' %>" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <%# — Palmrest (base fina) — %>
+        <div class="relative w-[115%] h-[21px] bg-gray-800 rounded-b-xl">
+          <%# Recuo de abertura %>
+          <div class="absolute left-1/2 -translate-x-1/2 top-0 w-[94px] h-[6px] bg-gray-700 rounded-b-lg"></div>
+        </div>
+
+        <%# — Sombra no chão — %>
+        <div class="w-[90%] h-3 bg-black/15 blur-md rounded-full mt-1"></div>
+
       </div>
     </div>
 
   </div>
 </section>
-
 
 <%# ══════════════════════════════════════════════════ %>
 <%# BENEFÍCIOS                                         %>
@@ -157,8 +196,8 @@
           </svg>
         </div>
         <div class="flex flex-col gap-3">
-          <h3 class="text-lg font-bold text-gray-900">Comunicação eficiente</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">Conecte professores, alunos e responsáveis com comunicados, avisos e notificações em tempo real.</p>
+          <h3 class="text-lg font-bold text-gray-900">Suporte eficiente</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Sempre conte com alguém a disposição para ajudar no uso do sistema.</p>
         </div>
         <div class="w-10 h-1 rounded-full bg-purple-500 mt-auto"></div>
       </div>
@@ -218,9 +257,41 @@
         </ul>
       </div>
 
-      <div data-aos="fade-left" data-aos-delay="150"
-           class="w-full aspect-[16/10] rounded-2xl bg-teal-700/10 border-4 border-teal-600/20"></div>
+      <%# ── BLOCO DO VÍDEO AJUSTADO ── %>
+        <div data-aos="fade-left" data-aos-delay="150" class="w-full flex flex-col items-center px-4 lg:px-6">
 
+          <%# Moldura de monitor/browser %>
+          <div class="w-full rounded-2xl overflow-hidden shadow-2xl ring-2 ring-gray-900/20 bg-gray-100" style="box-shadow: 0 25px 60px -10px rgba(0,0,0,0.30), 0 10px 25px -8px rgba(0,0,0,0.18);">
+
+            <%# Barra superior estilo browser %>
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-gray-200/80 border-b border-gray-300/60">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-400/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-400/80"></span>
+              <div class="ml-3 flex-1 h-5 bg-white/70 rounded-md border border-gray-300/50 flex items-center px-2.5">
+                <span class="text-[10px] text-gray-400 font-medium tracking-wide truncate">app.turmaria.com.br/dashboard</span>
+              </div>
+            </div>
+
+            <%# Vídeo %>
+            <div class="w-full bg-slate-50" style="aspect-ratio: 16/10;">
+              <video
+                class="w-full h-full object-cover object-top block"
+                autoplay muted loop playsinline preload="metadata"
+                aria-label="Demonstração do painel do Turmaria"
+              >
+                <source src="<%= asset_path '/media/dados.mp4' %>" type="video/mp4">
+              </video>
+            </div>
+
+          </div>
+
+          <%# Pé de monitor %>
+          <div class="mt-1 h-3 w-1/2 rounded-b-lg bg-gray-300/50"></div>
+          <div class="mt-0.5 h-1.5 w-1/4 rounded-b-lg bg-gray-300/30"></div>
+
+        </div>
+      <%# ── FIM DO BLOCO ── %>
     </div>
   </div>
 
@@ -232,10 +303,25 @@
     <div class="mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
       <div data-aos="fade-right" data-aos-delay="100"
-           class="flex items-center justify-center">
+        class="flex items-center justify-center">
         <div class="relative">
-          <div class="absolute inset-0 m-auto w-72 h-72 bg-blue-100 rounded-full"></div>
-          <div class="relative w-64 mx-auto aspect-[9/16] rounded-3xl bg-white border-2 border-gray-200 shadow-xl"></div>
+          <div class="absolute inset-0 m-auto w-80 h-80 bg-blue-100 rounded-full"></div>
+
+          <div class="relative w-64 mx-auto aspect-[9/16] rounded-3xl bg-white border-2 border-gray-200 shadow-xl p-2">
+            <div class="w-full h-full overflow-hidden rounded-[22px] bg-slate-100">
+              <video
+                class="w-full h-full object-cover object-top block"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Demonstração do painel do Turmaria"
+              >
+                <source src="<%= asset_path '/media/mobile.mp4' %>" type="video/mp4">
+              </video>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -347,8 +433,20 @@
       </div>
 
       <div data-aos="fade-left" data-aos-delay="150"
-           class="w-full">
-        <div class="w-full aspect-[16/10] rounded-2xl bg-gray-800/10 border-4 border-gray-700/20"></div>
+           class="w-full overflow-hidden">
+        <div class="overflow-hidden w-full aspect-[16/10] rounded-2xl bg-gray-800/10 border-4 border-gray-700/20">
+            <video
+                class="w-full h-full object-cover object-top block"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Demonstração do painel do Turmaria"
+              >
+                <source src="<%= asset_path '/media/dashboards.mp4' %>" type="video/mp4">
+              </video>
+            </div>
         <div class="mx-auto mt-1 h-3 w-2/3 rounded-b-xl bg-gray-300/60"></div>
       </div>
 
@@ -361,155 +459,148 @@
 <%# ══════════════════════════════════════════════════ %>
 <%# COMUNICAÇÃO                                        %>
 <%# ══════════════════════════════════════════════════ %>
-<section class="relative w-full overflow-hidden py-20 px-6 lg:px-16" style="background: radial-gradient(circle at 95% 10%, rgba(134,210,172,0.35) 0%, transparent 40%), linear-gradient(160deg, #eef3fb 0%, #f4f8ff 60%, #edfaf4 100%);">
-
-  <div class="absolute bottom-10 left-10 grid grid-cols-4 gap-2.5 opacity-25 pointer-events-none">
-    <% 16.times do %><span class="w-1.5 h-1.5 rounded-full bg-blue-400 block"></span><% end %>
+<section id="contato" class="relative w-full overflow-hidden py-20 px-6 lg:px-16" style="background: radial-gradient(circle at 95% 10%, rgba(134,210,172,0.35) 0%, transparent 40%), linear-gradient(160deg, #eef3fb 0%, #f4f8ff 60%, #edfaf4 100%);">
+  <div class="absolute bottom-10 left-10 grid grid-cols-4 gap-2.5 opacity-20 pointer-events-none">
+    <% 16.times do %>
+      <span class="w-1.5 h-1.5 rounded-full bg-blue-400 block"></span>
+    <% end %>
   </div>
 
-  <div class="relative z-10 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+  <div class="absolute top-12 right-24 grid grid-cols-5 gap-2 opacity-15 pointer-events-none">
+    <% 10.times do %>
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 block"></span>
+    <% end %>
+  </div>
 
-    <!-- COL 1: TEXT -->
-    <div class="flex flex-col gap-7 pt-4">
-      <span data-aos="fade-right"
-            class="inline-flex items-center gap-2 bg-white border border-gray-200 shadow-sm text-blue-600 text-xs font-bold tracking-[0.18em] uppercase rounded-full px-4 py-2 w-fit">
+  <div class="relative z-10 mx-auto max-w-2xl flex flex-col gap-8">
+
+    <!-- Badge -->
+    <div class="flex justify-center">
+      <span class="inline-flex items-center gap-2 bg-white border border-gray-200 shadow-sm text-blue-600 text-xs font-bold tracking-[0.18em] uppercase rounded-full px-4 py-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4-1-4z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
-        Comunicação
+        Fale conosco
       </span>
-      <h2 data-aos="fade-right" data-aos-delay="100"
-          class="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-        Comunicação<br>
-        que aproxima<br>
-        <span class="text-blue-600">escola</span> e <span class="text-emerald-500">família.</span>
+    </div>
+
+    <!-- Heading -->
+    <div class="text-center flex flex-col gap-2">
+      <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+        Como podemos<br>
+        <span class="text-blue-600">te ajudar</span> hoje?
       </h2>
-      <p data-aos="fade-right" data-aos-delay="200"
-         class="text-gray-500 text-base leading-relaxed">
-        Comunique avisos, eventos, tarefas e informações em tempo real com pais, responsáveis, alunos e professores.
+      <p class="text-gray-500 text-base leading-relaxed mt-1">
+        Escolha o que você precisa e entraremos em contato o quanto antes.
       </p>
-      <ul data-aos="fade-right" data-aos-delay="300"
-          class="flex flex-col gap-5">
-        <li class="flex items-start gap-4">
-          <span class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4-1-4z"/>
-            </svg>
-          </span>
-          <div>
-            <p class="font-bold text-gray-900 text-sm">Mensagens instantâneas</p>
-            <p class="text-gray-500 text-sm mt-0.5">Converse em tempo real com responsáveis e alunos.</p>
-          </div>
-        </li>
-        <li class="flex items-start gap-4">
-          <span class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
-            </svg>
-          </span>
-          <div>
-            <p class="font-bold text-gray-900 text-sm">Avisos e comunicados</p>
-            <p class="text-gray-500 text-sm mt-0.5">Envie avisos importantes para turmas ou grupos.</p>
-          </div>
-        </li>
-        <li class="flex items-start gap-4">
-          <span class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-purple-50 text-purple-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-          </span>
-          <div>
-            <p class="font-bold text-gray-900 text-sm">Notificações inteligentes</p>
-            <p class="text-gray-500 text-sm mt-0.5">Todos ficam informados no momento certo.</p>
-          </div>
-        </li>
-      </ul>
-      <button data-aos="fade-right" data-aos-delay="400"
-              class="inline-flex items-center gap-2 border border-blue-300 text-blue-600 font-semibold text-sm px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors w-fit mt-2">
-        Saiba mais sobre comunicação
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-        </svg>
-      </button>
     </div>
 
-    <!-- COL 2: APP CARD -->
-    <div data-aos="fade-up" data-aos-delay="150"
-         class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-      <div class="flex items-start gap-4 p-5 border-b border-gray-100">
-        <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-            <line x1="12" y1="18" x2="12.01" y2="18"/>
-          </svg>
-        </span>
-        <div>
-          <p class="font-bold text-gray-900 text-sm">App Turmaria</p>
-          <p class="text-gray-500 text-sm mt-0.5">Pais e responsáveis acompanham tudo na palma da mão com o nosso app.</p>
-        </div>
-      </div>
-      <div class="flex-1 min-h-[380px] bg-teal-700/10"></div>
-    </div>
+    <!-- Form Card -->
+    <%= form_with url: "", method: :post, data: { controller: "contact-form" }, class: "bg-white rounded-2xl shadow-lg p-6 lg:p-8 flex flex-col gap-6" do |f| %>
 
-    <!-- COL 3: CHAT CARD -->
-    <div data-aos="fade-left" data-aos-delay="250"
-         class="bg-blue-500 rounded-2xl shadow-lg overflow-hidden flex flex-col p-5 gap-4">
-      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-400/50 text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4-1-4z"/>
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+      <!-- Assunto -->
+      <div class="flex flex-col gap-2">
+        <span class="text-sm font-semibold text-gray-700">Assunto</span>
+        <div class="flex gap-3" data-contact-form-target="subjectGroup">
+
+          <label class="subject-btn flex-1 flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-600 font-semibold text-sm px-4 py-3 rounded-xl bg-white cursor-pointer transition-all has-[:checked]:bg-blue-500 has-[:checked]:text-white has-[:checked]:border-blue-500">
+            <%= f.radio_button :subject, "solicitar_acesso", class: "sr-only", data: { action: "change->contact-form#updateSubject" } %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            Solicitar acesso
+          </label>
+
+          <label class="subject-btn flex-1 flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-600 font-semibold text-sm px-4 py-3 rounded-xl bg-white cursor-pointer transition-all has-[:checked]:bg-emerald-500 has-[:checked]:text-white has-[:checked]:border-emerald-500">
+            <%= f.radio_button :subject, "conhecer_sistema", class: "sr-only", data: { action: "change->contact-form#updateSubject" } %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.347A3 3 0 0112 18a3 3 0 01-2.121-.879l-.347-.347z"/>
+            </svg>
+            Conhecer o sistema
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Título -->
+      <div class="flex flex-col gap-2">
+        <%= f.label :title, "Título", class: "text-sm font-semibold text-gray-700" %>
+        <%= f.text_field :title,
+            placeholder: "Ex: Quero acessar o Turmaria para minha escola",
+            class: "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 bg-gray-50 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition" %>
+      </div>
+
+      <!-- Método de contato -->
+      <div class="flex flex-col gap-2" data-contact-form-target="contactMethodWrapper">
+        <span class="text-sm font-semibold text-gray-700">Como prefere receber o contato?</span>
+
+        <div class="flex gap-2 p-1 bg-gray-100 rounded-xl w-fit">
+          <label class="contact-tab cursor-pointer text-xs font-semibold px-4 py-2 rounded-lg text-gray-700 transition-all has-[:checked]:bg-slate-800 has-[:checked]:text-white">
+            <%= radio_button_tag :contact_method, "email", true, class: "sr-only", data: { action: "change->contact-form#updateContactMethod" } %>
+            E-mail
+          </label>
+          <label class="contact-tab cursor-pointer text-xs font-semibold px-4 py-2 rounded-lg text-gray-700 transition-all has-[:checked]:bg-slate-800 has-[:checked]:text-white">
+            <%= radio_button_tag :contact_method, "phone", false, class: "sr-only", data: { action: "change->contact-form#updateContactMethod" } %>
+            WhatsApp / Telefone
+          </label>
+        </div>
+
+        <div class="relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" data-contact-form-target="contactIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </span>
+          <%= f.email_field :contact_value,
+              placeholder: "seu@email.com",
+              data: { contact_form_target: "contactInput" },
+              class: "w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-800 placeholder-gray-400 bg-gray-50 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition" %>
+        </div>
+      </div>
+
+      <!-- Mensagem -->
+      <div class="flex flex-col gap-2">
+        <%= f.label :message, "Mensagem", class: "text-sm font-semibold text-gray-700" %>
+        <%= f.text_area :message,
+            rows: 4,
+            placeholder: "Conte um pouco mais sobre o que você precisa...",
+            class: "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 bg-gray-50 resize-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition" %>
+        <span class="text-xs text-gray-400">Quanto mais detalhes, mais rápido conseguimos te ajudar.</span>
+      </div>
+
+      <!-- Submit -->
+      <%= f.submit "Enviar mensagem",
+          data: { contact_form_target: "submitBtn" },
+          class: "w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-6 py-4 rounded-xl cursor-pointer transition hover:-translate-y-0.5 hover:shadow-lg mt-1" %>
+
+    <% end %>
+
+    <!-- Trust line -->
+    <div class="flex items-center justify-center gap-6 flex-wrap">
+      <span class="flex items-center gap-1.5 text-gray-400 text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
         </svg>
-      </div>
-      <div>
-        <h3 class="text-white font-bold text-lg leading-snug">Conversas que fazem a diferença</h3>
-        <p class="text-blue-200 text-sm mt-1">Diálogos rápidos, seguros e organizados por turma ou grupo.</p>
-      </div>
-      <div class="flex items-center justify-between bg-blue-400/50 rounded-xl px-4 py-3">
-        <div class="flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20H7a4 4 0 01-4-4V8a4 4 0 014-4h10a4 4 0 014 4v8a4 4 0 01-4 4z"/>
-          </svg>
-          <div>
-            <p class="text-white text-sm font-semibold">Turma 8° Ano A</p>
-            <p class="text-blue-200 text-xs">12 participantes</p>
-          </div>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        Seus dados estão seguros
+      </span>
+      <span class="flex items-center gap-1.5 text-gray-400 text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-      </div>
-      <div class="flex flex-col gap-3">
-        <div class="bg-white rounded-2xl rounded-tl-sm p-3 shadow-sm">
-          <p class="text-blue-600 text-xs font-bold mb-1">Professor Lucas</p>
-          <p class="text-gray-800 text-sm">Lembrete: a prova de Matemática será amanhã às 8h.</p>
-          <p class="text-gray-400 text-xs text-right mt-1">10:30</p>
-        </div>
-        <div class="flex items-end gap-2 self-end w-full justify-end">
-          <div class="bg-emerald-50 rounded-2xl rounded-tr-sm p-3 shadow-sm max-w-[85%]">
-            <p class="text-emerald-600 text-xs font-bold mb-1">Ana, mãe da Júlia</p>
-            <p class="text-gray-800 text-sm">Obrigado pelo aviso, professor! Vamos nos preparar.</p>
-            <p class="text-gray-400 text-xs text-right mt-1">10:32 ✓✓</p>
-          </div>
-          <div class="w-7 h-7 rounded-full bg-blue-200 flex-shrink-0 flex items-center justify-center text-xs font-bold text-blue-700">A</div>
-        </div>
-        <div class="bg-white rounded-2xl rounded-tl-sm p-3 shadow-sm">
-          <p class="text-blue-600 text-xs font-bold mb-1">Professor Lucas</p>
-          <p class="text-gray-800 text-sm">Qualquer dúvida, estou à disposição.</p>
-          <p class="text-gray-400 text-xs text-right mt-1">10:33</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 bg-white rounded-xl px-4 py-2.5 mt-auto">
-        <input type="text" disabled placeholder="Digite uma mensagem..." class="flex-1 text-sm text-gray-400 bg-transparent outline-none placeholder-gray-400 cursor-default">
-        <button class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-lg text-white flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 rotate-45" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
-          </svg>
-        </button>
-      </div>
+        Respondemos em até 1 dia útil
+      </span>
+      <span class="flex items-center gap-1.5 text-gray-400 text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        Sem spam, prometemos
+      </span>
     </div>
 
   </div>
 </section>
-
 
 <%# ══════════════════════════════════════════════════ %>
 <%# CTA                                                %>
@@ -535,9 +626,9 @@
       <h2 data-aos="fade-up"
           class="text-4xl lg:text-5xl font-extrabold text-white leading-tight">
         Pronto para
-        <span style="-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(90deg, #1e3a8a, #0ea5e9);">modern</span><span style="-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(90deg, #0ea5e9, #6ee7b7);">izar</span>
+        <span style="text-decoration: underline; text-decoration-color: rgba(255,255,255,0.45); text-underline-offset: 6px; text-decoration-thickness: 3px;">modernizar</span>
         sua
-        <span style="-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(90deg, #6ee7b7, #34d399);">escola</span>?
+        <span style="text-decoration: underline; text-decoration-color: rgba(255,255,255,0.45); text-underline-offset: 6px; text-decoration-thickness: 3px;">escola</span>?
       </h2>
 
       <p data-aos="fade-up" data-aos-delay="100"
@@ -548,14 +639,18 @@
 
       <div data-aos="fade-up" data-aos-delay="200"
            class="flex flex-wrap items-center justify-center gap-4">
-        <button class="inline-flex items-center gap-3 bg-white text-blue-600 font-bold text-base px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all">
+        <button type="button"
+           onclick="scrollToContact('solicitar_acesso')"
+           class="inline-flex items-center gap-3 bg-white text-blue-600 font-bold text-base px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
           </svg>
-          Solicitar demonstração
+          Solicitar acesso
         </button>
-        <button class="inline-flex items-center gap-2 bg-transparent text-white font-semibold text-base px-8 py-4 rounded-2xl border-2 border-white/60 hover:bg-white/10 transition-all">
-          Conhecer funcionalidades
+        <button type="button"
+           onclick="scrollToContact('conhecer_sistema')"
+           class="inline-flex items-center gap-2 bg-transparent text-white font-semibold text-base px-8 py-4 rounded-2xl border-2 border-white/60 hover:bg-white/10 transition-all cursor-pointer">
+          Fale conosco
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>

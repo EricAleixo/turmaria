@@ -2,7 +2,7 @@
 import "@hotwired/turbo-rails"
 import "./activestorage";
 import "controllers"
-
+import "./scroll_to_contact"
 
 import "trix"
 import "@rails/actiontext"
