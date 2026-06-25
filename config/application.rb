@@ -11,7 +11,6 @@ module SistemaAcademico
     # UUID como padrão
     config.active_record.primary_key = :uuid
 
-    # 🚨 ESSENCIAL PARA MIGRATIONS (ActiveStorage, Devise, etc)
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
     end
