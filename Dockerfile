@@ -47,9 +47,10 @@ COPY . .
 
 RUN bundle exec bootsnap precompile app/ lib/
 
+
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-      SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile; \
-    fi
+SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile; \
+fi
 
 
 FROM base
