@@ -43,7 +43,6 @@ RUN bundle install && \
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-#Testando o build
 COPY . .
 
 RUN bundle exec bootsnap precompile app/ lib/

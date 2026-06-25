@@ -28,5 +28,8 @@ module SistemaAcademico
 
     config.autoload_paths << Rails.root.join('app', 'services')
     config.eager_load_paths << Rails.root.join('app', 'services')
+
+    config.hosts << "turmaria.onrender.com"
+    config.hosts << /.*\.onrender\.com/
   end
 end
