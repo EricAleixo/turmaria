@@ -1,0 +1,204 @@
+<div class="boletim-container min-h-screen p-8 max-w-4xl mx-auto bg-white shadow-xl border border-gray-300">
+
+  <%# --- BOTÕES DE AÇÃO --- %>
+  <div class="mb-6 flex justify-end gap-3 print-hide">
+    <button onclick="window.print()"
+            class="cursor-pointer flex items-center px-4 py-2 bg-gray-500 text-white font-medium rounded-lg shadow-md hover:bg-gray-600 transition duration-150">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+      </svg>
+      Imprimir
+    </button>
+  </div>
+
+  <%# --- CABEÇALHO --- %>
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-800 border-b-2 border-gray-400 pb-2 mb-1">HISTÓRICO ESCOLAR</h1>
+    <p class="text-sm text-gray-500">Documento consolidado de toda a vida escolar do aluno</p>
+    <p class="text-right text-sm text-gray-600">Emitido em <%= Time.zone.now.strftime('%d/%m/%Y') %></p>
+  </div>
+
+  <%# --- DADOS DO ALUNO --- %>
+  <div class="mb-6 p-4 border border-gray-400 bg-gray-50 rounded">
+    <div class="grid grid-cols-2 gap-y-1 text-sm font-medium">
+      <p><strong>Aluno:</strong> <%= @aluno.nome.upcase %></p>
+      <p><strong>Matrícula:</strong> <%= @aluno.matricula %></p>
+      <p><strong>Data de Nascimento:</strong> <%= @aluno.data_nascimento&.strftime('%d/%m/%Y') || 'N/A' %></p>
+      <p><strong>Escola Atual:</strong> <%= @aluno.escola.nome %></p>
+    </div>
+  </div>
+
+  <% if @historicos.empty? %>
+    <div class="text-center py-12 text-gray-400">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+      </svg>
+      <p class="font-medium">Nenhum histórico gerado ainda.</p>
+      <p class="text-sm mt-1">O histórico é gerado automaticamente ao transferir o aluno ou manualmente pelo botão na tela do aluno.</p>
+    </div>
+  <% else %>
+    <%# --- UM BLOCO POR HISTÓRICO --- %>
+    <% @historicos.each_with_index do |historico, idx| %>
+      <%
+        disciplinas  = historico.historico_disciplinas.order(:disciplina_nome)
+        usa_conceito = disciplinas.first&.tipo_nota == :conceito
+        cor_conceito  = { "a" => "text-green-700", "b" => "text-blue-700", "c" => "text-yellow-700", "d" => "text-red-700" }
+        label_conceito = { "a" => "A", "b" => "B", "c" => "C", "d" => "D" }
+
+        texto_resultado = case historico.situacao_final
+                          when 'aprovado'        then 'APROVADO'
+                          when 'recuperacao'     then 'EM RECUPERAÇÃO'
+                          when 'reprovado'       then 'REPROVADO'
+                          when 'reprovado_falta' then 'REPROVADO POR FALTA'
+                          else 'AGUARDANDO'
+                          end
+        cor_resultado = case historico.situacao_final
+                        when 'aprovado'                    then 'text-green-700'
+                        when 'recuperacao'                 then 'text-yellow-700'
+                        when 'reprovado', 'reprovado_falta' then 'text-red-700'
+                        else 'text-gray-500'
+                        end
+      %>
+
+      <%# Separador entre históricos %>
+      <% if idx > 0 %>
+        <div class="my-8 border-t-4 border-dashed border-gray-300"></div>
+      <% end %>
+
+      <%# Cabeçalho da escola/ano %>
+      <div class="mb-3 p-3 bg-gray-700 text-white rounded flex justify-between items-center">
+        <div>
+          <p class="font-bold text-base"><%= historico.escola.nome.upcase %></p>
+          <p class="text-sm text-gray-300"><%= historico.serie_turma %> — Turno <%= historico.turno&.capitalize %></p>
+        </div>
+        <div class="text-right">
+          <p class="font-bold text-lg"><%= historico.ano_letivo.ano %></p>
+          <p class="text-xs text-gray-300">Emitido em <%= historico.gerado_em&.strftime('%d/%m/%Y') %></p>
+        </div>
+      </div>
+
+      <%# Tabela de disciplinas %>
+      <table class="w-full text-sm border-collapse mb-3">
+        <thead>
+          <tr class="bg-gray-200 text-gray-800 font-bold">
+            <th class="text-left border border-gray-300 p-2">DISCIPLINA</th>
+            <% if usa_conceito %>
+              <th class="text-center border border-gray-300 p-2">1º Bim</th>
+              <th class="text-center border border-gray-300 p-2">2º Bim</th>
+              <th class="text-center border border-gray-300 p-2">3º Bim</th>
+              <th class="text-center border border-gray-300 p-2">4º Bim</th>
+              <th class="text-center border border-gray-300 p-2">Final</th>
+            <% else %>
+              <th class="text-center border border-gray-300 p-2">1º Bim</th>
+              <th class="text-center border border-gray-300 p-2">2º Bim</th>
+              <th class="text-center border border-gray-300 p-2">3º Bim</th>
+              <th class="text-center border border-gray-300 p-2">4º Bim</th>
+              <th class="text-center border border-gray-300 p-2">Média Final</th>
+            <% end %>
+            <th class="text-center border border-gray-300 p-2">Faltas</th>
+            <th class="text-center border border-gray-300 p-2">Freq.</th>
+            <th class="text-center border border-gray-300 p-2">Situação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% disciplinas.each do |hd| %>
+            <%
+              freq_pct = hd.frequencia_percentual
+              if usa_conceito
+                conceitos = [hd.conceito_b1, hd.conceito_b2, hd.conceito_b3, hd.conceito_b4].compact
+                if freq_pct && freq_pct < 75
+                  sit_texto = "REP. FALTA"; sit_cor = "text-red-700"
+                elsif conceitos.include?("d")
+                  sit_texto = "INSUFICIENTE"; sit_cor = "text-red-700"
+                elsif conceitos.empty?
+                  sit_texto = "AGUARDANDO"; sit_cor = "text-gray-500"
+                else
+                  sit_texto = "APROVADO"; sit_cor = "text-green-700"
+                end
+              else
+                if freq_pct && freq_pct < 75
+                  sit_texto = "REP. FALTA"; sit_cor = "text-red-700"
+                elsif hd.media_final.nil?
+                  sit_texto = "AGUARDANDO"; sit_cor = "text-gray-500"
+                elsif hd.media_final >= 6.0
+                  sit_texto = "APROVADO"; sit_cor = "text-green-700"
+                elsif hd.media_final >= 5.0
+                  sit_texto = "RECUPERAÇÃO"; sit_cor = "text-yellow-700"
+                else
+                  sit_texto = "REPROVADO"; sit_cor = "text-red-700"
+                end
+              end
+            %>
+            <tr class="hover:bg-gray-50">
+              <td class="text-left border border-gray-300 p-2 font-semibold"><%= hd.disciplina_nome.upcase %></td>
+              <% if usa_conceito %>
+                <% [hd.conceito_b1, hd.conceito_b2, hd.conceito_b3, hd.conceito_b4].each do |c| %>
+                  <td class="text-center border border-gray-300 p-2">
+                    <%= c.present? ? content_tag(:span, label_conceito[c], class: "#{cor_conceito[c]} font-bold") : content_tag(:span, '—', class: 'text-gray-400') %>
+                  </td>
+                <% end %>
+                <td class="text-center border border-gray-300 p-2 font-bold">
+                  <%= hd.conceito_final.present? ? content_tag(:span, label_conceito[hd.conceito_final], class: cor_conceito[hd.conceito_final]) : content_tag(:span, '—', class: 'text-gray-400') %>
+                </td>
+              <% else %>
+                <% [hd.nota_b1, hd.nota_b2, hd.nota_b3, hd.nota_b4].each do |nota| %>
+                  <td class="text-center border border-gray-300 p-2">
+                    <% if nota.present? %>
+                      <span class="<%= nota >= 6.0 ? 'text-green-700' : 'text-red-700' %> font-medium"><%= '%.1f' % nota %></span>
+                    <% else %>
+                      <span class="text-gray-400">—</span>
+                    <% end %>
+                  </td>
+                <% end %>
+                <td class="text-center border border-gray-300 p-2 font-bold">
+                  <% if hd.media_final.present? %>
+                    <span class="<%= hd.media_final >= 6.0 ? 'text-green-700' : 'text-red-700' %>"><%= '%.1f' % hd.media_final %></span>
+                  <% else %>
+                    <span class="text-gray-400">—</span>
+                  <% end %>
+                </td>
+              <% end %>
+              <td class="text-center border border-gray-300 p-2"><%= hd.total_faltas %></td>
+              <td class="text-center border border-gray-300 p-2"><%= freq_pct ? "#{'%.1f' % freq_pct}%" : '—' %></td>
+              <td class="text-center border border-gray-300 p-2 font-bold <%= sit_cor %>"><%= sit_texto %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <%# Resultado do ano %>
+      <p class="text-sm font-bold text-gray-800 border-t border-b border-gray-300 p-2">
+        RESULTADO <%= historico.ano_letivo.ano %>:
+        <span class="<%= cor_resultado %>"><%= texto_resultado %></span>
+        <% if historico.frequencia_geral_pct %>
+          <span class="text-gray-500 font-normal ml-4">Frequência geral: <%= '%.1f' % historico.frequencia_geral_pct %>%</span>
+        <% end %>
+      </p>
+
+    <% end %>
+
+    <%# --- ASSINATURAS --- %>
+    <div class="mt-12 grid grid-cols-3 gap-8 text-center text-sm">
+      <div><div class="border-t border-gray-400 pt-2">Diretor(a)</div></div>
+      <div><div class="border-t border-gray-400 pt-2">Secretário(a)</div></div>
+      <div><div class="border-t border-gray-400 pt-2">Responsável pelo Aluno</div></div>
+    </div>
+
+  <% end %>
+</div>
+
+<style>
+  @media print {
+    .print-hide { display: none !important; }
+    body > * { visibility: hidden; }
+    .boletim-container {
+      visibility: visible !important;
+      position: absolute !important;
+      left: 0 !important; top: 0 !important;
+      max-width: 100% !important; width: 100% !important;
+      box-shadow: none !important; border: none !important;
+      padding: 0 !important; margin: 0 !important;
+    }
+    table, th, td, h1 { background-color: white !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
+  }
+</style>

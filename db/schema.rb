@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_29_034146) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -319,6 +319,45 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
     t.index ["turma_id"], name: "index_frequencias_on_turma_id"
   end
 
+  create_table "historico_disciplinas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "historico_escolar_id", null: false
+    t.string "disciplina_nome", null: false
+    t.decimal "nota_b1", precision: 4, scale: 2
+    t.decimal "nota_b2", precision: 4, scale: 2
+    t.decimal "nota_b3", precision: 4, scale: 2
+    t.decimal "nota_b4", precision: 4, scale: 2
+    t.decimal "media_final", precision: 4, scale: 2
+    t.string "conceito_b1"
+    t.string "conceito_b2"
+    t.string "conceito_b3"
+    t.string "conceito_b4"
+    t.string "conceito_final"
+    t.integer "aulas_dadas", default: 0
+    t.integer "total_faltas", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["historico_escolar_id"], name: "index_historico_disciplinas_on_historico_escolar_id"
+  end
+
+  create_table "historico_escolares", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "aluno_id", null: false
+    t.uuid "escola_id", null: false
+    t.bigint "ano_letivo_id", null: false
+    t.string "serie_turma", null: false
+    t.string "turno"
+    t.string "situacao_final", null: false
+    t.decimal "frequencia_geral_pct", precision: 5, scale: 2
+    t.date "data_conclusao"
+    t.text "observacoes"
+    t.datetime "gerado_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id", "escola_id", "ano_letivo_id"], name: "idx_historico_unico", unique: true
+    t.index ["aluno_id"], name: "index_historico_escolares_on_aluno_id"
+    t.index ["ano_letivo_id"], name: "index_historico_escolares_on_ano_letivo_id"
+    t.index ["escola_id"], name: "index_historico_escolares_on_escola_id"
+  end
+
   create_table "nota", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -406,6 +445,23 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
     t.index ["reset_password_token"], name: "index_super_admins_on_reset_password_token", unique: true
   end
 
+  create_table "transferencias", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "aluno_id", null: false
+    t.uuid "escola_origem_id", null: false
+    t.uuid "escola_destino_id", null: false
+    t.bigint "ano_letivo_id", null: false
+    t.uuid "historico_escolar_id"
+    t.string "motivo"
+    t.datetime "transferido_em", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aluno_id"], name: "index_transferencias_on_aluno_id"
+    t.index ["ano_letivo_id"], name: "index_transferencias_on_ano_letivo_id"
+    t.index ["escola_destino_id"], name: "index_transferencias_on_escola_destino_id"
+    t.index ["escola_origem_id"], name: "index_transferencias_on_escola_origem_id"
+    t.index ["historico_escolar_id"], name: "index_transferencias_on_historico_escolar_id"
+  end
+
   create_table "turma_disciplinas", force: :cascade do |t|
     t.bigint "turma_id", null: false
     t.bigint "disciplina_id", null: false
@@ -468,6 +524,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
   add_foreign_key "frequencias", "disciplinas"
   add_foreign_key "frequencias", "professors"
   add_foreign_key "frequencias", "turmas"
+  add_foreign_key "historico_disciplinas", "historico_escolares"
+  add_foreign_key "historico_escolares", "alunos"
+  add_foreign_key "historico_escolares", "ano_letivos"
+  add_foreign_key "historico_escolares", "escolas"
   add_foreign_key "professor_disciplinas", "disciplinas", on_delete: :cascade
   add_foreign_key "professor_disciplinas", "professors"
   add_foreign_key "professor_turmas", "professors"
@@ -476,6 +536,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_23_193928) do
   add_foreign_key "professors", "professors", column: "coordenador_id"
   add_foreign_key "registros_de_notas", "alunos"
   add_foreign_key "registros_de_notas", "avaliacoes_configuracoes", column: "avaliacao_configuracao_id"
+  add_foreign_key "transferencias", "alunos"
+  add_foreign_key "transferencias", "ano_letivos"
+  add_foreign_key "transferencias", "escolas", column: "escola_destino_id"
+  add_foreign_key "transferencias", "escolas", column: "escola_origem_id"
+  add_foreign_key "transferencias", "historico_escolares"
   add_foreign_key "turma_disciplinas", "disciplinas"
   add_foreign_key "turma_disciplinas", "turmas", on_delete: :cascade
   add_foreign_key "turmas", "ano_letivos"

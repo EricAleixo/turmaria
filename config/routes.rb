@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     get 'materiais', to: 'aluno/contents#materiais', as: :meus_materiais
     
     resources :conteudos, only: [:show], controller: 'aluno/contents'
+    resources :historicos, only: [:index], controller: 'aluno/historicos'
     
     resources :boletins, only: [:index], controller: 'aluno/boletins' do
       collection do
@@ -39,6 +40,12 @@ Rails.application.routes.draw do
     end
   end
 end
+
+  resources :historicos, only: [:index] do
+    collection do
+      post :gerar
+    end
+  end
   
   # Página inicial (Rota raiz)
   root to: "home#index"
@@ -84,6 +91,8 @@ end
         get :cidades_por_estado
       end
     end
+
+    resources :transferencias, only: [:create]
 
     resources :disciplinas do
       collection do

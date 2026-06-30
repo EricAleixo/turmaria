@@ -29,11 +29,16 @@ super_admin = SuperAdmin.create(
 puts super_admin.persisted? ? "SuperAdmin criado!" : "Erro: #{super_admin.errors.full_messages.join(", ")}"
 
 puts "Criando Admin..."
-admin = Admin.create(
+
+admin = Admin.create!(
+  nome: "Administrador",
   email: "admin@teste.com",
   password: "123456",
+  password_confirmation: "123456",
   confirmed_at: Time.current
 )
+
+puts "✅ Administrador criado!"
 puts admin.persisted? ? "Admin criado!" : "Erro: #{admin.errors.full_messages.join(", ")}"
 
 puts "Criando Professores..."

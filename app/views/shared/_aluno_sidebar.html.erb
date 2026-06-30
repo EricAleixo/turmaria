@@ -7,14 +7,13 @@
     <div class="p-5 bg-green-500">
       <div>
         <!-- Logo e Nome -->
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-3 mb-4" data-aos="fade-down" data-aos-duration="400">
           <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
-
           <div>
             <h2 class="text-xl font-bold text-white tracking-tight">Turmaria</h2>
             <p class="text-xs text-green-100 font-medium">Gestão Escolar</p>
@@ -22,20 +21,17 @@
         </div>
 
         <!-- Card Portal do Aluno -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-lg">
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-lg" data-aos="fade-up" data-aos-duration="400" data-aos-delay="100">
           <div class="flex items-start gap-3">
             <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
               </svg>
-
             </div>
-
             <div class="flex-1 min-w-0">
               <p class="text-[10px] text-green-200 font-semibold uppercase tracking-wider mb-1 truncate">
                 <%= current_aluno&.turma&.nome || "Turma não definida" %>
               </p>
-
               <h3 class="text-sm font-bold text-white truncate">
                 <%= current_aluno&.escola&.nome || "Escola não definida" %>
               </h3>
@@ -44,94 +40,102 @@
         </div>
       </div>
     </div>
-    
+
     <nav class="p-4 flex-grow overflow-y-auto">
-      <ul class="space-y-2">
-        
-        <li>
-          <% dashboard_active = current_page?(dashboard_path) %> 
-          <%= link_to dashboard_path, class: "flex items-center p-3 rounded-lg #{dashboard_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+      <ul class="space-y-1">
+
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="50">
+          <% dashboard_active = current_page?(dashboard_path) %>
+          <%= link_to dashboard_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{dashboard_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
             </svg>
-
             Dashboard
           <% end %>
         </li>
 
-        <li>
-          <% notas_active = current_page?(aluno_minhas_notas_path) %> 
-          <%= link_to aluno_minhas_notas_path, class: "flex items-center p-3 rounded-lg #{notas_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="100">
+          <% notas_active = current_page?(aluno_minhas_notas_path) %>
+          <%= link_to aluno_minhas_notas_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{notas_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
             </svg>
             Minhas Notas
           <% end %>
         </li>
 
-        
-
-        <li>
-          <% frequencia_active = current_page?(aluno_minha_frequencia_path) %> 
-          <%= link_to aluno_minha_frequencia_path, class: "flex items-center p-3 rounded-lg #{frequencia_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="150">
+          <% frequencia_active = current_page?(aluno_minha_frequencia_path) %>
+          <%= link_to aluno_minha_frequencia_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{frequencia_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Minha Frequência
           <% end %>
         </li>
 
-        <li>
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="200">
           <% professores_active = current_page?(aluno_meus_professores_path) %>
-          <%= link_to aluno_meus_professores_path, class: "flex items-center p-3 rounded-lg #{professores_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+          <%= link_to aluno_meus_professores_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{professores_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
             </svg>
             Meus Professores
           <% end %>
         </li>
 
-        <li>
-          <% boletim_active = current_page?(aluno_boletins_path) || params[:controller] == 'aluno/boletins' %> 
-          <%= link_to aluno_boletins_path, class: "flex items-center p-3 rounded-lg #{boletim_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="250">
+          <% boletim_active = current_page?(aluno_boletins_path) || params[:controller] == 'aluno/boletins' %>
+          <%= link_to aluno_boletins_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{boletim_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
             Boletim
           <% end %>
         </li>
-        
-        <li class="border-t border-gray-200 pt-2 mt-2">
-            <span class="text-xs font-semibold uppercase text-gray-500 tracking-wider px-3 py-1 block">Conteúdos</span>
+
+        <%# Histórico Escolar %>
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="300">
+          <% historico_active = params[:controller] == 'aluno/historicos' %>
+          <%= link_to aluno_historicos_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{historico_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+            Histórico Escolar
+          <% end %>
         </li>
 
-        <li>
-          <%# Minhas Atividades %>
+        <%# Separador Conteúdos %>
+        <li class="border-t border-gray-200 pt-2 mt-2" data-aos="fade-in" data-aos-duration="300" data-aos-delay="320">
+          <span class="text-xs font-semibold uppercase text-gray-500 tracking-wider px-3 py-1 block">Conteúdos</span>
+        </li>
+
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="350">
           <% atividades_active = current_page?(aluno_minhas_atividades_e_path) %>
-          <%= link_to aluno_minhas_atividades_e_path, class: "flex items-center p-3 rounded-lg #{atividades_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+          <%= link_to aluno_minhas_atividades_e_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{atividades_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             Minhas Atividades
           <% end %>
         </li>
 
-        <li>
-          <%# Materiais de Estudo (Usando o ícone fornecido) %>
-          <% materiais_active = current_page?(aluno_meus_materiais_path) %> 
-          <%= link_to aluno_meus_materiais_path, class: "flex items-center p-3 rounded-lg #{materiais_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+        <li data-aos="fade-right" data-aos-duration="300" data-aos-delay="400">
+          <% materiais_active = current_page?(aluno_meus_materiais_path) %>
+          <%= link_to aluno_meus_materiais_path, class: "flex items-center p-3 rounded-lg transition-colors duration-150 #{materiais_active ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 flex-shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
             </svg>
             Materiais de Estudo
           <% end %>
         </li>
+
       </ul>
     </nav>
-    
-    <div class="p-4 border-t border-gray-200">
+
+    <%# Footer do usuário %>
+    <div class="p-4 border-t border-gray-200" data-aos="fade-up" data-aos-duration="300" data-aos-delay="450">
       <div class="flex items-center justify-between">
-        
         <div class="flex items-center flex-grow truncate">
           <div class="avatar placeholder mr-3 flex-shrink-0">
             <div class="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
@@ -146,7 +150,6 @@
               </span>
             </div>
           </div>
-          
           <div class="w-full truncate">
             <h3 class="font-bold text-gray-800 text-sm truncate">
               <%= current_aluno&.nome.present? ? current_aluno.nome : 'Aluno(a)' %>
@@ -156,8 +159,9 @@
             </p>
           </div>
         </div>
-        
-        <%= link_to destroy_user_session_path, data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja sair?" }, 
+
+        <%= link_to destroy_user_session_path,
+              data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja sair?" },
               class: "btn btn-ghost btn-circle btn-sm text-gray-500 hover:text-red-500" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -165,6 +169,6 @@
         <% end %>
       </div>
     </div>
-    
+
   </aside>
 </div>
