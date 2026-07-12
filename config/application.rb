@@ -11,7 +11,6 @@ module SistemaAcademico
     # UUID como padrão
     config.active_record.primary_key = :uuid
 
-    # 🚨 ESSENCIAL PARA MIGRATIONS (ActiveStorage, Devise, etc)
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
     end
@@ -28,5 +27,8 @@ module SistemaAcademico
 
     config.autoload_paths << Rails.root.join('app', 'services')
     config.eager_load_paths << Rails.root.join('app', 'services')
+
+    config.hosts << "turmaria.onrender.com"
+    config.hosts << /.*\.onrender\.com/
   end
 end

@@ -47,6 +47,16 @@
         ) %>
   </div>
 
+  <div class="form-control w-full mb-6">
+    <%= dropdown(
+      form: form,
+      method: :tipo_avaliacao,
+      collection: [["Nota", "nota"], ["Conceito", "conceito"]],
+      placeholder: "Selecione o tipo de avaliação",
+      label: "Tipo de Avaliação *"
+    ) %>
+  </div>
+
 
   <div class="form-control w-full mb-6">
 

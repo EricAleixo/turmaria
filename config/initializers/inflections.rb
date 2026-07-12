@@ -18,6 +18,10 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   # ... (outras regras)
 
+  inflect.irregular 'historico_escolar', 'historico_escolares'
+  inflect.irregular 'historico_disciplina', 'historico_disciplinas'
+  inflect.irregular 'transferencia', 'transferencias'
+  
   # CORREÇÃO PARA "NOTA"
   inflect.irregular 'nota', 'notas'
 end

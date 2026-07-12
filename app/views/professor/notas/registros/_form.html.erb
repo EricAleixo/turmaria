@@ -1,27 +1,26 @@
-<% # app/views/professor/notas/registros/_form.html.erb %>
+<% usa_conceito = @turma.usa_conceito? %>
 
-<% # app/views/professor/notas/registros/_form.html.erb %>
-
-<% # A partial recebe as variáveis 'url' e 'method' (para create ou update) %>
-<%= form_with(scope: :open_struct, # <--- CORRIGIDO: Define o nome do parâmetro raiz no hash params
-               url: url, 
-               # Se 'method' não for passado, Rails usa POST (para new/create)
-               method: local_assigns[:method] || :post, 
-               data: { turbo: true }) do |form| %>
+<%= form_with(scope: :open_struct,
+              url: url,
+              method: local_assigns[:method] || :post,
+              data: { turbo: true }) do |form| %>
 
   <div class="mb-6">
-    <!-- Mensagem de Instrução com Iconografia -->
     <div class="flex items-center p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-sm">
-        <!-- Ícone de Informação (Inline SVG - Lucide) -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 flex-shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 flex-shrink-0">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+      </svg>
+      <% if usa_conceito %>
+        <p class="text-sm font-medium">Selecione o conceito de cada aluno. Deixe em branco para ignorar.</p>
+      <% else %>
         <p class="text-sm font-medium">Preencha os campos com as notas (use ponto ou vírgula). Deixe em branco para ignorar ou remover uma nota existente.</p>
+      <% end %>
     </div>
   </div>
 
   <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
     <table class="min-w-full divide-y divide-gray-200">
-      
-      <!-- Cabeçalho da Tabela Adicionado -->
+
       <thead class="bg-gray-50">
         <tr>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
@@ -31,43 +30,50 @@
             Nome do Aluno
           </th>
           <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-            Nota
+            <%= usa_conceito ? "Conceito" : "Nota" %>
           </th>
         </tr>
       </thead>
-      
+
       <tbody class="divide-y divide-gray-200">
-        
-        <% # Itera sobre a coleção de registros (AGORA, usando o objeto diretamente, sem depender do form.object) %>
-        <%= form.fields_for :registros, @registros do |registro_fields| %>
-          
-          <% registro = registro_fields.object %>
+        <% @registros.each do |registro| %>
           <% aluno = registro.aluno %>
-          
-          <!-- Linha com efeito hover e zebra stripe para melhor legibilidade -->
+
           <tr class="odd:bg-white even:bg-gray-50 hover:bg-indigo-50 transition duration-150">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= aluno.matricula %> <%# OU USE aluno.matricula %>
-              </td>
+              <%= aluno.matricula %>
+            </td>
+
             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
               <%= aluno.nome %>
-              <% if registro_fields.object.errors[:valor].any? %>
-                <!-- Estilo de Erro Aprimorado -->
+              <% if registro.errors[:valor].any? %>
                 <div class="mt-1 text-xs text-red-600 font-bold bg-red-50 p-1 rounded-md inline-block">
-                  <%= registro_fields.object.errors[:valor].join(', ') %>
+                  <%= registro.errors[:valor].join(', ') %>
                 </div>
               <% end %>
             </td>
-            
+
             <td class="px-6 py-4 whitespace-nowrap text-center">
-              <%= registro_fields.fields_for aluno.id.to_s, registro do |nota_field| %>
-                <%= nota_field.text_field :valor, 
-                                          step: '0.01', 
-                                          # Estilos de Input Aprimorados (transição, foco azul)
-                                          class: 'form-control text-center w-24 mx-auto border border-gray-300 rounded-lg shadow-sm p-2 transition duration-150 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500', 
-                                          placeholder: 'Nota',
-                                          value: nota_field.object.valor.to_s.gsub('.', ',') 
-                                          %>
+              <input type="hidden"
+                     name="open_struct[registros][<%= aluno.id %>][aluno_id]"
+                     value="<%= aluno.id %>">
+
+              <% if usa_conceito %>
+                <% conceito_atual = registro.conceito.to_s %>
+                <select name="open_struct[registros][<%= aluno.id %>][valor]"
+                        class="select select-bordered w-full focus:select-success transition-all">
+                  <option value="">— Conceito —</option>
+                  <option value="a" <%= conceito_atual == "a" ? "selected" : "" %>>A — Excelente</option>
+                  <option value="b" <%= conceito_atual == "b" ? "selected" : "" %>>B — Bom</option>
+                  <option value="c" <%= conceito_atual == "c" ? "selected" : "" %>>C — Regular</option>
+                  <option value="d" <%= conceito_atual == "d" ? "selected" : "" %>>D — Insuficiente</option>
+                </select>
+              <% else %>
+                <input type="text"
+                       name="open_struct[registros][<%= aluno.id %>][valor]"
+                       value="<%= registro.valor.to_s.gsub('.', ',') %>"
+                       placeholder="Nota"
+                       class="form-control text-center w-24 mx-auto border border-gray-300 rounded-lg shadow-sm p-2 transition duration-150 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <% end %>
             </td>
           </tr>
@@ -76,16 +82,12 @@
     </table>
   </div>
 
-  <!-- Seção de Ações (Botões) -->
   <div class="mt-10 flex justify-start space-x-4">
-    
-    <!-- Botão Primário (Ação principal, mais destaque) -->
-    <%= form.submit 'Salvar e Recalcular Médias', 
-        class: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl text-lg cursor-pointer transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300' %>
-    
-    <!-- Botão Secundário (Cancelar) -->
-    <%= link_to 'Cancelar', 
-        professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina), 
+    <%= form.submit(usa_conceito ? 'Salvar Conceitos' : 'Salvar e Recalcular Médias',
+        class: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl text-lg cursor-pointer transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-300') %>
+
+    <%= link_to 'Cancelar',
+        professor_turma_disciplina_notas_avaliacoes_path(@turma, @disciplina),
         class: 'bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transition duration-300 ease-in-out shadow-md' %>
   </div>
 <% end %>

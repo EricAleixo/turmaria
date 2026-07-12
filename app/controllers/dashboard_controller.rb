@@ -177,36 +177,30 @@ class DashboardController < ApplicationController
   private
 
   def calcular_media_por_disciplina(aluno_id)
-    
     tabela_notas = RegistroDeNota.table_name
-    
-    resumo_agregado = RegistroDeNota
-    .where(aluno_id: aluno_id)
-    .joins(avaliacao_configuracao: :disciplina)
-    .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.id')
-    .select(
-      'disciplinas.nome AS nome',
-      'disciplinas.cor_nome AS cor_nome',
-      'disciplinas.cor_nome AS cor_hex', # alias opcional do mesmo campo
-      "COUNT(#{tabela_notas}.id) AS provas_lancadas",
-      "AVG(#{tabela_notas}.valor) AS media",
-      "SUM(#{tabela_notas}.valor) AS total_notas"
-    )
-    .order('disciplinas.nome ASC')
 
-      
-    # 2. Formatar para o Array de Hashes que a View espera
+    resumo_agregado = RegistroDeNota
+      .where(aluno_id: aluno_id)
+      .where.not(valor: nil) # exclui registros de conceito
+      .joins(avaliacao_configuracao: :disciplina)
+      .group('disciplinas.nome', 'disciplinas.cor_nome', 'disciplinas.id')
+      .select(
+        'disciplinas.nome AS nome',
+        'disciplinas.cor_nome AS cor_nome',
+        "COUNT(#{tabela_notas}.id) AS provas_lancadas",
+        "AVG(#{tabela_notas}.valor) AS media",
+        "SUM(#{tabela_notas}.valor) AS total_notas"
+      )
+      .order('disciplinas.nome ASC')
+
     resumo_agregado.map do |item|
       media_calculada = item.media.to_f
-      
       {
-        nome: item.nome,
-        # CORREÇÃO CRÍTICA: Acessar o campo pelo novo alias 'cor_hex'
-        # Usamos cor_nome ou cor_hex (o valor RGB/HEX) como fallback para o default.
-        cor: item.cor_nome || item.cor_hex || '#10B981', 
-        media: media_calculada.round(1),
+        nome:            item.nome,
+        cor:             item.cor_nome || '#10B981',
+        media:           media_calculada.round(1),
         provas_lancadas: item.provas_lancadas.to_i,
-        total_notas: item.total_notas.to_f.round(1)
+        total_notas:     item.total_notas.to_f.round(1)
       }
     end
   end
@@ -241,100 +235,100 @@ class DashboardController < ApplicationController
   end
 
   
-  def load_aluno_dashboard_data
-    # 1. Garante que @aluno é o objeto e carrega associações
-    @aluno = Aluno.includes(turma: [:ano_letivo]) 
-                    .find_by(id: current_aluno.id)
-    
-    if @aluno.nil?
-      @frequencia_percentual = '0.0%'
-      @total_faltas = 0
-      @media_geral_notas = 0.0
-      @ultimas_faltas = []
-      @turma_atual = nil
-      @titulo_pagina = "Dashboard | Aluno Não Encontrado"
-      return
-    end
+ def load_aluno_dashboard_data
+  @aluno = Aluno.includes(turma: [:ano_letivo]).find_by(id: current_aluno.id)
 
-    # Define Turma Atual
-    @turma_atual = @aluno.turma 
-
-    # 2. Dados de Frequência (Real) - CÁLCULO ATUALIZADO PARA O NOVO CARD
-    total_registros = FrequenciaAluno.where(aluno_id: @aluno.id).count # Total de Aulas (Registros)
-    faltas_registradas = FrequenciaAluno.where(aluno_id: @aluno.id).where.not(status: 'presente').count
-    presencas_registradas = total_registros - faltas_registradas
-    
-    # Variáveis para o Card 3 (NOVA ESTRUTURA)
-    @total_aulas = total_registros
-    @total_presencas = presencas_registradas
-    @total_faltas = faltas_registradas # Já existente
-    
-    # Variáveis para os cálculos de % nos subcards
-    @perc_presencas = total_registros.zero? ? 0.0 : ((@total_presencas.to_f / total_registros) * 100).round(1)
-    @perc_faltas = total_registros.zero? ? 0.0 : ((@total_faltas.to_f / total_registros) * 100).round(1)
-    
-    # A variável @frequencia_percentual (para o Doughnut Chart) continua sendo a de Presença
-    @frequencia_percentual = @perc_presencas
-    
-    # 3. Dados de Notas (Real) - Cálculo mantido
-    notas_registradas = RegistroDeNota.where(aluno_id: @aluno.id)
-    
-    if notas_registradas.present?
-      media_simples = notas_registradas.average(:valor)
-      @media_geral_notas = (media_simples || 0.0).round(1) 
-    else
-      @media_geral_notas = 0.0
-    end
-    
-    # 4. Tabela: Últimas Faltas (Real) - Mantido
-    @ultimas_faltas = FrequenciaAluno.where(aluno_id: @aluno.id)
-                                .where.not(status: 'presente')
-                                .includes(frequencia: [:turma, :disciplina])
-                                .order(created_at: :desc)
-                                .limit(10)
-                                  
-    # =========================================================
-    # 🆕 NOVOS DADOS PARA GRÁFICOS E LISTAS 🆕
-    # =========================================================
-
-    # A) Média por Disciplina (USADO PARA LISTA ROLÁVEL)
-    # Agrupa os registros de nota pela disciplina e calcula a média.
-    @medias_por_disciplina = notas_registradas
-      .joins(avaliacao_configuracao: :disciplina) # Associa via config -> disciplina
-      .group('disciplinas.nome')
-      .average(:valor)
-      .map { |nome, media| [nome, media.round(1)] } # Formato: [["Matemática", 8.5], ["Português", 7.2]]
-
-    # B) Frequência Mensal (USADO PARA GRÁFICO DE BARRAS)
-    registros_frequencia_mensal = FrequenciaAluno.where(aluno_id: @aluno.id)
-      .joins(frequencia: :disciplina)
-      .group_by { |fa| fa.frequencia.data_aula.strftime('%m-%Y') } 
-      .sort_by { |month_year, _| Date.strptime(month_year, '%m-%Y') } 
-      
-    @frequencia_mensal = registros_frequencia_mensal.map do |month_year, registros|
-      {
-        mes_ano: month_year,
-        presencas: registros.count { |r| r.status == 'presente' },
-        faltas: registros.count { |r| r.status == 'falta' || r.status == 'justificada' }
-      }
-    end
-
-    # C) EVOLUÇÃO DA MÉDIA GERAL (USADO PARA GRÁFICO DE LINHA)
-    # Calcula a média geral por mês.
-    @evolucao_notas = notas_registradas
-      .joins(avaliacao_configuracao: :disciplina)
-      .group_by { |nota| nota.created_at.strftime('%m-%Y') }
-      .sort_by { |month_year, _| Date.strptime(month_year, '%m-%Y') }
-      .map do |month_year, notas|
-          total_valor = notas.sum(&:valor)
-          media_mensal = total_valor / notas.count.to_f
-          [month_year, media_mensal.round(1)]
-      end
-      # Formato: [["03-2025", 7.5], ["04-2025", 8.1]]
-
-
-    @titulo_pagina = "Dashboard | #{@aluno.nome}"
+  if @aluno.nil?
+    @frequencia_percentual  = '0.0%'
+    @total_faltas           = 0
+    @media_geral_notas      = 0.0
+    @ultimas_faltas         = []
+    @turma_atual            = nil
+    @titulo_pagina          = "Dashboard | Aluno Não Encontrado"
+    return
   end
+
+  @turma_atual = @aluno.turma
+
+  # Frequência
+  total_registros       = FrequenciaAluno.where(aluno_id: @aluno.id).count
+  faltas_registradas    = FrequenciaAluno.where(aluno_id: @aluno.id).where.not(status: 'presente').count
+  presencas_registradas = total_registros - faltas_registradas
+
+  @total_aulas      = total_registros
+  @total_presencas  = presencas_registradas
+  @total_faltas     = faltas_registradas
+  @perc_presencas   = total_registros.zero? ? 0.0 : ((@total_presencas.to_f / total_registros) * 100).round(1)
+  @perc_faltas      = total_registros.zero? ? 0.0 : ((@total_faltas.to_f / total_registros) * 100).round(1)
+  @frequencia_percentual = @perc_presencas
+
+  # Notas — exclui registros de conceito (valor nil)
+  notas_registradas = RegistroDeNota.where(aluno_id: @aluno.id).where.not(valor: nil)
+
+  if notas_registradas.exists?
+    media_simples      = notas_registradas.average(:valor)
+    @media_geral_notas = (media_simples || 0.0).round(1)
+  else
+    @media_geral_notas = 0.0
+  end
+
+  # Últimas faltas
+  @ultimas_faltas = FrequenciaAluno.where(aluno_id: @aluno.id)
+                                   .where.not(status: 'presente')
+                                   .includes(frequencia: [:turma, :disciplina])
+                                   .order(created_at: :desc)
+                                   .limit(10)
+
+  # Média por disciplina
+  @medias_por_disciplina = notas_registradas
+    .joins(avaliacao_configuracao: :disciplina)
+    .group('disciplinas.nome')
+    .average(:valor)
+    .map { |nome, media| [nome, (media || 0.0).round(1)] }
+
+    # Conceitos por disciplina (para turmas de conceito)
+  if @turma_atual&.usa_conceito?
+    config_ids = AvaliacaoConfiguracao
+                  .where(turma: @turma_atual)
+                  .pluck(:id)
+
+    @conceitos_por_disciplina = RegistroDeNota
+      .where(aluno_id: @aluno.id, avaliacao_configuracao_id: config_ids)
+      .where.not(conceito: nil)
+      .joins(avaliacao_configuracao: :disciplina)
+      .select("disciplinas.nome AS disciplina_nome, registros_de_notas.conceito, registros_de_notas.created_at")
+      .order("disciplinas.nome ASC, registros_de_notas.created_at DESC")
+      .each_with_object({}) { |r, h| h[r.disciplina_nome] ||= r.conceito }
+      .map { |disciplina, conceito| { disciplina: disciplina, conceito: conceito } }
+  end
+
+  # Frequência mensal
+  registros_frequencia_mensal = FrequenciaAluno.where(aluno_id: @aluno.id)
+    .joins(frequencia: :disciplina)
+    .group_by { |fa| fa.frequencia.data_aula.strftime('%m-%Y') }
+    .sort_by { |month_year, _| Date.strptime(month_year, '%m-%Y') }
+
+  @frequencia_mensal = registros_frequencia_mensal.map do |month_year, registros|
+    {
+      mes_ano:  month_year,
+      presencas: registros.count { |r| r.status == 'presente' },
+      faltas:    registros.count { |r| r.status == 'falta' || r.status == 'justificada' }
+    }
+  end
+
+  # Evolução da média geral mensal
+  @evolucao_notas = notas_registradas
+    .joins(avaliacao_configuracao: :disciplina)
+    .group_by { |nota| nota.created_at.strftime('%m-%Y') }
+    .sort_by { |month_year, _| Date.strptime(month_year, '%m-%Y') }
+    .map do |month_year, notas|
+      total_valor  = notas.sum { |n| n.valor.to_f }
+      media_mensal = total_valor / notas.count.to_f
+      [month_year, media_mensal.round(1)]
+    end
+
+  @titulo_pagina = "Dashboard | #{@aluno.nome}"
+end
   # ===================================================================
 
 
@@ -383,69 +377,113 @@ class DashboardController < ApplicationController
   end
 
   def load_admin_dashboard_data
-  # Pega apenas as escolas do admin logado
-  @escolas_do_admin = current_admin.escolas.includes(:turmas, :alunos)
-  
-  # Estatísticas principais
-  @minhas_escolas = @escolas_do_admin.count
-  @total_turmas = @escolas_do_admin.sum(&:turmas_count)
-  @total_alunos = @escolas_do_admin.sum(&:alunos_count)
-  
-  escola_ids = @escolas_do_admin.pluck(:id)
-  @total_professores = Professor.where(escola_id: escola_ids).count
-  
-  # Crescimento no mês atual
-  inicio_mes = Date.today.beginning_of_month
-  @escolas_mes_atual = @escolas_do_admin.where('created_at >= ?', inicio_mes).count
-  @alunos_mes_atual = Aluno.where(escola_id: escola_ids)
-                           .where('created_at >= ?', inicio_mes).count
-  
-  # Médias
-  @media_alunos_escola = @minhas_escolas > 0 ? (@total_alunos.to_f / @minhas_escolas).round(1) : 0
-  @media_turmas_escola = @minhas_escolas > 0 ? (@total_turmas.to_f / @minhas_escolas).round(1) : 0
-  @media_alunos_turma = @total_turmas > 0 ? (@total_alunos.to_f / @total_turmas).round(1) : 0
-  
-  # Distribuição por tipo
-  @escolas_publicas = @escolas_do_admin.publicas.count
-  @escolas_privadas = @escolas_do_admin.privadas.count
+  escola_ids = current_admin.escola_ids
+
+  cache_key = "admin_dashboard_#{current_admin.id}_#{current_admin.updated_at.to_i}"
+
+  cached = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+
+    if escola_ids.empty?
+      total_escolas = total_alunos = total_turmas = total_publicas = total_privadas = total_professores = 0
+      escolas_mes = alunos_mes = 0
+      labels = crescimento_alunos = crescimento_turmas = []
+      maiores_escolas = escolas_recentes = todas_escolas = escolas_grafico = []
+    else
+      result = ActiveRecord::Base.connection.execute(<<~SQL)
+        SELECT
+          COUNT(*) as total,
+          COALESCE(SUM(alunos_count), 0) as total_alunos,
+          COALESCE(SUM(turmas_count), 0) as total_turmas,
+          COALESCE(SUM(CASE WHEN tipo = 'publica' THEN 1 ELSE 0 END), 0) as publicas,
+          COALESCE(SUM(CASE WHEN tipo = 'privada' THEN 1 ELSE 0 END), 0) as privadas
+        FROM escolas
+        WHERE id IN (#{escola_ids.map { |id| "'#{id}'" }.join(',')})
+      SQL
+
+      row = result.first
+      total_escolas  = row['total'].to_i
+      total_alunos   = row['total_alunos'].to_i
+      total_turmas   = row['total_turmas'].to_i
+      total_publicas = row['publicas'].to_i
+      total_privadas = row['privadas'].to_i
+
+      total_professores = Professor.where(escola_id: escola_ids).count
+
+      inicio_mes  = Date.today.beginning_of_month
+      escolas_mes = Escola.where(id: escola_ids).where('created_at >= ?', inicio_mes).count
+      alunos_mes  = Aluno.where(escola_id: escola_ids).where('created_at >= ?', inicio_mes).count
+
+      seis_meses_atras = 6.months.ago.beginning_of_month
+
+      alunos_por_mes = Aluno.where(escola_id: escola_ids)
+                            .where('created_at >= ?', seis_meses_atras)
+                            .group("DATE_TRUNC('month', created_at)")
+                            .count
+
+      turmas_por_mes = Turma.where(escola_id: escola_ids)
+                            .where('created_at >= ?', seis_meses_atras)
+                            .group("DATE_TRUNC('month', created_at)")
+                            .count
+
+      acumulado_alunos = Aluno.where(escola_id: escola_ids).where('created_at < ?', seis_meses_atras).count
+      acumulado_turmas = Turma.where(escola_id: escola_ids).where('created_at < ?', seis_meses_atras).count
+
+      meses_pt = %w[Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez]
+      labels = []
+      crescimento_alunos = []
+      crescimento_turmas = []
+
+      6.downto(1) do |i|
+        data = i.months.ago.beginning_of_month
+        labels << meses_pt[data.month - 1]
+        acumulado_alunos += alunos_por_mes[data] || 0
+        acumulado_turmas += turmas_por_mes[data] || 0
+        crescimento_alunos << acumulado_alunos
+        crescimento_turmas << acumulado_turmas
+      end
+
+      maiores_escolas  = Escola.where(id: escola_ids).order(alunos_count: :desc).limit(5)
+      escolas_recentes = Escola.where(id: escola_ids).order(created_at: :desc).limit(5)
+      todas_escolas    = Escola.where(id: escola_ids).order(:nome)
+      escolas_grafico  = Escola.where(id: escola_ids).order(alunos_count: :desc).pluck(:nome, :alunos_count)
+    end
+
+    {
+      total_escolas:, total_alunos:, total_turmas:, total_professores:,
+      total_publicas:, total_privadas:,
+      escolas_mes:, alunos_mes:,
+      labels:, crescimento_alunos:, crescimento_turmas:,
+      maiores_escolas:, escolas_recentes:, todas_escolas:, escolas_grafico:
+    }
+  end
+
+  @minhas_escolas    = cached[:total_escolas]
+  @total_alunos      = cached[:total_alunos]
+  @total_turmas      = cached[:total_turmas]
+  @total_professores = cached[:total_professores]
+  @escolas_publicas  = cached[:total_publicas]
+  @escolas_privadas  = cached[:total_privadas]
+  @escolas_mes_atual = cached[:escolas_mes]
+  @alunos_mes_atual  = cached[:alunos_mes]
+  @crescimento_labels  = cached[:crescimento_labels] || cached[:labels]
+  @crescimento_alunos  = cached[:crescimento_alunos]
+  @crescimento_turmas  = cached[:crescimento_turmas]
+
+  @media_alunos_escola = @minhas_escolas > 0 ? (@total_alunos.to_f  / @minhas_escolas).round(1) : 0
+  @media_turmas_escola = @minhas_escolas > 0 ? (@total_turmas.to_f  / @minhas_escolas).round(1) : 0
+  @media_alunos_turma  = @total_turmas   > 0 ? (@total_alunos.to_f  / @total_turmas).round(1)   : 0
   @percentual_publicas = @minhas_escolas > 0 ? ((@escolas_publicas.to_f / @minhas_escolas) * 100).round(1) : 0
   @percentual_privadas = @minhas_escolas > 0 ? ((@escolas_privadas.to_f / @minhas_escolas) * 100).round(1) : 0
-  
-  # Maiores escolas (top 5)
-  @maiores_escolas = @escolas_do_admin.order(alunos_count: :desc).limit(5)
-  
-  # Escolas recentes (últimas 5)
-  @escolas_recentes = @escolas_do_admin.order(created_at: :desc).limit(5)
-  
-  # Todas as escolas para a grid
-  @todas_escolas = @escolas_do_admin.order(:nome)
-  
-  # Dados para gráfico de crescimento (últimos 6 meses)
-  # Array com nomes dos meses em português
-  meses_pt = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-  
-  @crescimento_labels = []
-  @crescimento_alunos = []
-  @crescimento_turmas = []
-  
-  6.downto(1) do |i|
-    data = i.months.ago.end_of_month
-    # Usa o array de meses em português
-    @crescimento_labels << meses_pt[data.month - 1]
-    
-    alunos_ate_data = Aluno.where(escola_id: escola_ids)
-                           .where('created_at <= ?', data).count
-    turmas_ate_data = Turma.where(escola_id: escola_ids)
-                           .where('created_at <= ?', data).count
-    
-    @crescimento_alunos << alunos_ate_data
-    @crescimento_turmas << turmas_ate_data
-  end
-  
-  # Dados para gráfico de barras (alunos por escola)
-  @escolas_nomes = @escolas_do_admin.order(alunos_count: :desc).pluck(:nome)
-  @escolas_alunos = @escolas_do_admin.order(alunos_count: :desc).pluck(:alunos_count)
-  end
+
+  # Objetos ActiveRecord fora do cache — não são serializáveis
+  @maiores_escolas  = cached[:maiores_escolas].presence  || Escola.where(id: escola_ids).order(alunos_count: :desc).limit(5)
+  @escolas_recentes = cached[:escolas_recentes].presence || Escola.where(id: escola_ids).order(created_at: :desc).limit(5)
+  @todas_escolas    = cached[:todas_escolas].presence    || Escola.where(id: escola_ids).order(:nome)
+
+  escolas_grafico  = cached[:escolas_grafico]
+  @escolas_nomes   = escolas_grafico.map(&:first)
+  @escolas_alunos  = escolas_grafico.map(&:last)
+end
 
   # 3. Método: Carrega dados para Professor (Mantido Intacto)
   def load_professor_dashboard_data
@@ -515,21 +553,22 @@ class DashboardController < ApplicationController
     end
     
     # 8. Lista combinada (para referência, se necessário)
-    @disciplinas_e_turmas = frequencias_base
-      .includes(:turma, :disciplina)
-      .select(:turma_id, :disciplina_id)
-      .distinct
-      .map do |freq|
+    @disciplinas_e_turmas = current_professor.turmas.flat_map do |turma|
+      current_professor.disciplinas.map do |disciplina|
         {
-          disciplina_id: freq.disciplina_id,
-          disciplina: freq.disciplina&.nome || "Disciplina não encontrada",
-          turma_id: freq.turma_id,
-          turma: freq.turma&.nome || "Turma não encontrada"
+          disciplina_id: disciplina.id,
+          disciplina: disciplina.nome,
+          turma_id: turma.id,
+          turma: turma.nome
         }
       end
+    end
     
     # 9. Gráfico de desempenho (pendente)
-    @grafico_desempenho_disciplinas = nil
+    @grafico_desempenho_disciplinas = {
+      labels: ["Matemática", "Português"],
+      data: [8.5, 7.2]
+    }
     
     # 10. 📅 CALENDÁRIO DE PRESENÇA DO MÊS (REAL e FILTRADO)
     @calendario_presenca = frequencias_mes
@@ -547,8 +586,53 @@ class DashboardController < ApplicationController
         }
       end
     
-    # 11. Presença semanal (pendente)
-    @presenca_semanal = nil
+    # 11. Presença semanal
+    @presenca_semanal = frequencias
+    .joins(:frequencia_alunos)
+    .group("EXTRACT(DOW FROM frequencias.data_aula)")
+    .pluck(
+      Arel.sql("EXTRACT(DOW FROM frequencias.data_aula)"),
+      Arel.sql("SUM(CASE WHEN frequencia_alunos.status = 'presente' THEN 1 ELSE 0 END)"),
+      Arel.sql("COUNT(frequencia_alunos.id)")
+    )
+    .map do |dow, presentes, total|
+
+      percentual_presentes = total.positive? ? ((presentes.to_f / total) * 100).round : 0
+
+        {
+          dia: {
+            0 => "Domingo",
+            1 => "Segunda",
+            2 => "Terça",
+            3 => "Quarta",
+            4 => "Quinta",
+            5 => "Sexta",
+            6 => "Sábado"
+          }[dow.to_i],
+        presentes: presentes,
+        total: total,
+        percentual_presentes: percentual_presentes,
+        percentual_ausentes: 100 - percentual_presentes
+      }
+    end
+    @ultimas_chamadas = frequencias
+      .includes(:turma, :disciplina, :frequencia_alunos)
+      .order(data_aula: :desc)
+      .limit(5)
+      .map do |frequencia|
+
+        total = frequencia.frequencia_alunos.count
+        presentes = frequencia.frequencia_alunos.where(status: 'presente').count
+
+        {
+          data: frequencia.data_aula,
+          turma: frequencia.turma&.nome,
+          disciplina: frequencia.disciplina&.nome,
+          presentes: presentes,
+          total: total,
+          percentual: total.positive? ? ((presentes.to_f / total) * 100).round : 0
+        }
+      end
   end
 
 

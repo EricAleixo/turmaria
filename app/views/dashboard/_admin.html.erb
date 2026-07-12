@@ -250,9 +250,6 @@
 
 </div>
 
-<!-- CDN do Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <!-- Script de Inicialização do Gráfico -->
 <script>
 let escolasChart, crescimentoChart, alunosPorEscolaChart;
@@ -380,10 +377,6 @@ function initializeCharts() {
     }
   });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  initializeCharts();
-});
 
 document.addEventListener('turbo:load', function() {
   initializeCharts();

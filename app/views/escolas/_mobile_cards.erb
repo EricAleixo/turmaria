@@ -55,7 +55,7 @@
 
 <div class="grid grid-cols-1 gap-4 md:hidden">
   <% if professores.any? %>
-  <% professores&.each do |professor| %>
+  <% professores.limit(10).each do |professor| %>
     <div class="<%= gradient_mobile(professor.formacao) %> shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg">
       <div class="card-body p-4">
         <!-- Header -->
@@ -157,7 +157,14 @@
       </div>
     </div>
   <% end %>
-    <% else %>
+
+    <% if professores.count > 10 %>
+      <div class="mt-2 text-center">
+        <%= link_to "Ver todos os professores (#{professores.count})", escola_professors_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+      </div>
+    <% end %>
+
+  <% else %>
       <div class="py-12 text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" class = "mx-auto h-16 w-16 text-blue-400" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
@@ -231,7 +238,7 @@
 
   <div class="grid grid-cols-1 gap-4 md:hidden">
     <% if anos_letivos.any? %>
-      <% anos_letivos.each do |ano| %>
+      <% anos_letivos.limit(10).each do |ano| %>
         <div class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg relative bg-gradient-to-br from-teal-50/40 via-teal-100/40 to-teal-200/60 p-6 mb-5 w-full">
           
           <!-- Cabeçalho com nome e badge de bimestres -->
@@ -321,7 +328,14 @@
 
         </div>
       <% end %>
-    <% else %>
+
+    <% if anos_letivos.count > 10 %>
+      <div class="mt-2 text-center">
+        <%= link_to "Ver todos os anos letivos (#{anos_letivos.count})", escola_ano_letivos_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+      </div>
+    <% end %>
+
+  <% else %>
       <div class="py-12 text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto h-16 w-16 text-purple-400">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
@@ -394,7 +408,7 @@
 
 
   <% if turmas.any? %>
-    <% turmas.each do |turma| %>
+    <% turmas.limit(10).each do |turma| %>
       <% card_classes = case turma.turno.to_s.downcase
 when "manha"
   "bg-gradient-to-br from-white via-yellow-50 to-yellow-100 border border-yellow-200/50"
@@ -486,6 +500,13 @@ else
         </div>
       </div>
     <% end %>
+
+    <% if turmas.count > 10 %>
+      <div class="mt-2 text-center">
+        <%= link_to "Ver todas as turmas (#{turmas.count})", escola_turmas_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+      </div>
+    <% end %>
+
   <% else %>
     <div class="py-12 text-center">
       <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -556,7 +577,7 @@ else
 
   <div class="grid grid-cols-1 gap-4 md:hidden">
     <% if alunos.any? %>
-      <% alunos.each do |aluno| %>
+      <% alunos.limit(10).each do |aluno| %>
         <% alocado = aluno.turma.present? %>
         <div class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border <%= alocado ? 'border-blue-100' : 'border-slate-200' %>">
           <div class="card-body p-4">
@@ -651,6 +672,13 @@ else
           </div>
         </div>
       <% end %>
+
+      <% if alunos.count > 10 %>
+        <div class="mt-2 text-center">
+          <%= link_to "Ver todos os alunos (#{alunos.count})", escola_alunos_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+        </div>
+      <% end %>
+
     <% else %>
       <div class="py-12 text-center">
         <svg class="mx-auto h-16 w-16 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -718,7 +746,7 @@ else
 
 <div class="grid grid-cols-1 gap-4 md:hidden">
   <% if disciplinas.any? %>
-    <% disciplinas.each do |disciplina| %>
+    <% disciplinas.limit(10).each do |disciplina| %>
       <div
         class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg relative"
         style="background: linear-gradient(
@@ -814,6 +842,13 @@ else
         </div>
       </div>
     <% end %>
+
+    <% if disciplinas.count > 10 %>
+      <div class="mt-2 text-center">
+        <%= link_to "Ver todas as disciplinas (#{disciplinas.count})", escola_disciplinas_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+      </div>
+    <% end %>
+
   <% else %>
     <div class="py-12 text-center">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto h-16 w-16">
@@ -885,7 +920,7 @@ else
   <!-- Lista de conteúdos -->
   <div class="grid grid-cols-1 gap-4 md:hidden">
     <% if conteudos.any? %>
-      <% conteudos.each do |conteudo| %>
+      <% conteudos.limit(10).each do |conteudo| %>
         <% cor_disciplina = conteudo.disciplina&.cor_nome || "#3c3c3c" %>
         <div class="shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg border border-gray-100"
              style="background: linear-gradient(
@@ -1006,6 +1041,11 @@ else
           </div>
         </div>
       <% end %>
+      <% if conteudos.count > 10 %>
+        <div class="mt-2 text-center">
+          <%= link_to "Ver todos os conteúdos (#{conteudos.count})", escola_conteudos_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
+        </div>
+      <% end %>
     <% else %>
       <div class="py-12 text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-16 text-gray-700 mx-auto">
@@ -1064,7 +1104,7 @@ else
 
   <div class="grid grid-cols-1 gap-4 md:hidden">
     <% if frequencias.any? %>
-      <% frequencias.each do |frequencia| %>
+      <% frequencias.limit(10).each do |frequencia| %>
         <div class="shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden rounded-lg relative bg-gradient-to-br from-white via-green-50 to-green-100 border border-green-200/50">
           <div class="card-body p-4 relative z-10 px-3">
             <!-- Header -->
@@ -1202,6 +1242,11 @@ else
               </div>
             <% end %>
           </div>
+        </div>
+      <% end %>
+      <% if frequencias.count > 10 %>
+        <div class="mt-2 text-center">
+          <%= link_to "Ver todas as frequências (#{frequencias.count})", escola_frequencias_path(@escola), class: "font-semibold text-emerald-600 hover:text-emerald-800 text-sm" %>
         </div>
       <% end %>
     <% else %>

@@ -1,14 +1,12 @@
 <div class="boletim-container min-h-screen p-8 max-w-4xl mx-auto bg-white shadow-xl border border-gray-300">
+<% usa_conceito = @turma.usa_conceito? %>
 
-  <%# --- BOTÕES DE AÇÃO (IMPRIMIR, BAIXAR E ENVIAR EMAIL) --- %>
+  <%# --- BOTÕES DE AÇÃO --- %>
   <div class="mb-6 flex justify-end gap-3 print-hide">
-    
-    <%# Link para Baixar PDF (VERDE) %>
-    <%= link_to 'Baixar PDF', por_ano_aluno_boletins_path(@ano_letivo, format: :pdf), 
+    <%= link_to 'Baixar PDF', por_ano_aluno_boletins_path(@ano_letivo, format: :pdf),
                 class: "flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 transition duration-150" %>
-    
-    <%# Botão para Impressão %>
-    <button onclick="window.print()" 
+
+    <button onclick="window.print()"
             class="cursor-pointer flex items-center px-4 py-2 bg-gray-500 text-white font-medium rounded-lg shadow-md hover:bg-gray-600 transition duration-150">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
@@ -16,8 +14,7 @@
       Imprimir
     </button>
 
-    <%# Botão para Enviar por Email (AZUL) %>
-    <button onclick="email_modal.showModal()" 
+    <button onclick="email_modal.showModal()"
             class="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-150">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
@@ -25,15 +22,13 @@
       Enviar por Email
     </button>
   </div>
-  <%# --------------------------------------------- %>
-
 
   <div class="text-center mb-6">
     <h1 class="text-3xl font-extrabold text-gray-800 border-b-2 border-gray-400 pb-2 mb-1">BOLETIM ESCOLAR</h1>
     <p class="text-right text-sm text-gray-600">Emitido em <%= Time.zone.now.strftime('%d/%m/%Y') %></p>
   </div>
 
-  <%# --- DADOS DO ALUNO E ESCOLA --- %>
+  <%# --- DADOS DO ALUNO --- %>
   <div class="mb-6 p-4 border border-gray-400 bg-gray-50 rounded">
     <div class="grid grid-cols-2 gap-y-1 text-sm font-medium">
       <p><strong>ESCOLA:</strong> <%= @aluno.escola.nome.upcase %></p>
@@ -44,137 +39,252 @@
       <p><strong>Turma:</strong> <%= @turma.nome %></p>
       <p><strong>Turno:</strong> <%= @turma.turno.capitalize %></p>
       <p><strong>Ano Letivo:</strong> <%= @ano_letivo.ano %></p>
+      <p><strong>Tipo de Avaliação:</strong> <%= usa_conceito ? "Conceito" : "Nota" %></p>
     </div>
   </div>
-  
-  <%# --- TABELA DE NOTAS --- %>
-  <table class="w-full text-sm border-collapse">
-    <thead>
-      <tr class="bg-gray-700 text-white font-bold">
-        <th class="text-left border border-gray-600 p-2">DISCIPLINA</th>
-        <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
-          <th class="text-center border border-gray-600 p-2">Média <%= i + 1 %>º Bim</th>
-        <% end %>
-        <th class="text-center border border-gray-600 p-2">Faltas (ano)</th>
-        <th class="text-center border border-gray-600 p-2">Recup</th>
-        <th class="text-center border border-gray-600 p-2">Média Final</th>
-        <th class="text-center border border-gray-600 p-2">Situação Final</th>
-      </tr>
-    </thead>
-    
-    <tbody>
-      <% @boletim_disciplinas.each do |disciplina, avaliacoes| %>
-        <% notas_bimestrais = {} %>
-        <% avaliacoes.each { |av| notas_bimestrais[av.bimestre] = av.nota_bimestre_final } %>
 
-        <% notas_validas = notas_bimestrais.values.compact %>
-        <% media_simples = notas_validas.any? ? (notas_validas.sum.to_f / notas_validas.size).round(2) : nil %>
-        
-        <% nota_recuperacao = nil %>
+  <% if usa_conceito %>
+    <%# ============================================================ %>
+    <%# TABELA — TURMA DE CONCEITO %>
+    <%# ============================================================ %>
+    <%
+      config_ids_por_disciplina = AvaliacaoConfiguracao
+        .where(turma: @turma)
+        .group_by(&:disciplina_id)
 
-        <% media_final_ano = nil %>
-        <% if media_simples.present? %>
-          <% media_final_ano = media_simples.round(1) %>
-        <% end %>
-        <% if nota_recuperacao.present? && media_final_ano.present? %>
-          <% media_final_ano = [media_final_ano, nota_recuperacao].max.round(1) %>
-        <% end %>
+      disciplinas_conceito = config_ids_por_disciplina.keys
+                               .map { |id| Disciplina.find(id) }
+                               .sort_by(&:nome)
+    %>
 
-        <% freq_data = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 } %>
-        <% total_faltas = freq_data[:total_faltas] %>
-        <% frequencia_percentual = freq_data[:total_aulas] > 0 ? ((freq_data[:total_aulas] - total_faltas).to_f / freq_data[:total_aulas]) * 100 : nil %>
-        
-        <% situacao_final = determinar_situacao_final(media_final_ano, frequencia_percentual) %>
-
-        <tr class="hover:bg-gray-100">
-          <td class="text-left border border-gray-300 p-2 font-semibold"><%= disciplina.nome.upcase %></td>
-          
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-gray-700 text-white font-bold">
+          <th class="text-left border border-gray-600 p-2">DISCIPLINA</th>
           <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
-            <% nota = notas_bimestrais[i + 1] %>
+            <th class="text-center border border-gray-600 p-2">Conceito <%= i + 1 %>º Bim</th>
+          <% end %>
+          <th class="text-center border border-gray-600 p-2">Faltas (ano)</th>
+          <th class="text-center border border-gray-600 p-2">Situação Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% disciplinas_conceito.each do |disciplina| %>
+          <%
+            configs = config_ids_por_disciplina[disciplina.id] || []
+            conceitos_por_bimestre = {}
+            configs.each do |config|
+              registro = RegistroDeNota.find_by(
+                aluno_id: @aluno.id,
+                avaliacao_configuracao_id: config.id
+              )
+              next unless registro&.conceito.present?
+              conceitos_por_bimestre[config.bimestre] ||= registro.conceito
+            end
+
+            freq_data    = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+            total_faltas = freq_data[:total_faltas]
+            frequencia_percentual = freq_data[:total_aulas] > 0 ?
+              ((freq_data[:total_aulas] - total_faltas).to_f / freq_data[:total_aulas]) * 100 : nil
+
+            ordem = { "d" => 0, "c" => 1, "b" => 2, "a" => 3 }
+            situacao = if frequencia_percentual && frequencia_percentual < 75
+                         "REPROVADO POR FALTA"
+                       elsif conceitos_por_bimestre.values.any?
+                         melhor = conceitos_por_bimestre.values.max_by { |c| ordem[c] || 0 }
+                         melhor == "d" ? "INSUFICIENTE" : "APROVADO"
+                       else
+                         "AGUARDANDO"
+                       end
+
+            cor_situacao = case situacao
+                           when "APROVADO"            then "text-green-700"
+                           when "INSUFICIENTE",
+                                "REPROVADO POR FALTA" then "text-red-700"
+                           else "text-gray-500"
+                           end
+
+            label_conceito = { "a" => "A", "b" => "B", "c" => "C", "d" => "D" }
+            cor_conceito   = { "a" => "text-green-700", "b" => "text-blue-700",
+                               "c" => "text-yellow-700", "d" => "text-red-700" }
+          %>
+          <tr class="hover:bg-gray-100">
+            <td class="text-left border border-gray-300 p-2 font-semibold"><%= disciplina.nome.upcase %></td>
+            <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+              <% conceito = conceitos_por_bimestre[i + 1] %>
+              <td class="text-center border border-gray-300 p-2">
+                <% if conceito.present? %>
+                  <span class="<%= cor_conceito[conceito] %> font-bold">
+                    <%= label_conceito[conceito] %>
+                  </span>
+                <% else %>
+                  <span class="text-gray-400">—</span>
+                <% end %>
+              </td>
+            <% end %>
+            <td class="text-center border border-gray-300 p-2"><%= total_faltas %></td>
+            <td class="text-center border border-gray-300 p-2 font-bold <%= cor_situacao %>">
+              <%= situacao %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%# Resultado final — conceito %>
+    <%
+      todas_situacoes = disciplinas_conceito.map do |disciplina|
+        configs = config_ids_por_disciplina[disciplina.id] || []
+        conceitos = configs.flat_map do |config|
+          r = RegistroDeNota.find_by(aluno_id: @aluno.id, avaliacao_configuracao_id: config.id)
+          r&.conceito.present? ? [r.conceito] : []
+        end
+        freq_data = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+        freq_perc = freq_data[:total_aulas] > 0 ?
+          ((freq_data[:total_aulas] - freq_data[:total_faltas]).to_f / freq_data[:total_aulas]) * 100 : nil
+
+        if freq_perc && freq_perc < 75
+          "REPROVADO POR FALTA"
+        elsif conceitos.include?("d")
+          "INSUFICIENTE"
+        elsif conceitos.empty?
+          "AGUARDANDO"
+        else
+          "APROVADO"
+        end
+      end
+
+      resultado_global = if todas_situacoes.include?("REPROVADO POR FALTA")
+                           "REPROVADO POR FALTA"
+                         elsif todas_situacoes.include?("INSUFICIENTE")
+                           "INSUFICIENTE"
+                         elsif todas_situacoes.include?("AGUARDANDO")
+                           "AGUARDANDO"
+                         else
+                           "APROVADO"
+                         end
+
+      cor_resultado = %w[REPROVADO\ POR\ FALTA INSUFICIENTE].include?(resultado_global) ? "text-red-700" :
+                      resultado_global == "AGUARDANDO" ? "text-gray-500" : "text-green-700"
+    %>
+    <div class="mt-6">
+      <p class="text-lg mt-4 font-bold text-gray-800 border-t-2 border-b-2 border-gray-400 p-2">
+        RESULTADO FINAL:
+        <span class="<%= cor_resultado %>"><%= resultado_global %></span>
+      </p>
+    </div>
+
+  <% else %>
+    <%# ============================================================ %>
+    <%# TABELA — TURMA DE NOTA (original, inalterada) %>
+    <%# ============================================================ %>
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-gray-700 text-white font-bold">
+          <th class="text-left border border-gray-600 p-2">DISCIPLINA</th>
+          <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+            <th class="text-center border border-gray-600 p-2">Média <%= i + 1 %>º Bim</th>
+          <% end %>
+          <th class="text-center border border-gray-600 p-2">Faltas (ano)</th>
+          <th class="text-center border border-gray-600 p-2">Recup</th>
+          <th class="text-center border border-gray-600 p-2">Média Final</th>
+          <th class="text-center border border-gray-600 p-2">Situação Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @boletim_disciplinas.each do |disciplina, avaliacoes| %>
+          <%
+            notas_bimestrais = {}
+            avaliacoes.each { |av| notas_bimestrais[av.bimestre] = av.nota_bimestre_final }
+            notas_validas    = notas_bimestrais.values.compact
+            media_simples    = notas_validas.any? ? (notas_validas.sum.to_f / notas_validas.size).round(2) : nil
+            nota_recuperacao = nil
+            media_final_ano  = media_simples&.round(1)
+            media_final_ano  = [media_final_ano, nota_recuperacao].max.round(1) if nota_recuperacao.present? && media_final_ano.present?
+
+            freq_data             = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+            total_faltas          = freq_data[:total_faltas]
+            frequencia_percentual = freq_data[:total_aulas] > 0 ?
+              ((freq_data[:total_aulas] - total_faltas).to_f / freq_data[:total_aulas]) * 100 : nil
+
+            situacao_final = determinar_situacao_final(media_final_ano, frequencia_percentual)
+          %>
+          <tr class="hover:bg-gray-100">
+            <td class="text-left border border-gray-300 p-2 font-semibold"><%= disciplina.nome.upcase %></td>
+
+            <% (@ano_letivo.numero_bimestre || 4).times do |i| %>
+              <% nota = notas_bimestrais[i + 1] %>
+              <td class="text-center border border-gray-300 p-2">
+                <% if nota.present? %>
+                  <span class="<%= nota >= 6.0 ? 'text-green-700' : 'text-red-700' %> font-medium">
+                    <%= '%.1f' % nota %>
+                  </span>
+                <% else %>
+                  <span class="text-gray-400">0.0</span>
+                <% end %>
+              </td>
+            <% end %>
+
+            <td class="text-center border border-gray-300 p-2"><%= total_faltas %></td>
             <td class="text-center border border-gray-300 p-2">
-              <% if nota.present? %>
-                <span class="<%= nota >= 6.0 ? 'text-green-700' : 'text-red-700' %> font-medium">
-                  <%= '%.1f' % nota %>
+              <%= nota_recuperacao.present? ? ('%.1f' % nota_recuperacao) : '0' %>
+            </td>
+            <td class="text-center border border-gray-300 p-2 font-bold">
+              <% if media_final_ano.present? %>
+                <span class="<%= media_final_ano >= 6.0 ? 'text-green-700' : 'text-red-700' %>">
+                  <%= '%.1f' % media_final_ano %>
                 </span>
               <% else %>
-                <span class="text-gray-400">0.0</span>
+                <span>0.0</span>
               <% end %>
             </td>
-          <% end %>
-
-          <td class="text-center border border-gray-300 p-2">
-            <%= total_faltas %>
-          </td>
-          
-          <td class="text-center border border-gray-300 p-2">
-            <%= nota_recuperacao.present? ? ('%.1f' % nota_recuperacao) : '0' %>
-          </td>
-
-          <td class="text-center border border-gray-300 p-2 font-bold">
-            <% if media_final_ano.present? %>
-              <span class="<%= media_final_ano >= 6.0 ? 'text-green-700' : 'text-red-700' %>">
-                <%= '%.1f' % media_final_ano %>
-              </span>
-            <% else %>
-              <span>0.0</span>
-            <% end %>
-          </td>
-
-          <td class="text-center border border-gray-300 p-2 font-bold">
-            <%= situacao_final[:texto].upcase %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-  <%# --- RESULTADO FINAL E POSIÇÃO NA TURMA --- %>
-  <div class="mt-6">
+            <td class="text-center border border-gray-300 p-2 font-bold">
+              <%= situacao_final[:texto].upcase %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
 
     <%
       reprovado_em_alguma = @boletim_disciplinas.keys.any? do |disciplina|
         notas_validas_d = @boletim_disciplinas[disciplina].map(&:nota_bimestre_final).compact
         media_simples_d = notas_validas_d.any? ? (notas_validas_d.sum.to_f / notas_validas_d.size).round(2) : nil
-        
-        media_final_global = media_simples_d
-        
-        freq_data_d = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
-        total_faltas_d = freq_data_d[:total_faltas]
-        frequencia_percentual_d = freq_data_d[:total_aulas] > 0 ? ((freq_data_d[:total_aulas] - total_faltas_d).to_f / freq_data_d[:total_aulas]) * 100 : nil
-        
-        final_situacao = determinar_situacao_final(media_final_global, frequencia_percentual_d)
-        
-        final_situacao[:texto] == 'Reprovado' || final_situacao[:texto] == 'Reprovado por Falta'
+        freq_data_d     = @frequencia_por_disciplina[disciplina.id] || { total_aulas: 0, total_faltas: 0 }
+        freq_perc_d     = freq_data_d[:total_aulas] > 0 ?
+          ((freq_data_d[:total_aulas] - freq_data_d[:total_faltas]).to_f / freq_data_d[:total_aulas]) * 100 : nil
+        s = determinar_situacao_final(media_simples_d, freq_perc_d)
+        s[:texto] == 'Reprovado' || s[:texto] == 'Reprovado por Falta'
       end
     %>
-
-    <p class="text-lg mt-4 font-bold text-gray-800 border-t-2 border-b-2 border-gray-400 p-2">
-        RESULTADO FINAL: 
+    <div class="mt-6">
+      <p class="text-lg mt-4 font-bold text-gray-800 border-t-2 border-b-2 border-gray-400 p-2">
+        RESULTADO FINAL:
         <span class="<%= reprovado_em_alguma ? 'text-red-700' : 'text-green-700' %>">
-            <%= reprovado_em_alguma ? 'REPROVADO' : 'APROVADO' %>
+          <%= reprovado_em_alguma ? 'REPROVADO' : 'APROVADO' %>
         </span>
-    </p>
-  </div>
+      </p>
+    </div>
+  <% end %>
 </div>
 
-<%# --- MODAL DE ENVIO POR EMAIL (DAISYUI) --- %>
+<%# --- MODAL DE EMAIL (inalterado) --- %>
 <dialog id="email_modal" class="modal print-hide">
   <div class="modal-box max-w-md">
     <form method="dialog">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
     </form>
-    
+
     <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
       </svg>
       Enviar Boletim por Email
     </h3>
-    
+
     <p class="text-sm text-gray-600 mb-6">Escolha como deseja enviar o boletim:</p>
-    
+
     <div class="space-y-4">
-      <%# Opção 1: Enviar para o email do aluno (se existir) %>
       <% if current_aluno&.email.present? %>
         <div class="card bg-blue-50 border border-blue-200">
           <div class="card-body p-4">
@@ -185,16 +295,15 @@
               Meu Email
             </h4>
             <p class="text-xs text-gray-600 mb-3 break-all"><%= current_aluno.email %></p>
-            <%= button_to 'Enviar para Meu Email', 
-                          enviar_email_aluno_boletins_path(@ano_letivo, usar_email_aluno: true), 
+            <%= button_to 'Enviar para Meu Email',
+                          enviar_email_aluno_boletins_path(@ano_letivo, usar_email_aluno: true),
                           method: :post,
                           class: "btn btn-primary btn-sm w-full",
                           data: { turbo: false } %>
           </div>
         </div>
       <% end %>
-      
-      <%# Opção 2: Enviar para outro email %>
+
       <div class="card bg-gray-50 border border-gray-200">
         <div class="card-body p-4">
           <h4 class="font-semibold text-sm mb-2 flex items-center gap-2">
@@ -203,25 +312,22 @@
             </svg>
             Outro Email
           </h4>
-          
           <%= form_with url: enviar_email_aluno_boletins_path(@ano_letivo), method: :post, class: "space-y-3", data: { turbo: false } do |f| %>
             <div class="form-control">
               <label class="label">
                 <span class="label-text text-xs">Digite o email de destino:</span>
               </label>
-              <input type="email" 
-                     name="email_destino" 
-                     placeholder="exemplo@email.com" 
+              <input type="email"
+                     name="email_destino"
+                     placeholder="exemplo@email.com"
                      class="input input-bordered input-sm w-full focus:input-primary"
                      required>
             </div>
-            
             <%= f.submit 'Enviar', class: "btn btn-outline btn-primary btn-sm w-full" %>
           <% end %>
         </div>
       </div>
 
-      <%# Fallback caso não haja email do aluno %>
       <% if current_aluno&.email.blank? %>
         <div class="alert alert-warning shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
@@ -231,15 +337,13 @@
         </div>
       <% end %>
     </div>
-    
+
     <div class="modal-action">
       <form method="dialog">
         <button class="btn btn-ghost btn-sm">Cancelar</button>
       </form>
     </div>
   </div>
-  
-  <%# Fundo escuro do modal %>
   <form method="dialog" class="modal-backdrop">
     <button>close</button>
   </form>
@@ -248,30 +352,23 @@
 <%# --- ESTILOS DE IMPRESSÃO --- %>
 <style>
   @media print {
-    .print-hide {
-      display: none !important;
-    }
-
-    body > * {
-        visibility: hidden;
-    }
-    
+    .print-hide { display: none !important; }
+    body > * { visibility: hidden; }
     .boletim-container {
-        visibility: visible !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
+      visibility: visible !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
-    
     table, th, td, h1 {
       background-color: white !important;
-      -webkit-print-color-adjust: exact; 
+      -webkit-print-color-adjust: exact;
       color-adjust: exact;
     }
   }

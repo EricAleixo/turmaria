@@ -4,33 +4,6 @@ module ApplicationHelper
     current_admin || current_super_admin
   end
 
-  def card_perfil(&block)
-    content_tag(:div, class: "p-4 bg-white rounded-xl shadow-md border border-gray-200 flex flex-col justify-between") do
-      capture(&block)
-    end
-  end
-
-  def card_metric(icon_svg, color_class, value, label)
-    # Limpa os dados para garantir que nenhuma tag HTML vinda do banco de dados quebre o layout
-    cleaned_value = strip_tags(value.to_s).strip
-    cleaned_label = strip_tags(label.to_s).strip
-
-    # Usamos content_tag para construir o HTML de forma segura
-    content_tag(:div, class: "bg-white rounded-xl shadow-md p-4 flex flex-col items-start space-y-1 h-full transition duration-150 transform hover:shadow-lg") do
-
-      icon_div = content_tag(:div, class: "#{color_class} p-2 rounded-lg text-white mb-2") do
-        icon_svg.html_safe
-      end
-
-      value_span = content_tag(:span, cleaned_value, class: "text-xl font-bold text-gray-800 break-words leading-tight")
-
-      label_p = content_tag(:p, cleaned_label, class: "text-sm text-gray-500 mt-1")
-
-      # Concatena todas as partes
-      icon_div + value_span + label_p
-    end
-  end
-
   # Helper to get current user regardless of type
   def current_any_user
     current_admin || current_professor || current_coordenador || current_super_admin
@@ -85,45 +58,6 @@ module ApplicationHelper
   rescue
     # Fallback caso não haja usuário logado
     false
-  end
-
-  # Gera avatar do administrador (iniciais do nome quando não há foto)
-  def admin_avatar(admin, size: 'w-8 h-8', text_size: 'text-sm')
-    return nil unless admin
-
-    if admin.respond_to?(:avatar) && admin.avatar.present?
-      # Quando implementar upload de fotos, usar esta linha:
-      # image_tag admin.avatar, class: "#{size} rounded-full object-cover"
-      admin_initials_avatar(admin, size, text_size)
-    else
-      admin_initials_avatar(admin, size, text_size)
-    end
-  end
-
-  # Gera avatar com iniciais do nome
-  def admin_initials_avatar(admin, size = 'w-8 h-8', text_size = 'text-sm')
-    return nil unless admin&.nome
-
-    initials = admin.nome.split.map(&:first).join.upcase.first(2)
-    
-    # Cores baseadas no hash do nome para consistência
-    colors = [
-      'bg-blue-500 text-white',
-      'bg-green-500 text-white', 
-      'bg-purple-500 text-white',
-      'bg-red-500 text-white',
-      'bg-yellow-500 text-white',
-      'bg-indigo-500 text-white',
-      'bg-pink-500 text-white',
-      'bg-teal-500 text-white'
-    ]
-    
-    color_class = colors[admin.nome.hash % colors.length]
-    
-    content_tag :div, 
-                initials, 
-                class: "#{size} #{color_class} rounded-full flex items-center justify-center font-semibold #{text_size}",
-                title: admin.nome
   end
 
   # Tooltip com informações do administrador

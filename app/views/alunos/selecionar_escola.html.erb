@@ -6,6 +6,10 @@
       <p class="text-gray-600">Escolha uma escola para acessar suas turmas e alunos</p>
     </div>
 
+    <div class="mb-4">
+      <%= link_to "Todos os Alunos", alunos_path,
+          class: "inline-block px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all duration-300" %>
+    </div>
     <!-- Grid de Cards de Escolas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @escolas.each do |escola| %>
