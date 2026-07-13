@@ -62,4 +62,4 @@ USER rails
 
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 EXPOSE 3000
-CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec rails tailwindcss:build && bundle exec rails server -b 0.0.0.0"]
+CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec rails tailwindcss:build && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"]
