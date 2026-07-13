@@ -9,7 +9,8 @@ Rails.application.configure do
     "Cache-Control" => "public, max-age=#{1.year.to_i}"
   }
   config.active_storage.service = :local
-  config.force_ssl = true
+  #Habilitar depois
+  config.force_ssl = false
   config.logger = ActiveSupport::Logger.new($stdout)
     .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
     .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
