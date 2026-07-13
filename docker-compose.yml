@@ -1,18 +1,14 @@
 services:
   web:
     build: .
-    command: bundle exec rails server -b 0.0.0.0
     ports:
       - "3000:3000"
     depends_on:
       - db
     environment:
-      RAILS_ENV: development
-      DATABASE_URL: postgres://ipdesenvolvimento:ipdesenvolvimento@db:5432/sistema_academico_development
-    volumes:
-      - .:/rails
-    stdin_open: true
-    tty: true
+      RAILS_ENV: production
+      DATABASE_URL: postgres://ipdesenvolvimento:ipdesenvolvimento@db:5432/sistema_academico_production
+      SECRET_KEY_BASE: 28ffc2c40e18c9a6ea4e407f4849f72bbfbd5f3756b4a5c0d306c7f7a3b8cfac008243517b575cf1f6b2774a491fba27236cb2ff4f87ab4654862690feae2a8f
 
   db:
     image: postgres:18
@@ -20,9 +16,7 @@ services:
     environment:
       POSTGRES_USER: ipdesenvolvimento
       POSTGRES_PASSWORD: ipdesenvolvimento
-      POSTGRES_DB: sistema_academico_development
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: sistema_academico_production
     volumes:
       - turmaria_pgdata:/var/lib/postgresql
 
