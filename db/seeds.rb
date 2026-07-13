@@ -22,8 +22,8 @@ escola = Escola.create!(
 
 puts "Criando SuperAdmin..."
 super_admin = SuperAdmin.create(
-  email: "superadmin@teste.com",
-  password: "123456",
+  email: "turmaria@gmail.com",
+  password: "turmariaoficial8090",
   confirmed_at: Time.current
 )
 puts super_admin.persisted? ? "SuperAdmin criado!" : "Erro: #{super_admin.errors.full_messages.join(", ")}"
@@ -32,9 +32,9 @@ puts "Criando Admin..."
 
 admin = Admin.create!(
   nome: "Administrador",
-  email: "admin@teste.com",
-  password: "123456",
-  password_confirmation: "123456",
+  email: "turmaria@gmail.com",
+  password: "turmariaoficial8090",
+  password_confirmation: "turmariaoficial8090",
   confirmed_at: Time.current
 )
 

@@ -1,3 +1,4 @@
+require "ostruct"
 class Devise::UnifiedSessionsController < Devise::SessionsController
   layout "application"
   helper_method :resource, :resource_name, :devise_mapping
