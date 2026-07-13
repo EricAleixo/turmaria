@@ -8,7 +8,7 @@ Rails.application.configure do
   config.public_file_server.headers = {
     "Cache-Control" => "public, max-age=#{1.year.to_i}"
   }
-  config.active_storage.service = :amazon
+  config.active_storage.service = :local
   config.force_ssl = true
   config.logger = ActiveSupport::Logger.new($stdout)
     .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
