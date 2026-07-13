@@ -2,6 +2,8 @@ source "https://rubygems.org"
 
 ruby "3.2.3"
 
+gem "sidekiq"
+
 # Para paginação (Recomendado Kaminari)
 gem 'kaminari'
 
@@ -72,7 +74,6 @@ end
 
 group :production do
   gem "rails_12factor"
-  gem "sidekiq"
 end
 
 # Necessário apenas no Windows
