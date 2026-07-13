@@ -72,6 +72,7 @@ end
 
 group :production do
   gem "rails_12factor"
+  gem "sidekiq"
 end
 
 # Necessário apenas no Windows
