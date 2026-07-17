@@ -146,6 +146,18 @@
           <% end %>
         </li>
 
+        <li>
+          <%
+            planos_active = controller_path == 'professor/planos_de_ensino'
+          %>
+          <%= link_to professor_planos_de_ensino_path, class: "flex items-center p-3 rounded-xl transition-all duration-200 #{planos_active ? 'bg-green-100 text-green-700 font-semibold shadow-sm' : 'hover:bg-green-50 text-gray-700 hover:text-green-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Planos de Ensino
+          <% end %>
+        </li>
+
         <!-- Meus Conteúdos -->
         <li>
           <%= link_to "/professor/selecionar_turma", 

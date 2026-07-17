@@ -13,6 +13,7 @@ class Escola < ApplicationRecord
   has_many :area_disciplinas, dependent: :destroy
   has_many :professors, dependent: :destroy
   has_many :conteudos
+  has_many :planos_de_ensino, through: :turmas
 
   accepts_nested_attributes_for :endereco, allow_destroy: true
 

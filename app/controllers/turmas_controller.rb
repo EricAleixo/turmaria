@@ -6,12 +6,23 @@ class TurmasController < ApplicationController
   before_action :set_turma, only: %i[
   show edit update destroy 
   assign_students assign_student remove_from_turma remove_students 
-  assign_professors assign_professor remove_professor_from_turma
+  assign_professors assign_professor remove_professor_from_turma planos_de_ensino
 ]
 
   # GET /escolas/:escola_id/turmas or /escolas/:escola_id/turmas.json
   def index
     @turmas = @escola.turmas
+
+    if params[:busca].present?
+      @turmas = @turmas.where('nome ILIKE ?', "%#{params[:busca]}%")
+    end
+
+    if params[:filtros].present?
+      turnos_filtrados = params[:filtros].reject(&:blank?)
+      @turmas = @turmas.where(turno: turnos_filtrados) if turnos_filtrados.any?
+    end
+
+    @turmas = @turmas.order(:nome)
   end
 
   # GET /escolas/:escola_id/turmas/1 or /escolas/:escola_id/turmas/1.json
@@ -77,6 +88,26 @@ class TurmasController < ApplicationController
       end
     end
   end
+
+    def planos_de_ensino
+    authorize @escola, :show?
+
+    puts "Turma: ",@turma
+ 
+    @ano_letivo = AnoLetivo.find(@turma.ano_letivo_id)
+ 
+    # Todas as disciplinas da turma, mesmo as que ainda não têm nenhum plano —
+    # assim dá pra ver de cara o que falta cadastrar.
+    @disciplinas = @turma.disciplinas.includes(:area_disciplina).order(:nome)
+ 
+    # Lookup rápido [disciplina_id, bimestre] => plano, pra montar o roadmap sem N+1
+    @planos_lookup = @turma.planos_de_ensino
+                            .includes(:professor)
+                            .each_with_object({}) do |plano, hash|
+                              hash[[plano.disciplina_id, plano.bimestre]] = plano
+    end
+  end
+
 
   # ... (O restante das actions assign_students, assign_student, remove_from_turma permanece inalterado)
 

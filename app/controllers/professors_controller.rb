@@ -111,7 +111,7 @@ class ProfessorsController < ApplicationController
         process_base64_foto(@professor)
       end
       
-      redirect_to escola_professors_path(@escola), notice: "Professor atualizado com sucesso!"
+      redirect_to escola_professors_path(@professor.escola), notice: "Professor atualizado com sucesso!"
     else
       render :edit, status: :unprocessable_entity
     end

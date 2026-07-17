@@ -83,6 +83,7 @@ class EscolasController < ApplicationController
                         .includes(:turma, :disciplina, :professor)
                         .order(data_aula: :desc)
                         .limit(10)
+    @planos_de_ensino = @escola.planos_de_ensino
   end
 
   # --------------------------

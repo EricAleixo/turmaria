@@ -17,6 +17,8 @@ class Turma < ApplicationRecord
   has_many :avaliacoes_configuracoes, class_name: 'AvaliacaoConfiguracao'
   has_many :avaliacoes_bimestrais, class_name: 'AvaliacaoBimestral', dependent: :destroy
 
+  has_many :planos_de_ensino, dependent: :destroy
+
   validates :nome, presence: true
   validates :serie, presence: true
   validates :turno, presence: true, inclusion: { in: turnos.keys }

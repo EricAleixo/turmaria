@@ -610,6 +610,140 @@
   </div>
 </div>
 
+
+<div class="hidden md:block mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+  <div class="flex items-center justify-between border-b border-gray-200 p-6">
+    <h3 class="text-2xl font-bold text-gray-800">Planos de Ensino</h3>
+
+    <div class="hidden w-80 gap-3 sm:flex">
+      <%= link_to "Ver Planos", escola_planos_de_ensino_path(escola), class: "btn w-1/2 border-blue-500 bg-blue-500 text-white hover:border-blue-600 hover:bg-blue-600" %>
+      <%= link_to "Novo Plano", new_escola_plano_de_ensino_path(escola), class: "btn bg-green-500 text-white w-1/2" %>
+    </div>
+
+    <div class="sm:hidden dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle bg-green-50 hover:bg-green-100 text-green-600 border border-green-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+        </svg>
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-xl w-64 border border-gray-100 mt-2 animate-fadeIn">
+        <li>
+          <%= link_to escola_planos_de_ensino_path(escola), class: "flex items-center gap-2 hover:bg-green-50 text-gray-700 hover:text-green-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            Ver Planos
+          <% end %>
+        </li>
+        <li>
+          <%= link_to new_escola_plano_de_ensino_path(escola), class: "flex items-center gap-2 hover:bg-green-50 text-gray-700 hover:text-green-700" do %>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Novo Plano
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <% if @planos_de_ensino.any? %>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="border-b border-gray-200 bg-gradient-to-r from-blue-500 to-green-300">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Professor</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Turma</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Disciplina</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Bimestre</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">Status</th>
+            <th class="hidden px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white sm:table-cell">Ações</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100 bg-white">
+          <% @planos_de_ensino.each do |plano| %>
+            <tr class="transition-colors hover:bg-emerald-50/50">
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="flex items-center space-x-3">
+                  <% if plano.professor.foto.attached? %>
+                    <div class="h-9 w-9 rounded-full overflow-hidden border border-gray-300">
+                      <%= image_tag plano.professor.foto.variant(resize_to_fill: [36, 36]), class: "object-cover w-full h-full" %>
+                    </div>
+                  <% else %>
+                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white text-sm font-semibold shadow-sm border border-blue-400">
+                      <%= plano.professor.nome[0].upcase %>
+                    </div>
+                  <% end %>
+                  <div class="text-sm font-medium text-gray-900"><%= plano.professor.nome %></div>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-800">
+                  <%= plano.turma.nome %>
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700"><%= plano.disciplina.nome %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700"><%= plano.bimestre %>º Bim.</td>
+              <td class="whitespace-nowrap px-6 py-4">
+                <% status_classes = {
+                     "rascunho" => "bg-gray-100 text-gray-800",
+                     "em_elaboracao" => "bg-blue-100 text-blue-800",
+                     "publicado" => "bg-emerald-100 text-emerald-800"
+                   } %>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium <%= status_classes[plano.status] %>">
+                  <%= plano.status_humanizado %>
+                </span>
+              </td>
+              <td class="hidden whitespace-nowrap px-6 py-4 text-sm font-medium sm:table-cell">
+                <div class="flex space-x-3">
+                  <%= link_to escola_plano_de_ensino_path(escola, plano), class: "rounded-full p-1 text-blue-500 transition-colors hover:bg-blue-100/50 hover:text-blue-700" do %>
+                    <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  <% end %>
+                  <%= link_to edit_escola_plano_de_ensino_path(escola, plano), class: "rounded-full p-1 text-yellow-600 transition-colors hover:bg-yellow-100/50 hover:text-yellow-800" do %>
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  <% end %>
+                  <%= delete_button_with_modal(
+                      path: escola_plano_de_ensino_path(escola, plano),
+                      modal_id: dom_id(plano, :delete),
+                      title: "Excluir plano de ensino",
+                      message: "Tem certeza que deseja excluir este plano de ensino",
+                      item_name: "#{plano.disciplina.nome} - #{plano.turma.nome}",
+                      btn_class: "rounded-full p-1 text-red-600 transition-colors hover:bg-red-100/50 hover:text-red-800"
+                    ) %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <% if escola.planos_de_ensino.count > 10 %>
+        <div class="border-t border-gray-200 px-6 py-4 text-center">
+          <%= link_to "Ver todos os planos (#{escola.planos_de_ensino.count})", escola_planos_de_ensino_path(escola), class: "font-semibold text-emerald-600 hover:text-emerald-800" %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="py-12 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-gray-900">Nenhum plano de ensino cadastrado</h3>
+      <p class="mt-1 text-sm text-gray-500">Os professores ainda não criaram planos de ensino nesta escola.</p>
+      <div class="mt-6">
+        <%= link_to "Criar Primeiro Plano", new_escola_plano_de_ensino_path(escola), class: "rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-md transition-colors hover:bg-indigo-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
 <div class="hidden md:block mt-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
   <div class="flex items-center justify-between border-b border-gray-200 p-6">
     <h3 class="text-2xl font-bold text-gray-800">Conteúdos da Escola</h3>

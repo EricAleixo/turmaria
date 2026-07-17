@@ -1,0 +1,364 @@
+<!-- app/views/professor/planos_de_ensino/show.html.erb -->
+
+<main class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-br from-green-600 to-blue-600 text-white pt-10 pb-14 px-8">
+    <div class="max-w-7xl mx-auto">
+      <%= link_to professor_planos_de_ensino_path, class: "inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white mb-4 transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Voltar para Planos de Ensino
+      <% end %>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
+              Turma <%= @plano_de_ensino.turma.nome %> · <%= @plano_de_ensino.turma.serie %>º ano
+            </span>
+            <% status_dot = { "rascunho" => "bg-gray-300", "em_elaboracao" => "bg-blue-300", "publicado" => "bg-lime-300" } %>
+            <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full <%= status_dot[@plano_de_ensino.status] %>"></span>
+              <%= @plano_de_ensino.status_humanizado %>
+            </span>
+            <% if @plano_de_ensino.curso.present? %>
+              <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
+                <%= @plano_de_ensino.curso %>
+              </span>
+            <% end %>
+          </div>
+          <h2 class="text-3xl font-bold tracking-tight"><%= @plano_de_ensino.disciplina.nome %></h2>
+          <p class="text-white/80 text-sm mt-1">
+            <%= @plano_de_ensino.bimestre %>º Bimestre · <%= @plano_de_ensino.turma.ano_letivo.try(:ano) || @plano_de_ensino.turma.ano_letivo.id %>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <%= link_to edit_professor_plano_de_ensino_path(@plano_de_ensino),
+                class: "bg-white text-green-700 font-semibold text-sm px-6 py-3 rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center gap-2" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+            </svg>
+            Editar Plano
+          <% end %>
+          <%= link_to professor_plano_de_ensino_path(@plano_de_ensino),
+                data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja excluir este plano de ensino?" },
+                class: "bg-white/15 hover:bg-white/25 text-white font-semibold text-sm px-4 py-3 rounded-full transition-all flex items-center gap-2" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9M4.772 5.79A48.108 48.108 0 0112.25 5.25c2.548 0 5.06.136 7.478.54M4.772 5.79c.342-.06.682-.114 1.022-.166m14.456.166a48.667 48.667 0 00-7.5 0M4.772 5.79L6 18.75a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 18.75L19.228 5.79" />
+            </svg>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <div class="max-w-7xl mx-auto w-full px-6 lg:px-0 -mt-6 flex gap-14 pb-16 pt-4 flex-1">
+
+    <!-- Estrutura -->
+    <aside class="w-64 hidden lg:block shrink-0">
+      <div class="bg-white border border-gray-100 rounded-2xl p-4 sticky top-8 shadow-sm">
+        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4 px-3">Estrutura</h3>
+        <nav id="show-nav" class="space-y-1.5">
+          <a data-target="ementa" class="show-nav-link flex items-center px-4 py-3 rounded-xl bg-green-50 text-green-700 font-semibold text-sm relative" href="#ementa">
+            <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-green-600"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+            </svg>
+            Ementa
+          </a>
+          <a data-target="objetivos" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#objetivos">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 15a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+            Objetivos
+          </a>
+          <a data-target="competencias" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#competencias">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
+            Competências
+          </a>
+          <a data-target="conteudos" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#conteudos">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+            </svg>
+            Conteúdos
+          </a>
+          <a data-target="metodologia" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#metodologia">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            Metodologia
+          </a>
+          <a data-target="avaliacao" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#avaliacao">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Avaliação
+          </a>
+          <a data-target="bibliografia" class="show-nav-link flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#bibliografia">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            Bibliografia
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <div class="flex-1 space-y-8">
+
+      <!-- Ementa -->
+      <section id="ementa" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center justify-between mb-5">
+          <h4 class="text-lg font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+            </svg>
+            Ementa do Curso
+          </h4>
+          <span class="text-gray-400 text-xs font-medium">
+            Atualizado em <%= @plano_de_ensino.updated_at.strftime("%d/%m/%Y") %>
+          </span>
+        </div>
+        <% if @plano_de_ensino.ementa.present? %>
+          <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"><%= @plano_de_ensino.ementa %></p>
+        <% else %>
+          <p class="text-sm text-gray-400 italic">Nenhuma ementa cadastrada.</p>
+        <% end %>
+      </section>
+
+      <!-- Objetivos e Competências -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <section id="objetivos" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+          <h4 class="text-lg font-bold flex items-center gap-2 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 15a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+            Objetivos
+          </h4>
+          <div class="space-y-5">
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Gerais</h5>
+              <% if @plano_de_ensino.objetivos_gerais.present? %>
+                <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.objetivos_gerais %></p>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Específicos</h5>
+              <% if @plano_de_ensino.objetivos_especificos.present? %>
+                <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.objetivos_especificos %></p>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+
+        <section id="competencias" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+          <h4 class="text-lg font-bold flex items-center gap-2 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
+            Competências
+          </h4>
+          <div class="space-y-5">
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Competências</h5>
+              <% if @plano_de_ensino.competencias.present? %>
+                <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.competencias %></p>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Habilidades (BNCC)</h5>
+              <% if @plano_de_ensino.habilidades.present? %>
+                <div class="flex flex-wrap gap-1.5">
+                  <% @plano_de_ensino.habilidades.split(",").map(&:strip).reject(&:blank?).each do |codigo| %>
+                    <span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-xs font-semibold"><%= codigo %></span>
+                  <% end %>
+                </div>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Conteúdos -->
+      <section id="conteudos" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <h4 class="text-lg font-bold flex items-center gap-2 mb-5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+          </svg>
+          Conteúdo Programático
+        </h4>
+        <div class="space-y-6">
+          <div>
+            <% if @plano_de_ensino.conteudos_programaticos.present? %>
+              <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.conteudos_programaticos %></p>
+            <% else %>
+              <p class="text-sm text-gray-400 italic">Nenhum conteúdo cadastrado.</p>
+            <% end %>
+          </div>
+          <% if @plano_de_ensino.cronograma_unidades.present? %>
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Cronograma por unidade</h5>
+              <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.cronograma_unidades %></p>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Metodologia e Avaliação -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <section id="metodologia" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+          <h4 class="text-lg font-bold flex items-center gap-2 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            Metodologia
+          </h4>
+          <div class="space-y-5">
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Metodologia</h5>
+              <% if @plano_de_ensino.metodologia.present? %>
+                <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.metodologia %></p>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+            <div>
+              <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Recursos didáticos</h5>
+              <% if @plano_de_ensino.recursos_didaticos.present? %>
+                <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.recursos_didaticos %></p>
+              <% else %>
+                <p class="text-sm text-gray-400 italic">Não informado.</p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+
+        <section id="avaliacao" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+          <h4 class="text-lg font-bold flex items-center gap-2 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Avaliação
+          </h4>
+          <% if @plano_de_ensino.criterios_avaliacao.present? %>
+            <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.criterios_avaliacao %></p>
+          <% else %>
+            <p class="text-sm text-gray-400 italic">Nenhum critério de avaliação cadastrado.</p>
+          <% end %>
+        </section>
+      </div>
+
+      <!-- Bibliografia -->
+      <section id="bibliografia" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm mb-8 scroll-mt-8">
+        <h4 class="text-lg font-bold flex items-center gap-2 mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          </svg>
+          Bibliografia
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          <div>
+            <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Bibliografia Básica</h5>
+            <% if @plano_de_ensino.bibliografia_basica.present? %>
+              <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.bibliografia_basica %></p>
+            <% else %>
+              <p class="text-sm text-gray-400 italic">Não informado.</p>
+            <% end %>
+          </div>
+          <div>
+            <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Bibliografia Complementar</h5>
+            <% if @plano_de_ensino.bibliografia_complementar.present? %>
+              <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.bibliografia_complementar %></p>
+            <% else %>
+              <p class="text-sm text-gray-400 italic">Não informado.</p>
+            <% end %>
+          </div>
+        </div>
+        <% if @plano_de_ensino.observacoes.present? %>
+          <div class="pt-6 border-t border-gray-100">
+            <h5 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Observações</h5>
+            <p class="text-sm text-gray-700 whitespace-pre-line"><%= @plano_de_ensino.observacoes %></p>
+          </div>
+        <% end %>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var links = document.querySelectorAll('#show-nav .show-nav-link');
+    var sections = Array.from(links).map(function (l) {
+      return document.getElementById(l.dataset.target);
+    });
+
+    function setActive(id) {
+      links.forEach(function (l) {
+        var isActive = l.dataset.target === id;
+        l.classList.toggle('bg-green-50', isActive);
+        l.classList.toggle('text-green-700', isActive);
+        l.classList.toggle('font-semibold', isActive);
+        l.classList.toggle('text-gray-600', !isActive);
+        l.classList.toggle('hover:bg-gray-50', !isActive);
+
+        var indicator = l.querySelector('span.absolute');
+        if (isActive && !indicator) {
+          var span = document.createElement('span');
+          span.className = 'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-green-600';
+          l.prepend(span);
+        } else if (!isActive && indicator) {
+          indicator.remove();
+        }
+      });
+    }
+
+    var ignoreObserver = false;
+    var manualScrollTimeout = null;
+
+    links.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var target = document.getElementById(link.dataset.target);
+
+        ignoreObserver = true;
+        clearTimeout(manualScrollTimeout);
+
+        if (target) {
+          window.scrollTo({ top: target.offsetTop - 32, behavior: 'smooth' });
+        }
+        setActive(link.dataset.target);
+
+        manualScrollTimeout = setTimeout(function () {
+          ignoreObserver = false;
+        }, 700);
+      });
+    });
+
+    var observer = new IntersectionObserver(function (entries) {
+      if (ignoreObserver) return;
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(function (s) { if (s) observer.observe(s); });
+  })();
+</script>

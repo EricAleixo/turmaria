@@ -1,0 +1,231 @@
+<!-- app/views/professor/planos_de_ensino/index.html.erb -->
+<main class="min-h-screen">
+  <div class="w-fullpx-8 py-10">
+
+    <!-- Cabeçalho -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Planos de Ensino</h1>
+        <p class="text-sm text-gray-500 mt-1">Gerencie todos os seus planos de ensino em um só lugar</p>
+      </div>
+      <%= link_to new_professor_plano_de_ensino_path, class: "bg-gradient-to-br from-green-600 to-blue-600 hover:opacity-90 text-white font-semibold text-sm px-6 py-3 rounded-full shadow-md transition-all flex items-center gap-2 shrink-0" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Novo Plano de Ensino
+      <% end %>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total de planos</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <p class="text-3xl font-bold text-gray-800"><%= @total_planos %></p>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Publicados</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-green-600"></span>
+        </div>
+        <p class="text-3xl font-bold text-gray-800"><%= @total_publicados %></p>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Em elaboração</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+        </div>
+        <p class="text-3xl font-bold text-gray-800"><%= @total_em_elaboracao %></p>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Rascunhos</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
+        </div>
+        <p class="text-3xl font-bold text-gray-800"><%= @total_rascunhos %></p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <%= form_with url: professor_planos_de_ensino_path, method: :get, local: true,
+          class: "bg-white border border-gray-100 rounded-2xl p-4 shadow-sm mb-6" do %>
+      <div class="flex flex-col lg:flex-row gap-3">
+        <div class="relative flex-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar por componente, turma ou ementa..."
+                 class="w-full bg-gray-50 border-none rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-green-500 placeholder:text-gray-400" />
+        </div>
+
+        <select name="ano_letivo_id" onchange="this.form.submit()"
+                class="bg-gray-50 border-none rounded-full px-4 py-2.5 text-sm text-gray-600 focus:ring-2 focus:ring-green-500">
+          <option value="">Ano letivo: Todos</option>
+          <% @anos_letivos_filtro.each do |ano| %>
+            <option value="<%= ano.id %>" <%= "selected" if params[:ano_letivo_id].to_s == ano.id.to_s %>><%= ano.try(:ano) || ano.try(:nome) || ano.id %></option>
+          <% end %>
+        </select>
+
+        <select name="disciplina_id" onchange="this.form.submit()"
+                class="bg-gray-50 border-none rounded-full px-4 py-2.5 text-sm text-gray-600 focus:ring-2 focus:ring-green-500">
+          <option value="">Disciplina: Todas</option>
+          <% @disciplinas_filtro.each do |d| %>
+            <option value="<%= d.id %>" <%= "selected" if params[:disciplina_id].to_s == d.id.to_s %>><%= d.nome %></option>
+          <% end %>
+        </select>
+
+        <select name="turma_id" onchange="this.form.submit()"
+                class="bg-gray-50 border-none rounded-full px-4 py-2.5 text-sm text-gray-600 focus:ring-2 focus:ring-green-500">
+          <option value="">Turma: Todas</option>
+          <% @turmas_filtro.each do |t| %>
+            <option value="<%= t.id %>" <%= "selected" if params[:turma_id].to_s == t.id.to_s %>><%= t.nome %></option>
+          <% end %>
+        </select>
+
+        <select name="status" onchange="this.form.submit()"
+                class="bg-gray-50 border-none rounded-full px-4 py-2.5 text-sm text-gray-600 focus:ring-2 focus:ring-green-500">
+          <option value="">Status: Todos</option>
+          <% PlanoDeEnsino.statuses.each_key do |s| %>
+            <option value="<%= s %>" <%= "selected" if params[:status] == s %>><%= s.humanize %></option>
+          <% end %>
+        </select>
+
+        <button type="submit" class="hidden">Filtrar</button>
+        <% if params[:q].present? || params[:ano_letivo_id].present? || params[:disciplina_id].present? || params[:turma_id].present? || params[:status].present? %>
+          <%= link_to "Limpar", professor_planos_de_ensino_path,
+                class: "text-sm font-semibold text-gray-400 hover:text-gray-600 px-3 py-2.5 whitespace-nowrap" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Tabela de planos -->
+    <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Disciplina · Turma · Série</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Plano</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Período</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Atualizado</th>
+              <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+
+            <% if @planos_de_ensino.any? %>
+              <% @planos_de_ensino.each do |plano| %>
+                <% cor = plano.disciplina.cor_nome.presence || "#9CA3AF" %>
+                <tr class="hover:bg-gray-50/60 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3 rounded-r-xl pl-3 pr-4 py-2.5 w-fit"
+                         style="background-color: <%= cor %>1A; border-left: 4px solid <%= cor %>;">
+                      <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background-color: <%= cor %>;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-bold text-sm leading-tight" style="color: <%= cor %>;"><%= plano.disciplina.nome %></p>
+                        <p class="text-xs font-semibold leading-tight mt-0.5 opacity-80" style="color: <%= cor %>;">
+                          Turma <%= plano.turma.nome %> · <%= plano.turma.serie %>º ano
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <%= link_to plano.titulo, professor_plano_de_ensino_path(plano),
+                          class: "font-semibold text-gray-800 hover:text-green-700 transition-colors" %>
+                  </td>
+                  <td class="px-6 py-4 text-gray-500">
+                    <%= plano.turma.ano_letivo.try(:ano) || plano.turma.ano_letivo.id %> · <%= plano.bimestre %>º Bim.
+                  </td>
+                  <td class="px-6 py-4">
+                    <% badge_classes = { "gray" => "bg-gray-100 text-gray-600", "blue" => "bg-blue-50 text-blue-700", "green" => "bg-green-50 text-green-700" } %>
+                    <% dot_classes = { "gray" => "bg-gray-400", "blue" => "bg-blue-600", "green" => "bg-green-600" } %>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold <%= badge_classes[plano.status_cor] %>">
+                      <span class="w-1.5 h-1.5 rounded-full <%= dot_classes[plano.status_cor] %>"></span>
+                      <%= plano.status_humanizado %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-gray-500"><%= plano.updated_at.strftime("%d/%m/%Y") %></td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-2">
+                      <%= link_to professor_plano_de_ensino_path(plano),
+                            class: "p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors", title: "Ver" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                      <% end %>
+                      <%= link_to edit_professor_plano_de_ensino_path(plano),
+                            class: "p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors", title: "Editar" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                        </svg>
+                      <% end %>
+                      <%= link_to professor_plano_de_ensino_path(plano),
+                            data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja excluir este plano de ensino?" },
+                            class: "p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors", title: "Excluir" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9M4.772 5.79A48.108 48.108 0 0112.25 5.25c2.548 0 5.06.136 7.478.54M4.772 5.79c.342-.06.682-.114 1.022-.166m14.456.166a48.667 48.667 0 00-7.5 0M4.772 5.79L6 18.75a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 18.75L19.228 5.79m-14.456 0c.342-.052.682-.107 1.022-.166m0 0a48.11 48.11 0 013.478-.397m0 0V4.5a2.25 2.25 0 012.25-2.25h1.5a2.25 2.25 0 012.25 2.25v.75m-7.5 0a48.66 48.66 0 017.5 0" />
+                        </svg>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="6" class="px-6 py-16 text-center">
+                  <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <p class="font-semibold text-gray-600 text-sm mb-1">Nenhum plano encontrado</p>
+                  <p class="text-gray-400 text-sm">
+                    <% if params[:q].present? || params[:disciplina_id].present? || params[:turma_id].present? || params[:status].present? || params[:ano_letivo_id].present? %>
+                      Tente ajustar os filtros ou <%= link_to "limpar a busca", professor_planos_de_ensino_path, class: "text-green-600 font-semibold hover:underline" %>.
+                    <% else %>
+                      Comece criando seu primeiro plano de ensino.
+                    <% end %>
+                  </p>
+                </td>
+              </tr>
+            <% end %>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação real -->
+      <% if @total_filtrado > @per_page %>
+        <% total_paginas = (@total_filtrado.to_f / @per_page).ceil %>
+        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+          <p class="text-xs text-gray-400">
+            Mostrando <%= @planos_de_ensino.size %> de <%= @total_filtrado %> planos
+          </p>
+          <div class="flex items-center gap-1">
+            <%= link_to "Anterior", url_for(request.query_parameters.merge(page: @page - 1)),
+                  class: "px-3 py-1.5 rounded-lg text-sm transition-colors #{@page <= 1 ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-50'}" %>
+
+            <% (1..total_paginas).each do |p| %>
+              <%= link_to p, url_for(request.query_parameters.merge(page: p)),
+                    class: "px-3 py-1.5 rounded-lg text-sm transition-colors #{p == @page ? 'bg-green-600 text-white font-semibold' : 'text-gray-600 hover:bg-gray-50'}" %>
+            <% end %>
+
+            <%= link_to "Próxima", url_for(request.query_parameters.merge(page: @page + 1)),
+                  class: "px-3 py-1.5 rounded-lg text-sm transition-colors #{@page >= total_paginas ? 'text-gray-300 pointer-events-none' : 'text-gray-600 hover:bg-gray-50'}" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+  </div>
+</main>

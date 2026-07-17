@@ -1,0 +1,199 @@
+<%= form_with model: @plano_de_ensino,
+      url: (@plano_de_ensino.persisted? ? escola_plano_de_ensino_path(@escola, @plano_de_ensino) : escola_planos_de_ensino_path(@escola)),
+      local: true, class: "space-y-6" do |f| %>
+
+  <% if @plano_de_ensino.errors.any? %>
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+      <h4 class="mb-1 text-sm font-semibold"><%= pluralize(@plano_de_ensino.errors.count, "erro") %> impede(m) o salvamento:</h4>
+      <ul class="list-inside list-disc text-sm space-y-0.5">
+        <% @plano_de_ensino.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Vínculo: professor / turma / disciplina -->
+  <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+    <h3 class="mb-1 text-lg font-bold text-gray-800">Vínculo do Plano</h3>
+    <p class="mb-5 text-sm text-gray-500">
+      A disciplina precisa ser lecionada pelo professor selecionado <strong>e</strong> estar vinculada à turma escolhida.
+      Todos os selects abaixo já estão limitados a <strong><%= @escola.nome %></strong>.
+    </p>
+
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Professor</label>
+        <div class="relative">
+          <%= f.collection_select :professor_id, @professores_filtro, :id, :nome,
+                { include_blank: "Selecione o professor" },
+                { class: "h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-9 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" } %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Turma</label>
+        <div class="relative">
+          <%= f.collection_select :turma_id, @turmas_filtro, :id, :nome_completo,
+                { include_blank: "Selecione a turma" },
+                { class: "h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-9 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" } %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Disciplina</label>
+        <div class="relative">
+          <%= f.collection_select :disciplina_id, @disciplinas_filtro, :id, :nome,
+                { include_blank: "Selecione a disciplina" },
+                { class: "h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-9 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" } %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Bimestre</label>
+        <div class="relative">
+          <%= f.select :bimestre, options_for_select((1..4).map { |n| ["#{n}º Bimestre", n] }, f.object.bimestre),
+                { include_blank: "Selecione" },
+                { class: "h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-9 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" } %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Status</label>
+        <div class="relative">
+          <%= f.select :status, options_for_select(PlanoDeEnsino.statuses.keys.map { |s| [s.humanize, s] }, f.object.status),
+                {}, { class: "h-10 w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-9 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" } %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Curso <span class="font-normal text-gray-400">(opcional)</span></label>
+        <%= f.text_field :curso, placeholder: "Ex: Ensino Fundamental",
+              class: "h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ementa -->
+  <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+    <h3 class="mb-4 text-lg font-bold text-gray-800">Ementa</h3>
+    <%= f.text_area :ementa, rows: 4,
+          class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+  </div>
+
+  <!-- Objetivos e Competências -->
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+      <h3 class="mb-4 text-lg font-bold text-gray-800">Objetivos</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Gerais</label>
+          <%= f.text_area :objetivos_gerais, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Específicos</label>
+          <%= f.text_area :objetivos_especificos, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+      <h3 class="mb-4 text-lg font-bold text-gray-800">Competências e Habilidades</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Competências</label>
+          <%= f.text_area :competencias, rows: 3,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Habilidades <span class="font-normal text-gray-400">(códigos BNCC, separados por vírgula)</span></label>
+          <%= f.text_area :habilidades, rows: 3, placeholder: "Ex: EF67LP08, EF08MA09",
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo e Metodologia -->
+  <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+    <h3 class="mb-4 text-lg font-bold text-gray-800">Conteúdo e Metodologia</h3>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Conteúdos programáticos</label>
+        <%= f.text_area :conteudos_programaticos, rows: 5,
+              class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+      </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Metodologia</label>
+          <%= f.text_area :metodologia, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Recursos didáticos</label>
+          <%= f.text_area :recursos_didaticos, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Cronograma por unidade</label>
+        <%= f.text_area :cronograma_unidades, rows: 5,
+              class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avaliação e Referências -->
+  <div class="overflow-hidden rounded-xl border border-gray-100 bg-white p-6 shadow-lg">
+    <h3 class="mb-4 text-lg font-bold text-gray-800">Avaliação e Referências</h3>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Critérios de avaliação</label>
+        <%= f.text_area :criterios_avaliacao, rows: 4,
+              class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+      </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Bibliografia básica</label>
+          <%= f.text_area :bibliografia_basica, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-gray-600">Bibliografia complementar</label>
+          <%= f.text_area :bibliografia_complementar, rows: 4,
+                class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+        </div>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-gray-600">Observações</label>
+        <%= f.text_area :observacoes, rows: 3,
+              class: "w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="flex items-center justify-end gap-3">
+    <%= link_to "Cancelar", escola_planos_de_ensino_path(@escola),
+          class: "rounded-lg px-5 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-100 transition-colors" %>
+    <%= f.submit (@plano_de_ensino.persisted? ? "Salvar alterações" : "Cadastrar plano"),
+          class: "rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition-colors cursor-pointer" %>
+  </div>
+<% end %>

@@ -12,6 +12,7 @@ class Disciplina < ApplicationRecord
   belongs_to :area_disciplina
   has_many :conteudos, dependent: :destroy
 
+  has_many :planos_de_ensino, dependent: :destroy
   # Validações
   validates :nome, presence: { message: "não pode ficar em branco" }
   validates :escola_id, presence: { message: "deve ser selecionada" }

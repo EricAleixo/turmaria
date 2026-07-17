@@ -1,0 +1,511 @@
+<div class="flex gap-10 items-start">
+
+  <!-- Navegação lateral por seção -->
+  <aside class="w-56 hidden lg:block shrink-0 sticky top-8 self-start">
+    <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-2">Estrutura do Plano</h3>
+      <nav id="form-nav" class="space-y-1">
+        <a data-target="cadastro" class="form-nav-link flex items-center px-3 py-2.5 rounded-xl bg-green-50 text-green-700 font-semibold text-sm relative" href="#cadastro">
+          <span class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-green-600"></span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Cadastro
+        </a>
+        <a data-target="ementa" class="form-nav-link flex items-center px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#ementa">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+          </svg>
+          Ementa
+        </a>
+        <a data-target="objetivos" class="form-nav-link flex items-center px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#objetivos">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 15a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+          Objetivos
+        </a>
+        <a data-target="conteudo" class="form-nav-link flex items-center px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#conteudo">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+          </svg>
+          Conteúdo
+        </a>
+        <a data-target="avaliacao" class="form-nav-link flex items-center px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-600 transition-all text-sm font-medium" href="#avaliacao">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Avaliação
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Formulário -->
+  <div class="flex-1 min-w-0">
+    <%= form_with model: @plano_de_ensino,
+          url: (@plano_de_ensino.persisted? ? professor_plano_de_ensino_path(@plano_de_ensino) : professor_planos_de_ensino_path),
+          local: true, class: "space-y-6" do |f| %>
+
+      <% if @plano_de_ensino.errors.any? %>
+        <div role="alert" class="alert bg-red-50 border border-red-200 text-red-700 rounded-2xl items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <div>
+            <h4 class="font-semibold text-sm mb-1"><%= pluralize(@plano_de_ensino.errors.count, "erro") %> impede(m) o salvamento:</h4>
+            <ul class="list-disc list-inside text-sm space-y-0.5">
+              <% @plano_de_ensino.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Cadastro do Plano -->
+      <section id="cadastro" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-800">Cadastro do Plano</h4>
+        </div>
+        <p class="text-sm text-gray-500 mb-6 ml-12">Identifique onde este plano se aplica</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <!-- Turma -->
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Turma</span>
+            </label>
+            <div class="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0Zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0Z" />
+              </svg>
+              <%= f.collection_select :turma_id, @turmas, :id, :nome_completo,
+                    { include_blank: "Selecione a turma" },
+                    { class: "select select-bordered w-full pl-10 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl" } %>
+            </div>
+          </div>
+
+          <!-- Disciplina :: dropdown custom com cores reais (cor_nome) -->
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Disciplina</span>
+            </label>
+
+            <% disciplina_selecionada = @disciplinas.find { |d| d.id == f.object.disciplina_id } %>
+
+            <div class="dropdown w-full">
+              <div tabindex="0" role="button"
+                   id="disciplina-trigger"
+                   class="w-full flex items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white pl-4 pr-3 py-2.5 text-sm cursor-pointer focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 transition-colors hover:border-gray-300">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <span id="disciplina-dot"
+                        class="w-2.5 h-2.5 rounded-full shrink-0 <%= 'hidden' unless disciplina_selecionada %>"
+                        style="background-color: <%= disciplina_selecionada&.cor_nome || '#9CA3AF' %>"></span>
+                  <span id="disciplina-label" class="truncate <%= disciplina_selecionada ? 'text-gray-800' : 'text-gray-400' %>">
+                    <%= disciplina_selecionada&.nome || "Selecione a disciplina" %>
+                  </span>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </div>
+
+              <ul tabindex="0" class="dropdown-content menu bg-white rounded-xl shadow-lg border border-gray-100 w-full mt-2 max-h-64 overflow-y-auto flex-nowrap z-20 p-2">
+                <% @disciplinas.each do |d| %>
+                  <li>
+                    <a data-id="<%= d.id %>" data-nome="<%= d.nome %>" data-cor="<%= d.cor_nome || '#9CA3AF' %>"
+                       class="disciplina-option flex items-center gap-2.5 rounded-lg py-2 px-3 text-sm <%= 'bg-green-50 font-semibold text-green-700' if d.id == f.object.disciplina_id %>">
+                      <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: <%= d.cor_nome || '#9CA3AF' %>"></span>
+                      <%= d.nome %>
+                    </a>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+
+            <%= f.hidden_field :disciplina_id, id: "disciplina_id_hidden" %>
+
+            <label class="label pt-1.5">
+              <span class="label-text-alt text-gray-400">Precisa estar vinculada à turma selecionada</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="divider my-1 before:bg-gray-100 after:bg-gray-100"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
+          <!-- Bimestre :: segmentado (input + label, sem .btn do DaisyUI) -->
+          <div>
+            <label class="label pb-2 px-0">
+              <span class="label-text font-semibold text-gray-600">Bimestre</span>
+            </label>
+            <div class="join w-full border border-gray-200 rounded-xl overflow-hidden">
+              <input type="radio" name="plano_de_ensino[bimestre]" value="1"
+                id="bimestre_1" class="hidden peer/bim1" <%= "checked" if f.object.bimestre == 1 %> />
+              <label for="bimestre_1"
+                class="join-item flex-1 text-center py-2.5 text-sm font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors border-r border-gray-200
+                       hover:bg-gray-50
+                       peer-checked/bim1:bg-green-600 peer-checked/bim1:text-white
+                       peer-checked/bim1:hover:bg-green-700">
+                1º
+              </label>
+
+              <input type="radio" name="plano_de_ensino[bimestre]" value="2"
+                id="bimestre_2" class="hidden peer/bim2" <%= "checked" if f.object.bimestre == 2 %> />
+              <label for="bimestre_2"
+                class="join-item flex-1 text-center py-2.5 text-sm font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors border-r border-gray-200
+                       hover:bg-gray-50
+                       peer-checked/bim2:bg-green-600 peer-checked/bim2:text-white
+                       peer-checked/bim2:hover:bg-green-700">
+                2º
+              </label>
+
+              <input type="radio" name="plano_de_ensino[bimestre]" value="3"
+                id="bimestre_3" class="hidden peer/bim3" <%= "checked" if f.object.bimestre == 3 %> />
+              <label for="bimestre_3"
+                class="join-item flex-1 text-center py-2.5 text-sm font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors border-r border-gray-200
+                       hover:bg-gray-50
+                       peer-checked/bim3:bg-green-600 peer-checked/bim3:text-white
+                       peer-checked/bim3:hover:bg-green-700">
+                3º
+              </label>
+
+              <input type="radio" name="plano_de_ensino[bimestre]" value="4"
+                id="bimestre_4" class="hidden peer/bim4" <%= "checked" if f.object.bimestre == 4 %> />
+              <label for="bimestre_4"
+                class="join-item flex-1 text-center py-2.5 text-sm font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors
+                       hover:bg-gray-50
+                       peer-checked/bim4:bg-green-600 peer-checked/bim4:text-white
+                       peer-checked/bim4:hover:bg-green-700">
+                4º
+              </label>
+            </div>
+          </div>
+
+          <!-- Status :: segmentado, cor por estado -->
+          <div>
+            <label class="label pb-2 px-0">
+              <span class="label-text font-semibold text-gray-600">Status</span>
+            </label>
+            <div class="join w-full border border-gray-200 rounded-xl overflow-hidden">
+              <input type="radio" name="plano_de_ensino[status]" value="rascunho" id="status_rascunho"
+                class="hidden peer/rascunho" <%= "checked" if f.object.status == "rascunho" %> />
+              <label for="status_rascunho"
+                class="join-item flex-1 text-center py-2.5 text-xs font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors border-r border-gray-200
+                       hover:bg-gray-50
+                       peer-checked/rascunho:bg-gray-500 peer-checked/rascunho:text-white
+                       peer-checked/rascunho:hover:bg-gray-600">
+                Rascunho
+              </label>
+
+              <input type="radio" name="plano_de_ensino[status]" value="em_elaboracao" id="status_em_elaboracao"
+                class="hidden peer/elaboracao" <%= "checked" if f.object.status == "em_elaboracao" %> />
+              <label for="status_em_elaboracao"
+                class="join-item flex-1 text-center py-2.5 text-xs font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors border-r border-gray-200
+                       hover:bg-gray-50
+                       peer-checked/elaboracao:bg-blue-600 peer-checked/elaboracao:text-white
+                       peer-checked/elaboracao:hover:bg-blue-700">
+                Em Elaboração
+              </label>
+
+              <input type="radio" name="plano_de_ensino[status]" value="publicado" id="status_publicado"
+                class="hidden peer/publicado" <%= "checked" if f.object.status == "publicado" %> />
+              <label for="status_publicado"
+                class="join-item flex-1 text-center py-2.5 text-xs font-semibold text-gray-500 bg-white cursor-pointer select-none
+                       transition-colors
+                       hover:bg-gray-50
+                       peer-checked/publicado:bg-green-600 peer-checked/publicado:text-white
+                       peer-checked/publicado:hover:bg-green-700">
+                Publicado
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curso -->
+        <div class="form-control w-full mt-6">
+          <label class="label pb-1.5">
+            <span class="label-text font-semibold text-gray-600">Curso</span>
+            <span class="label-text-alt text-gray-400">opcional</span>
+          </label>
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347M4.26 10.147L12 13.489l7.74-3.342M4.26 10.147a50.702 50.702 0 017.74-3.342 50.702 50.702 0 017.74 3.342" />
+            </svg>
+            <%= f.text_field :curso, placeholder: "Ex: Ensino Fundamental",
+                  class: "input input-bordered w-full pl-10 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl" %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ementa -->
+      <section id="ementa" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-800">Ementa</h4>
+        </div>
+        <p class="text-sm text-gray-500 mb-5 ml-12">Um resumo geral do que será trabalhado no período</p>
+        <%= f.text_area :ementa, rows: 4, placeholder: "Ex: Estudo da República Brasileira de 1930 aos dias atuais...",
+              class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+      </section>
+
+      <!-- Objetivos e Competências -->
+      <section id="objetivos" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 15a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-800">Objetivos e Competências</h4>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Objetivos gerais</span>
+            </label>
+            <%= f.text_area :objetivos_gerais, rows: 4,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Objetivos específicos</span>
+            </label>
+            <%= f.text_area :objetivos_especificos, rows: 4,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+        </div>
+
+        <div class="divider my-6 before:bg-gray-100 after:bg-gray-100"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Competências</span>
+            </label>
+            <%= f.text_area :competencias, rows: 3,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600 flex items-center gap-1.5">
+                Habilidades
+                <div class="tooltip tooltip-right" data-tip="Códigos da BNCC ou do currículo estadual, ex: EF67LP08">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
+                </div>
+              </span>
+            </label>
+            <%= f.text_area :habilidades, rows: 3, placeholder: "Ex: EF67LP08, EF08MA09...",
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conteúdo e Metodologia -->
+      <section id="conteudo" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-800">Conteúdo e Metodologia</h4>
+        </div>
+
+        <div class="form-control w-full mb-6">
+          <label class="label pb-1.5">
+            <span class="label-text font-semibold text-gray-600">Conteúdos programáticos</span>
+          </label>
+          <%= f.text_area :conteudos_programaticos, rows: 5,
+                class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Metodologia</span>
+            </label>
+            <%= f.text_area :metodologia, rows: 4,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Recursos didáticos</span>
+            </label>
+            <%= f.text_area :recursos_didaticos, rows: 4, placeholder: "Ex: Data show, livro didático, laboratório...",
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label pb-1.5">
+            <span class="label-text font-semibold text-gray-600">Cronograma por unidade</span>
+          </label>
+          <%= f.text_area :cronograma_unidades, rows: 5, placeholder: "Ex: Unidade 1 (semanas 1-4): ...",
+                class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+        </div>
+      </section>
+
+      <!-- Avaliação e Referências -->
+      <section id="avaliacao" class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-gray-800">Avaliação e Referências</h4>
+        </div>
+
+        <div class="form-control w-full mb-6">
+          <label class="label pb-1.5">
+            <span class="label-text font-semibold text-gray-600">Critérios de avaliação</span>
+          </label>
+          <%= f.text_area :criterios_avaliacao, rows: 4,
+                class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Bibliografia básica</span>
+            </label>
+            <%= f.text_area :bibliografia_basica, rows: 4,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+          <div class="form-control w-full">
+            <label class="label pb-1.5">
+              <span class="label-text font-semibold text-gray-600">Bibliografia complementar</span>
+            </label>
+            <%= f.text_area :bibliografia_complementar, rows: 4,
+                  class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label pb-1.5">
+            <span class="label-text font-semibold text-gray-600">Observações</span>
+          </label>
+          <%= f.text_area :observacoes, rows: 3,
+                class: "textarea textarea-bordered w-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 rounded-xl text-sm" %>
+        </div>
+      </section>
+
+      <!-- Ações :: normais, no final do form -->
+      <div class="flex items-center justify-end gap-3 mt-2">
+        <%= link_to "Cancelar", professor_planos_de_ensino_path,
+              class: "px-6 py-3 rounded-full text-sm font-semibold text-gray-500 hover:bg-gray-100 transition-colors" %>
+        <%= f.submit (@plano_de_ensino.persisted? ? "Salvar alterações" : "Cadastrar plano"),
+              class: "bg-gradient-to-br from-green-600 to-blue-600 hover:opacity-90 text-white font-semibold text-sm px-7 py-3 rounded-full shadow-md transition-all cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Scroll-spy da navegação lateral
+    var links = document.querySelectorAll('#form-nav .form-nav-link');
+    var sections = Array.from(links).map(function (l) {
+      return document.getElementById(l.dataset.target);
+    });
+
+    function setActive(id) {
+      links.forEach(function (l) {
+        var isActive = l.dataset.target === id;
+        l.classList.toggle('bg-green-50', isActive);
+        l.classList.toggle('text-green-700', isActive);
+        l.classList.toggle('font-semibold', isActive);
+        l.classList.toggle('text-gray-600', !isActive);
+        l.classList.toggle('hover:bg-gray-50', !isActive);
+
+        var indicator = l.querySelector('span.absolute');
+        if (isActive && !indicator) {
+          var span = document.createElement('span');
+          span.className = 'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-green-600';
+          l.prepend(span);
+        } else if (!isActive && indicator) {
+          indicator.remove();
+        }
+      });
+    }
+
+    var ignoreObserver = false;
+    var manualScrollTimeout = null;
+
+    links.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var target = document.getElementById(link.dataset.target);
+
+        ignoreObserver = true;
+        clearTimeout(manualScrollTimeout);
+
+        if (target) {
+          window.scrollTo({ top: target.offsetTop - 32, behavior: 'smooth' });
+        }
+        setActive(link.dataset.target);
+
+        // Reativa o observer só depois que o scroll suave provavelmente terminou
+        manualScrollTimeout = setTimeout(function () {
+          ignoreObserver = false;
+        }, 700);
+      });
+    });
+
+    var observer = new IntersectionObserver(function (entries) {
+      if (ignoreObserver) return;
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(function (s) { if (s) observer.observe(s); });
+
+    // Dropdown custom de Disciplina (com cor real do banco)
+    var hiddenField = document.getElementById('disciplina_id_hidden');
+    var trigger = document.getElementById('disciplina-trigger');
+    var dot = document.getElementById('disciplina-dot');
+    var label = document.getElementById('disciplina-label');
+
+    document.querySelectorAll('.disciplina-option').forEach(function (opt) {
+      opt.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        hiddenField.value = opt.dataset.id;
+        label.textContent = opt.dataset.nome;
+        label.classList.remove('text-gray-400');
+        label.classList.add('text-gray-800');
+        dot.style.backgroundColor = opt.dataset.cor;
+        dot.classList.remove('hidden');
+
+        document.querySelectorAll('.disciplina-option').forEach(function (o) {
+          o.classList.remove('bg-green-50', 'font-semibold', 'text-green-700');
+        });
+        opt.classList.add('bg-green-50', 'font-semibold', 'text-green-700');
+
+        if (document.activeElement) document.activeElement.blur();
+      });
+    });
+  })();
+</script>

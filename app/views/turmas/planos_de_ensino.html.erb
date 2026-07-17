@@ -1,0 +1,177 @@
+<!-- app/views/turmas/planos_de_ensino.html.erb -->
+
+<div class="drawer lg:drawer-open bg-gray-100">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+
+  <div class="drawer-content flex flex-col items-center">
+    <div class="w-full p-6">
+
+      <main class="w-full">
+
+        <!-- Breadcrumb -->
+        <div class="text-sm breadcrumbs mb-5">
+          <ul>
+            <li><%= link_to "Escolas", escolas_menager_paths, class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @escola.nome, escola_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to "Turmas", escola_turmas_path(@escola), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li><%= link_to @turma.nome, escola_turma_path(@escola, @turma), class: "text-green-600 hover:text-green-800 transition-colors duration-200" %></li>
+            <li class="text-gray-600">Planos de Curso</li>
+          </ul>
+        </div>
+
+        <!-- Hero -->
+        <div class="bg-gradient-to-r from-teal-600 to-cyan-500 rounded-t-xl p-10 text-white shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20"></div>
+          <div class="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full -ml-10 -mb-10"></div>
+          <div class="relative z-10">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <span class="badge bg-white/20 text-white border-0 px-4 py-3 text-sm font-semibold backdrop-blur-sm">
+                Ano Letivo <%= @ano_letivo.try(:ano) || @ano_letivo.id %>
+              </span>
+              <span class="badge bg-white/20 text-white border-0 px-4 py-3 text-sm font-semibold backdrop-blur-sm">
+                <%= @turma.serie %>º ano · <%= @turma.turno_humanizado %>
+              </span>
+            </div>
+            <h1 class="text-4xl font-bold tracking-tight">Planos de Curso</h1>
+            <p class="text-teal-50 mt-2 text-lg">Turma <%= @turma.nome %> — acompanhe o que cada professor já planejou por bimestre</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-b-xl shadow-xl mb-8">
+
+          <!-- Legenda -->
+          <div class="flex flex-wrap items-center gap-5 px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Legenda:</span>
+            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+              <span class="h-3 w-3 rounded-full bg-emerald-500"></span> Publicado
+            </div>
+            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+              <span class="h-3 w-3 rounded-full bg-blue-500"></span> Em Elaboração
+            </div>
+            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+              <span class="h-3 w-3 rounded-full bg-gray-400"></span> Rascunho
+            </div>
+            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+              <span class="h-3 w-3 rounded-full border-2 border-dashed border-gray-300"></span> Sem plano
+            </div>
+          </div>
+
+          <!-- Cards por disciplina -->
+          <div class="p-8">
+            <% if @disciplinas.any? %>
+              <div class="space-y-5">
+                <% @disciplinas.each do |disciplina| %>
+                  <% cor = disciplina.cor_nome.presence || "#6B7280" %>
+                  <% planos_da_disciplina = (1..4).map { |b| @planos_lookup[[disciplina.id, b]] }.compact %>
+                  <% professor = planos_da_disciplina.first&.professor %>
+                  <% preenchidos = planos_da_disciplina.size %>
+
+                  <div class="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden" style="border-left: 4px solid <%= cor %>;">
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-4 p-5">
+
+                      <!-- Disciplina + Área -->
+                      <div class="flex items-center gap-3 lg:w-64 shrink-0">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background-color: <%= cor %>1A;">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" style="color: <%= cor %>;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                          </svg>
+                        </div>
+                        <div class="min-w-0">
+                          <p class="font-bold text-gray-800 leading-tight truncate"><%= disciplina.nome %></p>
+                          <p class="text-xs text-gray-400"><%= disciplina.area_disciplina&.nome || "Sem área" %></p>
+                        </div>
+                      </div>
+
+                      <!-- Professor -->
+                      <div class="flex items-center gap-2.5 lg:w-56 shrink-0">
+                        <% if professor.present? %>
+                          <% if professor.foto.attached? %>
+                            <div class="h-8 w-8 rounded-full overflow-hidden border border-gray-200 shrink-0">
+                              <%= image_tag professor.foto.variant(resize_to_fill: [32, 32]), class: "object-cover w-full h-full" %>
+                            </div>
+                          <% else %>
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white text-xs font-semibold shrink-0">
+                              <%= professor.nome[0].upcase %>
+                            </div>
+                          <% end %>
+                          <span class="text-sm font-medium text-gray-700 truncate"><%= professor.nome %></span>
+                        <% else %>
+                          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                          </div>
+                          <span class="text-sm italic text-gray-400">Sem professor</span>
+                        <% end %>
+                      </div>
+
+                      <!-- Roadmap de bimestres -->
+                      <div class="flex items-center gap-2 flex-1">
+                        <% (1..4).each do |bimestre| %>
+                          <% plano = @planos_lookup[[disciplina.id, bimestre]] %>
+                          <% if plano %>
+                            <% status_bg = { "rascunho" => "bg-gray-400", "em_elaboracao" => "bg-blue-500", "publicado" => "bg-emerald-500" } %>
+                            <%= link_to escola_plano_de_ensino_path(@escola, plano),
+                                  class: "group relative flex-1 flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-white transition-transform hover:scale-105 #{status_bg[plano.status]}",
+                                  title: "#{bimestre}º Bimestre · #{plano.status_humanizado}" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                              </svg>
+                              <span class="text-xs font-bold"><%= bimestre %>º Bim.</span>
+                            <% end %>
+                          <% else %>
+                            <%= link_to new_escola_plano_de_ensino_path(@escola, turma_id: @turma.id, disciplina_id: disciplina.id, bimestre: bimestre),
+                                  class: "flex-1 flex flex-col items-center justify-center gap-1 rounded-xl py-3 border-2 border-dashed border-gray-200 text-gray-400 hover:border-teal-400 hover:text-teal-500 hover:bg-teal-50/50 transition-colors",
+                                  title: "Criar plano do #{bimestre}º bimestre" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                              </svg>
+                              <span class="text-xs font-semibold"><%= bimestre %>º Bim.</span>
+                            <% end %>
+                          <% end %>
+                        <% end %>
+                      </div>
+
+                      <!-- Progresso -->
+                      <div class="flex items-center gap-2 lg:w-28 justify-end shrink-0">
+                        <div class="w-16 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                          <div class="h-full rounded-full <%= preenchidos == 4 ? 'bg-emerald-500' : 'bg-teal-400' %>" style="width: <%= (preenchidos / 4.0 * 100).round %>%;"></div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-500"><%= preenchidos %>/4</span>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="bg-gray-50 rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-400 mb-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Nenhuma disciplina associada</h3>
+                <p class="text-gray-500 mb-6">Associe disciplinas a esta turma antes de criar planos de curso.</p>
+                <%= link_to "Associar Disciplinas", escola_turma_disciplinas_path(@escola, @turma), class: "btn bg-teal-500 hover:bg-teal-600 text-white" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between p-8 bg-gradient-to-b from-white to-gray-50 rounded-b-xl border-t border-gray-100">
+            <%= link_to escola_turma_path(@escola, @turma), class: "btn btn-sm btn-outline border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 shadow-sm hover:shadow" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+              </svg>
+              Voltar pra Turma
+            <% end %>
+            <%= link_to escola_planos_de_ensino_path(@escola, turma_id: @turma.id), class: "btn btn-sm bg-teal-500 hover:bg-teal-600 text-white shadow-sm hover:shadow" do %>
+              Ver lista completa
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

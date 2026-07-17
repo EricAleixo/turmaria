@@ -1,0 +1,168 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+  <div class="max-w-9xl mx-auto">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Selecione a Escola</h1>
+      <p class="text-gray-600">Escolha uma escola para acessar seus planos de curso</p>
+    </div>
+
+    <!-- Grid de Cards de Escolas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @escolas.each do |escola| %>
+        <% planos_por_status = escola.planos_de_ensino.group_by(&:status) %>
+        <% total_planos = escola.planos_de_ensino.size %>
+        <% total_turmas = escola.turmas.size %>
+
+        <% status_info = {
+             "publicado" => { label: "Publicado", cor: "#10B981" },
+             "em_elaboracao" => { label: "Em Elaboração", cor: "#3B82F6" },
+             "rascunho" => { label: "Rascunho", cor: "#9CA3AF" }
+           } %>
+
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <!-- Header do Card -->
+          <div class="p-6 border-b border-gray-200">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 text-lg mb-1"><%= escola.nome %></h3>
+                <span class="inline-block px-3 py-1 text-xs rounded-full <%= escola.tipo == 'publica' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                  <%= escola.tipo_humanizado %>
+                </span>
+              </div>
+              <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 ml-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-teal-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Estatísticas da Escola -->
+            <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <span><%= total_planos %> <%= total_planos == 1 ? 'plano' : 'planos' %></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+                <span><%= total_turmas %> <%= total_turmas == 1 ? 'turma' : 'turmas' %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Planos por Status -->
+          <div class="p-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Planos por Status:</h4>
+
+            <% if total_planos > 0 %>
+              <div class="space-y-2">
+                <% %w[publicado em_elaboracao rascunho].each do |status| %>
+                  <% planos = planos_por_status[status] %>
+                  <% next if planos.blank? %>
+                  <% info = status_info[status] %>
+
+                  <div class="rounded-lg overflow-hidden hover:shadow-sm transition-all">
+                    <div class="px-3 py-2 flex items-center justify-between" style="background-color: <%= info[:cor] %>20; border-left: 4px solid <%= info[:cor] %>;">
+                      <span class="font-semibold text-gray-800 text-sm"><%= info[:label] %></span>
+                      <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white shadow-sm">
+                        <%= planos.count %> <%= planos.count == 1 ? 'plano' : 'planos' %>
+                      </span>
+                    </div>
+
+                    <!-- Lista de planos do status (até 3) -->
+                    <div class="bg-white px-3 py-2 space-y-1">
+                      <% planos.first(3).each do |plano| %>
+                        <div class="flex items-center justify-between gap-2 text-xs text-gray-700 py-1 px-2 rounded hover:bg-gray-50 transition-colors" style="border-left: 3px solid <%= plano.disciplina.cor_nome.presence || '#9CA3AF' %>;">
+                          <span class="font-medium truncate"><%= plano.disciplina.nome %> · <%= plano.turma.nome %></span>
+                          <span class="text-gray-400 shrink-0"><%= plano.professor.nome %></span>
+                        </div>
+                      <% end %>
+                      <% if planos.count > 3 %>
+                        <div class="text-xs text-gray-500 italic px-2 pt-1">
+                          + <%= planos.count - 3 %> <%= (planos.count - 3) == 1 ? 'outro' : 'outros' %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Card Total de Planos -->
+                <div class="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg border-2 border-teal-200">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-teal-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-800">Total de Planos</div>
+                        <div class="text-xs text-gray-600"><%= planos_por_status.keys.count %> <%= planos_por_status.keys.count == 1 ? 'status' : 'status diferentes' %></div>
+                      </div>
+                    </div>
+                    <div class="text-2xl font-bold text-teal-600">
+                      <%= total_planos %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botão para ver todos os planos -->
+                <%= link_to escola_planos_de_ensino_path(escola), class: "block mt-2 p-3 text-center bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg transition-colors" do %>
+                  Ver Todos os Planos
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-300 mx-auto mb-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="text-gray-500 text-sm mb-3">Nenhum plano cadastrado</p>
+                <%= link_to "Criar Plano", new_escola_plano_de_ensino_path(escola), class: "inline-block px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg transition-colors" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Footer do Card -->
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+            <%= link_to escola_path(escola), class: "text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-center gap-1" do %>
+              <span>Ver detalhes da escola</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Mensagem quando não há escolas -->
+    <% if @escolas.empty? %>
+      <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300 mx-auto mb-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhuma escola cadastrada</h3>
+        <p class="text-gray-600 mb-6">Comece criando sua primeira escola no sistema</p>
+        <%= link_to new_escola_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Criar Primeira Escola</span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Botão de Voltar -->
+    <div class="mt-8 text-center">
+      <%= link_to dashboard_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        <span>Voltar ao Dashboard</span>
+      <% end %>
+    </div>
+  </div>
+</div>

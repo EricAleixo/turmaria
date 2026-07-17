@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_29_034146) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_14_094012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -363,6 +363,34 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_29_034146) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "planos_de_ensino", force: :cascade do |t|
+    t.uuid "professor_id", null: false
+    t.bigint "turma_id", null: false
+    t.bigint "disciplina_id", null: false
+    t.integer "bimestre", null: false
+    t.integer "status", default: 0, null: false
+    t.string "curso"
+    t.text "ementa"
+    t.text "objetivos_gerais"
+    t.text "objetivos_especificos"
+    t.text "competencias"
+    t.text "habilidades"
+    t.text "conteudos_programaticos"
+    t.text "metodologia"
+    t.text "recursos_didaticos"
+    t.text "criterios_avaliacao"
+    t.text "cronograma_unidades"
+    t.text "bibliografia_basica"
+    t.text "bibliografia_complementar"
+    t.text "observacoes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["disciplina_id"], name: "index_planos_de_ensino_on_disciplina_id"
+    t.index ["professor_id", "turma_id", "disciplina_id", "bimestre"], name: "index_planos_por_professor_turma_disciplina_bimestre"
+    t.index ["professor_id"], name: "index_planos_de_ensino_on_professor_id"
+    t.index ["turma_id"], name: "index_planos_de_ensino_on_turma_id"
+  end
+
   create_table "professor_disciplinas", force: :cascade do |t|
     t.uuid "professor_id", null: false
     t.bigint "disciplina_id", null: false
@@ -528,6 +556,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_29_034146) do
   add_foreign_key "historico_escolares", "alunos"
   add_foreign_key "historico_escolares", "ano_letivos"
   add_foreign_key "historico_escolares", "escolas"
+  add_foreign_key "planos_de_ensino", "disciplinas"
+  add_foreign_key "planos_de_ensino", "professors"
+  add_foreign_key "planos_de_ensino", "turmas"
   add_foreign_key "professor_disciplinas", "disciplinas", on_delete: :cascade
   add_foreign_key "professor_disciplinas", "professors"
   add_foreign_key "professor_turmas", "professors"

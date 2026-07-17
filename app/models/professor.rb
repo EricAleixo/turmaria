@@ -22,6 +22,7 @@ class Professor < ApplicationRecord
   has_many :disciplinas, through: :professor_disciplinas
   has_many :frequencias, dependent: :nullify
   has_many :conteudos, dependent: :nullify
+  has_many :planos_de_ensino, dependent: :destroy
   
   accepts_nested_attributes_for :endereco
 

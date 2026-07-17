@@ -81,6 +81,7 @@ end
     get "/escolas/professores", to: "professors#selecionar_escola", as: :selecionar_escola_professores
     get "/escolas/conteudos", to: "conteudos#selecionar_escola", as: :selecionar_escola_conteudos
     get "/escolas/frequencias", to: "admin_frequencia#selecionar_escola", as: :selecionar_escola_frequencias
+    get "/escolas/planos_de_ensino", to: "planos_de_ensino#selecionar_escola", as: :selecionar_escola_planos_de_ensino
 
     #Rota para minhas escolas(ADMINISTRADOR)
     get "/minhas_escolas", to: "administradores#minhas_escolas", as: :minhas_escolas_admin
@@ -132,7 +133,8 @@ end
     end
   end
 
-    resources :escolas do
+  
+  resources :escolas do
       collection do
         get :search
       end
@@ -141,10 +143,10 @@ end
       # URL: /escolas/:escola_id/frequencias
       # Helper: escola_frequencias_path(@escola)
       resources :frequencias, controller: 'admin_frequencia'
-
+      
       resources :conteudos, controller: 'admin_conteudos'
       resources :disciplinas
-
+      
       resources :professors do
         resources :alunos
         resources :conteudos
@@ -179,28 +181,34 @@ end
             post :associar, action: :processar_associacao
           end
         end
-
+        
         resources :alunos, except: [:new, :create] do
           member do
             patch :remove_from_turma
           end
         end
-
+        
+        
         member do
           get :assign_students
           patch :assign_students
           patch :assign_student
           patch :remove_students
+
+          get :planos_de_ensino
           
           patch 'remove_from_turma/:student_id',
-                to: 'turmas#remove_from_turma',
-                as: :remove_from_turma_individual
-
+          to: 'turmas#remove_from_turma',
+          as: :remove_from_turma_individual
+          
           get :assign_professors
           patch :assign_professor
           patch :remove_professor_from_turma
         end
       end
+
+      resources :planos_de_ensino
+      
     end
 
   end
@@ -213,6 +221,8 @@ end
 
     namespace :professor do
       get "selecionar_turma", to: "conteudos#selecionar_turma"
+
+      resources :planos_de_ensino
 
       namespace :notas do
       get 'selecionar_disciplina',
