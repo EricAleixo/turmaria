@@ -22,7 +22,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'historico_disciplina', 'historico_disciplinas'
   inflect.irregular 'transferencia', 'transferencias'
   inflect.irregular "plano_de_ensino", "planos_de_ensino"
-  
+  inflect.irregular 'declaracao', 'declaracoes'
   # CORREÇÃO PARA "NOTA"
   inflect.irregular 'nota', 'notas'
 end

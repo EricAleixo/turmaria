@@ -39,6 +39,8 @@ class Aluno < ApplicationRecord
          source: :turma,
          class_name: 'Turma'
 
+  has_many :declaracoes, dependent: :destroy
+
   # === Active Storage ===
   has_one_attached :foto
   has_one_attached :historico_academico

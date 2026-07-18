@@ -11,7 +11,9 @@ Rails.application.routes.draw do
 
   get 'dashboard', to: 'dashboard#index'
   get 'filtrar_calendario', to: 'dashboard#filtrar_calendario', defaults: { format: :json }
-
+  
+  get 'declaracoes/validar/:token', to: 'declaracoes_publicas#show', as: :validar_declaracao
+  get 'd/:codigo', to: 'declaracoes_publicas#show', as: :validar_declaracao_curta
 
   constraints lambda { |request| request.env['warden'].authenticated?(:aluno) } do
   scope :aluno, as: :aluno do
@@ -24,6 +26,14 @@ Rails.application.routes.draw do
     
     resources :conteudos, only: [:show], controller: 'aluno/contents'
     resources :historicos, only: [:index], controller: 'aluno/historicos'
+
+    resources :declaracoes, only: [:index], controller: 'aluno/declaracoes' do
+      collection do
+        # Helper: por_ano_aluno_declaracoes_path(id: X)
+        # URL: /aluno/declaracoes/show_por_ano/:id
+        get 'show_por_ano/:id', to: 'aluno/declaracoes#show_por_ano', as: :por_ano
+      end
+    end
     
     resources :boletins, only: [:index], controller: 'aluno/boletins' do
       collection do

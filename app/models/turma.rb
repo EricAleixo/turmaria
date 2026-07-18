@@ -16,6 +16,7 @@ class Turma < ApplicationRecord
   has_many :frequencias, dependent: :destroy
   has_many :avaliacoes_configuracoes, class_name: 'AvaliacaoConfiguracao'
   has_many :avaliacoes_bimestrais, class_name: 'AvaliacaoBimestral', dependent: :destroy
+  has_many :declaracoes, dependent: :nullify
 
   has_many :planos_de_ensino, dependent: :destroy
 

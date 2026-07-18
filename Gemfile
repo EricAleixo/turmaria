@@ -4,6 +4,9 @@ ruby "3.2.3"
 
 gem "sidekiq"
 
+#QrCode
+gem 'rqrcode'
+
 # Para paginação (Recomendado Kaminari)
 gem 'kaminari'
 

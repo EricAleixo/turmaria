@@ -1,0 +1,25 @@
+<%# app/views/declaracoes_publicas/show.html.erb %>
+<div class="max-w-lg mx-auto mt-16 p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center">
+  <% if @declaracao&.valida? %>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-green-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <h1 class="text-xl font-bold text-gray-800 mb-2">Declaração Válida</h1>
+    <p class="text-gray-600 mb-6">Este documento foi emitido oficialmente e está autêntico.</p>
+
+    <div class="text-left bg-gray-50 rounded-lg p-4 text-sm space-y-1">
+      <p><strong>Aluno:</strong> <%= @declaracao.dados_snapshot["aluno_nome"] %></p>
+      <p><strong>Matrícula:</strong> <%= @declaracao.dados_snapshot["matricula"] %></p>
+      <p><strong>Escola:</strong> <%= @declaracao.dados_snapshot["escola_nome"] %></p>
+      <p><strong>Ano Letivo:</strong> <%= @declaracao.dados_snapshot["ano_letivo_ano"] %></p>
+      <p><strong>Emitida em:</strong> <%= @declaracao.emitido_em.strftime('%d/%m/%Y às %H:%M') %></p>
+      <p><strong>Código:</strong> <%= @declaracao.codigo_autenticidade %></p>
+    </div>
+  <% else %>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    <h1 class="text-xl font-bold text-gray-800 mb-2">Declaração Não Encontrada</h1>
+    <p class="text-gray-600">Este código não corresponde a nenhuma declaração válida em nosso sistema.</p>
+  <% end %>
+</div>

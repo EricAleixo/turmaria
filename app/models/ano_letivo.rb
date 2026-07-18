@@ -1,5 +1,6 @@
 class AnoLetivo < ApplicationRecord
   has_many :turmas, dependent: :destroy
+  has_many :declaracoes, dependent: :nullify
   accepts_nested_attributes_for :turmas
   belongs_to :escola
  

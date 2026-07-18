@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_14_094012) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_18_141927) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -223,6 +223,28 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_14_094012) do
     t.index ["confirmation_token"], name: "index_coordenadors_on_confirmation_token", unique: true
     t.index ["email"], name: "index_coordenadors_on_email", unique: true
     t.index ["reset_password_token"], name: "index_coordenadors_on_reset_password_token", unique: true
+  end
+
+  create_table "declaracoes", force: :cascade do |t|
+    t.uuid "aluno_id", null: false
+    t.uuid "escola_id", null: false
+    t.bigint "turma_id", null: false
+    t.bigint "ano_letivo_id", null: false
+    t.string "codigo_autenticidade", null: false
+    t.string "token", null: false
+    t.datetime "emitido_em", null: false
+    t.jsonb "dados_snapshot", default: {}, null: false
+    t.boolean "ativa", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "codigo_curto"
+    t.index ["aluno_id"], name: "index_declaracoes_on_aluno_id"
+    t.index ["ano_letivo_id"], name: "index_declaracoes_on_ano_letivo_id"
+    t.index ["codigo_autenticidade"], name: "index_declaracoes_on_codigo_autenticidade", unique: true
+    t.index ["codigo_curto"], name: "index_declaracoes_on_codigo_curto", unique: true
+    t.index ["escola_id"], name: "index_declaracoes_on_escola_id"
+    t.index ["token"], name: "index_declaracoes_on_token", unique: true
+    t.index ["turma_id"], name: "index_declaracoes_on_turma_id"
   end
 
   create_table "disciplinas", force: :cascade do |t|
@@ -540,6 +562,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_14_094012) do
   add_foreign_key "conteudos", "escolas"
   add_foreign_key "conteudos", "professors"
   add_foreign_key "conteudos", "turmas"
+  add_foreign_key "declaracoes", "alunos"
+  add_foreign_key "declaracoes", "ano_letivos"
+  add_foreign_key "declaracoes", "escolas"
+  add_foreign_key "declaracoes", "turmas"
   add_foreign_key "disciplinas", "area_disciplinas"
   add_foreign_key "disciplinas", "escolas"
   add_foreign_key "enderecos", "alunos"
