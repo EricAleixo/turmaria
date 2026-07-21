@@ -260,11 +260,11 @@
     <div class="px-6 pt-4 flex gap-2 border-b border-gray-200">
       <button type="button" id="tab-desenhar"
         class="assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-green-600 text-green-700">
-        ✍️ Desenhar à mão
+        Desenhar à mão
       </button>
       <button type="button" id="tab-digitar"
         class="assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-        ⌨️ Digitar e Gerar
+        Digitar e Gerar
       </button>
     </div>
 
@@ -438,152 +438,58 @@ function initAssinaturaDesenho() {
   canvas.addEventListener('touchend', stopDraw);
 
   /* ============================================================
-     PARTE 2 — GERADOR PROCEDURAL DE CALIGRAFIA
-     Letras com 2 segmentos de Bézier usam TANGENTE ESPELHADA na
-     junção (c3 = 2*pJuncao - c2) — isso garante continuidade C1
-     (sem "quina") por construção matemática, não por ajuste manual.
+     PARTE 2 — GERADOR DE ASSINATURA (baseado em fonte cursiva real)
+
+     A versão anterior desenhava cada letra "inventando" curvas de
+     Bézier genéricas (loop/arco), reaproveitando o mesmo desenho
+     para várias letras diferentes — por isso o resultado nunca era
+     de fato legível como texto, só parecia um traçado abstrato.
+
+     Esta versão desenha o nome usando fontes cursivas reais (Google
+     Fonts) via ctx.fillText, garantindo que cada letra tenha a forma
+     correta e legível. A variação "única a cada geração" continua
+     existindo, mas agora é aplicada por PALAVRA (leve inclinação,
+     deslocamento de linha de base e cor da tinta) em vez de por
+     letra — assim os traços cursivos internos da fonte (que já são
+     desenhados conectados) não ficam quebrados.
   ============================================================ */
 
-  const TIPO_LETRA = {
-    a:'loop', c:'loop', e:'loop', o:'loop', s:'loop',
-    b:'loopUp', d:'loopUp', f:'loopUp', h:'loopUp', k:'loopUp', l:'loopUp', t:'loopUp',
-    g:'loopDown', j:'loopDown', p:'loopDown', q:'loopDown', y:'loopDown',
-    n:'arch1', r:'arch1', u:'arch1', i:'arch1', v:'arch1',
-    m:'arch2', w:'arch2', x:'arch2', z:'arch2'
+  const ESTILOS_FONTE = {
+    elegante: { fontFamily: '"Alex Brush", cursive',     peso: 400, escala: 0.60, tracking: 0,    baselineJitter: 1.2, rotJitter: 0.010, slantDeg: -1 },
+    fluida:   { fontFamily: '"Dancing Script", cursive', peso: 700, escala: 0.48, tracking: 0.4,  baselineJitter: 2.0, rotJitter: 0.016, slantDeg: -3 },
+    compacta: { fontFamily: '"Caveat", cursive',         peso: 700, escala: 0.55, tracking: -0.6, baselineJitter: 1.0, rotJitter: 0.008, slantDeg: 0  },
+    energica: { fontFamily: '"Permanent Marker", cursive', peso: 400, escala: 0.40, tracking: 0.6, baselineJitter: 3.0, rotJitter: 0.028, slantDeg: 2  }
   };
 
   function rand(min, max) { return Math.random() * (max - min) + min; }
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  const ESTILOS = {
-    elegante: { loopMult: 1.15, jitter: 2.5, slant: 6,  largura: [1.6, 2.6], espaco: 1.0,  flourish: 0.75 },
-    fluida:   { loopMult: 1.30, jitter: 4,   slant: 11, largura: [1.4, 2.8], espaco: 0.95, flourish: 0.6 },
-    compacta: { loopMult: 0.70, jitter: 1.8, slant: 3,  largura: [1.8, 2.4], espaco: 0.78, flourish: 0.25 },
-    energica: { loopMult: 1.45, jitter: 5,   slant: 14, largura: [1.5, 3.2], espaco: 1.05, flourish: 0.9 }
-  };
+  // Garante que as fontes cursivas estejam carregadas antes de desenhar.
+  let fontesProntas = null;
+  function garantirFontesAssinatura() {
+    if (fontesProntas) return fontesProntas;
 
-  // Reflete um ponto de controle através do ponto de junção -> garante tangente contínua
-  function espelhar(pJuncao, controle) {
-    return { x: 2 * pJuncao.x - controle.x, y: 2 * pJuncao.y - controle.y };
-  }
-
-  function desenharLetra(context, tipo, x0, w, BASE, xH, ascH, descH, jit) {
-    const jx = () => rand(-jit, jit) * 0.5;
-    const jy = () => rand(-jit, jit);
-    const alt = rand(0.85, 1.15);
-
-    switch (tipo) {
-      case 'loop': {
-        const h = xH * 1.3 * alt;
-        context.bezierCurveTo(
-          x0 + w*0.22 + jx(), BASE - h + jy(),
-          x0 + w*0.78 + jx(), BASE - h + jy(),
-          x0 + w,             BASE + jy()
-        );
-        break;
-      }
-
-      case 'arch1': {
-        const h = xH * 1.0 * alt;
-        context.bezierCurveTo(
-          x0 + w*0.22 + jx(), BASE - h + jy(),
-          x0 + w*0.78 + jx(), BASE - h + jy(),
-          x0 + w,             BASE + jy()
-        );
-        break;
-      }
-
-      case 'arch2': {
-        const w1 = w * 0.5;
-        const h = xH * 0.95 * alt;
-        const c2 = { x: x0 + w1*0.75 + jx(), y: BASE - h + jy() };
-        const juncao = { x: x0 + w1 + jx(), y: BASE + jy() };
-
-        context.bezierCurveTo(
-          x0 + w1*0.25 + jx(), BASE - h + jy(),
-          c2.x, c2.y,
-          juncao.x, juncao.y
-        );
-
-        const c3 = espelhar(juncao, c2);
-        context.bezierCurveTo(
-          c3.x, c3.y,
-          x0 + w1*1.75 + jx(), BASE - h + jy(),
-          x0 + w,              BASE + jy()
-        );
-        break;
-      }
-
-      case 'loopUp': {
-        const topo = BASE - ascH * alt;
-        const c2 = { x: x0 + w*0.28 + jx(), y: topo + jy() };
-        const topPt = { x: x0 + w*0.42 + jx(), y: topo + xH*0.15*alt + jy() };
-
-        context.bezierCurveTo(
-          x0 + w*0.12 + jx(), BASE - xH*0.4 + jy(),
-          c2.x, c2.y,
-          topPt.x, topPt.y
-        );
-
-        const c3 = espelhar(topPt, c2);
-        context.bezierCurveTo(
-          c3.x, c3.y,
-          x0 + w*0.78 + jx(), BASE - xH*0.5 + jy(),
-          x0 + w,              BASE + jy()
-        );
-        break;
-      }
-
-      case 'loopDown': {
-        const fundo = BASE + descH * alt;
-        const c2 = { x: x0 + w*0.40 + jx(), y: fundo + jy() };
-        const fundoPt = { x: x0 + w*0.52 + jx(), y: fundo - descH*0.15*alt + jy() };
-
-        context.bezierCurveTo(
-          x0 + w*0.18 + jx(), BASE - xH*0.35 + jy(),
-          c2.x, c2.y,
-          fundoPt.x, fundoPt.y
-        );
-
-        const c3 = espelhar(fundoPt, c2);
-        context.bezierCurveTo(
-          c3.x, c3.y,
-          x0 + w*0.82 + jx(), BASE - xH*0.35 + jy(),
-          x0 + w,              BASE + jy()
-        );
-        break;
-      }
-
-      default: {
-        context.bezierCurveTo(
-          x0 + w*0.3, BASE - xH*0.5,
-          x0 + w*0.7, BASE - xH*0.5,
-          x0 + w,      BASE
-        );
-      }
+    if (!document.getElementById('fontes-assinatura-link')) {
+      const link = document.createElement('link');
+      link.id = 'fontes-assinatura-link';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Alex+Brush&family=Dancing+Script:wght@500;700&family=Caveat:wght@500;700&family=Permanent+Marker&display=swap';
+      document.head.appendChild(link);
     }
-    return x0 + w;
-  }
 
-  function desenharFlourish(context, x0, BASE, direcao, intensidade) {
-    const tam = 20 + intensidade * 18;
-    if (direcao === 'inicio') {
-      context.moveTo(x0 - tam, BASE + rand(-4, 4));
-      context.bezierCurveTo(
-        x0 - tam*0.6, BASE - tam*0.7,
-        x0 - tam*0.15, BASE - tam*0.4,
-        x0, BASE
-      );
-      return x0;
-    } else {
-      const fim = x0 + tam;
-      context.bezierCurveTo(
-        x0 + tam*0.4, BASE - tam*0.5,
-        x0 + tam*0.8, BASE + tam*0.3,
-        fim, BASE + rand(-4, 4)
-      );
-      return fim;
-    }
+    const especificacoes = [
+      '400 80px "Alex Brush"',
+      '700 80px "Dancing Script"',
+      '700 80px "Caveat"',
+      '400 80px "Permanent Marker"'
+    ];
+
+    fontesProntas = Promise.all(
+      especificacoes.map(function (spec) {
+        return document.fonts.load(spec).catch(function () {});
+      })
+    );
+    return fontesProntas;
   }
 
   function gerarAssinatura(context, texto, larguraCanvas, alturaCanvas) {
@@ -591,66 +497,58 @@ function initAssinaturaDesenho() {
     const nome = texto.trim();
     if (!nome) return;
 
-    const cfg = ESTILOS[estiloSelecionado] || ESTILOS.elegante;
-
-    const BASE = alturaCanvas * 0.58;
-    const xH = alturaCanvas * 0.12 * cfg.loopMult;
-    const ascH = alturaCanvas * 0.28 * cfg.loopMult;
-    const descH = alturaCanvas * 0.20 * cfg.loopMult;
-
-    const letras = nome.toLowerCase().replace(/[^a-zà-ú\s]/gi, '').split('');
-    if (letras.length === 0) return;
-
-    const larguraBase = Math.min(48, (larguraCanvas * 0.78) / Math.max(letras.length, 1)) * cfg.espaco;
+    const cfg = ESTILOS_FONTE[estiloSelecionado] || ESTILOS_FONTE.elegante;
+    const BASE = alturaCanvas * 0.62;
 
     context.save();
-    context.translate(larguraCanvas * 0.02, 0);
-    context.transform(1, 0, Math.tan(-cfg.slant * Math.PI / 180), 1, 0, 0);
 
-    context.beginPath();
-    let x0 = larguraCanvas * 0.1 + rand(-6, 6);
+    // ajusta letterSpacing se o navegador suportar (não é crítico se não suportar)
+    try { context.letterSpacing = cfg.tracking + 'px'; } catch (e) {}
 
-    if (Math.random() < cfg.flourish) {
-      x0 = desenharFlourish(context, x0, BASE, 'inicio', Math.random());
-    } else {
-      context.moveTo(x0, BASE);
-    }
-
-    letras.forEach(function (letra) {
-      if (letra === ' ') {
-        const espaco = larguraBase * 0.55;
-        context.lineTo(x0 + espaco, BASE);
-        x0 += espaco;
-        return;
-      }
-      const w = larguraBase * rand(0.82, 1.2);
-      const tipo = TIPO_LETRA[letra] || 'arch1';
-      x0 = desenharLetra(context, tipo, x0, w, BASE, xH, ascH, descH, cfg.jitter);
-    });
-
-    if (Math.random() < cfg.flourish) {
-      x0 = desenharFlourish(context, x0, BASE, 'fim', Math.random());
+    // calcula o tamanho da fonte para caber na largura disponível
+    let tamanhoFonte = alturaCanvas * cfg.escala;
+    context.font = cfg.peso + ' ' + tamanhoFonte + 'px ' + cfg.fontFamily;
+    let larguraTexto = context.measureText(nome).width;
+    const larguraMax = larguraCanvas * 0.9;
+    if (larguraTexto > larguraMax) {
+      tamanhoFonte *= (larguraMax / larguraTexto);
+      context.font = cfg.peso + ' ' + tamanhoFonte + 'px ' + cfg.fontFamily;
+      larguraTexto = context.measureText(nome).width;
     }
 
     const tintas = ['#111827', '#0b1f3a', '#1a1a2e', '#14213d'];
-    const cor = pick(tintas);
-    const [wMin, wMax] = cfg.largura;
+    context.fillStyle = pick(tintas);
+    context.textBaseline = 'alphabetic';
 
-    [{ largura: wMax, alpha: 0.92 }, { largura: (wMin + wMax) / 2, alpha: 0.5 }].forEach(function (passo) {
-      context.lineWidth = passo.largura;
-      context.lineCap = 'round';
-      context.lineJoin = 'round';
-      context.strokeStyle = cor;
-      context.globalAlpha = passo.alpha;
-      context.stroke();
+    const anguloBase = cfg.slantDeg * Math.PI / 180;
+    const espacoPalavra = tamanhoFonte * 0.16;
+
+    // desenha palavra por palavra (cada palavra inteira em um único
+    // fillText, preservando o encadeamento natural da fonte cursiva)
+    const palavras = nome.split(/\s+/).filter(Boolean);
+    let x = (larguraCanvas - larguraTexto) / 2;
+
+    palavras.forEach(function (palavra) {
+      const larguraPalavra = context.measureText(palavra).width;
+      const dy = rand(-cfg.baselineJitter, cfg.baselineJitter);
+      const rot = anguloBase + rand(-cfg.rotJitter, cfg.rotJitter);
+
+      context.save();
+      context.translate(x, BASE + dy);
+      context.rotate(rot);
+      context.fillText(palavra, 0, 0);
+      context.restore();
+
+      x += larguraPalavra + espacoPalavra;
     });
 
-    context.globalAlpha = 1;
     context.restore();
   }
 
   function atualizarPreview() {
-    gerarAssinatura(ctxPreview, textoInput.value, canvasPreview.width, canvasPreview.height);
+    garantirFontesAssinatura().then(function () {
+      gerarAssinatura(ctxPreview, textoInput.value, canvasPreview.width, canvasPreview.height);
+    });
   }
 
   textoInput.addEventListener('input', atualizarPreview);
@@ -668,6 +566,10 @@ function initAssinaturaDesenho() {
       atualizarPreview();
     });
   });
+
+  // pré-carrega as fontes assim que o script inicializa, para o
+  // primeiro desenho já sair correto (sem "flash" de fonte padrão)
+  garantirFontesAssinatura();
 
   /* ============================================================
      PARTE 3 — ABAS E MODAL
