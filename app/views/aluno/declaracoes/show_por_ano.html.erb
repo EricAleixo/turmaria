@@ -2,8 +2,13 @@
 
   <%# --- BOTÕES DE AÇÃO --- %>
   <div class="mb-6 flex justify-end gap-3 print-hide">
-    <%= link_to 'Baixar PDF', por_ano_aluno_declaracoes_path(@ano_letivo, format: :pdf),
-        class: "flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 transition duration-150" %>
+    <% if current_any_user.is_a?(Aluno) %>
+      <%= link_to 'Baixar PDF', por_ano_aluno_declaracoes_path(@ano_letivo, format: :pdf),
+          class: "flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 transition duration-150" %>
+    <% else %>
+      <%= link_to 'Baixar PDF', declaracao_escola_aluno_path(@escola, @aluno, format: :pdf),
+          class: "flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 transition duration-150" %>
+    <% end %>
 
     <button onclick="window.print()"
             class="cursor-pointer flex items-center px-4 py-2 bg-gray-500 text-white font-medium rounded-lg shadow-md hover:bg-gray-600 transition duration-150">
@@ -14,10 +19,17 @@
     </button>
   </div>
 
+  <%# --- CABEÇALHO --- %>
   <div class="text-center mb-8">
-    <p class="font-bold uppercase text-sm text-gray-700">Estado da Paraíba</p>
-    <p class="font-bold uppercase text-sm text-gray-700">Secretaria de Estado da Educação</p>
-    <p class="font-bold uppercase text-sm text-gray-800 mt-1"><%= @aluno.escola.nome %></p>
+    <% if @aluno.escola.declaracao_cabecalho.present? %>
+      <% @aluno.escola.declaracao_cabecalho.each_line do |line| %>
+        <p class="font-bold uppercase text-sm text-gray-700"><%= line.strip %></p>
+      <% end %>
+    <% else %>
+      <p class="font-bold uppercase text-sm text-gray-700">Estado da Paraíba</p>
+      <p class="font-bold uppercase text-sm text-gray-700">Secretaria de Estado da Educação</p>
+      <p class="font-bold uppercase text-sm text-gray-800 mt-1"><%= @aluno.escola.nome %></p>
+    <% end %>
   </div>
 
   <h1 class="text-center text-2xl font-extrabold text-gray-800 uppercase tracking-widest mb-8 border-b-2 border-gray-400 pb-3">
@@ -26,51 +38,75 @@
 
   <%# --- CORPO DO TEXTO --- %>
   <div class="font-serif text-[15px] leading-relaxed text-gray-900">
-    <p class="mb-5 text-justify">
-      Declaramos, para os devidos fins, que o(a) aluno(a) <strong><%= @aluno.nome %></strong>,
-      matrícula nº <strong><%= @aluno.matricula %></strong>, encontra-se regularmente matriculado(a)
-      nesta instituição de ensino no <strong><%= @turma.serie %>º Ano</strong>, turma
-      <strong><%= @turma.nome %></strong>, turno <strong><%= @turma.turno.capitalize %></strong>,
-      referente ao ano letivo de <strong><%= @ano_letivo.ano %></strong>.
-    </p>
+    <% if @aluno.escola.declaracao_corpo.present? %>
+      <% corpo_interpolado = interpolar_declaracao_corpo(@aluno.escola.declaracao_corpo, @aluno, @turma, @ano_letivo, @aluno.escola) %>
+      <% corpo_interpolado.split("\n\n").each do |paragrafo| %>
+        <% next if paragrafo.blank? %>
+        <p class="mb-5 text-justify"><%= paragrafo.strip %></p>
+      <% end %>
+    <% else %>
+      <% cpf_texto   = @aluno.respond_to?(:cpf) && @aluno.cpf.present? ? ", inscrito(a) no CPF nº #{@aluno.cpf}," : "," %>
+      <% serie_texto = @turma.respond_to?(:serie) && @turma.serie.present? ? "no #{@turma.serie} " : "" %>
+      <% turno_texto = @turma.respond_to?(:turno) && @turma.turno.present? ? ", turno #{@turma.turno}" : "" %>
 
-    <p class="mb-5 text-justify">
-      Informamos ainda que o(a) referido(a) estudante possui vínculo ativo com esta unidade escolar
-      e frequenta regularmente as atividades acadêmicas.
-    </p>
+      <p class="mb-5 text-justify">
+        Declaramos, para os devidos fins, que o(a) aluno(a) <strong><%= @aluno.nome %></strong>,
+        matrícula nº <strong><%= @aluno.matricula %></strong>, encontra-se regularmente matriculado(a)
+        nesta instituição de ensino <%= serie_texto %>na turma
+        <strong><%= @turma.nome %></strong><%= turno_texto %>,
+        referente ao ano letivo de <strong><%= @ano_letivo.ano %></strong>.
+      </p>
 
-    <p class="mb-5 text-justify">
-      A presente declaração é emitida a pedido do(a) interessado(a), para os fins que se fizerem necessários.
-    </p>
+      <p class="mb-5 text-justify">
+        Informamos ainda que o(a) referido(a) estudante possui vínculo ativo com esta unidade escolar
+        e frequenta regularmente as atividades acadêmicas.
+      </p>
 
-    <p>
-      Emitida em <%= Time.zone.now.strftime('%d/%m/%Y') %>.
+      <p class="mb-5 text-justify">
+        A presente declaração é emitida a pedido do(a) interessado(a), para os fins que se fizerem necessários.
+      </p>
+    <% end %>
+
+    <%
+      cidade = @aluno.escola.respond_to?(:cidade) && @aluno.escola.cidade.present? ? @aluno.escola.cidade : "Guarabira"
+      estado = @aluno.escola.respond_to?(:estado) && @aluno.escola.estado.present? ? @aluno.escola.estado : "PB"
+    %>
+    <p class="mt-8 text-left">
+      <%= cidade %> – <%= estado %>, <%= I18n.l(Date.current, format: :long) %>.
     </p>
   </div>
 
   <%# --- ESPAÇADOR: empurra a assinatura para o rodapé da página --- %>
-  <div class="flex-grow"></div>
+  <div class="flex-grow min-h-[100px]"></div>
 
   <%# --- ASSINATURA E CÓDIGO (fixos no fim) --- %>
   <div class="font-serif text-[15px] text-gray-900">
-    <div class="text-center mb-2">
-      <p class="border-t border-gray-800 w-72 mx-auto pt-2 text-sm">Direção Escolar</p>
-      <p class="text-sm text-gray-600"><%= @aluno.escola.nome %></p>
+    <% 
+      cargo = @aluno.escola.declaracao_assinatura_cargo.presence || "Diretor(a) Escolar"
+      diretor = @aluno.escola.declaracao_assinatura_nome.presence || @aluno.escola.respond_to?(:diretor_nome) && @aluno.escola.diretor_nome.presence || nil
+    %>
+    <div class="text-center mb-6">
+      <div class="border-t border-gray-800 w-72 mx-auto pt-2">
+        <p class="text-sm font-bold"><%= diretor || cargo %></p>
+        <% if diretor %>
+          <p class="text-xs text-gray-600"><%= cargo %></p>
+        <% end %>
+      </div>
     </div>
 
-    <div class="flex items-end justify-between mt-10 print-hide-code">
+    <div class="flex items-end justify-between mt-10 print-hide-code border-t border-gray-150 pt-4">
       <div class="text-xs text-gray-500">
-        <p>Código de Autenticidade: <%= @declaracao.codigo_autenticidade %></p>
-        <p>Verifique em: <%= validar_declaracao_curta_url(codigo: @declaracao.codigo_curto) %></p>
+        <p class="font-mono">Código de Autenticidade: <%= @declaracao.codigo_autenticidade %></p>
+        <p>Verifique a autenticidade em: <%= validar_declaracao_curta_url(codigo: @declaracao.codigo_curto) %></p>
       </div>
 
       <div class="flex-shrink-0">
         <%= raw RQRCode::QRCode.new(
               validar_declaracao_curta_url(codigo: @declaracao.codigo_curto)
             ).as_svg(
-              module_size: 3,
+              module_size: 4,
               use_path: true,
-              svg_attributes: { class: "w-20 h-20" }
+              svg_attributes: { class: "w-24 h-24" }
             ) %>
       </div>
     </div>

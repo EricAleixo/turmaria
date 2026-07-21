@@ -1,0 +1,764 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+
+  <!-- Breadcrumbs / Top Navigation -->
+  <div class="mb-6 flex justify-between items-center">
+      <%= link_to selecionar_escola_declaracoes_path, class: "inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        <span>Voltar para Seleção de Escolas</span>
+      <% end %>
+      
+      <%= link_to preview_escola_declaracao_path(@escola), target: "_blank", class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+        <span>Visualizar PDF de Teste</span>
+      <% end %>
+  </div>
+
+  <!-- Alert and Notifications -->
+  <% if flash[:alert] %>
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+          <svg class="h-5 w-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-sm font-medium text-red-800"><%= flash[:alert] %></p>
+        </div>
+      </div>
+  <% end %>
+
+  <% if flash[:notice] %>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+          <svg class="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-sm font-medium text-green-800"><%= flash[:notice] %></p>
+        </div>
+      </div>
+  <% end %>
+
+    <!-- Form Container -->
+  <%= form_with(model: @escola, url: update_configuracoes_escola_declaracao_path(@escola), method: :patch, class: "bg-white rounded-lg shadow-sm border border-gray-200") do |form| %>
+      
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Configurar Declaração PDF</h2>
+            <p class="mt-0.5 text-sm text-gray-600">Escola: <strong class="text-gray-800"><%= @escola.nome %></strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 space-y-8">
+        <!-- 1. Seção do Cabeçalho -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Cabeçalho do Documento</h3>
+          </div>
+
+          <div class="space-y-2">
+            <%= form.label :declaracao_cabecalho, class: "block text-sm font-medium text-gray-700" do %>
+              Cabeçalho Customizado <span class="text-xs text-gray-500 font-normal">(Um texto por linha - Centralizado)</span>
+            <% end %>
+            <%= form.text_area :declaracao_cabecalho, rows: 4,
+                class: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400 font-mono text-sm",
+                placeholder: "Estado da Paraíba\nSecretaria de Estado da Educação\n#{@escola.nome.upcase}" %>
+            <p class="text-xs text-gray-500">Deixe em branco para usar o cabeçalho padrão com o Estado, Secretaria e o nome da escola.</p>
+          </div>
+        </div>
+
+        <!-- 2. Seção do Corpo do Texto -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Corpo do Texto da Declaração</h3>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Text Area -->
+            <div class="lg:col-span-2 space-y-2">
+              <%= form.label :declaracao_corpo, class: "block text-sm font-medium text-gray-700" do %>
+                Texto Principal <span class="text-xs text-gray-500 font-normal">(Parágrafos separados por duas quebras de linha)</span>
+              <% end %>
+              <%= form.text_area :declaracao_corpo, rows: 10,
+                  class: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400 text-sm",
+                  placeholder: "Declaramos, para os devidos fins, que o(a) aluno(a) %{aluno_nome}%{cpf_texto} encontra-se regularmente matriculado(a) nesta instituição de ensino %{serie_texto}na turma %{turma_nome}%{turno_texto}, referente ao ano letivo de %{ano_letivo_ano}, sob a matrícula nº %{aluno_matricula}.\n\nInformamos ainda que o(a) referido(a) estudante possui vínculo ativo com esta unidade escolar e frequenta regularmente as atividades acadêmicas." %>
+              <p class="text-xs text-gray-500">Deixe em branco para usar o texto padrão do sistema.</p>
+            </div>
+
+            <!-- Variáveis de Suporte (Tags) -->
+            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+              <h4 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">Variáveis Disponíveis</h4>
+              <p class="text-xs text-gray-600">Copie e insira as tags abaixo para preenchimento dinâmico dos dados do aluno no PDF:</p>
+              
+              <div class="space-y-2 font-mono text-xs max-h-72 overflow-y-auto">
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{aluno_nome}</span>
+                  <span class="text-gray-500 text-[10px]">Nome completo do aluno</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{aluno_cpf}</span>
+                  <span class="text-gray-500 text-[10px]">CPF do aluno</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{cpf_texto}</span>
+                  <span class="text-gray-500 text-[10px]">CPF formatado com pontuação (ex: ", inscrito no CPF nº ...")</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{aluno_matricula}</span>
+                  <span class="text-gray-500 text-[10px]">Matrícula do aluno</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{turma_nome}</span>
+                  <span class="text-gray-500 text-[10px]">Nome/Código da turma</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{serie_texto}</span>
+                  <span class="text-gray-500 text-[10px]">Série do aluno formatada (ex: "no 1º ano ")</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{turno_texto}</span>
+                  <span class="text-gray-500 text-[10px]">Turno da turma (ex: ", turno Manhã")</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{ano_letivo_ano}</span>
+                  <span class="text-gray-500 text-[10px]">Ano letivo (ex: 2026)</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-gray-150 flex flex-col gap-0.5">
+                  <span class="text-green-700 font-bold">%{escola_nome}</span>
+                  <span class="text-gray-500 text-[10px]">Nome desta escola</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Seção da Assinatura -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Parametrização da Assinatura</h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Nome da Assinatura -->
+            <div>
+              <%= form.label :declaracao_assinatura_nome, "Nome do Responsável pela Assinatura", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :declaracao_assinatura_nome,
+                  class: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400 text-sm",
+                  placeholder: "Ex: Prof. José da Silva" %>
+              <p class="text-xs text-gray-500 mt-1">Deixe em branco para usar o Diretor cadastrado na escola (ou cargo se não houver).</p>
+            </div>
+
+            <!-- Cargo da Assinatura -->
+            <div>
+              <%= form.label :declaracao_assinatura_cargo, "Cargo do Responsável", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :declaracao_assinatura_cargo,
+                  class: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400 text-sm",
+                  placeholder: "Ex: Diretor(a) Escolar" %>
+              <p class="text-xs text-gray-500 mt-1">Cargo impresso abaixo do traço de assinatura. Padrão: "Diretor(a) Escolar".</p>
+            </div>
+          </div>
+
+          <!-- Assinatura Desenhada -->
+          <div class="mt-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Assinatura Desenhada <span class="text-xs text-gray-500 font-normal">(opcional - será impressa no lugar do traço)</span>
+            </label>
+
+            <%= form.hidden_field :declaracao_assinatura_imagem, id: "assinatura_imagem_input" %>
+
+            <div class="flex items-center gap-4 flex-wrap">
+              <!-- Botão que abre o quadro de desenho -->
+              <button type="button" id="btn-abrir-assinatura"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium text-sm rounded-lg shadow-sm transition-colors">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                Inserir Assinatura
+              </button>
+
+              <!-- Prévia da assinatura salva -->
+              <div id="assinatura-preview-wrapper" class="hidden items-center gap-3">
+                <div class="border border-gray-200 rounded-lg bg-gray-50 px-3 py-2">
+                  <img id="assinatura-preview-img" src="" alt="Assinatura" class="h-16 object-contain" />
+                </div>
+                <button type="button" id="btn-remover-assinatura"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 font-medium text-xs rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Remover
+                </button>
+              </div>
+            </div>
+
+            <% if @escola.declaracao_assinatura_imagem.present? %>
+              <div class="mt-3">
+                <%= link_to posicionar_assinatura_escola_declaracao_path(@escola), target: "_blank",
+                    class: "inline-flex items-center gap-2 text-sm text-green-700 hover:text-green-800 font-medium" do %>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  Ajustar posição exata da assinatura no PDF
+                <% end %>
+              </div>
+            <% else %>
+              <p class="mt-3 text-xs text-gray-400">Salve as configurações com uma assinatura desenhada para poder ajustar a posição exata dela no PDF.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex items-center justify-end gap-3">
+        <%= link_to "Cancelar", selecionar_escola_declaracoes_path, class: "px-5 py-2.5 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-lg transition-colors" %>
+        
+        <%= form.submit "Salvar Configurações", class: "px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg shadow-sm transition-colors cursor-pointer" %>
+      </div>
+  <% end %>
+
+</div>
+
+<!-- ==================== MODAL: QUADRO DE ASSINATURA ==================== -->
+<div id="modal-assinatura" class="hidden fixed inset-0 z-50 items-center justify-center p-4">
+  <div id="assinatura-overlay" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+  <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden">
+    <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50">
+      <h3 class="text-lg font-semibold text-gray-900">Criar Assinatura</h3>
+      <button type="button" id="btn-fechar-assinatura" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="px-6 pt-4 flex gap-2 border-b border-gray-200">
+      <button type="button" id="tab-desenhar"
+        class="assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-green-600 text-green-700">
+        ✍️ Desenhar à mão
+      </button>
+      <button type="button" id="tab-digitar"
+        class="assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+        ⌨️ Digitar e Gerar
+      </button>
+    </div>
+
+    <div class="p-6">
+      <!-- PAINEL: Desenhar -->
+      <div id="painel-desenhar">
+        <p class="text-sm text-gray-500 mb-4">Use o mouse (ou o dedo, no celular) para desenhar a assinatura dentro do quadro abaixo.</p>
+        <canvas id="assinatura-canvas" width="700" height="300"
+          class="w-full h-[320px] border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 touch-none cursor-crosshair"></canvas>
+      </div>
+
+      <!-- PAINEL: Digitar (geração procedural de caligrafia) -->
+      <div id="painel-digitar" class="hidden">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Digite o nome para gerar a assinatura</label>
+            <input type="text" id="assinatura-texto-input" maxlength="45" placeholder="Ex: José da Silva"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 text-sm" />
+            <p class="text-xs text-gray-500 mt-1">O traço é gerado por algoritmo, de forma única a cada geração — nunca fica igual mesmo repetindo o mesmo nome.</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Estilo do traço</label>
+            <div id="assinatura-estilos" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button type="button" data-estilo="elegante"
+                class="assinatura-estilo-opt px-2 py-2 border-2 border-green-600 bg-green-50 rounded-lg text-xs font-medium text-gray-700 transition-colors">
+                Elegante
+              </button>
+              <button type="button" data-estilo="fluida"
+                class="assinatura-estilo-opt px-2 py-2 border-2 border-gray-200 hover:border-green-400 rounded-lg text-xs font-medium text-gray-700 transition-colors">
+                Fluida
+              </button>
+              <button type="button" data-estilo="compacta"
+                class="assinatura-estilo-opt px-2 py-2 border-2 border-gray-200 hover:border-green-400 rounded-lg text-xs font-medium text-gray-700 transition-colors">
+                Compacta
+              </button>
+              <button type="button" data-estilo="energica"
+                class="assinatura-estilo-opt px-2 py-2 border-2 border-gray-200 hover:border-green-400 rounded-lg text-xs font-medium text-gray-700 transition-colors">
+                Enérgica
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-sm font-medium text-gray-700">Pré-visualização</label>
+              <button type="button" id="btn-regerar-assinatura"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 hover:text-green-800">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Gerar outra variação
+              </button>
+            </div>
+            <canvas id="assinatura-canvas-preview" width="700" height="260"
+              class="w-full h-[220px] border-2 border-dashed border-gray-300 rounded-lg bg-gray-50"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+      <button type="button" id="btn-limpar-assinatura"
+        class="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium text-sm rounded-lg transition-colors">
+        Limpar
+      </button>
+
+      <div class="flex items-center gap-3">
+        <button type="button" id="btn-cancelar-assinatura"
+          class="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium text-sm rounded-lg transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="btn-salvar-assinatura"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg shadow-sm transition-colors">
+          Salvar Assinatura
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function initAssinaturaDesenho() {
+  const modal = document.getElementById('modal-assinatura');
+  const canvas = document.getElementById('assinatura-canvas');
+
+  if (!modal || !canvas || canvas.dataset.assinaturaInit === '1') return;
+  canvas.dataset.assinaturaInit = '1';
+
+  const ctx = canvas.getContext('2d');
+  const hiddenInput = document.getElementById('assinatura_imagem_input');
+  const previewWrapper = document.getElementById('assinatura-preview-wrapper');
+  const previewImg = document.getElementById('assinatura-preview-img');
+
+  const tabDesenhar = document.getElementById('tab-desenhar');
+  const tabDigitar = document.getElementById('tab-digitar');
+  const painelDesenhar = document.getElementById('painel-desenhar');
+  const painelDigitar = document.getElementById('painel-digitar');
+
+  const textoInput = document.getElementById('assinatura-texto-input');
+  const estiloBotoes = document.querySelectorAll('.assinatura-estilo-opt');
+  const btnRegerar = document.getElementById('btn-regerar-assinatura');
+  const canvasPreview = document.getElementById('assinatura-canvas-preview');
+  const ctxPreview = canvasPreview.getContext('2d');
+
+  let modoAtual = 'desenhar';
+  let estiloSelecionado = 'elegante';
+
+  let drawing = false;
+  let hasStroke = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  /* ============================================================
+     PARTE 1 — DESENHO À MÃO (mouse / touch)
+  ============================================================ */
+  function setupCanvas() {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#111827';
+    clearCanvasDesenho();
+  }
+
+  function clearCanvasDesenho() {
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    hasStroke = false;
+  }
+
+  function getPos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const point = evt.touches ? evt.touches[0] : evt;
+    return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+  }
+
+  function startDraw(evt) {
+    if (modoAtual !== 'desenhar') return;
+    evt.preventDefault();
+    drawing = true;
+    hasStroke = true;
+    const pos = getPos(evt);
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function draw(evt) {
+    if (!drawing || modoAtual !== 'desenhar') return;
+    evt.preventDefault();
+    const pos = getPos(evt);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function stopDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDraw);
+
+  /* ============================================================
+     PARTE 2 — GERADOR PROCEDURAL DE CALIGRAFIA
+     Letras com 2 segmentos de Bézier usam TANGENTE ESPELHADA na
+     junção (c3 = 2*pJuncao - c2) — isso garante continuidade C1
+     (sem "quina") por construção matemática, não por ajuste manual.
+  ============================================================ */
+
+  const TIPO_LETRA = {
+    a:'loop', c:'loop', e:'loop', o:'loop', s:'loop',
+    b:'loopUp', d:'loopUp', f:'loopUp', h:'loopUp', k:'loopUp', l:'loopUp', t:'loopUp',
+    g:'loopDown', j:'loopDown', p:'loopDown', q:'loopDown', y:'loopDown',
+    n:'arch1', r:'arch1', u:'arch1', i:'arch1', v:'arch1',
+    m:'arch2', w:'arch2', x:'arch2', z:'arch2'
+  };
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  const ESTILOS = {
+    elegante: { loopMult: 1.15, jitter: 2.5, slant: 6,  largura: [1.6, 2.6], espaco: 1.0,  flourish: 0.75 },
+    fluida:   { loopMult: 1.30, jitter: 4,   slant: 11, largura: [1.4, 2.8], espaco: 0.95, flourish: 0.6 },
+    compacta: { loopMult: 0.70, jitter: 1.8, slant: 3,  largura: [1.8, 2.4], espaco: 0.78, flourish: 0.25 },
+    energica: { loopMult: 1.45, jitter: 5,   slant: 14, largura: [1.5, 3.2], espaco: 1.05, flourish: 0.9 }
+  };
+
+  // Reflete um ponto de controle através do ponto de junção -> garante tangente contínua
+  function espelhar(pJuncao, controle) {
+    return { x: 2 * pJuncao.x - controle.x, y: 2 * pJuncao.y - controle.y };
+  }
+
+  function desenharLetra(context, tipo, x0, w, BASE, xH, ascH, descH, jit) {
+    const jx = () => rand(-jit, jit) * 0.5;
+    const jy = () => rand(-jit, jit);
+    const alt = rand(0.85, 1.15);
+
+    switch (tipo) {
+      case 'loop': {
+        const h = xH * 1.3 * alt;
+        context.bezierCurveTo(
+          x0 + w*0.22 + jx(), BASE - h + jy(),
+          x0 + w*0.78 + jx(), BASE - h + jy(),
+          x0 + w,             BASE + jy()
+        );
+        break;
+      }
+
+      case 'arch1': {
+        const h = xH * 1.0 * alt;
+        context.bezierCurveTo(
+          x0 + w*0.22 + jx(), BASE - h + jy(),
+          x0 + w*0.78 + jx(), BASE - h + jy(),
+          x0 + w,             BASE + jy()
+        );
+        break;
+      }
+
+      case 'arch2': {
+        const w1 = w * 0.5;
+        const h = xH * 0.95 * alt;
+        const c2 = { x: x0 + w1*0.75 + jx(), y: BASE - h + jy() };
+        const juncao = { x: x0 + w1 + jx(), y: BASE + jy() };
+
+        context.bezierCurveTo(
+          x0 + w1*0.25 + jx(), BASE - h + jy(),
+          c2.x, c2.y,
+          juncao.x, juncao.y
+        );
+
+        const c3 = espelhar(juncao, c2);
+        context.bezierCurveTo(
+          c3.x, c3.y,
+          x0 + w1*1.75 + jx(), BASE - h + jy(),
+          x0 + w,              BASE + jy()
+        );
+        break;
+      }
+
+      case 'loopUp': {
+        const topo = BASE - ascH * alt;
+        const c2 = { x: x0 + w*0.28 + jx(), y: topo + jy() };
+        const topPt = { x: x0 + w*0.42 + jx(), y: topo + xH*0.15*alt + jy() };
+
+        context.bezierCurveTo(
+          x0 + w*0.12 + jx(), BASE - xH*0.4 + jy(),
+          c2.x, c2.y,
+          topPt.x, topPt.y
+        );
+
+        const c3 = espelhar(topPt, c2);
+        context.bezierCurveTo(
+          c3.x, c3.y,
+          x0 + w*0.78 + jx(), BASE - xH*0.5 + jy(),
+          x0 + w,              BASE + jy()
+        );
+        break;
+      }
+
+      case 'loopDown': {
+        const fundo = BASE + descH * alt;
+        const c2 = { x: x0 + w*0.40 + jx(), y: fundo + jy() };
+        const fundoPt = { x: x0 + w*0.52 + jx(), y: fundo - descH*0.15*alt + jy() };
+
+        context.bezierCurveTo(
+          x0 + w*0.18 + jx(), BASE - xH*0.35 + jy(),
+          c2.x, c2.y,
+          fundoPt.x, fundoPt.y
+        );
+
+        const c3 = espelhar(fundoPt, c2);
+        context.bezierCurveTo(
+          c3.x, c3.y,
+          x0 + w*0.82 + jx(), BASE - xH*0.35 + jy(),
+          x0 + w,              BASE + jy()
+        );
+        break;
+      }
+
+      default: {
+        context.bezierCurveTo(
+          x0 + w*0.3, BASE - xH*0.5,
+          x0 + w*0.7, BASE - xH*0.5,
+          x0 + w,      BASE
+        );
+      }
+    }
+    return x0 + w;
+  }
+
+  function desenharFlourish(context, x0, BASE, direcao, intensidade) {
+    const tam = 20 + intensidade * 18;
+    if (direcao === 'inicio') {
+      context.moveTo(x0 - tam, BASE + rand(-4, 4));
+      context.bezierCurveTo(
+        x0 - tam*0.6, BASE - tam*0.7,
+        x0 - tam*0.15, BASE - tam*0.4,
+        x0, BASE
+      );
+      return x0;
+    } else {
+      const fim = x0 + tam;
+      context.bezierCurveTo(
+        x0 + tam*0.4, BASE - tam*0.5,
+        x0 + tam*0.8, BASE + tam*0.3,
+        fim, BASE + rand(-4, 4)
+      );
+      return fim;
+    }
+  }
+
+  function gerarAssinatura(context, texto, larguraCanvas, alturaCanvas) {
+    context.clearRect(0, 0, larguraCanvas, alturaCanvas);
+    const nome = texto.trim();
+    if (!nome) return;
+
+    const cfg = ESTILOS[estiloSelecionado] || ESTILOS.elegante;
+
+    const BASE = alturaCanvas * 0.58;
+    const xH = alturaCanvas * 0.12 * cfg.loopMult;
+    const ascH = alturaCanvas * 0.28 * cfg.loopMult;
+    const descH = alturaCanvas * 0.20 * cfg.loopMult;
+
+    const letras = nome.toLowerCase().replace(/[^a-zà-ú\s]/gi, '').split('');
+    if (letras.length === 0) return;
+
+    const larguraBase = Math.min(48, (larguraCanvas * 0.78) / Math.max(letras.length, 1)) * cfg.espaco;
+
+    context.save();
+    context.translate(larguraCanvas * 0.02, 0);
+    context.transform(1, 0, Math.tan(-cfg.slant * Math.PI / 180), 1, 0, 0);
+
+    context.beginPath();
+    let x0 = larguraCanvas * 0.1 + rand(-6, 6);
+
+    if (Math.random() < cfg.flourish) {
+      x0 = desenharFlourish(context, x0, BASE, 'inicio', Math.random());
+    } else {
+      context.moveTo(x0, BASE);
+    }
+
+    letras.forEach(function (letra) {
+      if (letra === ' ') {
+        const espaco = larguraBase * 0.55;
+        context.lineTo(x0 + espaco, BASE);
+        x0 += espaco;
+        return;
+      }
+      const w = larguraBase * rand(0.82, 1.2);
+      const tipo = TIPO_LETRA[letra] || 'arch1';
+      x0 = desenharLetra(context, tipo, x0, w, BASE, xH, ascH, descH, cfg.jitter);
+    });
+
+    if (Math.random() < cfg.flourish) {
+      x0 = desenharFlourish(context, x0, BASE, 'fim', Math.random());
+    }
+
+    const tintas = ['#111827', '#0b1f3a', '#1a1a2e', '#14213d'];
+    const cor = pick(tintas);
+    const [wMin, wMax] = cfg.largura;
+
+    [{ largura: wMax, alpha: 0.92 }, { largura: (wMin + wMax) / 2, alpha: 0.5 }].forEach(function (passo) {
+      context.lineWidth = passo.largura;
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+      context.strokeStyle = cor;
+      context.globalAlpha = passo.alpha;
+      context.stroke();
+    });
+
+    context.globalAlpha = 1;
+    context.restore();
+  }
+
+  function atualizarPreview() {
+    gerarAssinatura(ctxPreview, textoInput.value, canvasPreview.width, canvasPreview.height);
+  }
+
+  textoInput.addEventListener('input', atualizarPreview);
+  btnRegerar.addEventListener('click', atualizarPreview);
+
+  estiloBotoes.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      estiloBotoes.forEach(function (b) {
+        b.classList.remove('border-green-600', 'bg-green-50');
+        b.classList.add('border-gray-200');
+      });
+      btn.classList.remove('border-gray-200');
+      btn.classList.add('border-green-600', 'bg-green-50');
+      estiloSelecionado = btn.dataset.estilo;
+      atualizarPreview();
+    });
+  });
+
+  /* ============================================================
+     PARTE 3 — ABAS E MODAL
+  ============================================================ */
+  function irParaAba(aba) {
+    modoAtual = aba;
+    const ativo = 'border-green-600 text-green-700';
+    const inativo = 'border-transparent text-gray-500 hover:text-gray-700';
+
+    if (aba === 'desenhar') {
+      painelDesenhar.classList.remove('hidden');
+      painelDigitar.classList.add('hidden');
+      tabDesenhar.className = 'assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ' + ativo;
+      tabDigitar.className = 'assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ' + inativo;
+    } else {
+      painelDesenhar.classList.add('hidden');
+      painelDigitar.classList.remove('hidden');
+      tabDigitar.className = 'assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ' + ativo;
+      tabDesenhar.className = 'assinatura-tab px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ' + inativo;
+      atualizarPreview();
+    }
+  }
+
+  tabDesenhar.addEventListener('click', function () { irParaAba('desenhar'); });
+  tabDigitar.addEventListener('click', function () { irParaAba('digitar'); });
+
+  function openModal() {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+    irParaAba('desenhar');
+    requestAnimationFrame(setupCanvas);
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  document.getElementById('btn-abrir-assinatura').addEventListener('click', openModal);
+  document.getElementById('btn-fechar-assinatura').addEventListener('click', closeModal);
+  document.getElementById('btn-cancelar-assinatura').addEventListener('click', closeModal);
+  document.getElementById('assinatura-overlay').addEventListener('click', closeModal);
+
+  document.getElementById('btn-limpar-assinatura').addEventListener('click', function () {
+    if (modoAtual === 'desenhar') {
+      clearCanvasDesenho();
+    } else {
+      textoInput.value = '';
+      ctxPreview.clearRect(0, 0, canvasPreview.width, canvasPreview.height);
+    }
+  });
+
+  document.getElementById('btn-salvar-assinatura').addEventListener('click', function () {
+    if (modoAtual === 'desenhar') {
+      if (!hasStroke) { closeModal(); return; }
+      const dataUrl = canvas.toDataURL('image/png');
+      hiddenInput.value = dataUrl;
+      previewImg.src = dataUrl;
+      previewWrapper.classList.remove('hidden');
+      previewWrapper.classList.add('flex');
+      closeModal();
+    } else {
+      if (!textoInput.value.trim()) { closeModal(); return; }
+      const dataUrl = canvasPreview.toDataURL('image/png');
+      hiddenInput.value = dataUrl;
+      previewImg.src = dataUrl;
+      previewWrapper.classList.remove('hidden');
+      previewWrapper.classList.add('flex');
+      closeModal();
+    }
+  });
+
+  document.getElementById('btn-remover-assinatura').addEventListener('click', function () {
+    hiddenInput.value = '';
+    previewImg.src = '';
+    previewWrapper.classList.add('hidden');
+    previewWrapper.classList.remove('flex');
+  });
+
+  if (hiddenInput.value && hiddenInput.value.trim() !== '') {
+    previewImg.src = hiddenInput.value;
+    previewWrapper.classList.remove('hidden');
+    previewWrapper.classList.add('flex');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initAssinaturaDesenho);
+document.addEventListener('turbo:load', initAssinaturaDesenho);
+if (document.readyState !== 'loading') {
+  initAssinaturaDesenho();
+}
+</script>

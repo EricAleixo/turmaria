@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_18_141927) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_18_172040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -297,6 +297,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_18_141927) do
     t.string "email"
     t.string "site"
     t.string "tipo", default: "publica", null: false
+    t.text "declaracao_cabecalho"
+    t.text "declaracao_corpo"
+    t.string "declaracao_assinatura_cargo"
+    t.string "declaracao_assinatura_nome"
+    t.text "declaracao_assinatura_imagem"
+    t.float "declaracao_assinatura_pos_x"
+    t.float "declaracao_assinatura_pos_y"
     t.index "lower((nome)::text)", name: "index_escolas_on_lower_nome"
     t.index ["admin_id"], name: "index_escolas_on_admin_id"
     t.index ["alunos_count"], name: "index_escolas_on_alunos_count"

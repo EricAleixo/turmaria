@@ -92,6 +92,7 @@ end
     get "/escolas/conteudos", to: "conteudos#selecionar_escola", as: :selecionar_escola_conteudos
     get "/escolas/frequencias", to: "admin_frequencia#selecionar_escola", as: :selecionar_escola_frequencias
     get "/escolas/planos_de_ensino", to: "planos_de_ensino#selecionar_escola", as: :selecionar_escola_planos_de_ensino
+    get "/escolas/declaracoes", to: "declaracoes#selecionar_escola", as: :selecionar_escola_declaracoes
 
     #Rota para minhas escolas(ADMINISTRADOR)
     get "/minhas_escolas", to: "administradores#minhas_escolas", as: :minhas_escolas_admin
@@ -102,6 +103,8 @@ end
         get :cidades_por_estado
       end
     end
+
+
 
     resources :transferencias, only: [:create]
 
@@ -181,6 +184,7 @@ end
           patch :assign_to_turma
           patch :remove_from_turma
           patch :regenerate_matricula 
+          get :declaracao
         end
       end
 
@@ -218,6 +222,14 @@ end
       end
 
       resources :planos_de_ensino
+      
+      resource :declaracao, only: [], controller: 'declaracoes' do
+        get :configuracoes
+        get   :posicionar_assinatura
+        patch :salvar_posicao_assinatura
+        patch :update_configuracoes
+        get :preview
+      end
       
     end
 

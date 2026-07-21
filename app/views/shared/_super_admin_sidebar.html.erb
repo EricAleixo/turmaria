@@ -128,6 +128,16 @@
             Administradores
           <% end %>
         </li>
+        <li>
+          <%= link_to selecionar_escola_declaracoes_path, class: "flex items-center p-3 rounded-lg #{declaracoes_section_path? ? 'bg-green-100 text-green-700 font-medium' : 'hover:bg-gray-100 text-gray-700'}" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 21H8.25A2.25 2.25 0 0 1 6 18.75V5.25A2.25 2.25 0 0 1 8.25 3H15l4.5 4.5v11.25A2.25 2.25 0 0 1 19.5 21Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 3v4.5h4.5" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 15h6M9 9h3" />
+            </svg>
+            Declarações
+          <% end %>
+        </li>
       </ul>
     </nav>
   </aside>

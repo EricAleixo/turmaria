@@ -1,0 +1,198 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+
+  <!-- Top Navigation -->
+  <div class="mb-6 flex justify-between items-center max-w-3xl mx-auto">
+    <%= link_to configuracoes_escola_declaracao_path(@escola), class: "inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium transition-colors" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      <span>Voltar para Configurações</span>
+    <% end %>
+
+    <%= link_to preview_escola_declaracao_path(@escola), target: "_blank", class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition-colors" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+      <span>Ver PDF Real</span>
+    <% end %>
+  </div>
+
+  <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+      <h2 class="text-xl font-bold text-gray-900">Posicionar Assinatura</h2>
+      <p class="mt-0.5 text-sm text-gray-600">
+        Arraste a assinatura até encaixar exatamente sobre o traço. Isto reproduz, em escala real
+        (1pt = 1px), a mesma área onde ela será desenhada no PDF.
+      </p>
+    </div>
+
+    <div class="p-6">
+      <div id="stage-wrapper" class="flex justify-center">
+        <!-- "Palco": reproduz em escala real a área do traço de assinatura do PDF -->
+        <div id="stage" class="relative bg-white border border-gray-300 rounded shadow-inner" style="width: 475px; height: 260px;">
+
+          <!-- Grade de fundo só para referência visual -->
+          <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(to right, #f3f4f6 1px, transparent 1px), linear-gradient(to bottom, #f3f4f6 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+          <!-- Traço de assinatura (posição fixa, igual ao Prawn) -->
+          <div id="traco" class="absolute text-center text-gray-800" style="left: 137px; top: 127px; width: 200px; font-size: 14px; letter-spacing: 1px;">
+            ________________________________________
+          </div>
+
+          <!-- Nome / Cargo abaixo do traço, só de referência -->
+          <div class="absolute text-center text-gray-700" style="left: 137px; top: 145px; width: 200px; font-size: 10px;">
+            <%= @escola.declaracao_assinatura_nome.presence || @escola.declaracao_assinatura_cargo.presence || "Diretor(a) Escolar" %>
+          </div>
+          <% if @escola.declaracao_assinatura_nome.present? %>
+            <div class="absolute text-center text-gray-400" style="left: 137px; top: 158px; width: 200px; font-size: 9px;">
+              <%= @escola.declaracao_assinatura_cargo.presence || "Diretor(a) Escolar" %>
+            </div>
+          <% end %>
+
+          <!-- Imagem da assinatura: arrastável -->
+          <img id="assinatura-drag" src="<%= @escola.declaracao_assinatura_imagem %>" alt="Assinatura"
+            class="absolute cursor-move select-none"
+            style="left: 157.5px; top: 60px; width: 160px; height: 65px; touch-action: none;"
+            draggable="false" />
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-3">
+        Posição atual: <span id="pos-display">x: 0pt, y: 0pt</span> (relativo à posição padrão)
+      </p>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+      <button type="button" id="btn-restaurar"
+        class="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium text-sm rounded-lg transition-colors">
+        Restaurar Padrão
+      </button>
+
+      <div class="flex items-center gap-3">
+        <span id="save-feedback" class="text-sm text-green-600 hidden">Posição salva!</span>
+        <button type="button" id="btn-salvar-posicao"
+          class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg shadow-sm transition-colors">
+          Salvar Posição
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initPosicionarAssinatura() {
+    const stage = document.getElementById('stage');
+    const img = document.getElementById('assinatura-drag');
+    if (!stage || !img || img.dataset.dragInit === '1') return;
+    img.dataset.dragInit = '1';
+
+    // Posição padrão (a mesma usada pelo Prawn quando não há deslocamento salvo)
+    const DEFAULT_LEFT = 157.5;
+    const DEFAULT_TOP = 60;
+    const IMG_WIDTH = 160;
+    const IMG_HEIGHT = 65;
+
+    // Deslocamento já salvo anteriormente (vindo do banco de dados)
+    const savedX = <%= @escola.declaracao_assinatura_pos_x.presence || 0 %>;
+    const savedY = <%= @escola.declaracao_assinatura_pos_y.presence || 0 %>;
+
+    const posDisplay = document.getElementById('pos-display');
+    const saveFeedback = document.getElementById('save-feedback');
+
+    let currentLeft = DEFAULT_LEFT + savedX;
+    // No PDF, y cresce para cima; na tela, top cresce para baixo — por isso inverte o sinal aqui.
+    let currentTop = DEFAULT_TOP - savedY;
+
+    function applyPosition(left, top) {
+      const stageRect = { width: stage.clientWidth, height: stage.clientHeight };
+      // Não deixa a assinatura sair completamente da área visível
+      left = Math.max(-IMG_WIDTH / 2, Math.min(left, stageRect.width - IMG_WIDTH / 2));
+      top = Math.max(-IMG_HEIGHT / 2, Math.min(top, stageRect.height - IMG_HEIGHT / 2));
+
+      currentLeft = left;
+      currentTop = top;
+      img.style.left = left + 'px';
+      img.style.top = top + 'px';
+
+      const dx = Math.round((left - DEFAULT_LEFT) * 10) / 10;
+      const dy = Math.round((DEFAULT_TOP - top) * 10) / 10;
+      posDisplay.textContent = 'x: ' + dx + 'pt, y: ' + dy + 'pt';
+    }
+
+    applyPosition(currentLeft, currentTop);
+
+    let dragging = false;
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    img.addEventListener('pointerdown', function (evt) {
+      dragging = true;
+      img.setPointerCapture(evt.pointerId);
+      startPointerX = evt.clientX;
+      startPointerY = evt.clientY;
+      startLeft = currentLeft;
+      startTop = currentTop;
+    });
+
+    img.addEventListener('pointermove', function (evt) {
+      if (!dragging) return;
+      const deltaX = evt.clientX - startPointerX;
+      const deltaY = evt.clientY - startPointerY;
+      applyPosition(startLeft + deltaX, startTop + deltaY);
+    });
+
+    img.addEventListener('pointerup', function () {
+      dragging = false;
+    });
+    img.addEventListener('pointercancel', function () {
+      dragging = false;
+    });
+
+    document.getElementById('btn-restaurar').addEventListener('click', function () {
+      applyPosition(DEFAULT_LEFT, DEFAULT_TOP);
+    });
+
+    document.getElementById('btn-salvar-posicao').addEventListener('click', function () {
+      const dx = Math.round((currentLeft - DEFAULT_LEFT) * 10) / 10;
+      const dy = Math.round((DEFAULT_TOP - currentTop) * 10) / 10;
+
+      const csrfTag = document.querySelector('meta[name="csrf-token"]');
+      const csrfToken = csrfTag ? csrfTag.content : null;
+
+      fetch("<%= salvar_posicao_assinatura_escola_declaracao_path(@escola) %>", {
+        method: 'PATCH',
+        headers: Object.assign(
+          { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          csrfToken ? { 'X-CSRF-Token': csrfToken } : {}
+        ),
+        body: JSON.stringify({
+          escola: {
+            declaracao_assinatura_pos_x: dx,
+            declaracao_assinatura_pos_y: dy
+          }
+        })
+      })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.ok) {
+            saveFeedback.classList.remove('hidden');
+            setTimeout(function () { saveFeedback.classList.add('hidden'); }, 2500);
+          } else {
+            alert('Não foi possível salvar a posição. Tente novamente.');
+          }
+        })
+        .catch(function () {
+          alert('Erro de conexão ao salvar a posição.');
+        });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initPosicionarAssinatura);
+  document.addEventListener('turbo:load', initPosicionarAssinatura);
+  if (document.readyState !== 'loading') {
+    initPosicionarAssinatura();
+  }
+</script>
